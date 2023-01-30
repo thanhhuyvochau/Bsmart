@@ -1,0 +1,31 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://103.173.255.39:3306/bsmart
+    username: root
+    password: OOiyw5qptYd6xXDl
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: 'true'
+    hibernate:
+      ddl-auto: update
+  servlet:
+    multipart:
+      enabled: 'true'
+      max-request-size: 10MB
+      file-size-threshold: 2KB
+      max-file-size: 5MB
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+
+
+
+

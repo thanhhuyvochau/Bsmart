@@ -1,0 +1,59 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://103.173.255.39:3306/bsmart
+    username: root
+    password: OOiyw5qptYd6xXDl
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: 'true'
+    hibernate:
+      ddl-auto: update
+  servlet:
+    multipart:
+      enabled: 'true'
+      max-request-size: 10MB
+      file-size-threshold: 2KB
+      max-file-size: 5MB
+
+
+minio:
+  bucket: requestformstudent
+  url: http://103.173.255.39:9000
+  access-key: ELrwUZXIzBLOlp5s
+  secret-key: gCHswS6KZKVohYsIiWKCnfvF5UWbBUWE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+# Keycloak settings
+keycloak:
+  realm: vuondau-application
+  resource: springboot-admin-client
+  app-client: vuondau
+  auth-server-url: http://vuondau-keycloak.amazingtech.vn/auth
+  credentials:
+    secret: 0Z8fWR17uURSeTWmKd4EdapEUF8ck9ku
+
+vnp_product_type: 250000
+vnp_PayUrl: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+vnp_HashSecret: NSZFYQQMCHFKNHOUKYIJLUQVZTCWBUZR
+vnp_Returnurl: http://localhost:8082/api/payment/payment-result
+vnp_TmnCode: 76E1ZE8I
+vnp_apiUrl: https://sandbox.vnpayment.vn/merchant_webapi/merchant.html
+
+# provinces
+provinces: https://provinces.open-api.vn/api/?depth=1
+
+# Return URL after payment
+payment-redirect: http://localhost:10000/processing
+
+
+
