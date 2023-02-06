@@ -3,7 +3,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/bsmart
+    url: jdbc:mysql://localhost:3306/bsmartdb
     username: root
     password: 123456
   jpa:
@@ -11,6 +11,7 @@ spring:
     show-sql: 'true'
     hibernate:
       ddl-auto: update
+
   servlet:
     multipart:
       enabled: 'true'
@@ -25,6 +26,11 @@ management:
   endpoint:
     health:
       show-details: always
+
+bezkoder:
+  app:
+    jwtExpirationMs: '86400000'
+    jwtSecret: bezKoderSecretKey
 
 
 
