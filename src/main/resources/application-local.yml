@@ -1,9 +1,9 @@
 server:
-  port: 8080
+  port: 8082
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://103.173.255.39:3306/bsmart
+    url: jdbc:mysql://103.173.255.39:3306/vuondau
     username: root
     password: OOiyw5qptYd6xXDl
   jpa:
@@ -11,20 +11,33 @@ spring:
     show-sql: 'true'
     hibernate:
       ddl-auto: update
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://vuondau-keycloak.amazingtech.vn/auth/realms/vuondau-application
   servlet:
     multipart:
       enabled: 'true'
       max-request-size: 10MB
       file-size-threshold: 2KB
       max-file-size: 5MB
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-  endpoint:
-    health:
-      show-details: always
+
+
+minio:
+  bucket: requestformstudent
+  url: http://103.173.255.39:9000
+  access-key: ELrwUZXIzBLOlp5s
+  secret-key: gCHswS6KZKVohYsIiWKCnfvF5UWbBUWE
+
+# Keycloak settings
+keycloak:
+  realm: vuondau-application
+  resource: springboot-admin-client
+  app-client: vuondau
+  auth-server-url: http://vuondau-keycloak.amazingtech.vn/auth
+  credentials:
+    secret: 0Z8fWR17uURSeTWmKd4EdapEUF8ck9ku
 
 
 
