@@ -1,3 +1,4 @@
+
 server:
   port: 8082
 spring:
@@ -78,8 +79,3 @@ mail:
   username: <login user to smtp server>
   password: <login password to smtp server>
   port: '587'
-
-
-
-
-
