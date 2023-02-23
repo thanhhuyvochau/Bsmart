@@ -1,3 +1,91 @@
+<<<<<<< HEAD
+server:
+  port: 8082
+spring:
+  profiles:
+    active: dev
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://vuondau-keycloak.amazingtech.vn/auth/realms/vuondau-application
+
+
+moodle:
+  url:
+    base: http://moodle-vuondau.amazingtech.vn/webservice/restful/server.php/
+    course:
+      get: core_course_get_courses
+      create: core_course_create_courses
+      delete: core_course_delete_courses
+      content:
+        get: core_course_get_contents
+      member:
+        enrol: enrol_manual_enrol_users
+        unenrol: enrol_manual_unenrol_users
+      grade:
+        get: gradereport_user_get_grade_items
+    resource:
+      get: core_course_get_contents
+    category:
+      get: core_course_get_categories
+      create: core_course_create_categories
+    role:
+      get: local_wsgetroles_get_roles
+    user:
+      get: core_user_get_users_by_field
+    assignments:
+      get: mod_assign_get_submissions
+    root: http://moodle-vuondau.amazingtech.vn
+  token: c60c932ed4585b4534362b56045e653d
+
+app:
+  firebase-configuration-file: /store/vuondau-450bf-firebase-adminsdk-al83z-5d94e1225d.json
+
+# Return URL after payment
+payment-redirect: http://localhost:10000/processing
+teaching-confirmation-url: localhost:15212/
+moodle-course-url: http://moodle-vuondau.amazingtech.vn/course/view.php?id=
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+
+# VNPay Config
+vnp_product_type: 250000
+vnp_PayUrl: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+vnp_HashSecret: NSZFYQQMCHFKNHOUKYIJLUQVZTCWBUZR
+vnp_Returnurl: http://localhost:8082/api/payment/payment-result
+vnp_TmnCode: 76E1ZE8I
+vnp_apiUrl: https://sandbox.vnpayment.vn/merchant_webapi/merchant.html
+
+# External API
+provinces: https://provinces.open-api.vn/api/?depth=1
+
+# Mail Config
+mail:
+  properties:
+    mail:
+      smtp:
+        starttls:
+          enable: 'true'
+        auth: 'true'
+  host: smtp.gmail.com
+  username: <login user to smtp server>
+  password: <login password to smtp server>
+  port: '587'
+
+
+
+
+
+=======
 spring:
   profiles:
     active: local
+>>>>>>> 1f025c1628f62d3263107e111e08818aee09fac1
