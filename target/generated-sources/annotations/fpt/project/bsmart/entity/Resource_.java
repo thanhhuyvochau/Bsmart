@@ -1,6 +1,5 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.common.EResourceType;
 import javax.annotation.Generated;
 import javax.persistence.metamodel.ListAttribute;
 import javax.persistence.metamodel.SingularAttribute;
@@ -15,7 +14,7 @@ public abstract class Resource_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static volatile ListAttribute<Resource, Course> course;
 	public static volatile ListAttribute<Resource, Pano> panos;
 	public static volatile SingularAttribute<Resource, Long> id;
-	public static volatile ListAttribute<Resource, Account> accounts;
+	public static volatile ListAttribute<Resource, User> accounts;
 	public static volatile SingularAttribute<Resource, String> url;
 	public static volatile SingularAttribute<Resource, EResourceType> resourceType;
 

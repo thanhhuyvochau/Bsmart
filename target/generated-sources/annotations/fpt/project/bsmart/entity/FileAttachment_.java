@@ -1,6 +1,5 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.common.EFileType;
 import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
@@ -13,7 +12,7 @@ public abstract class FileAttachment_ extends fpt.project.bsmart.entity.BaseEnti
 	public static volatile SingularAttribute<FileAttachment, Long> id;
 	public static volatile SingularAttribute<FileAttachment, String> url;
 	public static volatile SingularAttribute<FileAttachment, EFileType> fileType;
-	public static volatile SingularAttribute<FileAttachment, Account> account;
+	public static volatile SingularAttribute<FileAttachment, User> account;
 
 	public static final String NAME = "name";
 	public static final String ID = "id";

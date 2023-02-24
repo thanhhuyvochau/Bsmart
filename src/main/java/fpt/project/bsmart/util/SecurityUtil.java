@@ -1,6 +1,6 @@
 package fpt.project.bsmart.util;
 
-import fpt.project.bsmart.entity.Account;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.repository.AccountRepository;
 import org.springframework.http.HttpStatus;
@@ -22,13 +22,13 @@ public class SecurityUtil {
         this.accountRepository = accountRepository;
     }
 
-    public Account getCurrentUserThrowNotFoundException() {
+    public User getCurrentUserThrowNotFoundException() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt principal = (Jwt) authentication.getPrincipal();
         String username = principal.getClaimAsString("preferred_username");
-        Account currentAccount = Optional.ofNullable(accountRepository.findByUsername(username))
+        User currentUser = Optional.ofNullable(accountRepository.findByUsername(username))
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Student not found by username"));
-        return currentAccount;
+        return currentUser;
     }
 
     public static Optional<String> getCurrentUserName() {
@@ -49,7 +49,7 @@ public class SecurityUtil {
         return (Jwt) authentication.getPrincipal();
     }
 
-    public Account getCurrentUser() {
+    public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (Objects.equals(authentication.getPrincipal(), "anonymousUser")) {
             return null;

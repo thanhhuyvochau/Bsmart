@@ -2,8 +2,7 @@ package fpt.project.bsmart.service;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import fpt.project.bsmart.entity.Account;
-import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.moodle.request.CreateCategoryRequest;
 import fpt.project.bsmart.moodle.response.MoodleCategoryResponse;
@@ -22,7 +21,7 @@ public interface IMoodleService {
 
     Boolean synchronizedAllClassDetailFromMoodle() throws JsonProcessingException;
 
-    String enrolUserToCourseMoodle(Class clazz, Account account) throws JsonProcessingException;
+    String enrolUserToCourseMoodle(Class clazz, User user) throws JsonProcessingException;
 
     String unenrolUserToCourseMoodle(Class clazz) throws JsonProcessingException;
 

@@ -1,13 +1,13 @@
 package fpt.project.bsmart.entity.response;
 
-import fpt.project.bsmart.entity.common.EAccountRole;
+import java.util.List;
 
 public class RoleResponse {
     // NOTE về sau trả thêm cả user trong role.
     private Long id;
     private String name;
-    private EAccountRole code;
-
+    private String code;
+    private List<AccountResponse> accountResponseList;
 
     public Long getId() {
         return id;
@@ -25,11 +25,19 @@ public class RoleResponse {
         this.name = name;
     }
 
-    public EAccountRole getCode() {
+    public List<AccountResponse> getAccountResponseList() {
+        return accountResponseList;
+    }
+
+    public void setAccountResponseList(List<AccountResponse> accountResponseList) {
+        this.accountResponseList = accountResponseList;
+    }
+
+    public String getCode() {
         return code;
     }
 
-    public void setCode(EAccountRole code) {
+    public void setCode(String code) {
         this.code = code;
     }
 }

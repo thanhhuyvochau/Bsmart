@@ -10,7 +10,7 @@ public abstract class StudentAnswer_ extends fpt.project.bsmart.entity.BaseEntit
 
 	public static volatile SingularAttribute<StudentAnswer, String> openAnswer;
 	public static volatile SingularAttribute<StudentAnswer, Answer> answer;
-	public static volatile SingularAttribute<StudentAnswer, Account> student;
+	public static volatile SingularAttribute<StudentAnswer, User> student;
 	public static volatile SingularAttribute<StudentAnswer, SurveyQuestion> surveyQuestion;
 	public static volatile SingularAttribute<StudentAnswer, Long> id;
 

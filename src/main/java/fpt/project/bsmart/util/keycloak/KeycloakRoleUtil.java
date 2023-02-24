@@ -1,6 +1,6 @@
 package fpt.project.bsmart.util.keycloak;
 
-import fpt.project.bsmart.entity.Account;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.ClientResource;
@@ -53,11 +53,11 @@ public class KeycloakRoleUtil {
         return clientResource.roles().get(roleName).toRepresentation();
     }
 
-    public Boolean assignRoleToUser(String roleName, Account account) {
+    public Boolean assignRoleToUser(String roleName, User user) {
         try {
             RealmResource realmReSource = keycloakRealmUtil.getRealmReSource();
             ClientResource clientResource = keycloakClientUtil.getClientResource(realmReSource);
-            UserResource userResource = keycloakUserUtil.getUserResource(account);
+            UserResource userResource = keycloakUserUtil.getUserResource(user);
             ClientRepresentation clientRepresentation = clientResource.toRepresentation();
             RoleRepresentation roleRepresentation = findByName(roleName);
             userResource.roles().clientLevel(clientRepresentation.getId()).add(Collections.singletonList(roleRepresentation));

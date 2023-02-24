@@ -1,6 +1,5 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.common.ECandicateStatus;
 import javax.annotation.Generated;
 import javax.persistence.metamodel.ListAttribute;
 import javax.persistence.metamodel.SingularAttribute;
@@ -10,7 +9,7 @@ import javax.persistence.metamodel.StaticMetamodel;
 @StaticMetamodel(ClassTeacherCandicate.class)
 public abstract class ClassTeacherCandicate_ extends fpt.project.bsmart.entity.BaseEntity_ {
 
-	public static volatile SingularAttribute<ClassTeacherCandicate, Account> teacher;
+	public static volatile SingularAttribute<ClassTeacherCandicate, User> teacher;
 	public static volatile SingularAttribute<ClassTeacherCandicate, Long> id;
 	public static volatile SingularAttribute<ClassTeacherCandicate, Class> clazz;
 	public static volatile SingularAttribute<ClassTeacherCandicate, ECandicateStatus> status;

@@ -1,6 +1,5 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.common.EFeedbackAccountLogStatus;
 import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
@@ -12,7 +11,7 @@ public abstract class FeedbackAccountLog_ extends fpt.project.bsmart.entity.Base
 	public static volatile SingularAttribute<FeedbackAccountLog, AccountDetail> accountDetail;
 	public static volatile SingularAttribute<FeedbackAccountLog, Long> id;
 	public static volatile SingularAttribute<FeedbackAccountLog, String> content;
-	public static volatile SingularAttribute<FeedbackAccountLog, Account> account;
+	public static volatile SingularAttribute<FeedbackAccountLog, User> account;
 	public static volatile SingularAttribute<FeedbackAccountLog, EFeedbackAccountLogStatus> status;
 
 	public static final String ACCOUNT_DETAIL = "accountDetail";

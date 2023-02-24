@@ -1,6 +1,5 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.common.EConfirmStatus;
 import java.time.Instant;
 import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;

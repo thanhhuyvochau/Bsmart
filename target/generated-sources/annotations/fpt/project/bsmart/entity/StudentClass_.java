@@ -14,7 +14,7 @@ public abstract class StudentClass_ {
 	public static volatile SingularAttribute<StudentClass, Long> id;
 	public static volatile ListAttribute<StudentClass, Mark> marks;
 	public static volatile SingularAttribute<StudentClass, Instant> enrollDate;
-	public static volatile SingularAttribute<StudentClass, Account> account;
+	public static volatile SingularAttribute<StudentClass, User> account;
 	public static volatile SingularAttribute<StudentClass, Class> aClass;
 
 	public static final String IS_ENROLLED = "is_enrolled";

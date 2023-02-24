@@ -15,7 +15,7 @@ public abstract class Comment_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static volatile ListAttribute<Comment, Vote> votes;
 	public static volatile SingularAttribute<Comment, Long> id;
 	public static volatile SingularAttribute<Comment, String> content;
-	public static volatile SingularAttribute<Comment, Account> account;
+	public static volatile SingularAttribute<Comment, User> account;
 
 	public static final String QUESTION = "question";
 	public static final String SUB_COMMENTS = "subComments";

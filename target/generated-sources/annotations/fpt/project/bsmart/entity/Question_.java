@@ -12,7 +12,7 @@ public abstract class Question_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static volatile SingularAttribute<Question, Forum> forum;
 	public static volatile ListAttribute<Question, Comment> comments;
 	public static volatile SingularAttribute<Question, Boolean> isClosed;
-	public static volatile SingularAttribute<Question, Account> student;
+	public static volatile SingularAttribute<Question, User> student;
 	public static volatile ListAttribute<Question, Vote> votes;
 	public static volatile SingularAttribute<Question, Long> id;
 	public static volatile SingularAttribute<Question, String> title;

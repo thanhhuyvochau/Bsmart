@@ -2,10 +2,10 @@ package fpt.project.bsmart.entity.request;
 
 
 import java.time.Instant;
+import java.util.List;
 
 public class StudentRequest {
 
-    private String userName  ;
     private String firstName;
 
     private String lastName;
@@ -25,17 +25,9 @@ public class StudentRequest {
 
     private String schoolName;
 
-//    private List<Long> subjects ;
+    private List<Long> subjects ;
 
-//    private Long classLevel ;
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
+    private Long classLevel ;
 
     public String getFirstName() {
         return firstName;
@@ -111,19 +103,19 @@ public class StudentRequest {
         this.schoolName = schoolName;
     }
 
-//    public List<Long> getSubjects() {
-//        return subjects;
-//    }
-//
-//    public void setSubjects(List<Long> subjects) {
-//        this.subjects = subjects;
-//    }
-//
-//    public Long getClassLevel() {
-//        return classLevel;
-//    }
-//
-//    public void setClassLevel(Long classLevel) {
-//        this.classLevel = classLevel;
-//    }
+    public List<Long> getSubjects() {
+        return subjects;
+    }
+
+    public void setSubjects(List<Long> subjects) {
+        this.subjects = subjects;
+    }
+
+    public Long getClassLevel() {
+        return classLevel;
+    }
+
+    public void setClassLevel(Long classLevel) {
+        this.classLevel = classLevel;
+    }
 }

@@ -1,7 +1,7 @@
 package fpt.project.bsmart.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import fpt.project.bsmart.entity.Account;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.moodle.repository.MoodleUserRepository;
 import fpt.project.bsmart.moodle.response.MoodleUserResponse;
@@ -19,8 +19,8 @@ public class MoodleUtil {
     }
 
 
-    public MoodleUserResponse getMoodleUserIfExist(Account account) throws JsonProcessingException {
-        return getMoodleUserIfExistByKeycloakId(account.getKeycloakUserId());
+    public MoodleUserResponse getMoodleUserIfExist(User user) throws JsonProcessingException {
+        return getMoodleUserIfExistByKeycloakId(user.getKeycloakUserId());
     }
 
     public MoodleUserResponse getMoodleUserIfExistByKeycloakId(String keycloakId) throws JsonProcessingException {

@@ -16,7 +16,7 @@ public abstract class Transaction_ extends fpt.project.bsmart.entity.BaseEntity_
 	public static volatile SingularAttribute<Transaction, String> transactionNo;
 	public static volatile SingularAttribute<Transaction, Long> id;
 	public static volatile SingularAttribute<Transaction, String> vpnCommand;
-	public static volatile SingularAttribute<Transaction, Account> account;
+	public static volatile SingularAttribute<Transaction, User> account;
 	public static volatile SingularAttribute<Transaction, Boolean> isSuccess;
 	public static volatile SingularAttribute<Transaction, Instant> payDate;
 

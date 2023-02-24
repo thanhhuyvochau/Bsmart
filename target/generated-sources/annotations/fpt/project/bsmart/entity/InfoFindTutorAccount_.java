@@ -8,7 +8,7 @@ import javax.persistence.metamodel.StaticMetamodel;
 @StaticMetamodel(InfoFindTutorAccount.class)
 public abstract class InfoFindTutorAccount_ extends fpt.project.bsmart.entity.BaseEntity_ {
 
-	public static volatile SingularAttribute<InfoFindTutorAccount, Account> teacher;
+	public static volatile SingularAttribute<InfoFindTutorAccount, User> teacher;
 	public static volatile SingularAttribute<InfoFindTutorAccount, InfoFindTutorAccountKey> id;
 	public static volatile SingularAttribute<InfoFindTutorAccount, InfoFindTutor> infoFindTutor;
 

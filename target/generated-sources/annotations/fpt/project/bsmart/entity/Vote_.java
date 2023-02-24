@@ -12,7 +12,7 @@ public abstract class Vote_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static volatile SingularAttribute<Vote, Comment> comment;
 	public static volatile SingularAttribute<Vote, Long> id;
 	public static volatile SingularAttribute<Vote, Boolean> vote;
-	public static volatile SingularAttribute<Vote, Account> account;
+	public static volatile SingularAttribute<Vote, User> account;
 
 	public static final String QUESTION = "question";
 	public static final String COMMENT = "comment";

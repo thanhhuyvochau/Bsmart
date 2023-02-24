@@ -4,8 +4,8 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.AccountResponse;
+import fpt.project.bsmart.entity.response.StudentResponse;
 import fpt.project.bsmart.service.IAccountService;
-import fpt.project.bsmart.service.IAdminService;
 import fpt.project.bsmart.service.IRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -21,12 +21,10 @@ import java.io.IOException;
 @RequestMapping("api/accounts")
 public class AccountController {
     private final IAccountService accountService;
-    private final IAdminService adminService;
     private final IRoleService roleService;
 
-    public AccountController(IAccountService userService, IAdminService adminService, IRoleService roleService) {
+    public AccountController(IAccountService userService, IRoleService roleService) {
         this.accountService = userService;
-        this.adminService = adminService;
         this.roleService = roleService;
     }
 
@@ -50,13 +48,6 @@ public class AccountController {
     @PreAuthorize("hasAnyAuthority('MANAGER','ROOT')")
     public ResponseEntity<ApiResponse<ApiPage<AccountResponse>>> getTeacherAccounts(Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(accountService.getTeacherAccounts(pageable)));
-    }
-
-    @GetMapping("/staff")
-    @Operation(summary = "Lấy tất cả tài khoản nhân viên ")
-//    @PreAuthorize("hasAnyAuthority('MANAGER','ROOT')")
-    public ResponseEntity<ApiResponse<ApiPage<AccountResponse>>> getStaffAccounts(Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(accountService.getStaffAccounts(pageable)));
     }
 
     @Operation(summary = "Cập nhật ảnh dại diện cho tài khoản")
@@ -97,13 +88,6 @@ public class AccountController {
         return ResponseEntity.ok(ApiResponse.success(accountService.updateRoleAndActiveAccount(id, accountEditRequest)));
     }
 
-    @Operation(summary = "Chê duyệt tài khoản giáo viên")
-    @PutMapping("/{id}/active")
-    @PreAuthorize("hasAnyAuthority('MANAGER','ROOT')")
-    public ResponseEntity<ApiResponse<AccountResponse>> approveAccountTeacher(@PathVariable long id) {
-        return ResponseEntity.ok(ApiResponse.success(accountService.approveTeacherAccount(id)));
-    }
-
 
     @Operation(summary = "Cập nhật hồ sơ account")
     @PutMapping("/{id}/account/profile")
@@ -124,5 +108,17 @@ public class AccountController {
     @PreAuthorize("hasAuthority('ROOT')")
     public ResponseEntity<ApiResponse<AccountResponse>> createManagerOrAccountant(@RequestBody CreateAccountRequest request) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(accountService.createManagerOrAccountant(request)));
+    }
+
+    @Operation(summary = "Cập nhật hồ sơ học sinh")
+    @PutMapping("/{id}/account/profile")
+    public ResponseEntity<AccountResponse> editStudentProfile(@PathVariable long id, @RequestBody AccountEditRequest accountEditRequest) {
+        return ResponseEntity.ok(accountService.editStudentProfile(id, accountEditRequest));
+    }
+
+    @PostMapping("/student")
+    @Operation(summary = "Học sinh đăng ký tài khoản")
+    public ResponseEntity<ApiResponse<StudentResponse>> studentCreateAccount(@RequestBody StudentRequest studentRequest) {
+        return ResponseEntity.ok(ApiResponse.success(accountService.createStudentAccount(studentRequest)));
     }
 }

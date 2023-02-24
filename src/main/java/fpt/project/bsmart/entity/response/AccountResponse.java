@@ -1,6 +1,5 @@
 package fpt.project.bsmart.entity.response;
 
-import fpt.project.bsmart.entity.common.EAccountDetailStatus;
 import fpt.project.bsmart.entity.dto.RoleDto;
 
 import java.time.Instant;
@@ -13,100 +12,13 @@ public class AccountResponse {
     private String firstName;
     private String lastName;
     private String email;
-
     private Instant birthday;
-
     private String phoneNumber;
-
     private RoleDto role;
     private GenderResponse gender;
     private String avatar;
-
-
-    private VoiceResponse voice;
-
-
     private String currentAddress;
-
-
     private String idCard;
-
-
-    private String schoolName;
-
-
-    private String majors;
-
-    private EAccountDetailStatus status;
-
-
-    private String level;
-
-    public VoiceResponse getVoice() {
-        return voice;
-    }
-
-    public void setVoice(VoiceResponse voice) {
-        this.voice = voice;
-    }
-
-    public String getCurrentAddress() {
-        return currentAddress;
-    }
-
-    public void setCurrentAddress(String currentAddress) {
-        this.currentAddress = currentAddress;
-    }
-
-    public String getIdCard() {
-        return idCard;
-    }
-
-    public void setIdCard(String idCard) {
-        this.idCard = idCard;
-    }
-
-    public String getSchoolName() {
-        return schoolName;
-    }
-
-    public void setSchoolName(String schoolName) {
-        this.schoolName = schoolName;
-    }
-
-    public String getMajors() {
-        return majors;
-    }
-
-    public void setMajors(String majors) {
-        this.majors = majors;
-    }
-
-    public EAccountDetailStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(EAccountDetailStatus status) {
-        this.status = status;
-    }
-
-    public String getLevel() {
-        return level;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
-    }
-
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
     public Long getId() {
         return id;
     }
@@ -155,7 +67,6 @@ public class AccountResponse {
         this.email = email;
     }
 
-
     public Instant getBirthday() {
         return birthday;
     }
@@ -164,7 +75,6 @@ public class AccountResponse {
         this.birthday = birthday;
     }
 
-
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -172,7 +82,6 @@ public class AccountResponse {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-
 
     public RoleDto getRole() {
         return role;
@@ -188,5 +97,29 @@ public class AccountResponse {
 
     public void setGender(GenderResponse gender) {
         this.gender = gender;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getCurrentAddress() {
+        return currentAddress;
+    }
+
+    public void setCurrentAddress(String currentAddress) {
+        this.currentAddress = currentAddress;
+    }
+
+    public String getIdCard() {
+        return idCard;
+    }
+
+    public void setIdCard(String idCard) {
+        this.idCard = idCard;
     }
 }

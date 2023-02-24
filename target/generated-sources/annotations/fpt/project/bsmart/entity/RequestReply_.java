@@ -12,7 +12,7 @@ public abstract class RequestReply_ extends fpt.project.bsmart.entity.BaseEntity
 	public static volatile SingularAttribute<RequestReply, Long> id;
 	public static volatile SingularAttribute<RequestReply, String> content;
 	public static volatile SingularAttribute<RequestReply, String> url;
-	public static volatile SingularAttribute<RequestReply, Account> account;
+	public static volatile SingularAttribute<RequestReply, User> account;
 
 	public static final String REQUEST = "request";
 	public static final String ID = "id";

@@ -1,6 +1,5 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.common.ERequestStatus;
 import javax.annotation.Generated;
 import javax.persistence.metamodel.ListAttribute;
 import javax.persistence.metamodel.SingularAttribute;
@@ -16,7 +15,7 @@ public abstract class Request_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static volatile SingularAttribute<Request, Long> id;
 	public static volatile SingularAttribute<Request, String> title;
 	public static volatile SingularAttribute<Request, String> url;
-	public static volatile SingularAttribute<Request, Account> account;
+	public static volatile SingularAttribute<Request, User> account;
 	public static volatile SingularAttribute<Request, ERequestStatus> status;
 
 	public static final String REASON = "reason";

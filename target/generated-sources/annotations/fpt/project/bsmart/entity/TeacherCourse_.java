@@ -11,7 +11,7 @@ public abstract class TeacherCourse_ {
 	public static volatile SingularAttribute<TeacherCourse, Boolean> isAllowed;
 	public static volatile SingularAttribute<TeacherCourse, Course> course;
 	public static volatile SingularAttribute<TeacherCourse, TeacherCourseKey> id;
-	public static volatile SingularAttribute<TeacherCourse, Account> account;
+	public static volatile SingularAttribute<TeacherCourse, User> account;
 
 	public static final String IS_ALLOWED = "isAllowed";
 	public static final String COURSE = "course";

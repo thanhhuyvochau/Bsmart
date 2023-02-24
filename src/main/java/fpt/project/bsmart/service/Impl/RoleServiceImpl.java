@@ -1,9 +1,10 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.Account;
 import fpt.project.bsmart.entity.Role;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.request.RoleRequest;
+import fpt.project.bsmart.entity.response.AccountResponse;
 import fpt.project.bsmart.entity.response.RoleResponse;
 import fpt.project.bsmart.moodle.repository.MoodleRoleRepository;
 import fpt.project.bsmart.repository.AccountRepository;
@@ -35,14 +36,15 @@ public class RoleServiceImpl implements IRoleService {
         List<Role> roles = roleRepository.findAll();
 
         return roles.stream().map(role -> {
-            return convertRoleToRoleResponse(role);
+            RoleResponse roleResponse = convertRoleToRoleResponse(role);
+            return roleResponse;
         }).collect(Collectors.toList());
     }
 
     @Override
     public RoleResponse create(RoleRequest roleRequest) {
         List<Long> accountIds = roleRequest.getAccountIds();
-        List<Account> accounts = null;
+        List<User> accounts = null;
         if (!accountIds.isEmpty()) {
             accounts = accountRepository.findAllById(accountIds);
             if (accounts.size() < accountIds.size()) {
@@ -60,7 +62,7 @@ public class RoleServiceImpl implements IRoleService {
     public RoleResponse update(RoleRequest roleRequest, Long id) {
         List<Long> accountIds = roleRequest.getAccountIds();
         Role oldRole = roleRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Role not found by id:" + id));
-        List<Account> accounts = null;
+        List<User> accounts = null;
         if (!accountIds.isEmpty()) {
             accounts = accountRepository.findAllById(accountIds);
             if (accounts.size() < accountIds.size()) {
@@ -81,7 +83,12 @@ public class RoleServiceImpl implements IRoleService {
     }
 
     private RoleResponse convertRoleToRoleResponse(Role role) {
-        return ObjectUtil.copyProperties(role, new RoleResponse(), RoleResponse.class, true);
+        RoleResponse roleResponse = ObjectUtil.copyProperties(role, new RoleResponse(), RoleResponse.class, true);
+        List<AccountResponse> accountResponses = role.getAccounts().stream().map(account -> {
+            return ObjectUtil.copyProperties(account, new AccountResponse(), AccountResponse.class, true);
+        }).collect(Collectors.toList());
+        roleResponse.setAccountResponseList(accountResponses);
+        return roleResponse;
     }
 
 

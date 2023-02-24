@@ -1,7 +1,5 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.common.EClassStatus;
-import fpt.project.bsmart.entity.common.EClassType;
 import java.math.BigDecimal;
 import java.time.Instant;
 import javax.annotation.Generated;
@@ -34,7 +32,7 @@ public abstract class Class_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static volatile ListAttribute<Class, ClassTeacherCandicate> candicates;
 	public static volatile SingularAttribute<Class, Long> minNumberStudent;
 	public static volatile SingularAttribute<Class, Instant> startDate;
-	public static volatile SingularAttribute<Class, Account> account;
+	public static volatile SingularAttribute<Class, User> account;
 	public static volatile SingularAttribute<Class, EClassType> classType;
 	public static volatile SingularAttribute<Class, EClassStatus> status;
 

@@ -1,8 +1,7 @@
 package fpt.project.bsmart.repository;
 
-import fpt.project.bsmart.entity.Account;
 import fpt.project.bsmart.entity.Role;
-import fpt.project.bsmart.entity.common.EAccountDetailStatus;
+import fpt.project.bsmart.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,29 +12,25 @@ import java.util.List;
 
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account, Long> {
-//    Optional<Account> findByUsername(String username);
+public interface AccountRepository extends JpaRepository<User, Long> {
+//    Optional<User> findByUsername(String username);
 
-    Page<Account> findAccountByRole(Pageable pageable, Role role);
+    Page<User> findAccountByRole(Pageable pageable, Role role);
 
+    Page<User> findAccountByRoleAndIsActiveIsFalse(Pageable pageable, Role role);
 
-    Page<Account> findAccountByRoleIn(Pageable pageable, List<Role> role);
-    Page<Account> findAccountByRoleAndIsActiveIsFalse(Pageable pageable, Role role);
+    Page<User> findAccountByRoleAndIsActiveAndAccountDetailNotNull(Role role, Boolean active, Pageable pageable);
 
-    Page<Account> findAccountByRoleAndAccountDetailStatus(Role role, EAccountDetailStatus detailStatus ,Pageable pageable);
+    List<User> findAllByIdInAndIsActiveIsFalse(List<Long> ids);
 
-    List<Account> findAllByIdInAndIsActiveIsFalse(List<Long> ids);
-    List<Account> findAllByIdIn(List<Long> ids);
-    Page<Account> findAll(Specification<Account> spec, Pageable pageable);
+    Page<User> findAll(Specification<User> spec, Pageable pageable);
 
     Boolean existsAccountByUsername(String username);
 
 
 //    Boolean existsAccountByEmail(String email);
 
-    Account findByUsername(String username);
-    List<Account> findAllByMoodleUserIdIn(List<Integer> ids);
-
+    User findByUsername(String username);
 
 
 }

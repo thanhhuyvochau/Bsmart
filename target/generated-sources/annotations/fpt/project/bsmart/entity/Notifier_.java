@@ -10,7 +10,7 @@ import javax.persistence.metamodel.StaticMetamodel;
 public abstract class Notifier_ extends fpt.project.bsmart.entity.BaseEntity_ {
 
 	public static volatile SingularAttribute<Notifier, Notification> notification;
-	public static volatile SingularAttribute<Notifier, Account> notifier;
+	public static volatile SingularAttribute<Notifier, User> notifier;
 	public static volatile SingularAttribute<Notifier, Long> id;
 	public static volatile SingularAttribute<Notifier, Instant> viewAt;
 

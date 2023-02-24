@@ -1,6 +1,6 @@
 package fpt.project.bsmart.util.keycloak;
 
-import fpt.project.bsmart.entity.Account;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.util.ObjectUtil;
 import org.keycloak.admin.client.Keycloak;
@@ -29,9 +29,9 @@ public class KeycloakUserUtil {
         this.keycloakRealmUtil = keycloakRealmUtil;
     }
 
-    public Boolean create(Account account) {
-        CredentialRepresentation credentialRepresentation = preparePasswordRepresentation(account.getPassword());
-        UserRepresentation userRepresentation = prepareUserRepresentation(account, credentialRepresentation);
+    public Boolean create(User user) {
+        CredentialRepresentation credentialRepresentation = preparePasswordRepresentation(user.getPassword());
+        UserRepresentation userRepresentation = prepareUserRepresentation(user, credentialRepresentation);
         RealmResource realmResource = keycloak.realm(realm);
         Response response = realmResource.users().create(userRepresentation);
         if (response.getStatus() == HttpStatus.CREATED.value()) {
@@ -40,11 +40,11 @@ public class KeycloakUserUtil {
         return false;
     }
 
-    public Boolean update(Account account) {
-        CredentialRepresentation credentialRepresentation = preparePasswordRepresentation(account.getPassword());
+    public Boolean update(User user) {
+        CredentialRepresentation credentialRepresentation = preparePasswordRepresentation(user.getPassword());
         try {
-            UserRepresentation newUserRepresentation = prepareUserRepresentation(account, credentialRepresentation);
-            UserRepresentation userRepresentation = Optional.ofNullable(getUserRepresentation(account))
+            UserRepresentation newUserRepresentation = prepareUserRepresentation(user, credentialRepresentation);
+            UserRepresentation userRepresentation = Optional.ofNullable(getUserRepresentation(user))
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("User not found in Keycloak!!"));
             keycloak.realm(realm).users().get(userRepresentation.getId()).update(newUserRepresentation);
         } catch (Exception e) {
@@ -53,12 +53,12 @@ public class KeycloakUserUtil {
         return true;
     }
 
-    protected UserRepresentation getUserRepresentation(Account account) {
-        return keycloakRealmUtil.getRealmReSource().users().search(account.getUsername(), true).stream().findFirst().orElse(null);
+    protected UserRepresentation getUserRepresentation(User user) {
+        return keycloakRealmUtil.getRealmReSource().users().search(user.getUsername(), true).stream().findFirst().orElse(null);
     }
 
-    protected UserResource getUserResource(Account account) {
-        UserRepresentation userRepresentation = getUserRepresentation(account);
+    protected UserResource getUserResource(User user) {
+        UserRepresentation userRepresentation = getUserRepresentation(user);
         return keycloakRealmUtil.getRealmReSource().users().get(userRepresentation.getId());
     }
 
@@ -74,8 +74,8 @@ public class KeycloakUserUtil {
         return credentialRepresentation;
     }
 
-    private UserRepresentation prepareUserRepresentation(Account account, CredentialRepresentation credentialRepresentation) {
-        UserRepresentation newUser = ObjectUtil.copyProperties(account, new UserRepresentation(), UserRepresentation.class, true);
+    private UserRepresentation prepareUserRepresentation(User user, CredentialRepresentation credentialRepresentation) {
+        UserRepresentation newUser = ObjectUtil.copyProperties(user, new UserRepresentation(), UserRepresentation.class, true);
         newUser.setCredentials(Collections.singletonList(credentialRepresentation));
         newUser.setEnabled(true);
         return newUser;
