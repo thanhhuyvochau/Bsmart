@@ -2,12 +2,10 @@ package fpt.project.bsmart.entity;
 
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import fpt.project.bsmart.entity.common.EAccountRole;
+import fpt.project.bsmart.entity.common.EUserRole;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Objects;
 
 
 @Entity
@@ -22,14 +20,11 @@ public class Role {
 
     @Column(name = "code")
     @Enumerated(EnumType.STRING)
-    private EAccountRole code;
+    private EUserRole code;
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Account> accounts ;
+    @ManyToMany(mappedBy = "roles")
+    List<User> users;
 
-    @Column(name = "moodle_role_id")
-    private Long moodleRoleId;
     public Long getId() {
         return id;
     }
@@ -46,40 +41,19 @@ public class Role {
         this.name = name;
     }
 
-    public EAccountRole getCode() {
+    public EUserRole getCode() {
         return code;
     }
 
-    public void setCode(EAccountRole code) {
+    public void setCode(EUserRole code) {
         this.code = code;
     }
 
-    public List<Account> getAccounts() {
-        return accounts;
+    public List<User> getUsers() {
+        return users;
     }
 
-    public void setAccounts(List<Account> accounts) {
-        this.accounts = accounts;
-    }
-
-    public Long getMoodleRoleId() {
-        return moodleRoleId;
-    }
-
-    public void setMoodleRoleId(Long moodleRoleId) {
-        this.moodleRoleId = moodleRoleId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Role role = (Role) o;
-        return Objects.equals(name, role.name) && code == role.code;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, code);
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 }
