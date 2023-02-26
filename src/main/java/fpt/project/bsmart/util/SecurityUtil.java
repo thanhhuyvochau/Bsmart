@@ -2,7 +2,7 @@ package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.repository.AccountRepository;
+import fpt.project.bsmart.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,20 +15,21 @@ import java.util.Optional;
 @Component
 public class SecurityUtil {
 
-    private final AccountRepository accountRepository;
+    private final UserRepository userRepository;
 
 
-    public SecurityUtil(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
+    public SecurityUtil(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public User getCurrentUserThrowNotFoundException() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt principal = (Jwt) authentication.getPrincipal();
         String username = principal.getClaimAsString("preferred_username");
-        User currentUser = Optional.ofNullable(accountRepository.findByUsername(username))
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Student not found by username"));
-        return currentUser;
+//        User currentUser = Optional.ofNullable(accountRepository.findByUsername(username))
+//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Student not found by username"));
+//        return currentUser;
+        return null ;
     }
 
     public static Optional<String> getCurrentUserName() {
@@ -56,7 +57,8 @@ public class SecurityUtil {
         } else {
             Jwt principal = (Jwt) authentication.getPrincipal();
             String username = principal.getClaimAsString("preferred_username");
-            return accountRepository.findByUsername(username);
+//            return accountRepository.findByUsername(username);
+            return null ;
         }
     }
 }

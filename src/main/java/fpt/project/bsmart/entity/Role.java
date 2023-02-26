@@ -1,14 +1,15 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.common.EAccountRole;
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import fpt.project.bsmart.entity.common.EUserRole;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "role")
-public class Role {
+public class Role  extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,14 +19,13 @@ public class Role {
 
     @Column(name = "code")
     @Enumerated(EnumType.STRING)
-    private EAccountRole code;
+    private EUserRole code;
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<User> users;
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
+    List<User> users = new ArrayList<>( );
 
-    @Column(name = "moodle_role_id")
-    private Long moodleRoleId;
+
     public Long getId() {
         return id;
     }
@@ -42,27 +42,19 @@ public class Role {
         this.name = name;
     }
 
-    public EAccountRole getCode() {
+    public EUserRole getCode() {
         return code;
     }
 
-    public void setCode(EAccountRole code) {
+    public void setCode(EUserRole code) {
         this.code = code;
     }
 
-    public List<User> getAccounts() {
+    public List<User> getUsers() {
         return users;
     }
 
-    public void setAccounts(List<User> users) {
+    public void setUsers(List<User> users) {
         this.users = users;
-    }
-
-    public Long getMoodleRoleId() {
-        return moodleRoleId;
-    }
-
-    public void setMoodleRoleId(Long moodleRoleId) {
-        this.moodleRoleId = moodleRoleId;
     }
 }

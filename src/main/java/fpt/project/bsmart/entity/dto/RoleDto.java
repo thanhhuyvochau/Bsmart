@@ -1,7 +1,7 @@
 package fpt.project.bsmart.entity.dto;
 
 
-import fpt.project.bsmart.entity.common.EAccountRole;
+import fpt.project.bsmart.entity.common.EUserRole;
 
 public class RoleDto {
 
@@ -9,7 +9,7 @@ public class RoleDto {
     private String name;
 
 
-    private EAccountRole code;
+    private EUserRole code;
 
     public Long getId() {
         return id;
@@ -27,11 +27,11 @@ public class RoleDto {
         this.name = name;
     }
 
-    public EAccountRole getCode() {
+    public EUserRole getCode() {
         return code;
     }
 
-    public void setCode(EAccountRole code) {
+    public void setCode(EUserRole code) {
         this.code = code;
     }
 }
