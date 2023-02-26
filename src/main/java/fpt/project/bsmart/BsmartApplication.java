@@ -2,12 +2,14 @@ package fpt.project.bsmart;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.entity.Role;
-import fpt.project.bsmart.entity.common.EAccountRole;
+import fpt.project.bsmart.entity.common.EUserRole;
 import fpt.project.bsmart.repository.RoleRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+
 import org.springframework.context.event.EventListener;
+
 
 import java.text.ParseException;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 
 
 @SpringBootApplication
+
 public class BsmartApplication {
 
 
@@ -31,17 +34,14 @@ public class BsmartApplication {
     public static void main(String[] args) throws ParseException {
 
         SpringApplication.run(BsmartApplication.class, args);
-
-
     }
-
 
     @EventListener(ApplicationReadyEvent.class)
     public void intiDataRole() throws JsonProcessingException {
 
         List<Role> roles = roleRepository.findAll();
-        Map<EAccountRole, Role> roleMap = roles.stream().collect(Collectors.toMap(Role::getCode, Function.identity()));
-        for (EAccountRole value : EAccountRole.values()) {
+        Map<EUserRole, Role> roleMap = roles.stream().collect(Collectors.toMap(Role::getCode, Function.identity()));
+        for (EUserRole value : EUserRole.values()) {
             Role role = roleMap.get(value);
             Role newRole = new Role();
             newRole.setCode(value);

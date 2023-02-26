@@ -1,7 +1,7 @@
 package fpt.project.bsmart.entity.request;
 
 
-import fpt.project.bsmart.entity.common.EAccountRole;
+import fpt.project.bsmart.entity.common.EUserRole;
 import fpt.project.bsmart.entity.common.EGenderType;
 
 import java.io.Serializable;
@@ -16,7 +16,7 @@ public class AccountEditRequest implements Serializable {
 
     private String mail;
 
-    private EAccountRole role;
+    private EUserRole role;
 
     private boolean isActive;
     private EGenderType gender;
@@ -62,11 +62,11 @@ public class AccountEditRequest implements Serializable {
         this.phone = phone;
     }
 
-    public EAccountRole getRole() {
+    public EUserRole getRole() {
         return role;
     }
 
-    public void setRole(EAccountRole role) {
+    public void setRole(EUserRole role) {
         this.role = role;
     }
 
