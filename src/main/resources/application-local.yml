@@ -1,6 +1,9 @@
 server:
   port: 8082
 spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/bsmartdb
@@ -41,4 +44,6 @@ keycloak:
 
 
 
-
+#------------------Security Specific Properties-------
+app:
+  secret-key: J@!gt*K
