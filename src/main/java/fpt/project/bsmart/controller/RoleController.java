@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.RoleRequest;
 import fpt.project.bsmart.entity.response.RoleResponse;
-import fpt.project.bsmart.service.IMoodleService;
 import fpt.project.bsmart.service.IRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +15,11 @@ import java.util.List;
 @RequestMapping("/api/roles")
 public class RoleController {
     private final IRoleService roleService;
-    private final IMoodleService moodleService;
 
-    public RoleController(IRoleService roleService, IMoodleService moodleService) {
+    public RoleController(IRoleService roleService) {
         this.roleService = roleService;
-        this.moodleService = moodleService;
     }
+
 
     @Operation(description = "Lấy tất cả role")
     @GetMapping
@@ -47,10 +45,10 @@ public class RoleController {
         return ResponseEntity.ok(ApiResponse.success(roleService.delete(id)));
     }
 
-    @Operation(description = "Đồng bộ moodle role id qua vuondau role")
-    @GetMapping("/synchronize")
-    public ResponseEntity<ApiResponse<Boolean>> synchonizeRoleIdFromVuondau() throws JsonProcessingException {
-        return ResponseEntity.ok(ApiResponse.success(moodleService.synchronizedRoleFromMoodle()));
-    }
+//    @Operation(description = "Đồng bộ moodle role id qua vuondau role")
+//    @GetMapping("/synchronize")
+//    public ResponseEntity<ApiResponse<Boolean>> synchonizeRoleIdFromVuondau() throws JsonProcessingException {
+//        return ResponseEntity.ok(ApiResponse.success(moodleService.synchronizedRoleFromMoodle()));
+//    }
 
 }

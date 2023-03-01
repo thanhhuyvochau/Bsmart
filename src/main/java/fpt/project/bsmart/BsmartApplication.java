@@ -32,6 +32,18 @@ public class BsmartApplication {
 
         SpringApplication.run(BsmartApplication.class, args);
 
+        class Bike {
+            void  run (){
+                System.out.println("dang chay");
+            }
+        }
+        class Splender extends  Bike {
+            void run (){
+                System.out.println("chay an toan voi 60km");
+            }
+        }
+        Bike b = new Splender();// upcasting
+        b.run();
 
     }
 

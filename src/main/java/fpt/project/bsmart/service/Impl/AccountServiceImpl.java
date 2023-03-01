@@ -9,6 +9,7 @@ import fpt.project.bsmart.entity.dto.RoleDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.AccountResponse;
 import fpt.project.bsmart.entity.response.StudentResponse;
+
 import fpt.project.bsmart.repository.AccountRepository;
 import fpt.project.bsmart.repository.RoleRepository;
 import fpt.project.bsmart.service.IAccountService;
@@ -53,8 +54,7 @@ public class AccountServiceImpl implements IAccountService {
 
     private final AccountUtil accountUtil;
 
-
-    public AccountServiceImpl(AccountRepository accountRepository, MessageUtil messageUtil, RoleRepository roleRepository, Keycloak keycloak, PasswordEncoder passwordEncoder, KeycloakUserUtil keycloakUserUtil, KeycloakRoleUtil keycloakRoleUtil, MinioAdapter minioAdapter, String minioUrl, SecurityUtil securityUtil, AccountUtil accountUtil) {
+    public AccountServiceImpl(AccountRepository accountRepository, MessageUtil messageUtil, RoleRepository roleRepository, Keycloak keycloak, PasswordEncoder passwordEncoder, KeycloakUserUtil keycloakUserUtil, KeycloakRoleUtil keycloakRoleUtil, MinioAdapter minioAdapter, SecurityUtil securityUtil, AccountUtil accountUtil) {
         this.accountRepository = accountRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
@@ -63,10 +63,10 @@ public class AccountServiceImpl implements IAccountService {
         this.keycloakUserUtil = keycloakUserUtil;
         this.keycloakRoleUtil = keycloakRoleUtil;
         this.minioAdapter = minioAdapter;
-        this.minioUrl = minioUrl;
         this.securityUtil = securityUtil;
         this.accountUtil = accountUtil;
     }
+
 
     @Override
     public Optional<User> findByUsername(String username) {

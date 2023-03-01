@@ -110,11 +110,11 @@ public class AccountController {
         return ResponseEntity.ok(ApiResponse.success(accountService.createManagerOrAccountant(request)));
     }
 
-    @Operation(summary = "Cập nhật hồ sơ học sinh")
-    @PutMapping("/{id}/account/profile")
-    public ResponseEntity<AccountResponse> editStudentProfile(@PathVariable long id, @RequestBody AccountEditRequest accountEditRequest) {
-        return ResponseEntity.ok(accountService.editStudentProfile(id, accountEditRequest));
-    }
+//    @Operation(summary = "Cập nhật hồ sơ học sinh")
+//    @PutMapping("/{id}/account/profile")
+//    public ResponseEntity<AccountResponse> editStudentProfile(@PathVariable long id, @RequestBody AccountEditRequest accountEditRequest) {
+//        return ResponseEntity.ok(accountService.editStudentProfile(id, accountEditRequest));
+//    }
 
     @PostMapping("/student")
     @Operation(summary = "Học sinh đăng ký tài khoản")
