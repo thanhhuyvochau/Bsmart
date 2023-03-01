@@ -34,6 +34,9 @@ public class BsmartApplication {
     public static void main(String[] args) throws ParseException {
 
         SpringApplication.run(BsmartApplication.class, args);
+
+
+    
     }
 
     @EventListener(ApplicationReadyEvent.class)
