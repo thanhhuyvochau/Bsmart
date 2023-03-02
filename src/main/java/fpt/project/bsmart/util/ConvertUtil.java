@@ -1,7 +1,7 @@
 //package fpt.project.bsmart.util;
 //
 //import fpt.project.bsmart.entity.*;
-//import fpt.project.bsmart.entity.common.EGenderType;
+//import fpt.project.bsmart.entity.constant.EGenderType;
 //import fpt.project.bsmart.entity.dto.*;
 //import fpt.project.bsmart.entity.response.*;
 //import fpt.project.bsmart.moodle.repository.MoodleCourseRepository;

@@ -2,7 +2,7 @@ package fpt.project.bsmart.repository;
 
 
 import fpt.project.bsmart.entity.Role;
-import fpt.project.bsmart.entity.common.EUserRole;
+import fpt.project.bsmart.entity.constant.EUserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

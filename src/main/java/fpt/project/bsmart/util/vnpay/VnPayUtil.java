@@ -14,7 +14,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 @Component
-public class VnpConfig {
+public class VnPayUtil {
 
     @Value("${vnp_PayUrl}")
     private String vnp_PayUrl;

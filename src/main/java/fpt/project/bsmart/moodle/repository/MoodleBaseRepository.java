@@ -1,6 +1,6 @@
 package fpt.project.bsmart.moodle.repository;
 
-import fpt.project.bsmart.moodle.config.Caller;
+import fpt.project.bsmart.moodle.config.MoodleCaller;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -45,10 +45,10 @@ public class MoodleBaseRepository {
     @Value("${moodle.url.root}")
     private String rootUrl;
 
-    protected final Caller caller;
+    protected final MoodleCaller moodleCaller;
 
-    public MoodleBaseRepository(Caller caller) {
-        this.caller = caller;
+    public MoodleBaseRepository(MoodleCaller moodleCaller) {
+        this.moodleCaller = moodleCaller;
     }
 
     public String getBaseUrl() {
@@ -59,8 +59,8 @@ public class MoodleBaseRepository {
         this.baseUrl = baseUrl;
     }
 
-    public Caller getCaller() {
-        return caller;
+    public MoodleCaller getCaller() {
+        return moodleCaller;
     }
 
     public String getGetResourceUrl() {

@@ -2,7 +2,7 @@ package fpt.project.bsmart;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.entity.Role;
-import fpt.project.bsmart.entity.common.EUserRole;
+import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.repository.RoleRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

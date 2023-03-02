@@ -1,6 +1,6 @@
 package fpt.project.bsmart.entity.request;
 
-import fpt.project.bsmart.entity.common.EUserRole;
+import fpt.project.bsmart.entity.constant.EUserRole;
 
 import java.time.Instant;
 

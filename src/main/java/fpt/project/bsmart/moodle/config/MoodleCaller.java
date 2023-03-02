@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
-
+/**Do Moodle không phải là RestFul nên chỉ cần 2 method để call qua đó */
 @Component
-public class Caller {
+public class MoodleCaller {
 
 
     private final RestTemplate restTemplate;
@@ -23,7 +23,7 @@ public class Caller {
     @Value("${moodle.token}")
     private String token;
 
-    public Caller(RestTemplate restTemplate) {
+    public MoodleCaller(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 

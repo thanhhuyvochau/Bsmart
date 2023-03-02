@@ -1,5 +1,5 @@
 # entity: UPPERCASE(class name)
-# code: UPPERCASE (class name + action + status)
+# code: UPPERCASE (classname_action_status)
 config:
   notify:
     - title: Thông báo thanh toán

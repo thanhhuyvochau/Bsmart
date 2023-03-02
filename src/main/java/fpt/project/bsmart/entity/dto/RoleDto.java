@@ -1,7 +1,7 @@
 package fpt.project.bsmart.entity.dto;
 
 
-import fpt.project.bsmart.entity.common.EUserRole;
+import fpt.project.bsmart.entity.constant.EUserRole;
 
 public class RoleDto {
 

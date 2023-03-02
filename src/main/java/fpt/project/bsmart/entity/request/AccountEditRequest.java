@@ -1,8 +1,8 @@
 package fpt.project.bsmart.entity.request;
 
 
-import fpt.project.bsmart.entity.common.EUserRole;
-import fpt.project.bsmart.entity.common.EGenderType;
+import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.constant.EGenderType;
 
 import java.io.Serializable;
 import java.time.Instant;

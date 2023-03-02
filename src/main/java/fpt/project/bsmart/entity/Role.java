@@ -1,7 +1,7 @@
 package fpt.project.bsmart.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import fpt.project.bsmart.entity.common.EUserRole;
+import fpt.project.bsmart.entity.constant.EUserRole;
 
 import javax.persistence.*;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 package fpt.project.bsmart.util;
 
-import fpt.project.bsmart.entity.common.EGenderType;
+import fpt.project.bsmart.entity.constant.EGenderType;
 import fpt.project.bsmart.entity.response.GenderResponse;
 
 import java.util.ArrayList;
