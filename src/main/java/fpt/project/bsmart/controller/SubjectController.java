@@ -43,8 +43,6 @@ public class SubjectController {
 
     @DeleteMapping("/{id}")
     public  ResponseEntity<ApiResponse<Long>> deleteSubject(@PathVariable Long id){
-
         return ResponseEntity.ok(ApiResponse.success(iSubjectService.deleteSubject(id)));
-
     }
 }
