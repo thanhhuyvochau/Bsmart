@@ -9,8 +9,13 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://vuondau-keycloak.amazingtech.vn/auth/realms/vuondau-application
-
-
+  config:
+    import: optional:file:.env[.properties]
+  messages:
+    always-use-message-format: false
+    basename: i18n/messages
+    encoding: UTF-8
+    use-code-as-default-message: false
 moodle:
   url:
     base: http://moodle-vuondau.amazingtech.vn/webservice/restful/server.php/
