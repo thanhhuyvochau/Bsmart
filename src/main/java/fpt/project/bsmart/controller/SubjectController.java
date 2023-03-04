@@ -1,7 +1,7 @@
 package fpt.project.bsmart.controller;
 
-import fpt.project.bsmart.entity.Subject;
-import fpt.project.bsmart.entity.dto.SubjectDTO;
+import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.request.subject.SubjectRequest;
 import fpt.project.bsmart.service.ISubjectService;
 import org.springframework.http.ResponseEntity;
@@ -14,35 +14,37 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/subjects")
 public class SubjectController {
-    private final ISubjectService subjectService;
+    private final ISubjectService iSubjectService;
 
-    public SubjectController(ISubjectService subjectService){
-        this.subjectService = subjectService;
+    public SubjectController(ISubjectService iSubjectService) {
+        this.iSubjectService = iSubjectService;
     }
 
+
     @GetMapping
-    public ResponseEntity<List<SubjectDTO>> GetAll(){
-        return ResponseEntity.ok(subjectService.FindAll());
+    public ResponseEntity<ApiResponse<List<SubjectDto>>> getAllSubject(){
+        return ResponseEntity.ok(ApiResponse.success(iSubjectService.getAllSubject()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SubjectDTO> GetSubjectById(@PathVariable Long id){
-        return ResponseEntity.ok(subjectService.FindSubjectById(id));
+    public ResponseEntity<ApiResponse<SubjectDto>> getSubject(@PathVariable Long id){
+        return ResponseEntity.ok(ApiResponse.success(iSubjectService.getSubject(id)));
     }
 
     @PostMapping
-    public ResponseEntity<Long> AddNewSubject(@Valid @RequestBody SubjectRequest subjectRequest){
-        return ResponseEntity.ok(subjectService.AddSubject(subjectRequest));
+    public ResponseEntity<ApiResponse<Long>> createSubject(@Valid @RequestBody SubjectRequest subjectRequest){
+        return ResponseEntity.ok(ApiResponse.success(iSubjectService.createSubject(subjectRequest)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Long> UpdateSubject(@PathVariable Long id, @Valid @RequestBody SubjectRequest subjectRequest){
-        return ResponseEntity.ok(subjectService.UpdateSubject(id, subjectRequest));
+    public  ResponseEntity<ApiResponse<Long>> updateSubject(@PathVariable Long id, @Valid @RequestBody SubjectRequest subjectRequest){
+        return ResponseEntity.ok(ApiResponse.success(iSubjectService.updateSubject(id, subjectRequest)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> DeleteSubject(@PathVariable Long id){
-        subjectService.DeleteSubject(id);
-        return ResponseEntity.noContent().build();
+    public  ResponseEntity<ApiResponse<Long>> deleteSubject(@PathVariable Long id){
+
+        return ResponseEntity.ok(ApiResponse.success(iSubjectService.deleteSubject(id)));
+
     }
 }

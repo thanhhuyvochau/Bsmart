@@ -1,6 +1,6 @@
 package fpt.project.bsmart.entity.dto;
 
-public class SubjectDTO {
+public class SubjectDto {
     private Long id;
     private String code;
     private String name;

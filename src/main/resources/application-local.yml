@@ -1,6 +1,13 @@
 server:
   port: 8082
 spring:
+#  config:
+#    import: optional:file:.env[.properties]
+#  messages:
+#    always-use-message-format: false
+#    basename: i18n/messages
+#    encoding: UTF-8
+#    use-code-as-default-message: false
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
