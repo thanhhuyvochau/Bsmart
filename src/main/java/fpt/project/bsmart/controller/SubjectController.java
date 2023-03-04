@@ -1,15 +1,14 @@
 package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.Subject;
+import fpt.project.bsmart.entity.dto.SubjectDTO;
 import fpt.project.bsmart.entity.request.subject.SubjectRequest;
 import fpt.project.bsmart.service.ISubjectService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+
 import java.util.List;
 
 @RestController
@@ -22,18 +21,13 @@ public class SubjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Subject>> GetAll(){
+    public ResponseEntity<List<SubjectDTO>> GetAll(){
         return ResponseEntity.ok(subjectService.FindAll());
     }
 
-    @GetMapping("/id/{id}")
-    public ResponseEntity<Subject> GetSubjectById(@PathVariable @NotNull @Min(0) Long id){
+    @GetMapping("/{id}")
+    public ResponseEntity<SubjectDTO> GetSubjectById(@PathVariable Long id){
         return ResponseEntity.ok(subjectService.FindSubjectById(id));
-    }
-
-    @GetMapping("/name/{name}")
-    public ResponseEntity<Subject> GetSubjectByName(@PathVariable @NotNull @NotBlank String name){
-        return ResponseEntity.ok(subjectService.FindSubjectByName(name));
     }
 
     @PostMapping
@@ -42,12 +36,12 @@ public class SubjectController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Long> UpdateSubject(@PathVariable @NotNull @Min(0) Long id, @Valid @RequestBody SubjectRequest subjectRequest){
+    public ResponseEntity<Long> UpdateSubject(@PathVariable Long id, @Valid @RequestBody SubjectRequest subjectRequest){
         return ResponseEntity.ok(subjectService.UpdateSubject(id, subjectRequest));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> DeleteSubject(@PathVariable @NotNull @Min(0) Long id){
+    public ResponseEntity<Void> DeleteSubject(@PathVariable Long id){
         subjectService.DeleteSubject(id);
         return ResponseEntity.noContent().build();
     }

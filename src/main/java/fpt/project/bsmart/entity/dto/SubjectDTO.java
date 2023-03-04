@@ -1,20 +1,18 @@
-package fpt.project.bsmart.entity.request.subject;
+package fpt.project.bsmart.entity.dto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-
-public class SubjectRequest {
-
+public class SubjectDTO {
+    private Long id;
     private String code;
-
-    @NotNull
-    @NotBlank
     private String name;
-
-    @NotNull
-    @Positive
     private Long categoryId;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getCode() {
         return code;
@@ -39,5 +37,4 @@ public class SubjectRequest {
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
     }
-
 }
