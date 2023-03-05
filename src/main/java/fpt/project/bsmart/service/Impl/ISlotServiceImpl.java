@@ -11,18 +11,18 @@ import org.springframework.stereotype.Service;
 
 import fpt.project.bsmart.entity.dto.SlotDto;
 import fpt.project.bsmart.repository.SlotRepository;
-import fpt.project.bsmart.service.SlotService;
+import fpt.project.bsmart.service.ISlotService;
 
 import javax.transaction.Transactional;
 
 @Service
 @Transactional
-public class SlotServiceImpl implements SlotService {
+public class ISlotServiceImpl implements ISlotService {
 
 
     private final SlotRepository slotRepository;
 
-    public SlotServiceImpl(SlotRepository slotRepository) {
+    public ISlotServiceImpl(SlotRepository slotRepository) {
         this.slotRepository = slotRepository;
     }
 

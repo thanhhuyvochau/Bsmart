@@ -4,7 +4,7 @@ import fpt.project.bsmart.entity.dto.SlotDto;
 
 import java.util.List;
 
-public interface SlotService {
+public interface ISlotService {
     SlotDto createSlot(SlotDto slot);
 
     SlotDto getSlotById(Long id);
