@@ -1,7 +1,9 @@
 package fpt.project.bsmart.util;
 
 
+import fpt.project.bsmart.entity.Slot;
 import fpt.project.bsmart.entity.Subject;
+import fpt.project.bsmart.entity.dto.SlotDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,27 @@ public class ConvertUtil {
             subjectDto.setCategoryId(subject.getCategory().getId());
         }
         return subjectDto;
+    }
+
+
+    public static SlotDto convertSlotToSlotDto(Slot slot) {
+        SlotDto dto = new SlotDto();
+        dto.setId(slot.getId());
+        dto.setName(slot.getName());
+        dto.setCode(slot.getCode());
+        dto.setStartTime(slot.getStartTime());
+        dto.setEndTime(slot.getEndTime());
+        return dto;
+    }
+
+    public static Slot convertSlotDtoToSlot(SlotDto dto) {
+        Slot entity = new Slot();
+        entity.setId(dto.getId());
+        entity.setName(dto.getName());
+        entity.setCode(dto.getCode());
+        entity.setStartTime(dto.getStartTime());
+        entity.setEndTime(dto.getEndTime());
+        return entity;
     }
 
 

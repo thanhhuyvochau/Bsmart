@@ -1,31 +1,31 @@
-package fpt.project.bsmart.entity;
+package fpt.project.bsmart.entity.dto;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Entity
-@Table(name = "slot")
-public class Slot {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class SlotDto {
+    @Schema(description = "Id của slot", readOnly = true)
     private Long id;
-
-    @Column(name = "name")
+    @Schema(description = "Tên slot")
+    @NotNull
     private String name;
-
-    @Column(name = "code")
+    @Schema(description = "Code slot")
+    @NotNull
     private String code;
-
-    @Column(name = "start_time")
+    @Schema(description = "Thời gian bắt đầu của slot")
+    @NotNull
     private LocalTime startTime;
-
-    @Column(name = "end_time")
+    @Schema(description = "Thời gian kết thúc của slot")
+    @NotNull
     private LocalTime endTime;
 
     public Long getId() {
         return id;
     }
-
 
     public void setId(Long id) {
         this.id = id;
@@ -37,6 +37,14 @@ public class Slot {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public LocalTime getStartTime() {
@@ -53,13 +61,5 @@ public class Slot {
 
     public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 }
