@@ -41,7 +41,7 @@ public class CourseServiceImpl implements ICourseService {
         course.setDescription(createCourseRequest.getDescription());
         course.setLevel(createCourseRequest.getLevel());
         Category category = categoryRepository.findById(createCourseRequest.getCategoryId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + subjectRequest.getCategoryId()));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createCourseRequest.getCategoryId()));
         List<Subject> subjects = category.getSubjects();
         subjects.forEach(subject -> {
             if (subject.getId().equals(createCourseRequest.getSubjectId())) {
