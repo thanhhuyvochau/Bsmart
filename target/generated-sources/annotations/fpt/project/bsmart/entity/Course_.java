@@ -16,6 +16,7 @@ public abstract class Course_ {
 	public static volatile SingularAttribute<Course, ECourseLevel> level;
 	public static volatile SingularAttribute<Course, Subject> subject;
 	public static volatile SingularAttribute<Course, Double> referenceDiscount;
+	public static volatile ListAttribute<Course, Class> classes;
 	public static volatile SingularAttribute<Course, String> name;
 	public static volatile SingularAttribute<Course, String> description;
 	public static volatile SingularAttribute<Course, Long> id;
@@ -28,6 +29,7 @@ public abstract class Course_ {
 	public static final String LEVEL = "level";
 	public static final String SUBJECT = "subject";
 	public static final String REFERENCE_DISCOUNT = "referenceDiscount";
+	public static final String CLASSES = "classes";
 	public static final String NAME = "name";
 	public static final String DESCRIPTION = "description";
 	public static final String ID = "id";
