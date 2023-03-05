@@ -1,6 +1,8 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.constant.EClassLevel;
+
+import fpt.project.bsmart.entity.constant.ECourseLevel;
+import fpt.project.bsmart.entity.constant.ETypeLearn;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,13 +18,17 @@ public class Course {
     private String name;
     @Column(name = "code")
     private String code;
+
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private ETypeLearn type;
     @Column(name = "description")
     private String description;
     @Column(name = "reference_discount")
     private Double referenceDiscount = 0.0;
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
-    private EClassLevel level;
+    private ECourseLevel level;
     @ManyToOne
     @JoinColumn(name = "subject_id")
     private Subject subject;
@@ -57,6 +63,14 @@ public class Course {
         this.code = code;
     }
 
+    public ETypeLearn getType() {
+        return type;
+    }
+
+    public void setType(ETypeLearn type) {
+        this.type = type;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -73,11 +87,11 @@ public class Course {
         this.referenceDiscount = referenceDiscount;
     }
 
-    public EClassLevel getLevel() {
+    public ECourseLevel getLevel() {
         return level;
     }
 
-    public void setLevel(EClassLevel level) {
+    public void setLevel(ECourseLevel level) {
         this.level = level;
     }
 
