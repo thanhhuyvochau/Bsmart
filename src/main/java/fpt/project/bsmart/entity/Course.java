@@ -25,11 +25,6 @@ public class Course {
     @Column(name = "status")
     private boolean status;
 
-
-    @Column(name = "type")
-    @Enumerated(EnumType.STRING)
-    private ETypeLearn type;
-
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
     private ECourseLevel level;
@@ -93,13 +88,7 @@ public class Course {
         this.status = status;
     }
 
-    public ETypeLearn getType() {
-        return type;
-    }
 
-    public void setType(ETypeLearn type) {
-        this.type = type;
-    }
 
     public ECourseLevel getLevel() {
         return level;

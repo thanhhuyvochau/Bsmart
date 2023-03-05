@@ -4,7 +4,7 @@ import fpt.project.bsmart.entity.Category;
 import fpt.project.bsmart.entity.Subject;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.dto.SubjectDto;
-import fpt.project.bsmart.entity.request.subject.SubjectRequest;
+import fpt.project.bsmart.entity.request.SubjectRequest;
 import fpt.project.bsmart.repository.CategoryRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
 import fpt.project.bsmart.service.ISubjectService;

@@ -1,9 +1,10 @@
 package fpt.project.bsmart.service;
 
 
-import fpt.project.bsmart.entity.request.subject.SubjectRequest;
+import fpt.project.bsmart.entity.request.CreateCourseRequest;
+import fpt.project.bsmart.entity.request.SubjectRequest;
 
 public interface ICourseService {
 
-    Long mentorCreateCourse(SubjectRequest subjectRequest);
+    Long mentorCreateCourse(CreateCourseRequest createCourseRequest);
 }

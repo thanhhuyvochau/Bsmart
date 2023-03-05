@@ -1,7 +1,7 @@
 package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.dto.SubjectDto;
-import fpt.project.bsmart.entity.request.subject.SubjectRequest;
+import fpt.project.bsmart.entity.request.SubjectRequest;
 
 import java.util.List;
 
