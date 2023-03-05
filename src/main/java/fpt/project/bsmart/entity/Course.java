@@ -1,6 +1,8 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.constant.EClassLevel;
+
+import fpt.project.bsmart.entity.constant.ECourseLevel;
+import fpt.project.bsmart.entity.constant.ETypeLearn;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,22 +18,38 @@ public class Course {
     private String name;
     @Column(name = "code")
     private String code;
+
     @Column(name = "description")
     private String description;
-    @Column(name = "reference_discount")
-    private Double referenceDiscount = 0.0;
+
+    @Column(name = "status")
+    private boolean status;
+
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
-    private EClassLevel level;
+    private ECourseLevel level;
+
+    @Column(name = "reference_discount")
+    private Double referenceDiscount = 0.0;
+
     @ManyToOne
     @JoinColumn(name = "subject_id")
     private Subject subject;
 
-    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Section> sections = new ArrayList<>();
     @ManyToOne
     @JoinColumn(name = "mentor_id")
     private User mentor;
+
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_id", referencedColumnName = "id")
+    private Image image;
+
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Section> sections = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course")
+    private List<Class> classes = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -65,20 +83,30 @@ public class Course {
         this.description = description;
     }
 
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+
+
+    public ECourseLevel getLevel() {
+        return level;
+    }
+
+    public void setLevel(ECourseLevel level) {
+        this.level = level;
+    }
+
     public Double getReferenceDiscount() {
         return referenceDiscount;
     }
 
     public void setReferenceDiscount(Double referenceDiscount) {
         this.referenceDiscount = referenceDiscount;
-    }
-
-    public EClassLevel getLevel() {
-        return level;
-    }
-
-    public void setLevel(EClassLevel level) {
-        this.level = level;
     }
 
     public Subject getSubject() {
@@ -89,6 +117,22 @@ public class Course {
         this.subject = subject;
     }
 
+    public User getMentor() {
+        return mentor;
+    }
+
+    public void setMentor(User mentor) {
+        this.mentor = mentor;
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
     public List<Section> getSections() {
         return sections;
     }
@@ -97,11 +141,11 @@ public class Course {
         this.sections = sections;
     }
 
-    public User getMentor() {
-        return mentor;
+    public List<Class> getClasses() {
+        return classes;
     }
 
-    public void setMentor(User mentor) {
-        this.mentor = mentor;
+    public void setClasses(List<Class> classes) {
+        this.classes = classes;
     }
 }

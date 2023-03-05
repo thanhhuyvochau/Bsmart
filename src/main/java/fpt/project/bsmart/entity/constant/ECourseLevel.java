@@ -1,11 +1,11 @@
 package fpt.project.bsmart.entity.constant;
 
-public enum EClassLevel {
-    FOUNDATION("Căn bản"), ELEMENTARY("Sơ cấp"), INTERMEDIATE("Trung cấp"), ADVANCED("Nâng cao");
+public enum ECourseLevel {
+    BEGINNER("Căn bản"), INTERMEDIATE("Sơ cấp"), ADVANCED("Trung cấp"), EXPERT("Nâng cao");
 
     private final String name;
 
-    EClassLevel(String name) {
+    ECourseLevel(String name) {
         this.name = name;
     }
 
