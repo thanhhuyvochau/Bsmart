@@ -19,6 +19,7 @@ public class AccountResponse {
     private String avatar;
     private String currentAddress;
     private String idCard;
+
     public Long getId() {
         return id;
     }

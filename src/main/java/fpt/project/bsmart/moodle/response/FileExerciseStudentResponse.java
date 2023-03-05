@@ -3,7 +3,7 @@ package fpt.project.bsmart.moodle.response;
 public class FileExerciseStudentResponse {
 
 
-    private Long filename ;
+    private Long filename;
 
     private String fileurl;
 

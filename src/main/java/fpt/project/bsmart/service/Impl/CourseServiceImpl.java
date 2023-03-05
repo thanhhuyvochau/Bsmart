@@ -9,7 +9,6 @@ import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.repository.CategoryRepository;
 import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.service.ICourseService;
-
 import fpt.project.bsmart.util.MessageUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

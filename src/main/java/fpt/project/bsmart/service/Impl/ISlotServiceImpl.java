@@ -1,28 +1,26 @@
 package fpt.project.bsmart.service.Impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import fpt.project.bsmart.entity.Slot;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.dto.SlotDto;
+import fpt.project.bsmart.repository.SlotRepository;
+import fpt.project.bsmart.service.ISlotService;
 import fpt.project.bsmart.util.ConvertUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import fpt.project.bsmart.entity.dto.SlotDto;
-import fpt.project.bsmart.repository.SlotRepository;
-import fpt.project.bsmart.service.SlotService;
-
 import javax.transaction.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class SlotServiceImpl implements SlotService {
+public class ISlotServiceImpl implements ISlotService {
 
 
     private final SlotRepository slotRepository;
 
-    public SlotServiceImpl(SlotRepository slotRepository) {
+    public ISlotServiceImpl(SlotRepository slotRepository) {
         this.slotRepository = slotRepository;
     }
 

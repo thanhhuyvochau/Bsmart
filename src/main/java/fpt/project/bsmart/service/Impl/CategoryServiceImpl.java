@@ -6,7 +6,6 @@ import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.request.category.CategoryRequest;
 import fpt.project.bsmart.repository.CategoryRepository;
 import fpt.project.bsmart.service.ICategoryService;
-import fpt.project.bsmart.util.Constants;
 import fpt.project.bsmart.util.MessageUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,8 +13,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static fpt.project.bsmart.util.ConvertUtil.convertCategoryToCategoryDto;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
+import static fpt.project.bsmart.util.ConvertUtil.convertCategoryToCategoryDto;
 
 @Service
 public class CategoryServiceImpl implements ICategoryService {
@@ -23,12 +22,12 @@ public class CategoryServiceImpl implements ICategoryService {
     private final CategoryRepository categoryRepository;
     private final MessageUtil messageUtil;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil){
+    public CategoryServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil) {
         this.categoryRepository = categoryRepository;
         this.messageUtil = messageUtil;
     }
 
-    private Category findById(Long id){
+    private Category findById(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + id));
     }
@@ -43,7 +42,7 @@ public class CategoryServiceImpl implements ICategoryService {
     public List<CategoryDto> getAllCategories() {
         List<Category> categoryList = categoryRepository.findAll();
         List<CategoryDto> categoryDtoList = new ArrayList<>();
-        for(Category category : categoryList){
+        for (Category category : categoryList) {
             categoryDtoList.add(convertCategoryToCategoryDto(category));
         }
         return categoryDtoList;

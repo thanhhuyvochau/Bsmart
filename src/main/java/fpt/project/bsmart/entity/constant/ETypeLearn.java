@@ -1,7 +1,7 @@
 package fpt.project.bsmart.entity.constant;
 
 public enum ETypeLearn {
-    DIRECT("Trực tiếp"), ONLINE("trực tuyến") ;
+    DIRECT("Trực tiếp"), ONLINE("trực tuyến");
 
     private final String name;
 

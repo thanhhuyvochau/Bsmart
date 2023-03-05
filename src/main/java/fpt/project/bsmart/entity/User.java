@@ -30,7 +30,7 @@ public class User extends BaseEntity {
     private String email;
 
     @Column(name = "birthday")
-    private Instant birthday ;
+    private Instant birthday;
 
     @Column(name = "address")
     private String address;

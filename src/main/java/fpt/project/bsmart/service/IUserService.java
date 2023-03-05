@@ -6,7 +6,6 @@ import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import java.util.Optional;
 
 
-
 public interface IUserService {
     Integer saveUser(CreateAccountRequest createAccountRequest);
 

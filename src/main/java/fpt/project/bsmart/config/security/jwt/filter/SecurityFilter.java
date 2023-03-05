@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public class SecurityFilter  extends OncePerRequestFilter {
+public class SecurityFilter extends OncePerRequestFilter {
 
     @Autowired
     private JWTUtil util;
@@ -30,15 +30,15 @@ public class SecurityFilter  extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         // Reading Token from Authorization Header
-        String token= request.getHeader("Authorization");
-        if(token !=null) {
-            String username= util.getSubject(token);
+        String token = request.getHeader("Authorization");
+        if (token != null) {
+            String username = util.getSubject(token);
             //if username is not null & Context Authentication must be null
-            if(username !=null && SecurityContextHolder.getContext().getAuthentication()==null) {
-                UserDetails user= userDetailsService.loadUserByUsername(username);
-                boolean isValid=util.isValidToken(token, user.getUsername());
-                if(isValid) {
-                    UsernamePasswordAuthenticationToken authToken=
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails user = userDetailsService.loadUserByUsername(username);
+                boolean isValid = util.isValidToken(token, user.getUsername());
+                if (isValid) {
+                    UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(username, user.getPassword(), user.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);

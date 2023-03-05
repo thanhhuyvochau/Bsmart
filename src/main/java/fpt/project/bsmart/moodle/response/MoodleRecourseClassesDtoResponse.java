@@ -4,12 +4,12 @@ import java.util.List;
 
 public class MoodleRecourseClassesDtoResponse {
 
-    private Long classId ;
+    private Long classId;
     private String className;
 
     private String classCode;
 
-    private List<MoodleRecourseDtoResponse> modules ;
+    private List<MoodleRecourseDtoResponse> modules;
 
     public Long getClassId() {
         return classId;

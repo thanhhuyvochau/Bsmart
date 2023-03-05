@@ -6,18 +6,18 @@ public class MoodleMasterDataRequest {
     private String token;
     private String type;
 
-    private String  Host ;
+    private String Host;
 
 
     @JsonProperty("Content-Type")
-    private String contentType ;
+    private String contentType;
 
     @JsonProperty("Accept")
-    private String accept ;
+    private String accept;
 
 
     @JsonProperty("Authorization")
-    private String authorization ;
+    private String authorization;
 
     public String getToken() {
         return token;

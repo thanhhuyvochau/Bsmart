@@ -2,7 +2,6 @@ package fpt.project.bsmart.entity;
 
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
-import fpt.project.bsmart.entity.constant.ETypeLearn;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -90,7 +89,6 @@ public class Course {
     public void setStatus(boolean status) {
         this.status = status;
     }
-
 
 
     public ECourseLevel getLevel() {

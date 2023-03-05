@@ -8,6 +8,7 @@ import fpt.project.bsmart.moodle.response.MoodleUserResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
 @Component
 public class MoodleUserRepository extends MoodleBaseRepository {
 

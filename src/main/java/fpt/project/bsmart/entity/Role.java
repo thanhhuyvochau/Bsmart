@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "role")
-public class Role  extends BaseEntity{
+public class Role extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,7 +23,7 @@ public class Role  extends BaseEntity{
 
     @JsonIgnore
     @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
-    List<User> users = new ArrayList<>( );
+    List<User> users = new ArrayList<>();
 
 
     public Long getId() {

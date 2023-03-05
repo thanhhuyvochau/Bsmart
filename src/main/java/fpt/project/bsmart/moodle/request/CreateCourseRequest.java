@@ -7,7 +7,7 @@ import java.util.List;
 
 public class CreateCourseRequest implements Serializable {
 
-    private List<CreateCourseBody> courses ;
+    private List<CreateCourseBody> courses;
 
     public static class CreateCourseBody {
         @JsonProperty("fullname")

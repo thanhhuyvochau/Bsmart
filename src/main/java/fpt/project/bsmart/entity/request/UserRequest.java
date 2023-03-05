@@ -1,9 +1,6 @@
 package fpt.project.bsmart.entity.request;
 
 
-
-
-
 public class UserRequest {
     private String username;
     private String password;

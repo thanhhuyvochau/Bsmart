@@ -1,12 +1,7 @@
 package fpt.project.bsmart.util.keycloak;
 
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
-import java.util.List;
 
 @Component
 public class KeycloakRoleUtil {
