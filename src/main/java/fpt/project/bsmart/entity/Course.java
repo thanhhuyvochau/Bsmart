@@ -48,6 +48,9 @@ public class Course {
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Section> sections = new ArrayList<>();
 
+    @OneToMany(mappedBy = "course")
+    private List<Class> classes = new ArrayList<>();
+
     public Long getId() {
         return id;
     }
@@ -136,5 +139,13 @@ public class Course {
 
     public void setSections(List<Section> sections) {
         this.sections = sections;
+    }
+
+    public List<Class> getClasses() {
+        return classes;
+    }
+
+    public void setClasses(List<Class> classes) {
+        this.classes = classes;
     }
 }
