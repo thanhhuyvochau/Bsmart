@@ -1,4 +1,4 @@
-package fpt.project.bsmart.entity.request.subject;
+package fpt.project.bsmart.entity.request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
