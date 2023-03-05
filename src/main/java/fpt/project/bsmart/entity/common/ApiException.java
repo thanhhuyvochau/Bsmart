@@ -1,4 +1,5 @@
 package fpt.project.bsmart.entity.common;
+
 import org.springframework.http.HttpStatus;
 
 public class ApiException extends RuntimeException {

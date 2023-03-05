@@ -2,7 +2,6 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
-import fpt.project.bsmart.entity.request.SubjectRequest;
 import fpt.project.bsmart.service.ICourseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,14 +16,14 @@ import javax.validation.Valid;
 public class CourseController {
 
 
-    private final ICourseService iCourseService ;
+    private final ICourseService iCourseService;
 
     public CourseController(ICourseService iCourseService) {
         this.iCourseService = iCourseService;
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Long>> mentorCreateCourse(@Valid @RequestBody CreateCourseRequest createCourseRequest){
+    public ResponseEntity<ApiResponse<Long>> mentorCreateCourse(@Valid @RequestBody CreateCourseRequest createCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createCourseRequest)));
     }
 

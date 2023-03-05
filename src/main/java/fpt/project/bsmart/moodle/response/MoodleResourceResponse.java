@@ -1,7 +1,6 @@
 package fpt.project.bsmart.moodle.response;
 
 
-
 import java.util.List;
 
 public class MoodleResourceResponse {

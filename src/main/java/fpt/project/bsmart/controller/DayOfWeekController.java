@@ -42,7 +42,7 @@ public class DayOfWeekController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<DayOfWeekDTO>> updateDayOfWeek(@PathVariable Long id,@Valid @RequestBody DayOfWeekDTO request) {
+    public ResponseEntity<ApiResponse<DayOfWeekDTO>> updateDayOfWeek(@PathVariable Long id, @Valid @RequestBody DayOfWeekDTO request) {
         DayOfWeekDTO updatedDayOfWeek = dayOfWeekService.updateDayOfWeek(id, request);
         if (updatedDayOfWeek == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

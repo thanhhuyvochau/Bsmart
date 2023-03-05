@@ -18,6 +18,7 @@ public class SlotController {
     public SlotController(ISlotService ISlotService) {
         this.ISlotService = ISlotService;
     }
+
     @PostMapping
     public ResponseEntity<ApiResponse<SlotDto>> createSlot(@Valid @RequestBody SlotDto slotDto) {
         SlotDto createdSlotDto = ISlotService.createSlot(slotDto);

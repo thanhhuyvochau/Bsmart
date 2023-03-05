@@ -3,9 +3,8 @@ package fpt.project.bsmart.moodle.response;
 public class CourseFormatOption {
 
 
-
     private String name;
-    private Long  value;
+    private Long value;
 
     public String getName() {
         return name;

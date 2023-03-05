@@ -1,18 +1,15 @@
 package fpt.project.bsmart.config.security.jwt.util;
 
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.stereotype.Component;
+
 import java.util.Base64;
 import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
 public class JWTUtil {
@@ -22,7 +19,7 @@ public class JWTUtil {
 
     // code to generate Token
     public String generateToken(String subject) {
-        String tokenId= String.valueOf(new Random().nextInt(10000));
+        String tokenId = String.valueOf(new Random().nextInt(10000));
         return Jwts.builder()
                 .setId(tokenId)
                 .setSubject(subject)
@@ -48,8 +45,8 @@ public class JWTUtil {
     }
 
     // code to check if token is valid as per username
-    public boolean isValidToken(String token,String username) {
-        String tokenUserName=getSubject(token);
+    public boolean isValidToken(String token, String username) {
+        String tokenUserName = getSubject(token);
         return (username.equals(tokenUserName) && !isTokenExpired(token));
     }
 

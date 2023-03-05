@@ -4,7 +4,7 @@ import java.util.List;
 
 public class S1CourseRequest {
 
-    private List<CreateCourseRequest.CreateCourseBody> courses ;
+    private List<CreateCourseRequest.CreateCourseBody> courses;
 
     public List<CreateCourseRequest.CreateCourseBody> getCourses() {
         return courses;

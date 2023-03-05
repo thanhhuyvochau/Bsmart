@@ -13,7 +13,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
-/**Do Moodle không phải là RestFul nên chỉ cần 2 method để call qua đó */
+
+/**
+ * Do Moodle không phải là RestFul nên chỉ cần 2 method để call qua đó
+ */
 @Component
 public class MoodleCaller {
 

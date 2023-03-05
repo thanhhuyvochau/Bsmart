@@ -52,7 +52,7 @@ public class MoodleCourseRepository extends MoodleBaseRepository {
         return moodleCaller.post(getGetResourceUrl(), classId, typeReference);
     }
 
-    public List<MoodleAssignmentsResponse> getAssignmentsResourceCourse(GetMoodleAssignmentIdsCourseRequest  instanceId) throws JsonProcessingException {
+    public List<MoodleAssignmentsResponse> getAssignmentsResourceCourse(GetMoodleAssignmentIdsCourseRequest instanceId) throws JsonProcessingException {
         TypeReference<List<MoodleAssignmentsResponse>> typeReference = new TypeReference<List<MoodleAssignmentsResponse>>() {
         };
         return moodleCaller.post(getGetAssignments(), instanceId, typeReference);

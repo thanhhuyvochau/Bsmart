@@ -1,10 +1,9 @@
 package fpt.project.bsmart.moodle.request;
 
 
-
 public class GetMoodleCourseRequest {
 
-    private Long courseid ;
+    private Long courseid;
 
     public Long getCourseid() {
         return courseid;

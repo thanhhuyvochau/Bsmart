@@ -15,6 +15,6 @@ public class UnAuthorizedUserAuthenticationEntryPoint implements AuthenticationE
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
 
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"UnAuthorized User");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "UnAuthorized User");
     }
 }

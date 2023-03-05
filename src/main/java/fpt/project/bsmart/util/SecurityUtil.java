@@ -29,7 +29,7 @@ public class SecurityUtil {
 //        User currentUser = Optional.ofNullable(accountRepository.findByUsername(username))
 //                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Student not found by username"));
 //        return currentUser;
-        return null ;
+        return null;
     }
 
     public static Optional<String> getCurrentUserName() {
@@ -58,7 +58,7 @@ public class SecurityUtil {
             Jwt principal = (Jwt) authentication.getPrincipal();
             String username = principal.getClaimAsString("preferred_username");
 //            return accountRepository.findByUsername(username);
-            return null ;
+            return null;
         }
     }
 }

@@ -5,7 +5,7 @@ import java.util.List;
 public class CourseSectionRequest {
     private String name;
 
-    private List<CourseModuleRequest> modules ;
+    private List<CourseModuleRequest> modules;
 
     public String getName() {
         return name;

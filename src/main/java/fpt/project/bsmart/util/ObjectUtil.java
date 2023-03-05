@@ -73,7 +73,7 @@ public class ObjectUtil {
             }
         }
         if (target != null) {
-                BeanUtils.copyProperties(source, target, ignoreProperties);
+            BeanUtils.copyProperties(source, target, ignoreProperties);
         }
         return target;
     }

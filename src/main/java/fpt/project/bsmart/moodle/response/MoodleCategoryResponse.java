@@ -6,7 +6,7 @@ public class MoodleCategoryResponse {
     private Long id;
     private String name;
     private String idnumber;
-    private String  description;
+    private String description;
     private Long descriptionformat;
     private Long parent;
     private Long sortorder;

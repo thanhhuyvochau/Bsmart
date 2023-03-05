@@ -3,8 +3,6 @@ package fpt.project.bsmart.entity;
 import fpt.project.bsmart.entity.constant.EImageType;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "image")

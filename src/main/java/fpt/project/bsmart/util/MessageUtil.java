@@ -21,6 +21,7 @@ public class MessageUtil {
         return messageSource.getMessage(messageKey, null, LocaleContextHolder.getLocale());
 
     }
+
     public String getVietnameseMessage(String messageKey) {
         if (messageKey == null) {
             return null;

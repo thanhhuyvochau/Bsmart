@@ -6,8 +6,7 @@ import java.util.List;
 public class GetCategoryRequest implements Serializable {
 
 
-
-    private List<MoodleCategoryBody> criteria ;
+    private List<MoodleCategoryBody> criteria;
 
     public static class MoodleCategoryBody {
 

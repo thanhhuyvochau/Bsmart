@@ -1,11 +1,7 @@
 package fpt.project.bsmart.util.adapter;
 
 
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.io.InputStream;
 
 @Service
 public class MinioAdapter {

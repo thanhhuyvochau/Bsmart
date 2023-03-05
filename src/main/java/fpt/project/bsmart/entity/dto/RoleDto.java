@@ -5,7 +5,7 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 
 public class RoleDto {
 
-    private Long id ;
+    private Long id;
     private String name;
 
 
