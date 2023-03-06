@@ -4,6 +4,7 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.config.security.jwt.util.JWTUtil;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
+import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.entity.request.UserRequest;
 import fpt.project.bsmart.entity.response.UserResponse;
@@ -48,6 +49,11 @@ public class UserController {
     @PostMapping("/edit/{id}/social")
     public ResponseEntity<ApiResponse<Long>> editSocialProfile(@PathVariable Long id, @RequestBody SocialProfileEditRequest socialProfileEditRequest){
         return ResponseEntity.ok(ApiResponse.success(userService.editUserSocialProfile(id, socialProfileEditRequest)));
+    }
+
+    @PostMapping("edit/{id}/account")
+    public ResponseEntity<ApiResponse<Long>> editAccountProfile(@PathVariable Long id, @RequestBody AccountProfileEditRequest accountProfileEditRequest){
+        return ResponseEntity.ok(ApiResponse.success(userService.editUserAccountProfile(id, accountProfileEditRequest)));
     }
 
     @PostMapping("/getData")

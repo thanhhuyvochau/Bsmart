@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
+import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.repository.RoleRepository;
 import fpt.project.bsmart.repository.UserRepository;
@@ -78,6 +79,18 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         }
         if(StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())){
             user.setTwitterLink(socialProfileEditRequest.getTwitterLink());
+        }
+        return userRepo.save(user).getId();
+    }
+
+    @Override
+    public Long editUserAccountProfile(Long id, AccountProfileEditRequest accountProfileEditRequest) {
+        User user = findUserById(id);
+        if(StringUtil.isNotNullOrEmpty(accountProfileEditRequest.getPassword())){
+            user.setPassword(bCryptEncoder.encode(accountProfileEditRequest.getPassword()));
+        }
+        if(StringUtil.isValidEmailAddress(accountProfileEditRequest.getEmail())){
+            user.setEmail(accountProfileEditRequest.getEmail());
         }
         return userRepo.save(user).getId();
     }

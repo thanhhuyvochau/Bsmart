@@ -8,6 +8,8 @@ public class StringUtil {
     private static final Pattern INSTAGRAM_REGEX_PATTERN = Pattern.compile("(https?://)?(www\\.)?instagram\\.com/.+");
     private static final Pattern TWITTER_REGEX_PATTERN = Pattern.compile("(https?://)?(www\\.)?twitter\\.com/.+");
 
+    //This regex pattern use RFC standard( version RFC-5322)
+    private static final Pattern EMAIL_REGEX_PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
     /**
      * Checks if a string is null or empty.
      *
@@ -68,14 +70,18 @@ public class StringUtil {
     }
 
     public static boolean isValidFacebookLink(String url){
-        return isNotNullOrEmpty(url) && FACEBOOK_REGEX_PATTERN.matcher(url).matches();
+        return FACEBOOK_REGEX_PATTERN.matcher(url).matches();
     }
 
     public static boolean isValidInstagramLink(String url){
-        return isNotNullOrEmpty(url) && INSTAGRAM_REGEX_PATTERN.matcher(url).matches();
+        return INSTAGRAM_REGEX_PATTERN.matcher(url).matches();
     }
 
     public static boolean isValidTwitterLink(String url){
-        return isNotNullOrEmpty(url) && TWITTER_REGEX_PATTERN.matcher(url).matches();
+        return TWITTER_REGEX_PATTERN.matcher(url).matches();
+    }
+
+    public static boolean isValidEmailAddress(String url){
+        return EMAIL_REGEX_PATTERN.matcher(url).matches();
     }
 }
