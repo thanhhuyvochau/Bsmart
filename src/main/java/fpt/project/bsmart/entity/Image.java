@@ -3,6 +3,7 @@ package fpt.project.bsmart.entity;
 import fpt.project.bsmart.entity.constant.EImageType;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "image")
@@ -20,6 +21,9 @@ public class Image extends BaseEntity {
 
     @OneToOne(mappedBy = "image")
     private Course course;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Long getId() {
         return id;
@@ -59,5 +63,13 @@ public class Image extends BaseEntity {
 
     public void setCourse(Course course) {
         this.course = course;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
