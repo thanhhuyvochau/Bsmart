@@ -76,6 +76,6 @@ public class StringUtil {
     }
 
     public static boolean isValidTwitterLink(String url){
-        return isNotNullOrEmpty(url) && INSTAGRAM_REGEX_PATTERN.matcher(url).matches();
+        return isNotNullOrEmpty(url) && TWITTER_REGEX_PATTERN.matcher(url).matches();
     }
 }
