@@ -5,9 +5,11 @@ import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
+import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.repository.RoleRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IUserService;
+import fpt.project.bsmart.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,6 +38,11 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         this.roleRepo = roleRepo;
     }
 
+    private User findUserById(Long id){
+        return userRepo.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(""));
+    }
+
     @Override
     public Long saveUser(CreateAccountRequest createAccountRequest) {
         User user = new User();
@@ -58,6 +65,21 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     @Override
     public Optional<User> findByUsername(String username) {
         return userRepo.findByUsername(username);
+    }
+
+    @Override
+    public Long editUserSocialProfile(Long id, SocialProfileEditRequest socialProfileEditRequest) {
+        User user = findUserById(id);
+        if(StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())){
+            user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
+        }
+        if(StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())){
+            user.setInstagramLink(socialProfileEditRequest.getInstagramLink());
+        }
+        if(StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())){
+            user.setTwitterLink(socialProfileEditRequest.getTwitterLink());
+        }
+        return userRepo.save(user).getId();
     }
 
     @Override
