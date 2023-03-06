@@ -15,12 +15,12 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/bsmart
     username: root
-    password:
+    password: 123456
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: 'true'
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
 
   security:
     oauth2:
