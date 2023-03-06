@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Integer> RegisterAccount(@RequestBody CreateAccountRequest createAccountRequest) {
+    public ResponseEntity<Long> RegisterAccount(@RequestBody CreateAccountRequest createAccountRequest) {
         return ResponseEntity.ok(userService.saveUser(createAccountRequest));
     }
 

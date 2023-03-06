@@ -37,7 +37,7 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     }
 
     @Override
-    public Integer saveUser(CreateAccountRequest createAccountRequest) {
+    public Long saveUser(CreateAccountRequest createAccountRequest) {
         User user = new User();
         user.setUsername(createAccountRequest.getUsername());
         user.setPassword(bCryptEncoder.encode(createAccountRequest.getPassword()));
