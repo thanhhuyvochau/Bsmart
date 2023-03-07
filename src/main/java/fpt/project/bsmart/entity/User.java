@@ -54,6 +54,7 @@ public class User extends BaseEntity {
     private List<Image> userImages = new ArrayList<>();
     @OneToOne(mappedBy = "owner")
     private Wallet wallet;
+
     public Integer getId() {
         return id;
     }

@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.request.category.CategoryRequest;
 import fpt.project.bsmart.service.ICategoryService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,8 @@ public class CategoryController {
         this.iCategoryService = iCategoryService;
     }
 
+
+    @Operation(summary = "Lấy tất cả category")
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryDto>>> getAllCategories() {
         return ResponseEntity.ok(ApiResponse.success(iCategoryService.getAllCategories()));
