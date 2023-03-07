@@ -1,26 +1,20 @@
 server:
   port: 8082
 spring:
-  #  config:
-  #    import: optional:file:.env[.properties]
-  #  messages:
-  #    always-use-message-format: false
-  #    basename: i18n/messages
-  #    encoding: UTF-8
-  #    use-code-as-default-message: false
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/bsmart
+    url: jdbc:mysql://mysqldb:3307/bsmartdb
+#    url: jdbc:mysql://localhost:3307/bsmartdb
     username: root
-    password:
+    password: 123456
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: 'true'
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
 
   security:
     oauth2:
