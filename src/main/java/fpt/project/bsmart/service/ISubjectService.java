@@ -7,8 +7,12 @@ import java.util.List;
 
 public interface ISubjectService {
     List<SubjectDto> getAllSubject();
+
     SubjectDto getSubject(Long id);
+
     Long createSubject(SubjectRequest subjectRequest);
+
     Long updateSubject(Long id, SubjectRequest subjectRequest);
+
     Long deleteSubject(Long id);
 }

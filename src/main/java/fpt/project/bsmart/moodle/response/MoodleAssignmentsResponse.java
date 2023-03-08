@@ -36,7 +36,6 @@ public class MoodleAssignmentsResponse {
                     private List<MoodleAssignmentsResponse.assignments.submissions.plugins.fileareas.files> files;
 
 
-
                     public static class files {
                         private String filename;
                         private String filepath;

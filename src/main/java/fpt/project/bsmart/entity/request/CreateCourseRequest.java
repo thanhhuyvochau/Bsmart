@@ -1,9 +1,7 @@
 package fpt.project.bsmart.entity.request;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
-import fpt.project.bsmart.entity.constant.EUserRole;
 
-import java.time.Instant;
 import java.util.List;
 
 public class CreateCourseRequest {
@@ -11,13 +9,15 @@ public class CreateCourseRequest {
     private String name;
     private ECourseLevel level;
 
-    private Long categoryId ;
+    private Long categoryId;
+
+    private Long userId;
 
     private Long subjectId;
 
     private String description;
 
-    private List<CourseSectionRequest> sections  ;
+    private List<CourseSectionRequest> sections;
 
     public String getName() {
         return name;
@@ -37,6 +37,14 @@ public class CreateCourseRequest {
 
     public Long getSubjectId() {
         return subjectId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public void setSubjectId(Long subjectId) {

@@ -1,26 +1,22 @@
 package fpt.project.bsmart.util;
 
 
-import fpt.project.bsmart.entity.Category;
-import fpt.project.bsmart.entity.Subject;
-import fpt.project.bsmart.entity.dto.CategoryDto;
-import fpt.project.bsmart.entity.Slot;
-import fpt.project.bsmart.entity.Subject;
-import fpt.project.bsmart.entity.dto.SlotDto;
-import fpt.project.bsmart.entity.dto.SubjectDto;
+import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.dto.*;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConvertUtil {
 
-    public static CategoryDto convertCategoryToCategoryDto(Category category){
-        CategoryDto categoryDto = ObjectUtil.copyProperties(category, new CategoryDto(), CategoryDto.class);
-        return categoryDto;
+
+    public static CategoryDto convertCategoryToCategoryDto(Category category) {
+        return ObjectUtil.copyProperties(category, new CategoryDto(), CategoryDto.class);
     }
 
-    public static SubjectDto convertSubjectToSubjectDto(Subject subject ){
+    public static SubjectDto convertSubjectToSubjectDto(Subject subject) {
         SubjectDto subjectDto = ObjectUtil.copyProperties(subject, new SubjectDto(), SubjectDto.class);
-        if (subject.getCategory()!=null){
+        if (subject.getCategory() != null) {
             subjectDto.setCategoryId(subject.getCategory().getId());
         }
         return subjectDto;
@@ -48,8 +44,24 @@ public class ConvertUtil {
     }
 
 
+    public static DayOfWeekDTO convertDayOfWeekToDto(DayOfWeek dayOfWeek) {
+        return new DayOfWeekDTO(dayOfWeek.getId(), dayOfWeek.getName(), dayOfWeek.getCode());
+    }
 
+    public static SimpleClassDto convertClassToSimpleDto(Class clazz) {
+        return ObjectUtil.copyProperties(clazz, new SimpleClassDto(), SimpleClassDto.class, true);
+    }
 
+    public static TimeInWeekDTO convertTimeInWeekToDto(TimeInWeek timeInWeek) {
+        Slot slot = timeInWeek.getSlot();
+        Class clazz = timeInWeek.getClazz();
+        DayOfWeek dayOfWeek = timeInWeek.getDayOfWeek();
 
+        DayOfWeekDTO dayOfWeekDTO = convertDayOfWeekToDto(dayOfWeek);
+        SlotDto slotDto = convertSlotToSlotDto(slot);
+        SimpleClassDto simpleClazz = convertClassToSimpleDto(clazz);
+
+        return new TimeInWeekDTO(dayOfWeekDTO, simpleClazz, slotDto);
+    }
 
 }

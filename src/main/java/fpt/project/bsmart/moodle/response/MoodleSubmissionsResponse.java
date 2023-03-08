@@ -5,33 +5,34 @@ import java.util.List;
 
 public class MoodleSubmissionsResponse {
     private Long id;
-    private Long  userid;
+    private Long userid;
     private Long attemptnumber;
-    private Long  timecreated;
+    private Long timecreated;
     private Long timemodified;
-    private String  status;
+    private String status;
     private Long groupid;
 
-    private List<MoodleSubmissionsResponse.plugins> plugins ;
+    private List<MoodleSubmissionsResponse.plugins> plugins;
 
 
     public static class plugins {
         private String type;
-        private String  name;
+        private String name;
 
-        private List<plugins.fileareas> fileareas ;
+        private List<plugins.fileareas> fileareas;
 
         public static class fileareas {
 
             private String area;
+
             public class files {
                 private String filename;
-                private String  filepath;
-                private Long  filesize;
-                private String  fileurl;
-                private String  timemodified;
-                private String  mimetype;
-                private Boolean  isexternalfile;
+                private String filepath;
+                private Long filesize;
+                private String fileurl;
+                private String timemodified;
+                private String mimetype;
+                private Boolean isexternalfile;
 
                 public String getFilename() {
                     return filename;

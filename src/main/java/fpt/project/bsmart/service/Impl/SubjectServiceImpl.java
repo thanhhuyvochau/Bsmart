@@ -20,7 +20,6 @@ import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_B
 import static fpt.project.bsmart.util.ConvertUtil.convertSubjectToSubjectDto;
 
 
-
 @Service
 public class SubjectServiceImpl implements ISubjectService {
     private final SubjectRepository subjectRepository;
@@ -37,7 +36,7 @@ public class SubjectServiceImpl implements ISubjectService {
 
     private Subject findById(Long id) {
         return subjectRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) +id));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + id));
     }
 
     @Override
@@ -59,7 +58,7 @@ public class SubjectServiceImpl implements ISubjectService {
     @Override
     public Long createSubject(SubjectRequest subjectRequest) {
         Category category = categoryRepository.findById(subjectRequest.getCategoryId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID)+ subjectRequest.getCategoryId()));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + subjectRequest.getCategoryId()));
         Subject subject = new Subject();
         subject.setName(subjectRequest.getName());
         subject.setCode(subjectRequest.getCode());
@@ -70,7 +69,7 @@ public class SubjectServiceImpl implements ISubjectService {
     @Override
     public Long updateSubject(Long id, SubjectRequest subjectRequest) {
         Category category = categoryRepository.findById(subjectRequest.getCategoryId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) +subjectRequest.getCategoryId() ));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + subjectRequest.getCategoryId()));
         Subject subject = findById(id);
         subject.setName(subjectRequest.getName());
         subject.setCode(subjectRequest.getCode());

@@ -3,19 +3,21 @@ package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.request.CourseModuleRequest;
 import fpt.project.bsmart.entity.request.CourseSectionRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.repository.CategoryRepository;
 import fpt.project.bsmart.repository.CourseRepository;
+import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.ICourseService;
-
 import fpt.project.bsmart.util.MessageUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
 
@@ -27,19 +29,34 @@ public class CourseServiceImpl implements ICourseService {
 
     private final CourseRepository courseRepository;
 
-    public CourseServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil, CourseRepository courseRepository) {
+    private final UserRepository userRepository;
+
+    public CourseServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil, CourseRepository courseRepository, UserRepository userRepository) {
         this.categoryRepository = categoryRepository;
         this.messageUtil = messageUtil;
         this.courseRepository = courseRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
     public Long mentorCreateCourse(CreateCourseRequest createCourseRequest) {
         Course course = new Course();
         course.setName(createCourseRequest.getName());
-//        course.setMentor();  note : do get current login
+
         course.setDescription(createCourseRequest.getDescription());
         course.setLevel(createCourseRequest.getLevel());
+
+        //  course.setMentor();  note : do get current login
+        User user = userRepository.findById(createCourseRequest.getUserId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createCourseRequest.getUserId()));
+        List<Role> roles = user.getRoles();
+        List<Boolean> checkRoleTeacher = roles.stream().map(role -> role.getCode().equals(EUserRole.TEACHER)).collect(Collectors.toList());
+        if (checkRoleTeacher.isEmpty()) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Người dùng không phải là giáo viên"));
+        }
+        course.setMentor(user);
         Category category = categoryRepository.findById(createCourseRequest.getCategoryId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createCourseRequest.getCategoryId()));
         List<Subject> subjects = category.getSubjects();

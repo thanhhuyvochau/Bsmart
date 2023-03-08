@@ -160,7 +160,7 @@ public class MoodleBaseRepository {
     }
 
     public String getGetAssignments() {
-        return baseUrl+getAssignments;
+        return baseUrl + getAssignments;
     }
 
     public void setGetAssignments(String getAssignments) {

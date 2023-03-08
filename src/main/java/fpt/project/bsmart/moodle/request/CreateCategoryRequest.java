@@ -6,18 +6,17 @@ import java.util.List;
 public class CreateCategoryRequest implements Serializable {
 
 
-
-    private List<CreateCategoryBody> categories ;
+    private List<CreateCategoryBody> categories;
 
     public static class CreateCategoryBody {
 
         private String name;
 
-        private Long  parent;
+        private Long parent;
 
         private String idnumber;
 
-        private String  description;
+        private String description;
 
         private Long descriptionformat;
 

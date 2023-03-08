@@ -1,8 +1,9 @@
-
 # Bsmart Project
 
-A management system for programming classes at a center is a software solution that helps to streamline the process of managing courses, instructors, students, and resources in a programming center. It provides an integrated platform for managing all aspects of the programming courses offered by the center, from course scheduling and registration to monitoring and reporting.
-
+A management system for programming classes at a center is a software solution that helps to streamline the process of
+managing courses, instructors, students, and resources in a programming center. It provides an integrated platform for
+managing all aspects of the programming courses offered by the center, from course scheduling and registration to
+monitoring and reporting.
 
 ## Conventions
 
@@ -14,10 +15,7 @@ A management system for programming classes at a center is a software solution t
 
 ## Tech Stack
 
-
-
 **Server:** Spring Boot, Keycloak, MySQL, Docker, Spring Security, MinIo, Moodle
-
 
 ## Enable Local Profile
 

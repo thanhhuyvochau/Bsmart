@@ -5,7 +5,7 @@ import java.util.List;
 
 public class GetMoodleAssignmentIdsCourseRequest {
 
-    private List<Long> assignmentids ;
+    private List<Long> assignmentids;
 
     public List<Long> getAssignmentids() {
         return assignmentids;

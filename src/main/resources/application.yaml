@@ -1,9 +1,9 @@
-
 server:
-  port: 8082
+  port: 8080
 spring:
+
   profiles:
-    active: dev
+    active: local
   security:
     oauth2:
       resourceserver:

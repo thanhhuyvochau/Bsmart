@@ -3,7 +3,6 @@ package fpt.project.bsmart.entity;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "day_of_week")

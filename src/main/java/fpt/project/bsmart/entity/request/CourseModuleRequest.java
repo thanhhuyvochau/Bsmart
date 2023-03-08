@@ -1,7 +1,7 @@
 package fpt.project.bsmart.entity.request;
 
 public class CourseModuleRequest {
-   private String name ;
+    private String name;
 
     public String getName() {
         return name;

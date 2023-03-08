@@ -1,6 +1,5 @@
 package fpt.project.bsmart.config.socket;
 
-import org.springframework.context.annotation.Configuration;
 //
 //
 //@EnableWebSocketMessageBroker

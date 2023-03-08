@@ -3,7 +3,6 @@ package fpt.project.bsmart.entity;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 
 import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;

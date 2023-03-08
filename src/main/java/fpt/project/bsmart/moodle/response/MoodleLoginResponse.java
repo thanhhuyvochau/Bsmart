@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MoodleLoginResponse implements Serializable{
+public class MoodleLoginResponse implements Serializable {
 
     private String $id;
     private int status;
