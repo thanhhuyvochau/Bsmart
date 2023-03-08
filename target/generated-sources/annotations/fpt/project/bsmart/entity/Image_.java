@@ -14,6 +14,7 @@ public abstract class Image_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static volatile SingularAttribute<Image, Long> id;
 	public static volatile SingularAttribute<Image, EImageType> type;
 	public static volatile SingularAttribute<Image, User> user;
+	public static volatile SingularAttribute<Image, String> url;
 	public static volatile SingularAttribute<Image, Boolean> status;
 
 	public static final String NOTE = "note";
@@ -21,6 +22,7 @@ public abstract class Image_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static final String ID = "id";
 	public static final String TYPE = "type";
 	public static final String USER = "user";
+	public static final String URL = "url";
 	public static final String STATUS = "status";
 
 }

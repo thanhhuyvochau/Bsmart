@@ -30,6 +30,7 @@ public class Wallet extends BaseEntity {
     }
 
     public void setBalance(BigDecimal balance) {
+        this.previous_balance = this.balance;
         this.balance = balance;
     }
 
