@@ -51,16 +51,16 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public Long createCategory(CategoryRequest categoryRequest) {
         Category category = new Category();
-        category.setCode(category.getCode());
-        category.setName(category.getName());
+        category.setCode(categoryRequest.getCode());
+        category.setName(categoryRequest.getName());
         return categoryRepository.save(category).getId();
     }
 
     @Override
     public Long updateCategory(Long id, CategoryRequest categoryRequest) {
         Category category = findById(id);
-        category.setCode(category.getCode());
-        category.setName(category.getName());
+        category.setCode(categoryRequest.getCode());
+        category.setName(categoryRequest.getName());
         return categoryRepository.save(category).getId();
     }
 

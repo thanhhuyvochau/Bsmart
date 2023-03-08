@@ -22,7 +22,7 @@ public abstract class User_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static volatile SingularAttribute<User, String> password;
 	public static volatile SingularAttribute<User, String> phone;
 	public static volatile SingularAttribute<User, String> twitterLink;
-	public static volatile SingularAttribute<User, Integer> id;
+	public static volatile SingularAttribute<User, Long> id;
 	public static volatile SingularAttribute<User, String> email;
 	public static volatile SingularAttribute<User, String> username;
 	public static volatile SingularAttribute<User, Boolean> status;
