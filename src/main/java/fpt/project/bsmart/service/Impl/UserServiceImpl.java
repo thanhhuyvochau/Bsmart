@@ -54,11 +54,12 @@ public class UserServiceImpl implements IUserService {
         } else if (uploadImageRequest.getImageType().equals(EImageType.CI)) {
             image.setType(EImageType.CI);
 
-            return imageRepository.save(image).getId();
 
         }
+        return imageRepository.save(image).getId();
+    }
 
-
+}
 //    @Override
 //    public Integer saveUser(CreateAccountRequest createAccountRequest) {
 //        User user = new User();
@@ -105,5 +106,5 @@ public class UserServiceImpl implements IUserService {
 //
 //        return springUser;
 //    }
-    }
-    }
+
+
