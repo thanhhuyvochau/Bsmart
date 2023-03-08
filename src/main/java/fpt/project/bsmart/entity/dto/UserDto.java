@@ -1,61 +1,44 @@
-package fpt.project.bsmart.entity;
+package fpt.project.bsmart.entity.dto;
 
 
-import javax.persistence.*;
+import fpt.project.bsmart.entity.Role;
+import fpt.project.bsmart.entity.Wallet;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 
-@Entity
-@Table(name = "user")
-
-public class User extends BaseEntity {
+public class UserDto {
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+
     private Integer id;
 
-    @Column(name = "user_name")
-    private String username;
-
-    @Column(name = "password")
-    private String password;
-
-
-    @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "email")
     private String email;
 
-    @Column(name = "birthday")
     private Instant birthday;
 
-    @Column(name = "address")
     private String address;
 
-    @Column(name = "phone")
     private String phone;
 
-    @Column(name = "status")
     private Boolean status;
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
-    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+
+
     List<Role> roles = new ArrayList<>();
-    @Column(name = "twitter_link")
+
     private String twitterLink;
-    @Column(name = "facebook_link")
+
     private String facebookLink;
-    @Column(name = "instagram_link")
+
     private String instagramLink;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
-    private List<Image> userImages = new ArrayList<>();
-    @OneToOne(mappedBy = "owner")
+
+    private List<ImageDto> userImages = new ArrayList<>();
+
     private Wallet wallet;
-    @OneToOne(mappedBy = "user")
-    private MentorProfile mentorProfile;
 
     public Integer getId() {
         return id;
@@ -65,21 +48,6 @@ public class User extends BaseEntity {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
     public String getFullName() {
         return fullName;
@@ -161,27 +129,11 @@ public class User extends BaseEntity {
         this.instagramLink = instagramLink;
     }
 
-    public List<Image> getUserImages() {
-        return userImages;
-    }
-
-    public void setUserImages(List<Image> userImages) {
-        this.userImages = userImages;
-    }
-
     public Wallet getWallet() {
         return wallet;
     }
 
     public void setWallet(Wallet wallet) {
         this.wallet = wallet;
-    }
-
-    public MentorProfile getMentorProfile() {
-        return mentorProfile;
-    }
-
-    public void setMentorProfile(MentorProfile mentorProfile) {
-        this.mentorProfile = mentorProfile;
     }
 }
