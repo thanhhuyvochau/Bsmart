@@ -55,8 +55,8 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "owner")
     private Wallet wallet;
     public Long getId() {
-        return id;
-    }
+    @OneToOne(mappedBy = "user")
+    private MentorProfile mentorProfile;
 
     public void setId(Long id) {
         this.id = id;
@@ -125,6 +125,7 @@ public class User extends BaseEntity {
     public void setStatus(Boolean status) {
         this.status = status;
     }
+
     public List<Role> getRoles() {
         return roles;
     }
@@ -171,5 +172,13 @@ public class User extends BaseEntity {
 
     public void setWallet(Wallet wallet) {
         this.wallet = wallet;
+    }
+
+    public MentorProfile getMentorProfile() {
+        return mentorProfile;
+    }
+
+    public void setMentorProfile(MentorProfile mentorProfile) {
+        this.mentorProfile = mentorProfile;
     }
 }
