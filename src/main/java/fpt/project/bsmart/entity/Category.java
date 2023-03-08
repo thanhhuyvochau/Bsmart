@@ -14,8 +14,10 @@ public class Category extends BaseEntity {
     private String code;
     @Column(name = "name")
     private String name;
-    @OneToMany(mappedBy = "category")
+
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private List<Subject> subjects = new ArrayList<>();
+
 
     public Long getId() {
         return id;
