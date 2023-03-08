@@ -21,7 +21,7 @@
 #    depends_on:
 #      - mysqldb
 
-version: "3.8"
+version: "2.0"
 
 services:
   mysqldb:
