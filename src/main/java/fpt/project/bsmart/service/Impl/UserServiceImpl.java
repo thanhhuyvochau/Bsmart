@@ -1,30 +1,62 @@
 package fpt.project.bsmart.service.Impl;
 
 
-import fpt.project.bsmart.entity.Role;
+import fpt.project.bsmart.entity.Image;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.request.CreateAccountRequest;
-import fpt.project.bsmart.repository.RoleRepository;
+import fpt.project.bsmart.entity.constant.EImageType;
+import fpt.project.bsmart.entity.request.UploadImageRequest;
+import fpt.project.bsmart.repository.ImageRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IUserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import fpt.project.bsmart.util.MessageUtil;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
 
 @Service
-public class UserServiceImpl  {
+public class UserServiceImpl implements IUserService {
+    private final UserRepository userRepository;
 
+    private final MessageUtil messageUtil;
 
+    private final ImageRepository imageRepository;
 
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, ImageRepository imageRepository) {
+        this.userRepository = userRepository;
+        this.messageUtil = messageUtil;
+        this.imageRepository = imageRepository;
+    }
+
+    private User findById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + id));
+    }
+
+    @Override
+    public Long uploadImageProfile(Long id, UploadImageRequest uploadImageRequest) {
+        User user = findById(id);
+
+        Image image = new Image();
+        String name = uploadImageRequest.getFile().getOriginalFilename() + "-" + Instant.now().toString();
+//        ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, uploadImageRequest.getFile().getContentType(),
+//                uploadImageRequest.getFile().getInputStream(), uploadImageRequest.getFile().getSize());
+        image.setNote(name);
+//        image.setUrl(RequestUrlUtil.buildUrl(minioUrl, objectWriteResponse));
+        image.setUser(user);
+        if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
+            image.setType(EImageType.AVATAR);
+        } else if (uploadImageRequest.getImageType().equals(EImageType.CI)) {
+            image.setType(EImageType.CI);
+
+            return imageRepository.save(image).getId();
+
+        }
 
 
 //    @Override
@@ -73,4 +105,4 @@ public class UserServiceImpl  {
 //
 //        return springUser;
 //    }
-}
+    }

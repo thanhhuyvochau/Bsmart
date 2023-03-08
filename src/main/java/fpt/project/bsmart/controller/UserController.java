@@ -1,35 +1,30 @@
 package fpt.project.bsmart.controller;
 
 
-
-import fpt.project.bsmart.entity.request.CreateAccountRequest;
-import fpt.project.bsmart.entity.request.UserRequest;
-import fpt.project.bsmart.entity.response.UserResponse;
+import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.service.IUserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
-//    private final IUserService userService;
-//    @Autowired
+
+    //    @Autowired
 //    private JWTUtil util;
 //    @Autowired
 //    private AuthenticationManager authenticationManager;
 //
-//    public UserController(IUserService userService) {
-//        this.userService = userService;
-//    }
+    private final IUserService iUserService;
+
+    public UserController(IUserService iUserService) {
+        this.iUserService = iUserService;
+    }
+
 
 //    @PostMapping("/register")
 //    public ResponseEntity<Integer> RegisterAccount(@RequestBody CreateAccountRequest createAccountRequest) {
@@ -50,4 +45,11 @@ public class UserController {
 //    public ResponseEntity<String> testAfterLogin(Principal p) {
 //        return ResponseEntity.ok("You are accessing data after a valid Login. You are :" + p.getName());
 //    }
+
+
+    @Operation(summary = "upload dại diện - CMMD.CDCC ")
+    @PostMapping("/{id}/image")
+    public ResponseEntity<Long> uploadImageRegisterProfile(@PathVariable Long id, @ModelAttribute UploadImageRequest uploadImageRequest) throws IOException {
+        return ResponseEntity.ok(iUserService.uploadImageProfile(id, uploadImageRequest));
+    }
 }
