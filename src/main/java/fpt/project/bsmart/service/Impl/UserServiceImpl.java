@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
+import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.repository.RoleRepository;
 import fpt.project.bsmart.repository.UserRepository;
@@ -71,14 +72,29 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     @Override
     public Long editUserSocialProfile(Long id, SocialProfileEditRequest socialProfileEditRequest) {
         User user = findUserById(id);
+        List<String> errorMessages = new ArrayList<>();
+
         if(StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())){
             user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
+        }else {
+            errorMessages.add("Facebook error message");
         }
+
         if(StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())){
             user.setInstagramLink(socialProfileEditRequest.getInstagramLink());
+        }else{
+            errorMessages.add("Instagram error message");
         }
+
         if(StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())){
             user.setTwitterLink(socialProfileEditRequest.getTwitterLink());
+        }else{
+            errorMessages.add("Twitter error message");
+        }
+
+        if(!errorMessages.isEmpty()){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(String.join(",", errorMessages));
         }
         return userRepo.save(user).getId();
     }
@@ -86,13 +102,29 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     @Override
     public Long editUserAccountProfile(Long id, AccountProfileEditRequest accountProfileEditRequest) {
         User user = findUserById(id);
+        List<String> errorMessages = new ArrayList<>();
         if(StringUtil.isNotNullOrEmpty(accountProfileEditRequest.getPassword())){
             user.setPassword(bCryptEncoder.encode(accountProfileEditRequest.getPassword()));
+        }else{
+            errorMessages.add("Password error message");
         }
+
         if(StringUtil.isValidEmailAddress(accountProfileEditRequest.getEmail())){
             user.setEmail(accountProfileEditRequest.getEmail());
+        }else {
+            errorMessages.add("Email error message");
+        }
+
+        if(!errorMessages.isEmpty()){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(String.join(",", errorMessages));
         }
         return userRepo.save(user).getId();
+    }
+
+    @Override
+    public Long editUserPersonalProfile(Long id, PersonalProfileEditRequest personalProfileEditRequest) {
+        return null;
     }
 
     @Override

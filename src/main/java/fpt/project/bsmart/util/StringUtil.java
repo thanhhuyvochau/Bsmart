@@ -1,5 +1,7 @@
 package fpt.project.bsmart.util;
 
+import org.springframework.security.core.parameters.P;
+
 import java.util.regex.Pattern;
 
 public class StringUtil {
@@ -10,6 +12,7 @@ public class StringUtil {
 
     //This regex pattern use RFC standard( version RFC-5322)
     private static final Pattern EMAIL_REGEX_PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
+    private static final Pattern VIETNAMESE_MOBILE_PHONE_NUMBER_PATTERN = Pattern.compile("(\\+84|0)(3[2-9]|5[689]|7[0|6-9]|8[1-9]|9[0-4|6-9])[0-9]{7}");
     /**
      * Checks if a string is null or empty.
      *
@@ -69,9 +72,7 @@ public class StringUtil {
         }
     }
 
-    public static boolean isValidFacebookLink(String url){
-        return FACEBOOK_REGEX_PATTERN.matcher(url).matches();
-    }
+    public static boolean isValidFacebookLink(String url){return FACEBOOK_REGEX_PATTERN.matcher(url).matches();}
 
     public static boolean isValidInstagramLink(String url){
         return INSTAGRAM_REGEX_PATTERN.matcher(url).matches();
@@ -84,4 +85,5 @@ public class StringUtil {
     public static boolean isValidEmailAddress(String url){
         return EMAIL_REGEX_PATTERN.matcher(url).matches();
     }
+    public static boolean isValidVietnameseMobilePhoneNumber(String phoneNumber){return VIETNAMESE_MOBILE_PHONE_NUMBER_PATTERN.matcher(phoneNumber).matches();}
 }
