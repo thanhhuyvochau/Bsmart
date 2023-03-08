@@ -17,6 +17,7 @@ public abstract class User_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static volatile ListAttribute<User, Role> roles;
 	public static volatile ListAttribute<User, Image> userImages;
 	public static volatile SingularAttribute<User, String> fullName;
+	public static volatile SingularAttribute<User, MentorProfile> mentorProfile;
 	public static volatile SingularAttribute<User, String> facebookLink;
 	public static volatile SingularAttribute<User, String> password;
 	public static volatile SingularAttribute<User, String> phone;
@@ -33,6 +34,7 @@ public abstract class User_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static final String ROLES = "roles";
 	public static final String USER_IMAGES = "userImages";
 	public static final String FULL_NAME = "fullName";
+	public static final String MENTOR_PROFILE = "mentorProfile";
 	public static final String FACEBOOK_LINK = "facebookLink";
 	public static final String PASSWORD = "password";
 	public static final String PHONE = "phone";
