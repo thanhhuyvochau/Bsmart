@@ -1,7 +1,7 @@
 package fpt.project.bsmart.service.Impl;
 
 
-import fpt.project.bsmart.entity.Role;
+import fpt.project.bsmart.entity.Image;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
@@ -13,60 +13,59 @@ import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import fpt.project.bsmart.entity.constant.EImageType;
+import fpt.project.bsmart.entity.request.UploadImageRequest;
+import fpt.project.bsmart.repository.ImageRepository;
+import fpt.project.bsmart.repository.UserRepository;
+import fpt.project.bsmart.service.IUserService;
+import fpt.project.bsmart.util.MessageUtil;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
 
 @Service
-public class UserServiceImpl implements IUserService, UserDetailsService {
+public class UserServiceImpl implements IUserService {
+    private final UserRepository userRepository;
 
+    private final MessageUtil messageUtil;
 
-    private final UserRepository userRepo;
+    private final ImageRepository imageRepository;
 
-    private final RoleRepository roleRepo;
+    //@Autowired
+    //private  BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired
-    private BCryptPasswordEncoder bCryptEncoder;
-
-    public UserServiceImpl(UserRepository userRepo, RoleRepository roleRepo) {
-        this.userRepo = userRepo;
-        this.roleRepo = roleRepo;
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, ImageRepository imageRepository) {
+        this.userRepository = userRepository;
+        this.messageUtil = messageUtil;
+        this.imageRepository = imageRepository;
     }
 
-    private User findUserById(Long id){
-        return userRepo.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(""));
+    private User findUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + id));
     }
 
-    @Override
-    public Long saveUser(CreateAccountRequest createAccountRequest) {
-        User user = new User();
-        user.setUsername(createAccountRequest.getUsername());
-        user.setPassword(bCryptEncoder.encode(createAccountRequest.getPassword()));
-        user.setEmail(createAccountRequest.getEmail());
-        user.setAddress(createAccountRequest.getAddress());
-        user.setBirthday(createAccountRequest.getBirthday());
-        user.setPhone(createAccountRequest.getPhone());
-        user.setFullName(createAccountRequest.getFullName());
-        List<Role> roleList = new ArrayList<>();
-        Role role = roleRepo.findRoleByCode(createAccountRequest.getRole())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
-        roleList.add(role);
-        user.setRoles(roleList);
-
-        return userRepo.save(user).getId();
-    }
-
-    @Override
-    public Optional<User> findByUsername(String username) {
-        return userRepo.findByUsername(username);
+    public Long uploadImageProfile(Long id, UploadImageRequest uploadImageRequest) {
+        User user = findUserById(id);
+        Image image = new Image();
+        String name = uploadImageRequest.getFile().getOriginalFilename() + "-" + Instant.now().toString();
+//        ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, uploadImageRequest.getFile().getContentType(),
+//                uploadImageRequest.getFile().getInputStream(), uploadImageRequest.getFile().getSize());
+        image.setNote(name);
+//        image.setUrl(RequestUrlUtil.buildUrl(minioUrl, objectWriteResponse));
+        image.setUser(user);
+        if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
+            image.setType(EImageType.AVATAR);
+        } else if (uploadImageRequest.getImageType().equals(EImageType.CI)) {
+            image.setType(EImageType.CI);
+        }
+        return imageRepository.save(image).getId();
     }
 
     @Override
@@ -96,7 +95,7 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(String.join(",", errorMessages));
         }
-        return userRepo.save(user).getId();
+        return userRepository.save(user).getId();
     }
 
     @Override
@@ -104,7 +103,8 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         User user = findUserById(id);
         List<String> errorMessages = new ArrayList<>();
         if(StringUtil.isNotNullOrEmpty(accountProfileEditRequest.getPassword())){
-            user.setPassword(bCryptEncoder.encode(accountProfileEditRequest.getPassword()));
+            //user.setPassword(bCryptEncoder.encode(accountProfileEditRequest.getPassword()));
+            user.setPassword(accountProfileEditRequest.getPassword());
         }else{
             errorMessages.add("Password error message");
         }
@@ -119,34 +119,60 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(String.join(",", errorMessages));
         }
-        return userRepo.save(user).getId();
+        return userRepository.save(user).getId();
     }
 
     @Override
     public Long editUserPersonalProfile(Long id, PersonalProfileEditRequest personalProfileEditRequest) {
         return null;
     }
+    
+//    @Override
+//    public Long saveUser(CreateAccountRequest createAccountRequest) {
+//        User user = new User();
+//        user.setUsername(createAccountRequest.getUsername());
+//        user.setPassword(bCryptEncoder.encode(createAccountRequest.getPassword()));
+//        user.setEmail(createAccountRequest.getEmail());
+//        user.setAddress(createAccountRequest.getAddress());
+//        user.setBirthday(createAccountRequest.getBirthday());
+//        user.setPhone(createAccountRequest.getPhone());
+//        user.setFullName(createAccountRequest.getFullName());
+//        List<Role> roleList = new ArrayList<>();
+//        Role role = roleRepo.findRoleByCode(createAccountRequest.getRole())
+//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
+//        roleList.add(role);
+//        user.setRoles(roleList);
+//
+//        return userRepo.save(user).getId();
+//    }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> opt = userRepo.findByUsername(username);
-        org.springframework.security.core.userdetails.User springUser = null;
-        if (!opt.isPresent()) {
-            throw new UsernameNotFoundException("User with username: " + username + " not found");
-        } else {
-            User user = opt.get();    //retrieving user from DB
-            List<Role> roles = user.getRoles();
-            Set<GrantedAuthority> ga = new HashSet<>();
-            for (Role role : roles) {
-                ga.add(new SimpleGrantedAuthority(role.getCode().toString()));
-            }
+//    @Override
+//    public Optional<User> findByUsername(String username) {
+//        return userRepo.findByUsername(username);
+//    }
 
-            springUser = new org.springframework.security.core.userdetails.User(
-                    username,
-                    user.getPassword(),
-                    ga);
-        }
-
-        return springUser;
-    }
+//    @Override
+//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        Optional<User> opt = userRepo.findByUsername(username);
+//        org.springframework.security.core.userdetails.User springUser = null;
+//        if (!opt.isPresent()) {
+//            throw new UsernameNotFoundException("User with username: " + username + " not found");
+//        } else {
+//            User user = opt.get();    //retrieving user from DB
+//            List<Role> roles = user.getRoles();
+//            Set<GrantedAuthority> ga = new HashSet<>();
+//            for (Role role : roles) {
+//                ga.add(new SimpleGrantedAuthority(role.getCode().toString()));
+//            }
+//
+//            springUser = new org.springframework.security.core.userdetails.User(
+//                    username,
+//                    user.getPassword(),
+//                    ga);
+//        }
+//
+//        return springUser;
+//    }
 }
+
+
