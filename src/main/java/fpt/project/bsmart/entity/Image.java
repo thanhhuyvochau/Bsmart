@@ -16,6 +16,9 @@ public class Image extends BaseEntity {
     @Column(name = "name")
     private String note;
 
+    @Column(name = "url")
+    private String url;
+
     @Column(name = "status")
     private boolean status;
 
@@ -71,5 +74,13 @@ public class Image extends BaseEntity {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }
