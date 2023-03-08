@@ -1,0 +1,12 @@
+*.sw?
+.#*
+*#
+*~
+target
+dependency-reduced-pom.xml
+*.sublime-*
+/scratch
+README.html
+*yarn.lock*
+src/main/resources/application-local.yml
+
