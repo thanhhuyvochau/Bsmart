@@ -18,9 +18,9 @@ public class Role extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private EUserRole code;
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
-    List<User> users = new ArrayList<>();
+//    @JsonIgnore
+//    @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
+//    List<User> users = new ArrayList<>();
 
 
     public Long getId() {
@@ -40,11 +40,5 @@ public class Role extends BaseEntity {
         this.code = code;
     }
 
-    public List<User> getUsers() {
-        return users;
-    }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
 }

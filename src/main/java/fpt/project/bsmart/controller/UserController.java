@@ -1,6 +1,7 @@
 package fpt.project.bsmart.controller;
 
 
+import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,5 +52,11 @@ public class UserController {
     @PostMapping("/{id}/image")
     public ResponseEntity<Long> uploadImageRegisterProfile(@PathVariable Long id, @ModelAttribute UploadImageRequest uploadImageRequest) throws IOException {
         return ResponseEntity.ok(iUserService.uploadImageProfile(id, uploadImageRequest));
+    }
+
+    @Operation(summary = "Member / Mentor register account")
+    @PostMapping("/register")
+    public ResponseEntity<Long> registerAccount(@RequestBody CreateAccountRequest createAccountRequest) {
+        return ResponseEntity.ok(iUserService.registerAccount(createAccountRequest));
     }
 }

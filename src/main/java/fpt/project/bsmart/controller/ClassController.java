@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.request.category.CategoryRequest;
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -22,10 +23,11 @@ public class ClassController {
         this.iClassService = iClassService;
     }
 
-    @Operation(summary = "admin tao class")
+    @Operation(summary = "mentor tao lớp học")
+    @PreAuthorize("hasAuthority('TEACHER')")
     @PostMapping
-    public ResponseEntity<ApiResponse<Long>> adminCreateClass(@Valid @RequestBody CreateClassRequest createClassRequest) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.adminCreateClass(createClassRequest)));
+    public ResponseEntity<ApiResponse<Long>> mentorCreateClass(@Valid @RequestBody CreateClassRequest createClassRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClass(createClassRequest)));
     }
 
 
