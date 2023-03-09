@@ -52,8 +52,8 @@ public class User extends BaseEntity {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<Image> userImages = new ArrayList<>();
-    @OneToOne(mappedBy = "owner")
-    private Wallet wallet;
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
+    private Wallet wallet = new Wallet();
     @OneToOne(mappedBy = "user")
     private MentorProfile mentorProfile;
 

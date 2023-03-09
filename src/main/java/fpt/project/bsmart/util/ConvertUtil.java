@@ -64,4 +64,7 @@ public class ConvertUtil {
         return new TimeInWeekDTO(dayOfWeekDTO, simpleClazz, slotDto);
     }
 
+    public static TransactionDto convertTransactionToDto(Transaction transaction) {
+        return ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);
+    }
 }
