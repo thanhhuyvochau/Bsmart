@@ -1,8 +1,6 @@
 package fpt.project.bsmart.entity.dto;
 
 
-import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 
 import java.util.ArrayList;
@@ -11,39 +9,29 @@ import java.util.List;
 
 public class CourseDto {
 
-
     private Long id;
 
     private String name;
 
     private String code;
 
-
     private String description;
-
 
     private boolean status;
 
-
-    private ECourseLevel level;
-
+    private String level;
 
     private Double referenceDiscount = 0.0;
 
+    private SubjectDto subject;
 
-    private Subject subject;
-
-
-    private User mentor;
-
+    private UserDto mentor;
 
     private ImageDto image;
 
-
     private List<SectionDto> sections = new ArrayList<>();
 
-
-    private List<fpt.project.bsmart.entity.Class> classes = new ArrayList<>();
+    private List<Long> classes = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -85,11 +73,11 @@ public class CourseDto {
         this.status = status;
     }
 
-    public ECourseLevel getLevel() {
+    public String getLevel() {
         return level;
     }
 
-    public void setLevel(ECourseLevel level) {
+    public void setLevel(String level) {
         this.level = level;
     }
 
@@ -101,19 +89,19 @@ public class CourseDto {
         this.referenceDiscount = referenceDiscount;
     }
 
-    public Subject getSubject() {
+    public SubjectDto getSubject() {
         return subject;
     }
 
-    public void setSubject(Subject subject) {
+    public void setSubject(SubjectDto subject) {
         this.subject = subject;
     }
 
-    public User getMentor() {
+    public UserDto getMentor() {
         return mentor;
     }
 
-    public void setMentor(User mentor) {
+    public void setMentor(UserDto mentor) {
         this.mentor = mentor;
     }
 
@@ -133,11 +121,11 @@ public class CourseDto {
         this.sections = sections;
     }
 
-    public List<Class> getClasses() {
+    public List<Long> getClasses() {
         return classes;
     }
 
-    public void setClasses(List<Class> classes) {
+    public void setClasses(List<Long> classes) {
         this.classes = classes;
     }
 }

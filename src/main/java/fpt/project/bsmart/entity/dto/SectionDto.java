@@ -11,9 +11,8 @@ import java.util.List;
 public class SectionDto {
 
     private Long id;
-    
     private String name;
-    
+    private Long courseId;
     private List<ModuleDto> modules = new ArrayList<>();
 
     public Long getId() {
@@ -30,6 +29,14 @@ public class SectionDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(Long courseId) {
+        this.courseId = courseId;
     }
 
     public List<ModuleDto> getModules() {

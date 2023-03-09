@@ -34,7 +34,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}/subjects")
-    public ResponseEntity<ApiResponse<List<SubjectDto>>> getSubjectByCategory(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<List<SubjectDto>>> getSubjectsByCategory(@PathVariable Long id){
         return ResponseEntity.ok(ApiResponse.success(iCategoryService.getSubjectByCategory(id)));
     }
 
