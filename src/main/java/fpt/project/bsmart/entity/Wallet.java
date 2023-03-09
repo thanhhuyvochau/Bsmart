@@ -12,7 +12,7 @@ public class Wallet extends BaseEntity {
     @Column(name = "balance")
     private BigDecimal balance;
     @Column(name = "previous_balance")
-    private BigDecimal previous_balance;
+    private BigDecimal previousBalance;
     @OneToOne
     @JoinColumn(name = "owner_id")
     private User owner;
@@ -30,16 +30,16 @@ public class Wallet extends BaseEntity {
     }
 
     public void setBalance(BigDecimal balance) {
-        this.previous_balance = this.balance;
+        this.previousBalance = this.balance;
         this.balance = balance;
     }
 
-    public BigDecimal getPrevious_balance() {
-        return previous_balance;
+    public BigDecimal getPreviousBalance() {
+        return previousBalance;
     }
 
-    public void setPrevious_balance(BigDecimal previous_balance) {
-        this.previous_balance = previous_balance;
+    public void setPreviousBalance(BigDecimal previousBalance) {
+        this.previousBalance = previousBalance;
     }
 
     public User getOwner() {
