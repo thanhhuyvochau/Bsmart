@@ -11,6 +11,7 @@ import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.repository.RoleRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IUserService;
+import fpt.project.bsmart.util.DayUtil;
 import fpt.project.bsmart.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import fpt.project.bsmart.entity.constant.EImageType;
@@ -69,32 +70,36 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    public User getUserById(Long id) {
+        return findUserById(id);
+    }
+
+    @Override
     public Long editUserSocialProfile(Long id, SocialProfileEditRequest socialProfileEditRequest) {
         User user = findUserById(id);
         List<String> errorMessages = new ArrayList<>();
 
-        if(StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())){
-            user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
-        }else {
+        if(!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())){
             errorMessages.add("Facebook error message");
         }
 
-        if(StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())){
-            user.setInstagramLink(socialProfileEditRequest.getInstagramLink());
-        }else{
+        if(!StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())){
             errorMessages.add("Instagram error message");
         }
 
-        if(StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())){
-            user.setTwitterLink(socialProfileEditRequest.getTwitterLink());
-        }else{
+        if(!StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())){
             errorMessages.add("Twitter error message");
         }
 
         if(!errorMessages.isEmpty()){
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(String.join(",", errorMessages));
+                    .withMessage(String.join(", ", errorMessages));
         }
+
+        user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
+        user.setInstagramLink(socialProfileEditRequest.getInstagramLink());
+        user.setTwitterLink(socialProfileEditRequest.getTwitterLink());
+
         return userRepository.save(user).getId();
     }
 
@@ -102,29 +107,50 @@ public class UserServiceImpl implements IUserService {
     public Long editUserAccountProfile(Long id, AccountProfileEditRequest accountProfileEditRequest) {
         User user = findUserById(id);
         List<String> errorMessages = new ArrayList<>();
-        if(StringUtil.isNotNullOrEmpty(accountProfileEditRequest.getPassword())){
-            //user.setPassword(bCryptEncoder.encode(accountProfileEditRequest.getPassword()));
-            user.setPassword(accountProfileEditRequest.getPassword());
-        }else{
+        if(!StringUtil.isNotNullOrEmpty(accountProfileEditRequest.getPassword())){
             errorMessages.add("Password error message");
         }
 
-        if(StringUtil.isValidEmailAddress(accountProfileEditRequest.getEmail())){
-            user.setEmail(accountProfileEditRequest.getEmail());
-        }else {
+        if(!StringUtil.isValidEmailAddress(accountProfileEditRequest.getEmail())){
             errorMessages.add("Email error message");
         }
 
         if(!errorMessages.isEmpty()){
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(String.join(",", errorMessages));
+                    .withMessage(String.join(", ", errorMessages));
         }
+        //user.setPassword(bCryptEncoder.encode(accountProfileEditRequest.getPassword()));
+        user.setPassword(accountProfileEditRequest.getPassword());
+        user.setEmail(accountProfileEditRequest.getEmail());
+
         return userRepository.save(user).getId();
     }
 
     @Override
     public Long editUserPersonalProfile(Long id, PersonalProfileEditRequest personalProfileEditRequest) {
-        return null;
+        User user = findUserById(id);
+        List<String> errorMessages = new ArrayList<>();
+        if(StringUtil.isNullOrEmpty(personalProfileEditRequest.getFullname())){
+            errorMessages.add("fullname error message");
+        }
+        if(StringUtil.isNullOrEmpty(personalProfileEditRequest.getAddress())){
+            errorMessages.add("address error message");
+        }
+        if(!StringUtil.isValidVietnameseMobilePhoneNumber(personalProfileEditRequest.getPhone())){
+            errorMessages.add("phone number error message");
+        }
+        if(!DayUtil.isValidBirthday(personalProfileEditRequest.getBirthday())){
+            errorMessages.add("birthday error message");
+        }
+        if(!errorMessages.isEmpty()){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(String.join(", ", errorMessages));
+        }
+        user.setFullName(personalProfileEditRequest.getFullname());
+        user.setAddress(personalProfileEditRequest.getAddress());
+        user.setPassword(personalProfileEditRequest.getAddress());
+        user.setBirthday(personalProfileEditRequest.getBirthday());
+        return userRepository.save(user).getId();
     }
     
 //    @Override

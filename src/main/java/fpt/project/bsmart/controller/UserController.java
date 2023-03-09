@@ -1,6 +1,7 @@
 package fpt.project.bsmart.controller;
 
 
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
@@ -52,6 +53,10 @@ public class UserController {
 //        return ResponseEntity.ok(new UserResponse(token, "Token generated successfully!"));
 //    }
 
+    @GetMapping("{id}")
+    public ResponseEntity<ApiResponse<User>> getUser(@PathVariable Long id){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.getUserById(id)));
+    }
     @Operation(summary = "Chỉnh sửa liên kết mạng xã hội")
     @PutMapping("/{id}/social")
     public ResponseEntity<ApiResponse<Long>> editSocialProfile(@PathVariable Long id, @RequestBody SocialProfileEditRequest socialProfileEditRequest){

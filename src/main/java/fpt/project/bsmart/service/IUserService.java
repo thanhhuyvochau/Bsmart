@@ -11,6 +11,7 @@ import java.util.Optional;
 
 
 public interface IUserService {
+    User getUserById(Long id);
     Long editUserSocialProfile(Long id, SocialProfileEditRequest socialProfileEditRequest);
     Long editUserAccountProfile(Long id, AccountProfileEditRequest accountProfileEditRequest);
     Long editUserPersonalProfile(Long id, PersonalProfileEditRequest personalProfileEditRequest);

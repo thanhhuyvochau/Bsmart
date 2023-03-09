@@ -12,7 +12,7 @@ public class StringUtil {
 
     //This regex pattern use RFC standard( version RFC-5322)
     private static final Pattern EMAIL_REGEX_PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
-    private static final Pattern VIETNAMESE_MOBILE_PHONE_NUMBER_PATTERN = Pattern.compile("(\\+84|0)(3[2-9]|5[689]|7[0|6-9]|8[1-9]|9[0-4|6-9])[0-9]{7}");
+    private static final Pattern VIETNAMESE_MOBILE_PHONE_NUMBER_PATTERN = Pattern.compile("(?:03|05|07|08|09|01[2689])[0-9]{8}\\b");
     /**
      * Checks if a string is null or empty.
      *

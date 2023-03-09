@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
@@ -91,5 +92,17 @@ public class DayUtil {
 
     }
 
+    public static boolean isValidBirthday(Instant birthday) {
+        // Get the local date of the birthday in the default time zone
+        LocalDate localDate = birthday.atOffset(ZoneOffset.UTC).toLocalDate();
+
+        // Ensure that the time component is zero
+        boolean isMidnight = (birthday.getEpochSecond() % 86400 == 0);
+
+        // Ensure that the date is in the past and not in the future
+        boolean isPast = localDate.isBefore(LocalDate.now());
+
+        return isMidnight && isPast;
+    }
 
 }
