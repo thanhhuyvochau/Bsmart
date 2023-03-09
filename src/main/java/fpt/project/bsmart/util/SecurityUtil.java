@@ -1,64 +1,51 @@
 package fpt.project.bsmart.util;
 
+import fpt.project.bsmart.config.security.service.UserDetailsImpl;
+import fpt.project.bsmart.config.security.service.UserDetailsServiceImpl;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
+
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
 import java.util.Optional;
+
+import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
 
 @Component
 public class SecurityUtil {
+    private static MessageUtil messageUtil;
+    private static UserRepository staticOrderRepository;
 
-    private final UserRepository userRepository;
-
-
-    public SecurityUtil(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public SecurityUtil(MessageUtil messageUtil, UserRepository userRepository) {
+        this.messageUtil = messageUtil;
+        staticOrderRepository = userRepository;
     }
 
-    public User getCurrentUserThrowNotFoundException() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Jwt principal = (Jwt) authentication.getPrincipal();
-        String username = principal.getClaimAsString("preferred_username");
-//        User currentUser = Optional.ofNullable(accountRepository.findByUsername(username))
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Student not found by username"));
-//        return currentUser;
-        return null;
-    }
+    @Autowired
+    private static UserDetailsServiceImpl userDetailsService;
 
-    public static Optional<String> getCurrentUserName() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getPrincipal().equals("anonymousUser")) {
-            return Optional.empty();
+    public static User getCurrentUserAccountLogin() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Object principal = securityContext.getAuthentication().getPrincipal();
+
+
+        UserDetails userDetails1 = null;
+        User user = null;
+        if (principal instanceof UserDetailsImpl) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) principal;
+            String email = userDetails.getEmail();
+            user = staticOrderRepository.findByEmail(email)
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(messageUtil.getLocalMessage("Tài khoản đăng nhập hiện tại không tìm thấy") + email));
+
         }
-        Jwt principal = (Jwt) authentication.getPrincipal();
-        String username = principal.getClaimAsString("preferred_username");
-        return Optional.ofNullable(username);
-    }
 
-    public static Jwt getCurrentPrincipal() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage("User principal is null!");
-        }
-        return (Jwt) authentication.getPrincipal();
-    }
-
-    public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (Objects.equals(authentication.getPrincipal(), "anonymousUser")) {
-            return null;
-        } else {
-            Jwt principal = (Jwt) authentication.getPrincipal();
-            String username = principal.getClaimAsString("preferred_username");
-//            return accountRepository.findByUsername(username);
-            return null;
-        }
+        return user;
     }
 }

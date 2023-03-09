@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface IUserService {
     Long uploadImageProfile(Long id, UploadImageRequest uploadImageRequest);
-//    Integer saveUser(CreateAccountRequest createAccountRequest);
+    Long registerAccount(CreateAccountRequest createAccountRequest);
 
 //    Optional<User> findByUsername(String username);
 }

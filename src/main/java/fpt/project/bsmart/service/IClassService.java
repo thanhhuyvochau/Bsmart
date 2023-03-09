@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface IClassService {
 
-    Long adminCreateClass(CreateClassRequest createClassRequest);
+    Long mentorCreateClass(CreateClassRequest createClassRequest);
 }
