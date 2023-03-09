@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.Category;
 import fpt.project.bsmart.entity.Subject;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.dto.CategoryDto;
+import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.request.category.CategoryRequest;
 import fpt.project.bsmart.repository.CategoryRepository;
 import fpt.project.bsmart.service.ICategoryService;
@@ -16,6 +17,7 @@ import java.util.List;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
 import static fpt.project.bsmart.util.ConvertUtil.convertCategoryToCategoryDto;
+import static fpt.project.bsmart.util.ConvertUtil.convertSubjectToSubjectDto;
 
 @Service
 public class CategoryServiceImpl implements ICategoryService {
@@ -47,6 +49,19 @@ public class CategoryServiceImpl implements ICategoryService {
             categoryDtoList.add(convertCategoryToCategoryDto(category));
         }
         return categoryDtoList;
+    }
+
+    @Override
+    public List<SubjectDto> getSubjectByCategory(Long id) {
+        Category category = findById(id);
+        List<Subject> subjectList = category.getSubjects();
+        List<SubjectDto> subjectDtoList = new ArrayList<>();
+        if(!subjectList.isEmpty()){
+            for(Subject subject : subjectList){
+                subjectDtoList.add(convertSubjectToSubjectDto(subject));
+            }
+        }
+        return subjectDtoList;
     }
 
     @Override
