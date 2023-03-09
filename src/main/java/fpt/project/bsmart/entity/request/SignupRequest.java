@@ -2,28 +2,13 @@ package fpt.project.bsmart.entity.request;
 
 import fpt.project.bsmart.entity.constant.EUserRole;
 
-import java.time.Instant;
+import java.util.List;
 
-public class CreateAccountRequest {
-
-    private String fullName;
-
-    private String email;
-
-    private String phone;
-
-
-    private String password;
+public class SignupRequest {
+    private String email ;
+    private String password ;
 
     private EUserRole role;
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
 
     public String getEmail() {
         return email;
@@ -31,14 +16,6 @@ public class CreateAccountRequest {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
     }
 
     public String getPassword() {

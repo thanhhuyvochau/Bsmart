@@ -11,6 +11,8 @@ public class CreateCourseRequest {
 
     private Long categoryId;
 
+
+
     private Long subjectId;
 
     private String description;
@@ -36,6 +38,8 @@ public class CreateCourseRequest {
     public Long getSubjectId() {
         return subjectId;
     }
+
+
 
     public void setSubjectId(Long subjectId) {
         this.subjectId = subjectId;

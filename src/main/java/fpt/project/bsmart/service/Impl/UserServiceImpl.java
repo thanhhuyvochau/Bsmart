@@ -2,6 +2,7 @@ package fpt.project.bsmart.service.Impl;
 
 
 import fpt.project.bsmart.entity.Image;
+import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
@@ -15,8 +16,10 @@ import fpt.project.bsmart.util.DayUtil;
 import fpt.project.bsmart.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import fpt.project.bsmart.entity.constant.EImageType;
+import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.repository.ImageRepository;
+import fpt.project.bsmart.repository.RoleRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.MessageUtil;
@@ -36,14 +39,14 @@ public class UserServiceImpl implements IUserService {
 
     private final MessageUtil messageUtil;
 
+    private final RoleRepository roleRepository;
+
     private final ImageRepository imageRepository;
 
-    //@Autowired
-    //private  BCryptPasswordEncoder passwordEncoder;
-
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, ImageRepository imageRepository) {
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, ImageRepository imageRepository) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
+        this.roleRepository = roleRepository;
         this.imageRepository = imageRepository;
     }
 
@@ -153,6 +156,19 @@ public class UserServiceImpl implements IUserService {
         return userRepository.save(user).getId();
     }
     
+    public Long registerAccount(CreateAccountRequest createAccountRequest) {
+        User user = new User();
+        user.setEmail(createAccountRequest.getEmail());
+        user.setPhone(createAccountRequest.getPhone());
+        user.setFullName(createAccountRequest.getFullName());
+        user.setPassword(createAccountRequest.getPassword());
+        List<Role> roleList = new ArrayList<>();
+        Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
+        roleList.add(role);
+        user.setRoles(roleList);
+        return userRepository.save(user).getId();
+    }
 //    @Override
 //    public Long saveUser(CreateAccountRequest createAccountRequest) {
 //        User user = new User();
@@ -200,5 +216,7 @@ public class UserServiceImpl implements IUserService {
 //        return springUser;
 //    }
 }
+
+
 
 

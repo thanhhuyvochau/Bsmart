@@ -86,4 +86,10 @@ public class UserController {
     public ResponseEntity<Long> uploadImageRegisterProfile(@PathVariable Long id, @ModelAttribute UploadImageRequest uploadImageRequest) throws IOException {
         return ResponseEntity.ok(iUserService.uploadImageProfile(id, uploadImageRequest));
     }
+
+    @Operation(summary = "Member / Mentor register account")
+    @PostMapping("/register")
+    public ResponseEntity<Long> registerAccount(@RequestBody CreateAccountRequest createAccountRequest) {
+        return ResponseEntity.ok(iUserService.registerAccount(createAccountRequest));
+    }
 }

@@ -17,5 +17,7 @@ public interface IUserService {
     Long editUserPersonalProfile(Long id, PersonalProfileEditRequest personalProfileEditRequest);
     Long uploadImageProfile(Long id, UploadImageRequest uploadImageRequest);
 //    Long saveUser(CreateAccountRequest createAccountRequest);
+    Long registerAccount(CreateAccountRequest createAccountRequest);
+
 //    Optional<User> findByUsername(String username);
 }
