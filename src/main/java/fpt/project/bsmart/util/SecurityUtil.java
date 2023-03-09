@@ -3,19 +3,15 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.config.security.service.UserDetailsImpl;
 import fpt.project.bsmart.config.security.service.UserDetailsServiceImpl;
 import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.Wallet;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
-
-import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
 
 @Component
 public class SecurityUtil {
@@ -33,8 +29,6 @@ public class SecurityUtil {
     public static User getCurrentUserAccountLogin() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Object principal = securityContext.getAuthentication().getPrincipal();
-
-
         UserDetails userDetails1 = null;
         User user = null;
         if (principal instanceof UserDetailsImpl) {
@@ -43,9 +37,11 @@ public class SecurityUtil {
             user = staticOrderRepository.findByEmail(email)
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                             .withMessage(messageUtil.getLocalMessage("Tài khoản đăng nhập hiện tại không tìm thấy") + email));
-
         }
-
         return user;
+    }
+
+    public static Wallet getCurrentUserWallet() {
+        return getCurrentUserAccountLogin().getWallet();
     }
 }
