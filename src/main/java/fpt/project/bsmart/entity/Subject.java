@@ -14,9 +14,11 @@ public class Subject extends BaseEntity {
     private String code;
     @Column(name = "name")
     private String name;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
     @OneToMany(mappedBy = "subject")
     private List<Course> courses = new ArrayList<>();
 

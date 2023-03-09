@@ -79,6 +79,7 @@ public class SubjectServiceImpl implements ISubjectService {
 
     public Long deleteSubject(Long id) {
         Subject subject = findById(id);
+
         subjectRepository.delete(subject);
         return id;
     }

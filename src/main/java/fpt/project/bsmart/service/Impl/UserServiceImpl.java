@@ -5,6 +5,16 @@ import fpt.project.bsmart.entity.Image;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.request.CreateAccountRequest;
+import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
+import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
+import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
+import fpt.project.bsmart.repository.RoleRepository;
+import fpt.project.bsmart.repository.UserRepository;
+import fpt.project.bsmart.service.IUserService;
+import fpt.project.bsmart.util.DayUtil;
+import fpt.project.bsmart.util.StringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
@@ -14,6 +24,7 @@ import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.MessageUtil;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -39,15 +50,13 @@ public class UserServiceImpl implements IUserService {
         this.imageRepository = imageRepository;
     }
 
-    private User findById(Long id) {
+    private User findUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + id));
     }
 
-    @Override
     public Long uploadImageProfile(Long id, UploadImageRequest uploadImageRequest) {
-        User user = findById(id);
-
+        User user = findUserById(id);
         Image image = new Image();
         String name = uploadImageRequest.getFile().getOriginalFilename() + "-" + Instant.now().toString();
 //        ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, uploadImageRequest.getFile().getContentType(),
@@ -59,13 +68,94 @@ public class UserServiceImpl implements IUserService {
             image.setType(EImageType.AVATAR);
         } else if (uploadImageRequest.getImageType().equals(EImageType.CI)) {
             image.setType(EImageType.CI);
-
-
         }
         return imageRepository.save(image).getId();
     }
 
     @Override
+    public User getUserById(Long id) {
+        return findUserById(id);
+    }
+
+    @Override
+    public Long editUserSocialProfile(Long id, SocialProfileEditRequest socialProfileEditRequest) {
+        User user = findUserById(id);
+        List<String> errorMessages = new ArrayList<>();
+
+        if(!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())){
+            errorMessages.add("Facebook error message");
+        }
+
+        if(!StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())){
+            errorMessages.add("Instagram error message");
+        }
+
+        if(!StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())){
+            errorMessages.add("Twitter error message");
+        }
+
+        if(!errorMessages.isEmpty()){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(String.join(", ", errorMessages));
+        }
+
+        user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
+        user.setInstagramLink(socialProfileEditRequest.getInstagramLink());
+        user.setTwitterLink(socialProfileEditRequest.getTwitterLink());
+
+        return userRepository.save(user).getId();
+    }
+
+    @Override
+    public Long editUserAccountProfile(Long id, AccountProfileEditRequest accountProfileEditRequest) {
+        User user = findUserById(id);
+        List<String> errorMessages = new ArrayList<>();
+        if(!StringUtil.isNotNullOrEmpty(accountProfileEditRequest.getPassword())){
+            errorMessages.add("Password error message");
+        }
+
+        if(!StringUtil.isValidEmailAddress(accountProfileEditRequest.getEmail())){
+            errorMessages.add("Email error message");
+        }
+
+        if(!errorMessages.isEmpty()){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(String.join(", ", errorMessages));
+        }
+        //user.setPassword(bCryptEncoder.encode(accountProfileEditRequest.getPassword()));
+        user.setPassword(accountProfileEditRequest.getPassword());
+        user.setEmail(accountProfileEditRequest.getEmail());
+
+        return userRepository.save(user).getId();
+    }
+
+    @Override
+    public Long editUserPersonalProfile(Long id, PersonalProfileEditRequest personalProfileEditRequest) {
+        User user = findUserById(id);
+        List<String> errorMessages = new ArrayList<>();
+        if(StringUtil.isNullOrEmpty(personalProfileEditRequest.getFullname())){
+            errorMessages.add("fullname error message");
+        }
+        if(StringUtil.isNullOrEmpty(personalProfileEditRequest.getAddress())){
+            errorMessages.add("address error message");
+        }
+        if(!StringUtil.isValidVietnameseMobilePhoneNumber(personalProfileEditRequest.getPhone())){
+            errorMessages.add("phone number error message");
+        }
+        if(!DayUtil.isValidBirthday(personalProfileEditRequest.getBirthday())){
+            errorMessages.add("birthday error message");
+        }
+        if(!errorMessages.isEmpty()){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(String.join(", ", errorMessages));
+        }
+        user.setFullName(personalProfileEditRequest.getFullname());
+        user.setAddress(personalProfileEditRequest.getAddress());
+        user.setPassword(personalProfileEditRequest.getAddress());
+        user.setBirthday(personalProfileEditRequest.getBirthday());
+        return userRepository.save(user).getId();
+    }
+    
     public Long registerAccount(CreateAccountRequest createAccountRequest) {
         User user = new User();
         user.setEmail(createAccountRequest.getEmail());
@@ -79,10 +169,8 @@ public class UserServiceImpl implements IUserService {
         user.setRoles(roleList);
         return userRepository.save(user).getId();
     }
-
-}
 //    @Override
-//    public Integer saveUser(CreateAccountRequest createAccountRequest) {
+//    public Long saveUser(CreateAccountRequest createAccountRequest) {
 //        User user = new User();
 //        user.setUsername(createAccountRequest.getUsername());
 //        user.setPassword(bCryptEncoder.encode(createAccountRequest.getPassword()));
@@ -127,5 +215,8 @@ public class UserServiceImpl implements IUserService {
 //
 //        return springUser;
 //    }
+}
+
+
 
 
