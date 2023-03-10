@@ -105,13 +105,7 @@ public class UserDto {
         this.roles = roles;
     }
 
-    public List<ImageDto> getUserImages() {
-        return userImages;
-    }
 
-    public void setUserImages(List<ImageDto> userImages) {
-        this.userImages = userImages;
-    }
 
     public String getTwitterLink() {
         return twitterLink;
@@ -143,5 +137,13 @@ public class UserDto {
 
     public void setWallet(WalletDto wallet) {
         this.wallet = wallet;
+    }
+
+    public List<ImageDto> getUserImages() {
+        return userImages;
+    }
+
+    public void setUserImages(List<ImageDto> userImages) {
+        this.userImages = userImages;
     }
 }

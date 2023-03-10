@@ -1,6 +1,7 @@
 package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.dto.CategoryDto;
+import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.request.category.CategoryRequest;
 
 import java.util.List;

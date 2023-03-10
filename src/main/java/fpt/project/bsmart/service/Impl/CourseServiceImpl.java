@@ -11,6 +11,7 @@ import fpt.project.bsmart.entity.request.CourseSectionRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.repository.CategoryRepository;
 import fpt.project.bsmart.repository.CourseRepository;
+import fpt.project.bsmart.repository.SubjectRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.ICourseService;
 import fpt.project.bsmart.util.ConvertUtil;
@@ -24,10 +25,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
+
+import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_BY_ID;
+
 import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDTO;
 
 
@@ -38,13 +41,29 @@ public class CourseServiceImpl implements ICourseService {
 
     private final CourseRepository courseRepository;
 
+    private final SubjectRepository subjectRepository;
+
     private final UserRepository userRepository;
 
-    public CourseServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil, CourseRepository courseRepository, UserRepository userRepository) {
+    public CourseServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil, CourseRepository courseRepository, SubjectRepository subjectRepository, UserRepository userRepository) {
         this.categoryRepository = categoryRepository;
         this.messageUtil = messageUtil;
         this.courseRepository = courseRepository;
+        this.subjectRepository = subjectRepository;
         this.userRepository = userRepository;
+    }
+
+    @Override
+    public List<CourseDto> getCoursesBySubject(Long id) {
+        Subject subject = subjectRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + id));
+        List<CourseDto> courseDtoList = new ArrayList<>();
+        if(!subject.getCourses().isEmpty()){
+            for (Course course : subject.getCourses()){
+                courseDtoList.add(convertCourseToCourseDTO(course));
+            }
+        }
+        return courseDtoList;
     }
 
     @Override

@@ -1,8 +1,6 @@
 package fpt.project.bsmart.entity.dto;
 
 
-import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 
 import java.util.ArrayList;
@@ -11,37 +9,30 @@ import java.util.List;
 
 public class CourseDto {
 
-
     private Long id;
 
     private String name;
 
     private String code;
 
-
     private String description;
-
 
     private boolean status;
 
-
     private ECourseLevel level;
-
 
     private Double referenceDiscount = 0.0;
 
-
     private SubjectDto subject;
 
-
     private Long mentorId;
+
+    private UserDto mentor;
 
 
     private ImageDto image;
 
-
     private List<SectionDto> sections = new ArrayList<>();
-
 
     private List<Long> classes = new ArrayList<>();
 
@@ -115,6 +106,14 @@ public class CourseDto {
 
     public void setMentorId(Long mentorId) {
         this.mentorId = mentorId;
+    }
+
+    public UserDto getMentor() {
+        return mentor;
+    }
+
+    public void setMentor(UserDto mentor) {
+        this.mentor = mentor;
     }
 
     public ImageDto getImage() {

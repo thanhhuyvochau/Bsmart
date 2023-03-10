@@ -2,6 +2,8 @@ package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "wallet")
@@ -10,12 +12,14 @@ public class Wallet extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "balance")
-    private BigDecimal balance;
-    @Column(name = "previous_balance")
-    private BigDecimal previous_balance;
+    private BigDecimal balance = BigDecimal.ZERO;
     @OneToOne
     @JoinColumn(name = "owner_id")
     private User owner;
+    @Column(name = "code")
+    private String code;
+    @OneToMany(mappedBy = "wallet", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Transaction> transactions = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -30,16 +34,7 @@ public class Wallet extends BaseEntity {
     }
 
     public void setBalance(BigDecimal balance) {
-        this.previous_balance = this.balance;
         this.balance = balance;
-    }
-
-    public BigDecimal getPrevious_balance() {
-        return previous_balance;
-    }
-
-    public void setPrevious_balance(BigDecimal previous_balance) {
-        this.previous_balance = previous_balance;
     }
 
     public User getOwner() {
@@ -48,5 +43,21 @@ public class Wallet extends BaseEntity {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
     }
 }

@@ -26,6 +26,49 @@ public class ConvertUtil {
     }
 
 
+
+    public static SectionDto convertSectionToSectionDto(Section section){
+        SectionDto sectionDto = ObjectUtil.copyProperties(section, new SectionDto(), SectionDto.class);
+        if(section.getCourse() != null){
+            sectionDto.setCourseId(section.getCourse().getId());
+        }
+        if(!section.getModules().isEmpty()){
+            List<ModuleDto> moduleDtoList = new ArrayList<>();
+            for (Module module : section.getModules()){
+                moduleDtoList.add(convertModuleToModuleDto(module));
+            }
+            sectionDto.setModules(moduleDtoList);
+        }
+        return sectionDto;
+    }
+
+
+
+
+
+
+    public static WalletDto convertWalletToWalletDto(Wallet wallet){
+        WalletDto walletDto = ObjectUtil.copyProperties(wallet, new WalletDto(), WalletDto.class);
+        if(wallet.getOwner() != null){
+            walletDto.setOwner_id(wallet.getOwner().getId());
+        }
+        return walletDto;
+    }
+
+    public static ImageDto convertImageToImageDto(Image image){
+        ImageDto imageDto = ObjectUtil.copyProperties(image, new ImageDto(), ImageDto.class);
+        if(image.getUser() != null){
+            imageDto.setUserId(image.getUser().getId());
+        }
+        return imageDto;
+    }
+
+    public static RoleDto convertRoleToRoleDto(Role role){
+        RoleDto roleDto = ObjectUtil.copyProperties(role, new RoleDto(), RoleDto.class);
+        roleDto.setName(role.getCode().getName());
+        return roleDto;
+    }
+
     public static SlotDto convertSlotToSlotDto(Slot slot) {
         SlotDto dto = new SlotDto();
         dto.setId(slot.getId());
@@ -67,27 +110,7 @@ public class ConvertUtil {
         return new TimeInWeekDTO(dayOfWeekDTO, simpleClazz, slotDto);
     }
 
-    public static RoleDto convertRoleToRoleDto(Role role) {
-        RoleDto roleDto = ObjectUtil.copyProperties(role, new RoleDto(), RoleDto.class);
-        roleDto.setName(role.getCode().getLabel());
-        return roleDto;
-    }
 
-    public static ImageDto convertImageToImageDto(Image image) {
-        ImageDto imageDto = ObjectUtil.copyProperties(image, new ImageDto(), ImageDto.class);
-        if (image.getUser() != null) {
-            imageDto.setUserId(image.getUser().getId());
-        }
-        return imageDto;
-    }
-
-    public static WalletDto convertWalletToWalletDto(Wallet wallet) {
-        WalletDto walletDto = ObjectUtil.copyProperties(wallet, new WalletDto(), WalletDto.class);
-        if (wallet.getOwner() != null) {
-            walletDto.setOwner_id(wallet.getOwner().getId());
-        }
-        return walletDto;
-    }
 
     public static UserDto convertUsertoUserDto(User user) {
         UserDto userDto = ObjectUtil.copyProperties(user, new UserDto(), UserDto.class);
@@ -111,20 +134,8 @@ public class ConvertUtil {
         return userDto;
     }
 
-    public static SectionDto convertSectionToSectionDto(Section section) {
-        SectionDto sectionDto = ObjectUtil.copyProperties(section, new SectionDto(), SectionDto.class);
-        if (section.getCourse() != null) {
-            sectionDto.setCourseId(section.getCourse().getId());
-        }
-        if (!section.getModules().isEmpty()) {
-            List<ModuleDto> moduleDtoList = new ArrayList<>();
-            for (Module module : section.getModules()) {
-                moduleDtoList.add(convertModuleToModuleDto(module));
-            }
-            sectionDto.setModules(moduleDtoList);
-        }
-        return sectionDto;
-    }
+
+
 
     public static ModuleDto convertModuleToModuleDto(Module module) {
         ModuleDto moduleDto = ObjectUtil.copyProperties(module, new ModuleDto(), ModuleDto.class);
@@ -161,6 +172,11 @@ public class ConvertUtil {
             courseDto.setClasses(classList);
         }
         return courseDto;
+    }
+
+
+    public static TransactionDto convertTransactionToDto(Transaction transaction) {
+        return ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);
     }
 
 }

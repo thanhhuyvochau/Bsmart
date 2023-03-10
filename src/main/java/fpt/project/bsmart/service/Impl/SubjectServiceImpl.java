@@ -1,8 +1,10 @@
 package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.entity.Category;
+import fpt.project.bsmart.entity.Course;
 import fpt.project.bsmart.entity.Subject;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.request.SubjectRequest;
 import fpt.project.bsmart.repository.CategoryRepository;
@@ -17,6 +19,7 @@ import java.util.List;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_BY_ID;
+import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDTO;
 import static fpt.project.bsmart.util.ConvertUtil.convertSubjectToSubjectDto;
 
 
@@ -39,6 +42,11 @@ public class SubjectServiceImpl implements ISubjectService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + id));
     }
 
+    private Category findCategoryById(Long id){
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + id));
+    }
+
     @Override
     public List<SubjectDto> getAllSubject() {
         List<Subject> subjects = subjectRepository.findAll();
@@ -50,6 +58,19 @@ public class SubjectServiceImpl implements ISubjectService {
     }
 
     @Override
+    public List<SubjectDto> getSubjectsByCategory(Long id) {
+        Category category = findCategoryById(id);
+        List<Subject> subjectList = category.getSubjects();
+        List<SubjectDto> subjectDtoList = new ArrayList<>();
+        if(!subjectList.isEmpty()){
+            for(Subject subject : subjectList){
+                subjectDtoList.add(convertSubjectToSubjectDto(subject));
+            }
+        }
+        return subjectDtoList;
+    }
+
+    @Override
     public SubjectDto getSubject(Long id) {
         Subject subject = findById(id);
         return convertSubjectToSubjectDto(subject);
@@ -57,8 +78,7 @@ public class SubjectServiceImpl implements ISubjectService {
 
     @Override
     public Long createSubject(SubjectRequest subjectRequest) {
-        Category category = categoryRepository.findById(subjectRequest.getCategoryId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + subjectRequest.getCategoryId()));
+        Category category = findCategoryById(subjectRequest.getCategoryId());
         Subject subject = new Subject();
         subject.setName(subjectRequest.getName());
         subject.setCode(subjectRequest.getCode());
