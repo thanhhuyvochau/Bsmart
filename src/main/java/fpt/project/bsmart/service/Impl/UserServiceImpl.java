@@ -158,6 +158,17 @@ public class UserServiceImpl implements IUserService {
     
     public Long registerAccount(CreateAccountRequest createAccountRequest) {
         User user = new User();
+        if (  userRepository.existsByEmail(createAccountRequest.getEmail())){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Email : " + createAccountRequest.getEmail()+ "đã được đăng ký" ));
+        }
+
+        if (  userRepository.existsByPhone(createAccountRequest.getPhone())){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Email : " + createAccountRequest.getEmail()+ "đã được đăng ký" ));
+        }
+
+
         user.setEmail(createAccountRequest.getEmail());
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());

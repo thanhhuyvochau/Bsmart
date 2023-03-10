@@ -12,7 +12,10 @@ public class SectionDto {
 
     private Long id;
     private String name;
-    private Long courseId;
+
+
+    private Long courseId ;
+
     private List<ModuleDto> modules = new ArrayList<>();
 
     public Long getId() {

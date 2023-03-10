@@ -39,4 +39,8 @@ public class WalletDto {
     public void setOwner_id(Long owner_id) {
         this.owner_id = owner_id;
     }
+
 }
+
+
+

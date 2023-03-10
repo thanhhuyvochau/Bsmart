@@ -3,6 +3,7 @@ package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.CourseModuleRequest;
@@ -13,8 +14,12 @@ import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.ICourseService;
+import fpt.project.bsmart.util.ConvertUtil;
 import fpt.project.bsmart.util.MessageUtil;
+import fpt.project.bsmart.util.PageUtil;
 import fpt.project.bsmart.util.SecurityUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +28,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
+
 import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_BY_ID;
+
 import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDTO;
 
 
@@ -109,5 +116,14 @@ public class CourseServiceImpl implements ICourseService {
         course.setSections(sectionList);
         Course save = courseRepository.save(course);
         return save.getId();
+    }
+
+    @Override
+    public ApiPage<CourseDto> mentorGetCourse(Pageable pageable) {
+        User userLogin = SecurityUtil.getCurrentUserAccountLogin();
+        Page<Course> allCourseMentor = courseRepository.findByMentor(userLogin, pageable);
+
+        return PageUtil.convert(allCourseMentor.map(ConvertUtil::convertCourseToCourseDTO));
+
     }
 }

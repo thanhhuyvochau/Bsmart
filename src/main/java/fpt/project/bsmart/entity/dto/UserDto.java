@@ -105,6 +105,8 @@ public class UserDto {
         this.roles = roles;
     }
 
+
+
     public String getTwitterLink() {
         return twitterLink;
     }

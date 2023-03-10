@@ -19,13 +19,16 @@ public class CourseDto {
 
     private boolean status;
 
-    private String level;
+    private ECourseLevel level;
 
     private Double referenceDiscount = 0.0;
 
     private SubjectDto subject;
 
+    private Long mentorId;
+
     private UserDto mentor;
+
 
     private ImageDto image;
 
@@ -73,11 +76,11 @@ public class CourseDto {
         this.status = status;
     }
 
-    public String getLevel() {
+    public ECourseLevel getLevel() {
         return level;
     }
 
-    public void setLevel(String level) {
+    public void setLevel(ECourseLevel level) {
         this.level = level;
     }
 
@@ -95,6 +98,14 @@ public class CourseDto {
 
     public void setSubject(SubjectDto subject) {
         this.subject = subject;
+    }
+
+    public Long getMentorId() {
+        return mentorId;
+    }
+
+    public void setMentorId(Long mentorId) {
+        this.mentorId = mentorId;
     }
 
     public UserDto getMentor() {

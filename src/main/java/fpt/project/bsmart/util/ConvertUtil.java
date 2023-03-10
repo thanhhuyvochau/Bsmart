@@ -25,34 +25,7 @@ public class ConvertUtil {
         return subjectDto;
     }
 
-    public static CourseDto convertCourseToCourseDTO(Course course){
-        CourseDto courseDto = ObjectUtil.copyProperties(course, new CourseDto(), CourseDto.class);
-        courseDto.setLevel(course.getLevel().getName());
-        if(course.getSubject() != null){
-            courseDto.setSubject(convertSubjectToSubjectDto(course.getSubject()));
-        }
-        if(course.getMentor() != null){
-            courseDto.setMentor(convertUsertoUserDto(course.getMentor()));
-        }
-        if(course.getImage() != null){
-            courseDto.setImage(convertImageToImageDto(course.getImage()));
-        }
-        if(!course.getSections().isEmpty()){
-            List<SectionDto> sectionDtoList = new ArrayList<>();
-            for(Section section : course.getSections()){
-                sectionDtoList.add(convertSectionToSectionDto(section));
-            }
-            courseDto.setSections(sectionDtoList);
-        }
-        if(!course.getClasses().isEmpty()){
-            List<Long> classList = new ArrayList<>();
-            for(Class _class : course.getClasses()){
-                classList.add(_class.getId());
-            }
-            courseDto.setClasses(classList);
-        }
-        return courseDto;
-    }
+
 
     public static SectionDto convertSectionToSectionDto(Section section){
         SectionDto sectionDto = ObjectUtil.copyProperties(section, new SectionDto(), SectionDto.class);
@@ -69,32 +42,10 @@ public class ConvertUtil {
         return sectionDto;
     }
 
-    public static ModuleDto convertModuleToModuleDto(Module module){
-        ModuleDto moduleDto = ObjectUtil.copyProperties(module, new ModuleDto(), ModuleDto.class);
-        return moduleDto;
-    }
 
-    public static UserDto convertUsertoUserDto(User user){
-        UserDto userDto = ObjectUtil.copyProperties(user, new UserDto(), UserDto.class);
-        if(!user.getRoles().isEmpty()){
-            List<RoleDto> roleDtoList = new ArrayList<>();
-            for (Role role : user.getRoles()){
-                roleDtoList.add(convertRoleToRoleDto(role));
-            }
-            userDto.setRoles(roleDtoList);
-        }
-        if(!user.getUserImages().isEmpty()){
-            List<ImageDto> imageDtoList = new ArrayList<>();
-            for (Image image : user.getUserImages()){
-                imageDtoList.add(convertImageToImageDto(image));
-            }
-            userDto.setUserImages(imageDtoList);
-        }
-        if(user.getWallet() != null){
-            userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
-        }
-        return userDto;
-    }
+
+
+
 
     public static WalletDto convertWalletToWalletDto(Wallet wallet){
         WalletDto walletDto = ObjectUtil.copyProperties(wallet, new WalletDto(), WalletDto.class);
@@ -159,7 +110,73 @@ public class ConvertUtil {
         return new TimeInWeekDTO(dayOfWeekDTO, simpleClazz, slotDto);
     }
 
+
+
+    public static UserDto convertUsertoUserDto(User user) {
+        UserDto userDto = ObjectUtil.copyProperties(user, new UserDto(), UserDto.class);
+        if (!user.getRoles().isEmpty()) {
+            List<RoleDto> roleDtoList = new ArrayList<>();
+            for (Role role : user.getRoles()) {
+                roleDtoList.add(convertRoleToRoleDto(role));
+            }
+            userDto.setRoles(roleDtoList);
+        }
+        if (!user.getUserImages().isEmpty()) {
+            List<ImageDto> imageDtoList = new ArrayList<>();
+            for (Image image : user.getUserImages()) {
+                imageDtoList.add(convertImageToImageDto(image));
+            }
+            userDto.setUserImages(imageDtoList);
+        }
+        if (user.getWallet() != null) {
+            userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
+        }
+        return userDto;
+    }
+
+
+
+
+    public static ModuleDto convertModuleToModuleDto(Module module) {
+        ModuleDto moduleDto = ObjectUtil.copyProperties(module, new ModuleDto(), ModuleDto.class);
+        return moduleDto;
+    }
+
+    public static CourseDto convertCourseToCourseDTO(Course course) {
+        CourseDto courseDto = ObjectUtil.copyProperties(course, new CourseDto(), CourseDto.class);
+        courseDto.setLevel(course.getLevel());
+        courseDto.setCode(course.getCode());
+        courseDto.setName(course.getName());
+        courseDto.setDescription(course.getDescription());
+        if (course.getSubject() != null) {
+            courseDto.setSubject(convertSubjectToSubjectDto(course.getSubject()));
+        }
+        if (course.getMentor() != null) {
+            courseDto.setMentorId((course.getMentor().getId()));
+        }
+        if (course.getImage() != null) {
+            courseDto.setImage(convertImageToImageDto(course.getImage()));
+        }
+        if (!course.getSections().isEmpty()) {
+            List<SectionDto> sectionDtoList = new ArrayList<>();
+            for (Section section : course.getSections()) {
+                sectionDtoList.add(convertSectionToSectionDto(section));
+            }
+            courseDto.setSections(sectionDtoList);
+        }
+        if (!course.getClasses().isEmpty()) {
+            List<Long> classList = new ArrayList<>();
+            for (Class _class : course.getClasses()) {
+                classList.add(_class.getId());
+            }
+            courseDto.setClasses(classList);
+        }
+        return courseDto;
+    }
+
+
     public static TransactionDto convertTransactionToDto(Transaction transaction) {
         return ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);
     }
+
 }
