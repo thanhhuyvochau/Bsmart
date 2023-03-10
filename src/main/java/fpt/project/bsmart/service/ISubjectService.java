@@ -9,9 +9,8 @@ import java.util.List;
 public interface ISubjectService {
     List<SubjectDto> getAllSubject();
 
+    List<SubjectDto> getSubjectsByCategory(Long id);
     SubjectDto getSubject(Long id);
-
-    List<CourseDto> getCourseBySubject(Long id);
 
     Long createSubject(SubjectRequest subjectRequest);
 

@@ -42,6 +42,11 @@ public class SubjectServiceImpl implements ISubjectService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + id));
     }
 
+    private Category findCategoryById(Long id){
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + id));
+    }
+
     @Override
     public List<SubjectDto> getAllSubject() {
         List<Subject> subjects = subjectRepository.findAll();
@@ -53,27 +58,27 @@ public class SubjectServiceImpl implements ISubjectService {
     }
 
     @Override
+    public List<SubjectDto> getSubjectsByCategory(Long id) {
+        Category category = findCategoryById(id);
+        List<Subject> subjectList = category.getSubjects();
+        List<SubjectDto> subjectDtoList = new ArrayList<>();
+        if(!subjectList.isEmpty()){
+            for(Subject subject : subjectList){
+                subjectDtoList.add(convertSubjectToSubjectDto(subject));
+            }
+        }
+        return subjectDtoList;
+    }
+
+    @Override
     public SubjectDto getSubject(Long id) {
         Subject subject = findById(id);
         return convertSubjectToSubjectDto(subject);
     }
 
     @Override
-    public List<CourseDto> getCourseBySubject(Long id) {
-        Subject subject = findById(id);
-        List<CourseDto> courseDtoList = new ArrayList<>();
-        if(!subject.getCourses().isEmpty()){
-            for (Course course : subject.getCourses()){
-                courseDtoList.add(convertCourseToCourseDTO(course));
-            }
-        }
-        return courseDtoList;
-    }
-
-    @Override
     public Long createSubject(SubjectRequest subjectRequest) {
-        Category category = categoryRepository.findById(subjectRequest.getCategoryId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + subjectRequest.getCategoryId()));
+        Category category = findCategoryById(subjectRequest.getCategoryId());
         Subject subject = new Subject();
         subject.setName(subjectRequest.getName());
         subject.setCode(subjectRequest.getCode());

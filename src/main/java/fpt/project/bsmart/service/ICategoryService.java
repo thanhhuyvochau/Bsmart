@@ -10,7 +10,6 @@ public interface ICategoryService {
     CategoryDto getCategory(Long id);
 
     List<CategoryDto> getAllCategories();
-    List<SubjectDto> getSubjectByCategory(Long id);
 
     Long createCategory(CategoryRequest categoryRequest);
 

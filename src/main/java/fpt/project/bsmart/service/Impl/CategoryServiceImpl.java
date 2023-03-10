@@ -52,19 +52,6 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public List<SubjectDto> getSubjectByCategory(Long id) {
-        Category category = findById(id);
-        List<Subject> subjectList = category.getSubjects();
-        List<SubjectDto> subjectDtoList = new ArrayList<>();
-        if(!subjectList.isEmpty()){
-            for(Subject subject : subjectList){
-                subjectDtoList.add(convertSubjectToSubjectDto(subject));
-            }
-        }
-        return subjectDtoList;
-    }
-
-    @Override
     public Long createCategory(CategoryRequest categoryRequest) {
         Category category = new Category();
         category.setCode(categoryRequest.getCode());
