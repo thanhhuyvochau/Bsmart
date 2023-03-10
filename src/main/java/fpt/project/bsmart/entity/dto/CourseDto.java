@@ -31,10 +31,10 @@ public class CourseDto {
     private Double referenceDiscount = 0.0;
 
 
-    private Subject subject;
+    private SubjectDto subject;
 
 
-    private User mentor;
+    private Long mentorId;
 
 
     private ImageDto image;
@@ -43,7 +43,7 @@ public class CourseDto {
     private List<SectionDto> sections = new ArrayList<>();
 
 
-    private List<fpt.project.bsmart.entity.Class> classes = new ArrayList<>();
+    private List<Long> classes = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -101,20 +101,20 @@ public class CourseDto {
         this.referenceDiscount = referenceDiscount;
     }
 
-    public Subject getSubject() {
+    public SubjectDto getSubject() {
         return subject;
     }
 
-    public void setSubject(Subject subject) {
+    public void setSubject(SubjectDto subject) {
         this.subject = subject;
     }
 
-    public User getMentor() {
-        return mentor;
+    public Long getMentorId() {
+        return mentorId;
     }
 
-    public void setMentor(User mentor) {
-        this.mentor = mentor;
+    public void setMentorId(Long mentorId) {
+        this.mentorId = mentorId;
     }
 
     public ImageDto getImage() {
@@ -133,11 +133,11 @@ public class CourseDto {
         this.sections = sections;
     }
 
-    public List<Class> getClasses() {
+    public List<Long> getClasses() {
         return classes;
     }
 
-    public void setClasses(List<Class> classes) {
+    public void setClasses(List<Long> classes) {
         this.classes = classes;
     }
 }

@@ -13,6 +13,8 @@ public class SectionDto {
     private Long id;
     
     private String name;
+
+    private Long courseId ;
     
     private List<ModuleDto> modules = new ArrayList<>();
 
@@ -38,5 +40,13 @@ public class SectionDto {
 
     public void setModules(List<ModuleDto> modules) {
         this.modules = modules;
+    }
+
+    public Long getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(Long courseId) {
+        this.courseId = courseId;
     }
 }

@@ -55,8 +55,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/v3/api-docs/**").permitAll()
-                .antMatchers("/api/**").permitAll()
-                .antMatchers("/api/users/register", "/api/users/login", "/api/test/user").permitAll().anyRequest().authenticated();
+                .antMatchers("/api/users/register", "/api/users/login", "/api/test/user", "/api/**").permitAll().anyRequest().authenticated();
         http
                 .csrf().disable()    //Disabling CSRF as not using form based login
                 .authorizeRequests()

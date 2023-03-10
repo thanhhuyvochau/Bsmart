@@ -27,7 +27,7 @@ public class UserDto {
     private Boolean status;
 
 
-    List<Role> roles = new ArrayList<>();
+    List<RoleDto> roles = new ArrayList<>();
 
     private String twitterLink;
 
@@ -38,7 +38,7 @@ public class UserDto {
 
     private List<ImageDto> userImages = new ArrayList<>();
 
-    private Wallet wallet;
+    private WalletDto wallet;
 
     public Integer getId() {
         return id;
@@ -97,12 +97,20 @@ public class UserDto {
         this.status = status;
     }
 
-    public List<Role> getRoles() {
+    public List<RoleDto> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<Role> roles) {
+    public void setRoles(List<RoleDto> roles) {
         this.roles = roles;
+    }
+
+    public List<ImageDto> getUserImages() {
+        return userImages;
+    }
+
+    public void setUserImages(List<ImageDto> userImages) {
+        this.userImages = userImages;
     }
 
     public String getTwitterLink() {
@@ -129,11 +137,11 @@ public class UserDto {
         this.instagramLink = instagramLink;
     }
 
-    public Wallet getWallet() {
+    public WalletDto getWallet() {
         return wallet;
     }
 
-    public void setWallet(Wallet wallet) {
+    public void setWallet(WalletDto wallet) {
         this.wallet = wallet;
     }
 }
