@@ -29,7 +29,7 @@ public class ClassServiceImpl implements IClassService {
     }
 
     @Override
-    public Long adminCreateClass(CreateClassRequest createClassRequest) {
+    public Long mentorCreateClass(CreateClassRequest createClassRequest) {
         Class classes = new Class();
         classes.setCode(createClassRequest.getCode());
         classes.setStartDate(createClassRequest.getStartDate());

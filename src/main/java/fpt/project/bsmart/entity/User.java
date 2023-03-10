@@ -14,7 +14,7 @@ public class User extends BaseEntity {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Integer id;
+    private Long id;
 
     @Column(name = "user_name")
     private String username;
@@ -52,16 +52,16 @@ public class User extends BaseEntity {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<Image> userImages = new ArrayList<>();
-    @OneToOne(mappedBy = "owner")
-    private Wallet wallet;
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
+    private Wallet wallet = new Wallet();
     @OneToOne(mappedBy = "user")
     private MentorProfile mentorProfile;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

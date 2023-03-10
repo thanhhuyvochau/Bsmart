@@ -3,23 +3,20 @@ package fpt.project.bsmart.entity.constant;
 public enum EUserRole {
     TEACHER("Giáo viên", "teacher"),
     STUDENT("Học sinh", "student"),
-    MANAGER("Quản lý", "manager"),
-    ACCOUNTANT("Kế toán", ""),
-    ROOT("Root User", "");
-
-    EUserRole(String label, String moodleName) {
-        this.label = label;
-        this.moodleName = moodleName;
-    }
+    MANAGER("Quản lý", "manager");
 
     private final String label;
-    private final String moodleName;
+    private final String name;
 
-    public String getMoodleName() {
-        return moodleName;
+    EUserRole(String label, String name) {
+        this.label = label;
+        this.name = name;
     }
 
     public String getLabel() {
         return label;
+    }
+    public String getName(){
+        return  name;
     }
 }
