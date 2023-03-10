@@ -18,7 +18,7 @@ public class ImageDto {
     
     private String url;
     
-    private User user;
+    private Long userId;
 
     public Long getId() {
         return id;
@@ -44,12 +44,12 @@ public class ImageDto {
         this.note = note;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getUrl() {
