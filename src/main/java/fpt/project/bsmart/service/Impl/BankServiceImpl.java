@@ -3,8 +3,10 @@ package fpt.project.bsmart.service.Impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import fpt.project.bsmart.entity.Bank;
+import fpt.project.bsmart.entity.BankDto;
 import fpt.project.bsmart.repository.BankRepository;
 import fpt.project.bsmart.service.IBankService;
+import fpt.project.bsmart.util.ConvertUtil;
 import fpt.project.bsmart.util.ObjectUtil;
 import fpt.project.bsmart.util.rest.RestCaller;
 import fpt.project.bsmart.util.rest.response.BankResponse;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BankServiceImpl implements IBankService {
@@ -48,5 +51,11 @@ public class BankServiceImpl implements IBankService {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public List<BankDto> getBanks() {
+        List<Bank> banks = bankRepository.findAll();
+        return banks.stream().map(ConvertUtil::convertBankToBankDto).collect(Collectors.toList());
     }
 }

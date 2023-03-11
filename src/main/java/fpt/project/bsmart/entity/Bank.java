@@ -25,6 +25,9 @@ public class Bank extends BaseEntity {
     @Column(name = "lookup_support")
     private Integer lookupSupported = 0;
 
+    @OneToMany(mappedBy = "bank", fetch = FetchType.LAZY)
+    private List<Transaction> transactions = new ArrayList<>();
+
     public Long getId() {
         return id;
     }
@@ -87,5 +90,13 @@ public class Bank extends BaseEntity {
 
     public void setLookupSupported(Integer lookupSupported) {
         this.lookupSupported = lookupSupported;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
     }
 }

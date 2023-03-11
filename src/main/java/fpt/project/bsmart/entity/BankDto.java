@@ -1,30 +1,21 @@
 package fpt.project.bsmart.entity;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-
-
-
-public class BankDto extends BaseEntity {
-    
-    
+public class BankDto {
     private Long id;
-    
+
     private String code;
-    
+
     private String name;
 
     private String shortName;
-    
-    private String logo;
-    
-    private String bin;
-    
-    private Boolean transferSupported = false;
-    
-    private Boolean lookupSupported = false;
 
+    private String logo;
+
+    private String bin;
+
+    private Integer transferSupported;
+
+    private Integer lookupSupported;
 
 
     public Long getId() {
@@ -75,19 +66,19 @@ public class BankDto extends BaseEntity {
         this.bin = bin;
     }
 
-    public Boolean getTransferSupported() {
+    public Integer getTransferSupported() {
         return transferSupported;
     }
 
-    public void setTransferSupported(Boolean transferSupported) {
+    public void setTransferSupported(Integer transferSupported) {
         this.transferSupported = transferSupported;
     }
 
-    public Boolean getLookupSupported() {
+    public Integer getLookupSupported() {
         return lookupSupported;
     }
 
-    public void setLookupSupported(Boolean lookupSupported) {
+    public void setLookupSupported(Integer lookupSupported) {
         this.lookupSupported = lookupSupported;
     }
 }
