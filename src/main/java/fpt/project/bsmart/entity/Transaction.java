@@ -34,7 +34,16 @@ public class Transaction extends BaseEntity {
     private BigDecimal beforeBalance;
     @Column(name = "after_balance")
     private BigDecimal afterBalance;
+    @Column(name = "receiver_bank_account")
+    private Long receivedBankAccount;
+    @ManyToOne
+    @JoinColumn(name = "bank_id")
+    private Bank bank;
+    @Column(name = "note")
+    private String note;
 
+    @Column(name = "bank_account_owner")
+    private String bankAccountOwner;
 
     public Long getId() {
         return id;
@@ -116,16 +125,51 @@ public class Transaction extends BaseEntity {
         this.wallet = wallet;
     }
 
-    public static Transaction build(BigDecimal amount, Wallet wallet, ETransactionType type) {
+    public static Transaction build(BigDecimal amount, Long receivedBankAccount, String bankAccountOwner, Bank bank, Wallet wallet, ETransactionType type) {
         Transaction transaction = new Transaction();
         transaction.setAmount(amount);
         transaction.setType(type);
         transaction.setBeforeBalance(wallet.getBalance());
+        transaction.setReceivedBankAccount(receivedBankAccount);
+        transaction.setBankAccountOwner(bankAccountOwner);
+        transaction.setBank(bank);
         if (type.equals(ETransactionType.DEPOSIT)) {
             transaction.setAfterBalance(wallet.getBalance().add(amount));
         } else if (type.equals(ETransactionType.WITHDRAW)) {
             transaction.setAfterBalance(wallet.getBalance().subtract(amount));
         }
         return transaction;
+    }
+
+    public Long getReceivedBankAccount() {
+        return receivedBankAccount;
+    }
+
+    public void setReceivedBankAccount(Long receivedBankAccount) {
+        this.receivedBankAccount = receivedBankAccount;
+    }
+
+    public Bank getBank() {
+        return bank;
+    }
+
+    public void setBank(Bank bank) {
+        this.bank = bank;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public String getBankAccountOwner() {
+        return bankAccountOwner;
+    }
+
+    public void setBankAccountOwner(String bankAccountOwner) {
+        this.bankAccountOwner = bankAccountOwner;
     }
 }
