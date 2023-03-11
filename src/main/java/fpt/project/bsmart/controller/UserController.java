@@ -13,6 +13,7 @@ import fpt.project.bsmart.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
@@ -54,18 +55,21 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(iUserService.getUserById(id)));
     }
     @Operation(summary = "Chỉnh sửa liên kết mạng xã hội")
+    @PreAuthorize("hasAnyAuthority('TEACHER', 'STUDENT')")
     @PutMapping("/{id}/social")
     public ResponseEntity<ApiResponse<Long>> editSocialProfile(@PathVariable Long id, @RequestBody SocialProfileEditRequest socialProfileEditRequest){
         return ResponseEntity.ok(ApiResponse.success(iUserService.editUserSocialProfile(id, socialProfileEditRequest)));
     }
 
     @Operation(summary = "Chỉnh sửa thông tình tài khoản")
+    @PreAuthorize("hasAnyAuthority('TEACHER', 'STUDENT')")
     @PutMapping("/{id}/account")
     public ResponseEntity<ApiResponse<Long>> editAccountProfile(@PathVariable Long id, @RequestBody AccountProfileEditRequest accountProfileEditRequest){
         return ResponseEntity.ok(ApiResponse.success(iUserService.editUserAccountProfile(id, accountProfileEditRequest)));
     }
 
     @Operation(summary = "Chỉnh sửa thông tin cá nhân")
+    @PreAuthorize("hasAnyAuthority('TEACHER', 'STUDENT')")
     @PutMapping("/{id}/personal")
     public ResponseEntity<ApiResponse<Long>> editPersonalProfile(@PathVariable Long id, @RequestBody PersonalProfileEditRequest personalProfileEditRequest){
         return ResponseEntity.ok(ApiResponse.success(iUserService.editUserPersonalProfile(id, personalProfileEditRequest)));
