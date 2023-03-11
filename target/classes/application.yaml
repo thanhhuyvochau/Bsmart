@@ -1,9 +1,12 @@
 server:
   port: 8080
 spring:
+<<<<<<< HEAD
+=======
 
   profiles:
-    active: local
+    active: dev
+>>>>>>> 8298c4cc578965f97a6e6b47fe965bf9743c5237
   security:
     oauth2:
       resourceserver:

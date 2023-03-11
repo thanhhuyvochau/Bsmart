@@ -26,11 +26,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    //    @Autowired
-//    private JWTUtil util;
-//    @Autowired
-//    private AuthenticationManager authenticationManager;
-//
+
     private final IUserService iUserService;
 
     public UserController(IUserService iUserService) {
