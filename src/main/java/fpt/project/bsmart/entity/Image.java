@@ -14,7 +14,7 @@ public class Image extends BaseEntity {
     @Column(name = "type")
     private EImageType type;
     @Column(name = "name")
-    private String note;
+    private String name;
 
     @Column(name = "url")
     private String url;
@@ -44,12 +44,12 @@ public class Image extends BaseEntity {
         this.type = type;
     }
 
-    public String getNote() {
-        return note;
+    public String getName() {
+        return name;
     }
 
-    public void setNote(String note) {
-        this.note = note;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public boolean isStatus() {

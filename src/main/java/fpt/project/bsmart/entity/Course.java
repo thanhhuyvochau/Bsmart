@@ -2,6 +2,7 @@ package fpt.project.bsmart.entity;
 
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -22,7 +23,8 @@ public class Course {
     private String description;
 
     @Column(name = "status")
-    private boolean status;
+    @Enumerated(EnumType.STRING)
+    private ECourseStatus status;
 
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
@@ -82,14 +84,14 @@ public class Course {
         this.description = description;
     }
 
-    public boolean isStatus() {
+
+    public ECourseStatus getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(ECourseStatus status) {
         this.status = status;
     }
-
 
     public ECourseLevel getLevel() {
         return level;

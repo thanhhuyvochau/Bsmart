@@ -17,6 +17,7 @@ public class CreateAccountRequest {
 
     private EUserRole role;
 
+    private String introduce;
     public String getFullName() {
         return fullName;
     }
@@ -55,5 +56,13 @@ public class CreateAccountRequest {
 
     public void setRole(EUserRole role) {
         this.role = role;
+    }
+
+    public String getIntroduce() {
+        return introduce;
+    }
+
+    public void setIntroduce(String introduce) {
+        this.introduce = introduce;
     }
 }

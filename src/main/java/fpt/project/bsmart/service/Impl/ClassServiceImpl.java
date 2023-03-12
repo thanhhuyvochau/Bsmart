@@ -43,8 +43,10 @@ public class ClassServiceImpl implements IClassService {
         Course course = courseRepository.findById(createClassRequest.getCourseId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createClassRequest.getCourseId()));
+
         classes.setCourse(course);
         Class save = classRepository.save(classes);
         return save.getId();
     }
+
 }

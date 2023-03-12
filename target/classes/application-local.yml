@@ -7,9 +7,9 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
 #    url: jdbc:mysql://mysqldb:3307/bsmartdb
-    url: jdbc:mysql://localhost:3306/bsmart
+    url: jdbc:mysql://localhost:3306/bsmartdb
     username: root
-    password:
+    password: 123456
 
 
   jpa:
@@ -29,11 +29,16 @@ spring:
       max-request-size: 10MB
       file-size-threshold: 2KB
       max-file-size: 5MB
+
+
 minio:
-  bucket: requestformstudent
-  url: http://103.173.255.39:9000
-  access-key: ELrwUZXIzBLOlp5s
-  secret-key: gCHswS6KZKVohYsIiWKCnfvF5UWbBUWE
+  access:
+     key: esrUhRb4eLL3jS6J
+     secret: adlAujnLiVybfTFg2N19FpTxpoid3NMT
+  url: https://play.min.io:9443/
+  bucket:
+    name: bsmart
+  endpoint: https://play.min.io:9443/
 
 # Keycloak settings
 keycloak:

@@ -1,6 +1,7 @@
 package fpt.project.bsmart.entity;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import javax.annotation.Generated;
 import javax.persistence.metamodel.ListAttribute;
 import javax.persistence.metamodel.SingularAttribute;
@@ -21,7 +22,7 @@ public abstract class Course_ {
 	public static volatile SingularAttribute<Course, String> description;
 	public static volatile SingularAttribute<Course, Long> id;
 	public static volatile ListAttribute<Course, Section> sections;
-	public static volatile SingularAttribute<Course, Boolean> status;
+	public static volatile SingularAttribute<Course, ECourseStatus> status;
 
 	public static final String IMAGE = "image";
 	public static final String MENTOR = "mentor";

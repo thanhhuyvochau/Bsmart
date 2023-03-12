@@ -9,7 +9,7 @@ import javax.persistence.metamodel.StaticMetamodel;
 @StaticMetamodel(Image.class)
 public abstract class Image_ extends fpt.project.bsmart.entity.BaseEntity_ {
 
-	public static volatile SingularAttribute<Image, String> note;
+	public static volatile SingularAttribute<Image, String> name;
 	public static volatile SingularAttribute<Image, Course> course;
 	public static volatile SingularAttribute<Image, Long> id;
 	public static volatile SingularAttribute<Image, EImageType> type;
@@ -17,7 +17,7 @@ public abstract class Image_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static volatile SingularAttribute<Image, String> url;
 	public static volatile SingularAttribute<Image, Boolean> status;
 
-	public static final String NOTE = "note";
+	public static final String NAME = "name";
 	public static final String COURSE = "course";
 	public static final String ID = "id";
 	public static final String TYPE = "type";

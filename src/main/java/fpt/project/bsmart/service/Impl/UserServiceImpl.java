@@ -61,7 +61,7 @@ public class UserServiceImpl implements IUserService {
         String name = uploadImageRequest.getFile().getOriginalFilename() + "-" + Instant.now().toString();
 //        ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, uploadImageRequest.getFile().getContentType(),
 //                uploadImageRequest.getFile().getInputStream(), uploadImageRequest.getFile().getSize());
-        image.setNote(name);
+        image.setName(name);
 //        image.setUrl(RequestUrlUtil.buildUrl(minioUrl, objectWriteResponse));
         image.setUser(user);
         if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
@@ -165,7 +165,7 @@ public class UserServiceImpl implements IUserService {
 
         if (  userRepository.existsByPhone(createAccountRequest.getPhone())){
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Email : " + createAccountRequest.getEmail()+ "đã được đăng ký" ));
+                    .withMessage(messageUtil.getLocalMessage("Số điện thoại : " + createAccountRequest.getEmail()+ "đã được đăng ký" ));
         }
 
 
@@ -173,6 +173,7 @@ public class UserServiceImpl implements IUserService {
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());
         user.setPassword(createAccountRequest.getPassword());
+        user.setIntroduce(createAccountRequest.getIntroduce());
         List<Role> roleList = new ArrayList<>();
         Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
