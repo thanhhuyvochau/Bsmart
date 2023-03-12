@@ -23,6 +23,8 @@ F:\Bsmart\src\main\java\fpt\project\bsmart\moodle\response\UserGradeResponse.jav
 F:\Bsmart\src\main\java\fpt\project\bsmart\service\ITimeInWeekService.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\DayOfWeek.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\Bank.java
+F:\Bsmart\src\main\java\fpt\project\bsmart\service\Impl\ImageServiceImpl.java
+F:\Bsmart\src\main\java\fpt\project\bsmart\service\IMinioService.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\util\PasswordUtil.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\request\CreateAccountRequest.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\request\UserRequest.java
@@ -37,6 +39,7 @@ F:\Bsmart\src\main\java\fpt\project\bsmart\entity\request\TimeInWeekRequest.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\moodle\request\GetUserByFieldRequest.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\config\socket\SocketBrokerConfig.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\constant\EImageType.java
+F:\Bsmart\src\main\java\fpt\project\bsmart\entity\constant\ECourseStatus.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\util\SpecificationUtil.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\constant\ETransactionStatus.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\repository\BankRepository.java
@@ -46,6 +49,7 @@ F:\Bsmart\src\main\java\fpt\project\bsmart\service\IBankService.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\moodle\response\MoodleModuleResponse.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\moodle\response\MoodleSubmissionsResponse.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\request\SubjectRequest.java
+F:\Bsmart\src\main\java\fpt\project\bsmart\config\minioConfig\MinioConfiguration.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\constant\EOrderStatus.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\repository\CategoryRepository.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\util\MoodleUtil.java
@@ -70,6 +74,7 @@ F:\Bsmart\src\main\java\fpt\project\bsmart\service\Impl\CourseServiceImpl.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\repository\TransactionRepository.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\util\AccountUtil.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\util\DayUtil.java
+F:\Bsmart\src\main\java\fpt\project\bsmart\util\ImageUrlUtil.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\moodle\repository\MoodleBaseRepository.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\moodle\request\S1CourseRequest.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\moodle\request\CreateCategoryRequest.java
@@ -117,6 +122,7 @@ F:\Bsmart\src\main\java\fpt\project\bsmart\entity\request\CourseModuleRequest.ja
 F:\Bsmart\src\main\java\fpt\project\bsmart\moodle\request\GetCategoryRequest.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\controller\SubjectController.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\util\ObjectUtil.java
+F:\Bsmart\src\main\java\fpt\project\bsmart\controller\ImageController.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\moodle\response\MoodleRoleResponse.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\moodle\config\HttpHeadersCustom.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\util\keycloak\KeycloakUserUtil.java
@@ -136,6 +142,7 @@ F:\Bsmart\src\main\java\fpt\project\bsmart\entity\response\AccountTokenResponse.
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\response\UserResponse.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\repository\DayOfWeekRepository.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\dto\ModuleDto.java
+F:\Bsmart\src\main\java\fpt\project\bsmart\entity\response\CourseResponse.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\controller\TimeInWeekController.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\BankDto.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\request\User\AccountProfileEditRequest.java
@@ -149,7 +156,6 @@ F:\Bsmart\src\main\java\fpt\project\bsmart\entity\constant\EUserRole.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\moodle\response\MoodleAssignmentsResponse.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\request\JwtResponse.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\service\ISubjectService.java
-F:\Bsmart\src\main\java\fpt\project\bsmart\config\minio\MinioConfig.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\config\security\service\UserDetailsImpl.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\controller\SlotController.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\request\SignupRequest.java
@@ -173,6 +179,7 @@ F:\Bsmart\src\main\java\fpt\project\bsmart\entity\Section.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\service\Impl\DayOfWeekService.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\repository\ModuleRepository.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\dto\TimeInWeekDTO.java
+F:\Bsmart\src\main\java\fpt\project\bsmart\service\ImageService.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\service\ISlotService.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\entity\Role.java
 F:\Bsmart\src\main\java\fpt\project\bsmart\util\Constants.java

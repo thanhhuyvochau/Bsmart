@@ -8,7 +8,6 @@ fpt\project\bsmart\entity\Category_.class
 fpt\project\bsmart\entity\dto\SimpleClassDto.class
 fpt\project\bsmart\moodle\response\MoodleSubmissionsResponse$plugins.class
 fpt\project\bsmart\util\rest\response\BankWrapperResponse.class
-fpt\project\bsmart\config\keycloak\KeycloakClientConfig.class
 fpt\project\bsmart\entity\request\User\SocialProfileEditRequest.class
 fpt\project\bsmart\entity\Order_.class
 fpt\project\bsmart\entity\response\AccountResponse.class
@@ -39,6 +38,7 @@ fpt\project\bsmart\moodle\response\FileExerciseStudentResponse.class
 fpt\project\bsmart\moodle\response\MoodleAssignmentsResponse$assignments$submissions$plugins.class
 fpt\project\bsmart\moodle\response\MoodleUserResponse.class
 fpt\project\bsmart\entity\response\AccountTokenResponse.class
+fpt\project\bsmart\service\ImageService.class
 fpt\project\bsmart\entity\constant\ETypeLearn.class
 fpt\project\bsmart\moodle\request\CreateCategoryRequest$CreateCategoryBody.class
 fpt\project\bsmart\entity\Section_.class
@@ -66,6 +66,7 @@ fpt\project\bsmart\entity\Transaction.class
 fpt\project\bsmart\entity\request\UploadImageRequest.class
 fpt\project\bsmart\moodle\response\CourseFormatOption.class
 fpt\project\bsmart\service\IUserService.class
+fpt\project\bsmart\entity\constant\ECourseStatus.class
 fpt\project\bsmart\entity\dto\SectionDto.class
 fpt\project\bsmart\moodle\response\MoodleCategoryResponse.class
 fpt\project\bsmart\entity\Category.class
@@ -127,6 +128,7 @@ fpt\project\bsmart\entity\TimeTable_.class
 fpt\project\bsmart\repository\DayOfWeekRepository.class
 fpt\project\bsmart\repository\WalletRepository.class
 fpt\project\bsmart\entity\request\JwtResponse.class
+fpt\project\bsmart\entity\response\CourseResponse.class
 fpt\project\bsmart\entity\constant\EDayOfWeekCode.class
 fpt\project\bsmart\entity\constant\ECourseLevel.class
 fpt\project\bsmart\moodle\repository\MoodleRoleRepository.class
@@ -144,6 +146,7 @@ fpt\project\bsmart\config\security\service\UserDetailsServiceImpl.class
 fpt\project\bsmart\moodle\response\MoodleRoleResponse.class
 fpt\project\bsmart\util\keycloak\KeycloakClientUtil.class
 fpt\project\bsmart\controller\TransactionController.class
+fpt\project\bsmart\util\ImageUrlUtil.class
 fpt\project\bsmart\entity\request\CreateAccountRequest.class
 fpt\project\bsmart\repository\ImageRepository.class
 fpt\project\bsmart\entity\constant\EUserRole.class
@@ -163,10 +166,12 @@ fpt\project\bsmart\moodle\request\S1CourseRequest.class
 fpt\project\bsmart\moodle\repository\MoodleBaseRepository.class
 fpt\project\bsmart\entity\request\UserRequest.class
 fpt\project\bsmart\entity\User.class
+fpt\project\bsmart\service\Impl\ImageServiceImpl.class
 fpt\project\bsmart\entity\response\RoleResponse.class
 fpt\project\bsmart\moodle\request\CreateEnrolCourseRequest$Enrolment.class
 fpt\project\bsmart\repository\UserRepository.class
 fpt\project\bsmart\util\MapperUtil.class
+fpt\project\bsmart\service\IMinioService.class
 fpt\project\bsmart\moodle\response\MoodleAllClassRecourseDtoResponse.class
 fpt\project\bsmart\moodle\response\MoodleDate.class
 fpt\project\bsmart\moodle\response\MoodleRecourseDtoResponse.class
@@ -184,11 +189,13 @@ fpt\project\bsmart\repository\ModuleRepository.class
 fpt\project\bsmart\service\Impl\TimeInWeekServiceImpl.class
 fpt\project\bsmart\moodle\repository\MoodleCourseRepository$5.class
 fpt\project\bsmart\controller\BankController.class
+fpt\project\bsmart\controller\ImageController.class
 fpt\project\bsmart\entity\constant\ETransactionType.class
 fpt\project\bsmart\entity\dto\DayOfWeekDTO.class
 fpt\project\bsmart\entity\BankDto.class
 fpt\project\bsmart\util\Constants.class
 fpt\project\bsmart\entity\request\CreateClassRequest.class
+fpt\project\bsmart\config\minioConfig\MinioConfiguration.class
 fpt\project\bsmart\service\ISubjectService.class
 fpt\project\bsmart\entity\dto\RoleDto.class
 fpt\project\bsmart\controller\CourseController.class
@@ -229,7 +236,6 @@ fpt\project\bsmart\entity\response\GenderResponse.class
 fpt\project\bsmart\config\security\config\WebSecurityConfig.class
 fpt\project\bsmart\moodle\response\MoodleRecourseClassesDtoResponse.class
 fpt\project\bsmart\entity\common\ApiException.class
-fpt\project\bsmart\config\minio\MinioConfig.class
 fpt\project\bsmart\service\IClassService.class
 fpt\project\bsmart\repository\SubjectRepository.class
 fpt\project\bsmart\controller\SlotController.class

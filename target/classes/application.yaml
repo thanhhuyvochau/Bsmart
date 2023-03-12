@@ -94,3 +94,12 @@ beholder:
       bezKoderSecretKey
     jwtExpirationMs:
       86400000
+  #------------------MinIO DEV-------
+minio:
+  access:
+    key: esrUhRb4eLL3jS6J
+    secret: adlAujnLiVybfTFg2N19FpTxpoid3NMT
+  url: https://play.min.io:9443/
+  bucket:
+    name: bsmart
+  endpoint: https://play.min.io:9443/

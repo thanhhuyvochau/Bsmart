@@ -29,12 +29,12 @@ spring:
 #  secret-key: gCHswS6KZKVohYsIiWKCnfvF5UWbBUWE
 
 # Keycloak settings
-#keycloak:
-#  realm: vuondau-application
-#  resource: springboot-admin-client
-#  app-client: vuondau
-#  auth-server-url: http://keycloak:8080/auth
-#  credentials:
-#    secret: 0Z8fWR17uURSeTWmKd4EdapEUF8ck9ku
-#
-#
+keycloak:
+  realm: vuondau-application
+  resource: springboot-admin-client
+  app-client: vuondau
+  auth-server-url: http://keycloak:8080/auth
+  credentials:
+    secret: 0Z8fWR17uURSeTWmKd4EdapEUF8ck9ku
+
+

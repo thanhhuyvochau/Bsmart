@@ -29,17 +29,6 @@ spring:
       max-request-size: 10MB
       file-size-threshold: 2KB
       max-file-size: 5MB
-
-
-minio:
-  access:
-     key: esrUhRb4eLL3jS6J
-     secret: adlAujnLiVybfTFg2N19FpTxpoid3NMT
-  url: https://play.min.io:9443/
-  bucket:
-    name: bsmart
-  endpoint: https://play.min.io:9443/
-
 # Keycloak settings
 keycloak:
   realm: vuondau-application
