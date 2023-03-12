@@ -1,6 +1,7 @@
 server:
   port: 8080
 spring:
+
   security:
     oauth2:
       resourceserver:
@@ -43,6 +44,7 @@ moodle:
 
 app:
   firebase-configuration-file: /store/vuondau-450bf-firebase-adminsdk-al83z-5d94e1225d.json
+  secret-key: J@!gt*K
 
 # Return URL after payment
 payment-redirect: http://localhost:10000/processing
@@ -84,3 +86,11 @@ mail:
 
 bank:
   url: https://api.vietqr.io/v2/banks
+
+#------------------Security Specific Properties-------
+beholder:
+  app:
+    jwtSecret:
+      bezKoderSecretKey
+    jwtExpirationMs:
+      86400000

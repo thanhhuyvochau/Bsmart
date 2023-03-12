@@ -1,12 +1,18 @@
 package fpt.project.bsmart.entity.request;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 public class WithdrawRequest {
+    @NotNull
     private BigDecimal amount;
+    @NotNull
     private Long bankId;
+    @NotNull
     private Long bankAccount;
+    @NotNull
     private String bankAccountOwner;
+    @NotNull
     private String note;
 
     public BigDecimal getAmount() {

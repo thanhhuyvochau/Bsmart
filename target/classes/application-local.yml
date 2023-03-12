@@ -47,13 +47,4 @@ keycloak:
 
 
 
-#------------------Security Specific Properties-------
-app:
-  secret-key: J@!gt*K
 
-beholder:
-  app:
-    jwtSecret:
-      bezKoderSecretKey
-    jwtExpirationMs:
-      86400000
