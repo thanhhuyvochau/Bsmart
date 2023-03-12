@@ -115,21 +115,21 @@ public class UserServiceImpl implements IUserService {
         if(!PasswordUtil.validationPassword(accountProfileEditRequest.getNewPassword())){
             errorMessages.add("Password mới không hợp lệ");
         }
-        String encodedOldPassword = PasswordUtil.BCryptPasswordEncoder(accountProfileEditRequest.getOldPassword());
         String encodedNewPassword = PasswordUtil.BCryptPasswordEncoder(accountProfileEditRequest.getNewPassword());
-        if(!user.getPassword().equals(encodedOldPassword)){
-            errorMessages.add("Mật khẩu cũ không trùng khớp");
-        }
 
-        if(user.getPassword().equals(encodedNewPassword)){
-            errorMessages.add("Mật khẩu mới trùng mật khẩu cũ");
+        if(!PasswordUtil.IsOldPassword(accountProfileEditRequest.getOldPassword(), user.getPassword())){
+            errorMessages.add("Mật khẩu cũ không trùng khớp");
+        }else{
+            if(accountProfileEditRequest.getOldPassword().equals(accountProfileEditRequest.getNewPassword())){
+                errorMessages.add("Mật khẩu mới trùng mật khẩu cũ");
+            }
         }
 
         if(!errorMessages.isEmpty()){
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(String.join(", ", errorMessages));
         }
-        user.setPassword(accountProfileEditRequest.getNewPassword());
+        user.setPassword(encodedNewPassword);
         return userRepository.save(user).getId();
     }
 
@@ -155,7 +155,7 @@ public class UserServiceImpl implements IUserService {
         }
         user.setFullName(personalProfileEditRequest.getFullname());
         user.setAddress(personalProfileEditRequest.getAddress());
-        user.setPassword(personalProfileEditRequest.getAddress());
+        user.setAddress(personalProfileEditRequest.getAddress());
         user.setBirthday(personalProfileEditRequest.getBirthday());
         return userRepository.save(user).getId();
     }

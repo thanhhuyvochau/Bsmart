@@ -27,4 +27,9 @@ public class PasswordUtil {
         return passwd;
     }
 
+    public static boolean IsOldPassword(String oldPassword, String encodedOldPassword){
+        org.springframework.security.crypto.password.PasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.matches(oldPassword, encodedOldPassword);
+    }
+
 }
