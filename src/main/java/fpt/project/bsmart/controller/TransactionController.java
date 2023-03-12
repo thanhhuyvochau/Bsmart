@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
 
 @RestController
@@ -41,7 +42,7 @@ public class TransactionController {
 
     @Operation(summary = "Thành viên rút tiền từ vi")
     @PostMapping("/withdraw")
-    public ResponseEntity<ApiResponse<Boolean>> withdraw(@RequestBody WithdrawRequest request) {
+    public ResponseEntity<ApiResponse<Boolean>> withdraw(@Valid @RequestBody WithdrawRequest request) {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.withdraw(request)));
     }
 

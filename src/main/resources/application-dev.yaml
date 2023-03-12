@@ -3,8 +3,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://mysqldb:3307/bsmartdb
-    url: jdbc:mysql://localhost:3306/bsmartdb
+    url: jdbc:mysql://mysqldb:3306/bsmartdb
     username: root
     password: 123456
   jpa:
@@ -30,12 +29,12 @@ spring:
 #  secret-key: gCHswS6KZKVohYsIiWKCnfvF5UWbBUWE
 
 # Keycloak settings
-#keycloak:
-#  realm: vuondau-application
-#  resource: springboot-admin-client
-#  app-client: vuondau
-#  auth-server-url: http://keycloak:8080/auth
-#  credentials:
-#    secret: 0Z8fWR17uURSeTWmKd4EdapEUF8ck9ku
-#
-#
+keycloak:
+  realm: vuondau-application
+  resource: springboot-admin-client
+  app-client: vuondau
+  auth-server-url: http://keycloak:8080/auth
+  credentials:
+    secret: 0Z8fWR17uURSeTWmKd4EdapEUF8ck9ku
+
+
