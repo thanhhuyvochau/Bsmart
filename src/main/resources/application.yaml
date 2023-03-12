@@ -1,9 +1,6 @@
 server:
   port: 8080
 spring:
-
-  profiles:
-    active: dev
   security:
     oauth2:
       resourceserver:
@@ -84,3 +81,6 @@ mail:
   username: <login user to smtp server>
   password: <login password to smtp server>
   port: '587'
+
+bank:
+  url: https://api.vietqr.io/v2/banks

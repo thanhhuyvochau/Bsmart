@@ -4,6 +4,7 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.dto.*;
+import fpt.project.bsmart.entity.response.CourseResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class ConvertUtil {
     public static ImageDto convertImageToImageDto(Image image) {
         ImageDto imageDto = ObjectUtil.copyProperties(image, new ImageDto(), ImageDto.class);
         if (image.getUser() != null) {
-            imageDto.setUserId(image.getUser().getId());
+//            imageDto.setUserId(image.getUser().getId());
         }
         return imageDto;
     }
@@ -167,9 +168,33 @@ public class ConvertUtil {
         return courseDto;
     }
 
+    public static CourseResponse convertCourseCourseResponse(Course course) {
+        CourseResponse courseResponse = new CourseResponse();
+        if (course.getImage() != null) {
+            courseResponse.setImageUrl(course.getImage().getUrl());
+        }
+        Subject subject = course.getSubject();
+        if (subject != null) {
+            courseResponse.setSubjectName(subject.getName());
+            Category category = subject.getCategory();
+            if (category != null) {
+                courseResponse.setCategoryName(category.getName());
+            }
+        }
+        if (course.getMentor() != null) {
+            courseResponse.setMentorName(course.getMentor().getFullName());
+        }
+        courseResponse.setCourseDescription(course.getDescription());
+        return courseResponse;
+    }
+
 
     public static TransactionDto convertTransactionToDto(Transaction transaction) {
         return ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);
+    }
+
+    public static BankDto convertBankToBankDto(Bank bank) {
+        return ObjectUtil.copyProperties(bank, new BankDto(), BankDto.class, true);
     }
 
 }
