@@ -34,7 +34,8 @@ public class User extends BaseEntity {
 
     @Column(name = "address")
     private String address;
-
+    @Column(name = "introduce")
+    private String introduce;
     @Column(name = "phone")
     private String phone;
 
@@ -95,6 +96,14 @@ public class User extends BaseEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getIntroduce() {
+        return introduce;
+    }
+
+    public void setIntroduce(String introduce) {
+        this.introduce = introduce;
     }
 
     public Instant getBirthday() {

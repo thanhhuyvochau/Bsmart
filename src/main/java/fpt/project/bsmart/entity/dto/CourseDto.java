@@ -2,6 +2,7 @@ package fpt.project.bsmart.entity.dto;
 
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class CourseDto {
 
     private String description;
 
-    private boolean status;
+    private ECourseStatus status;
 
     private ECourseLevel level;
 
@@ -68,11 +69,11 @@ public class CourseDto {
         this.description = description;
     }
 
-    public boolean isStatus() {
+    public ECourseStatus getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(ECourseStatus status) {
         this.status = status;
     }
 
