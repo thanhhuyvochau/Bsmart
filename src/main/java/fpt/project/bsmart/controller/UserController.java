@@ -56,23 +56,23 @@ public class UserController {
     }
     @Operation(summary = "Chỉnh sửa liên kết mạng xã hội")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'STUDENT')")
-    @PutMapping("/{id}/social")
-    public ResponseEntity<ApiResponse<Long>> editSocialProfile(@PathVariable Long id, @RequestBody SocialProfileEditRequest socialProfileEditRequest){
-        return ResponseEntity.ok(ApiResponse.success(iUserService.editUserSocialProfile(id, socialProfileEditRequest)));
+    @PutMapping("/social")
+    public ResponseEntity<ApiResponse<Long>> editSocialProfile(@RequestBody SocialProfileEditRequest socialProfileEditRequest){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.editUserSocialProfile(socialProfileEditRequest)));
     }
 
     @Operation(summary = "Chỉnh sửa thông tình tài khoản")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'STUDENT')")
-    @PutMapping("/{id}/account")
-    public ResponseEntity<ApiResponse<Long>> editAccountProfile(@PathVariable Long id, @RequestBody AccountProfileEditRequest accountProfileEditRequest){
-        return ResponseEntity.ok(ApiResponse.success(iUserService.editUserAccountProfile(id, accountProfileEditRequest)));
+    @PutMapping("/account")
+    public ResponseEntity<ApiResponse<Long>> editAccountProfile(@RequestBody AccountProfileEditRequest accountProfileEditRequest){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.editUserAccountProfile(accountProfileEditRequest)));
     }
 
     @Operation(summary = "Chỉnh sửa thông tin cá nhân")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'STUDENT')")
-    @PutMapping("/{id}/personal")
-    public ResponseEntity<ApiResponse<Long>> editPersonalProfile(@PathVariable Long id, @RequestBody PersonalProfileEditRequest personalProfileEditRequest){
-        return ResponseEntity.ok(ApiResponse.success(iUserService.editUserPersonalProfile(id, personalProfileEditRequest)));
+    @PutMapping("/personal")
+    public ResponseEntity<ApiResponse<Long>> editPersonalProfile(@RequestBody PersonalProfileEditRequest personalProfileEditRequest){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.editUserPersonalProfile(personalProfileEditRequest)));
     }
 
 //    @PostMapping("/getData")

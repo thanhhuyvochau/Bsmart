@@ -1,22 +1,22 @@
 package fpt.project.bsmart.entity.request.User;
 
 public class AccountProfileEditRequest {
-    private String email;
-    private String password;
+    private String oldPassword;
+    private String newPassword;
 
-    public String getEmail() {
-        return email;
+    public String getOldPassword() {
+        return oldPassword;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
     }
 
-    public String getPassword() {
-        return password;
+    public String getNewPassword() {
+        return newPassword;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
     }
 }

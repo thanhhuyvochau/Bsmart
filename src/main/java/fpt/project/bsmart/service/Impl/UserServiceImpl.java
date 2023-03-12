@@ -5,26 +5,18 @@ import fpt.project.bsmart.entity.Image;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.request.CreateAccountRequest;
-import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
-import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
-import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
-import fpt.project.bsmart.repository.RoleRepository;
-import fpt.project.bsmart.repository.UserRepository;
-import fpt.project.bsmart.service.IUserService;
-import fpt.project.bsmart.util.DayUtil;
-import fpt.project.bsmart.util.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
+import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
+import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
+import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.repository.ImageRepository;
 import fpt.project.bsmart.repository.RoleRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IUserService;
-import fpt.project.bsmart.util.MessageUtil;
+import fpt.project.bsmart.util.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -55,6 +47,10 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + id));
     }
 
+    private User getCurrentLoginUser(){
+        return SecurityUtil.getCurrentUserAccountLogin();
+    }
+
     public Long uploadImageProfile(Long id, UploadImageRequest uploadImageRequest) {
         User user = findUserById(id);
         Image image = new Image();
@@ -78,8 +74,8 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Long editUserSocialProfile(Long id, SocialProfileEditRequest socialProfileEditRequest) {
-        User user = findUserById(id);
+    public Long editUserSocialProfile(SocialProfileEditRequest socialProfileEditRequest) {
+        User user = getCurrentLoginUser();
         List<String> errorMessages = new ArrayList<>();
 
         if(!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())){
@@ -107,31 +103,39 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Long editUserAccountProfile(Long id, AccountProfileEditRequest accountProfileEditRequest) {
-        User user = findUserById(id);
+    public Long editUserAccountProfile(AccountProfileEditRequest accountProfileEditRequest) {
+        User user = getCurrentLoginUser();
         List<String> errorMessages = new ArrayList<>();
-        if(!StringUtil.isNotNullOrEmpty(accountProfileEditRequest.getPassword())){
-            errorMessages.add("Password error message");
+
+        if(StringUtil.isNullOrEmpty(accountProfileEditRequest.getOldPassword())
+            || StringUtil.isNullOrEmpty(accountProfileEditRequest.getNewPassword())){
+            errorMessages.add("Không được để trống mật khẩu");
         }
 
-        if(!StringUtil.isValidEmailAddress(accountProfileEditRequest.getEmail())){
-            errorMessages.add("Email error message");
+        if(!PasswordUtil.validationPassword(accountProfileEditRequest.getNewPassword())){
+            errorMessages.add("Password mới không hợp lệ");
+        }
+        String encodedOldPassword = PasswordUtil.BCryptPasswordEncoder(accountProfileEditRequest.getOldPassword());
+        String encodedNewPassword = PasswordUtil.BCryptPasswordEncoder(accountProfileEditRequest.getNewPassword());
+        if(!user.getPassword().equals(encodedOldPassword)){
+            errorMessages.add("Mật khẩu cũ không trùng khớp");
+        }
+
+        if(user.getPassword().equals(encodedNewPassword)){
+            errorMessages.add("Mật khẩu mới trùng mật khẩu cũ");
         }
 
         if(!errorMessages.isEmpty()){
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(String.join(", ", errorMessages));
         }
-        //user.setPassword(bCryptEncoder.encode(accountProfileEditRequest.getPassword()));
-        user.setPassword(accountProfileEditRequest.getPassword());
-        user.setEmail(accountProfileEditRequest.getEmail());
-
+        user.setPassword(accountProfileEditRequest.getNewPassword());
         return userRepository.save(user).getId();
     }
 
     @Override
-    public Long editUserPersonalProfile(Long id, PersonalProfileEditRequest personalProfileEditRequest) {
-        User user = findUserById(id);
+    public Long editUserPersonalProfile(PersonalProfileEditRequest personalProfileEditRequest) {
+        User user = getCurrentLoginUser();
         List<String> errorMessages = new ArrayList<>();
         if(StringUtil.isNullOrEmpty(personalProfileEditRequest.getFullname())){
             errorMessages.add("fullname error message");

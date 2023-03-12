@@ -12,18 +12,11 @@ public class PasswordUtil {
                 + "(?=.*[a-z])(?=.*[A-Z])"
                 + "(?=.*[@#$%^&+=])"
                 + "(?=\\S+$).{8,20}$";
-
         Pattern p = Pattern.compile(regex);
-
-
         if (password == null) {
             return false;
         }
-
-
         Matcher m = p.matcher(password);
-
-
         return m.matches();
     }
 
@@ -33,6 +26,5 @@ public class PasswordUtil {
         String passwd = encoder.encode(password);
         return passwd;
     }
-
 
 }
