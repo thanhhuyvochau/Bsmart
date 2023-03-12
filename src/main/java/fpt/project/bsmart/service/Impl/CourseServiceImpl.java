@@ -4,6 +4,7 @@ package fpt.project.bsmart.service.Impl;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.CourseModuleRequest;
@@ -125,5 +126,11 @@ public class CourseServiceImpl implements ICourseService {
 
         return PageUtil.convert(allCourseMentor.map(ConvertUtil::convertCourseToCourseDTO));
 
+    }
+
+    @Override
+    public ApiPage<CourseDto> getCourseForCoursePage(ECourseStatus status ,Pageable pageable) {
+        Page<Course> Courses = courseRepository.findByStatus(status, pageable);
+        return PageUtil.convert(Courses.map(ConvertUtil::convertCourseToCourseDTO));
     }
 }

@@ -2,6 +2,7 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.CourseDto;
 
 
@@ -46,4 +47,9 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetCourse(pageable)));
     }
 
+    @Operation(summary = "lấy tất cả các course đổ lên trang khoa học")
+    @GetMapping("/page")
+    public ResponseEntity<ApiResponse<ApiPage<CourseDto>>> getCourseForCoursePage(ECourseStatus status, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(status,pageable)));
+    }
 }

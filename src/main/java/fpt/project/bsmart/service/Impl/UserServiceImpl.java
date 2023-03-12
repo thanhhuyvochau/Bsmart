@@ -165,7 +165,7 @@ public class UserServiceImpl implements IUserService {
 
         if (  userRepository.existsByPhone(createAccountRequest.getPhone())){
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Email : " + createAccountRequest.getEmail()+ "đã được đăng ký" ));
+                    .withMessage(messageUtil.getLocalMessage("Số điện thoại : " + createAccountRequest.getEmail()+ "đã được đăng ký" ));
         }
 
 
