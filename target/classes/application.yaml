@@ -3,7 +3,7 @@ server:
 spring:
 
   profiles:
-    active: dev
+    active: local
   security:
     oauth2:
       resourceserver:
