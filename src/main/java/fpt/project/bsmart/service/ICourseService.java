@@ -27,5 +27,7 @@ public interface ICourseService {
 
     Boolean mentorUploadImageCourse(ImageRequest imageRequest);
 
+    Boolean memberRegisterCourse(Long id);
+
 //    Boolean mentorUploadImageForCourse(Long id, FileDto request);
 }

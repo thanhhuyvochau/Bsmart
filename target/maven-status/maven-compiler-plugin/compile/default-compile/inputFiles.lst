@@ -10,6 +10,7 @@ C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\request\Us
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\moodle\config\MoodleCaller.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\moodle\response\MoodleRecourseDtoResponse.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\service\ITimeInWeekService.java
+C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\util\specification\CourseSpecificationBuilder.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\constant\ETransactionType.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\config\socket\SocketBrokerConfig.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\util\adapter\MinioAdapter.java
@@ -139,6 +140,7 @@ C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\service\Impl\Cour
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\dto\ImageDto.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\config\security\service\UserDetailsImpl.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\common\ApiException.java
+C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\request\CourseSearchRequest.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\BsmartApplication.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\constant\ETypeLearn.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\Course.java

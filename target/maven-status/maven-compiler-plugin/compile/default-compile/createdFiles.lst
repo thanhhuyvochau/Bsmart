@@ -93,6 +93,7 @@ fpt\project\bsmart\entity\constant\ETransactionStatus.class
 fpt\project\bsmart\service\Impl\DayOfWeekService.class
 fpt\project\bsmart\entity\request\AccountEditRequest.class
 fpt\project\bsmart\moodle\request\GetCategoryRequest$MoodleCategoryBody.class
+fpt\project\bsmart\util\specification\CourseSpecificationBuilder.class
 fpt\project\bsmart\service\Impl\CategoryServiceImpl.class
 fpt\project\bsmart\config\security\jwt\AuthTokenFilter.class
 fpt\project\bsmart\config\security\service\UserDetailsImpl.class
@@ -155,6 +156,7 @@ fpt\project\bsmart\entity\constant\EUserRole.class
 fpt\project\bsmart\entity\TimeInWeek.class
 fpt\project\bsmart\entity\Slot.class
 fpt\project\bsmart\util\Constants$ErrorMessage.class
+fpt\project\bsmart\entity\request\CourseSearchRequest.class
 fpt\project\bsmart\moodle\request\GetCategoryRequest.class
 fpt\project\bsmart\util\Constants$Notification.class
 fpt\project\bsmart\entity\OrderDetail.class
