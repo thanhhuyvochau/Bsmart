@@ -4,13 +4,24 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+ #------------------DB --------------#
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://mysqldb:3307/bsmartdb
     url: jdbc:mysql://localhost:3306/bsmartdb
     username: root
     password: 123456
 
+
+  #------------------MinIO --------------#
+minio:
+  access:
+    key: Ed9hULk92IyS2Glb
+    secret: GVk3tHgV3x6tiCR158V0RyFxOFH5IM5O
+  url: http://103.173.155.221:9000
+  bucket:
+    name: bsmart
+  endpoint: http://103.173.155.221:9000
+  #------------------ -------------------#
 
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect

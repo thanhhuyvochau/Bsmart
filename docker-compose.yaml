@@ -1,8 +1,22 @@
-
-
 version: "2.0"
 
 services:
+  # -------------------minio -------------------#
+  minio:
+    env_file: ./.env
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    image: quay.io/minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./data/minio:/data
+    restart: always
+
+    # -------------------DB -------------------#
   mysqldb:
     image: mysql:5.7
     restart: unless-stopped
@@ -14,8 +28,8 @@ services:
       - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
     volumes:
       - db:/var/lib/mysql
-#    expose:
-#      - 3306
+
+  # -------------------spring boot -------------------#
   app-bsmart:
     depends_on:
       - mysqldb

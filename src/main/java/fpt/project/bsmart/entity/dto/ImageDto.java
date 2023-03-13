@@ -15,8 +15,7 @@ public class ImageDto implements Serializable {
     @Schema(description = "URL ảnh đại diện")
     private String url;
 
-    @Schema(description = "Số thứ tự")
-    private Integer numericalOrder;
+
 
     public Long getId() {
         return id;
@@ -42,11 +41,5 @@ public class ImageDto implements Serializable {
         this.url = url;
     }
 
-    public Integer getNumericalOrder() {
-        return numericalOrder;
-    }
 
-    public void setNumericalOrder(Integer numericalOrder) {
-        this.numericalOrder = numericalOrder;
-    }
 }

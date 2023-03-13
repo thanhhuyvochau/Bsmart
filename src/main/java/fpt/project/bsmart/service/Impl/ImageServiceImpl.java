@@ -3,6 +3,7 @@ package fpt.project.bsmart.service.Impl;
 import fpt.project.bsmart.entity.Image;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.dto.ImageDto;
+import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.repository.ImageRepository;
 import fpt.project.bsmart.service.ImageService;
 import fpt.project.bsmart.util.Constants;
@@ -41,14 +42,16 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public ImageDto uploadImage(MultipartFile file) {
+    public ImageDto uploadImage( ImageRequest imageRequest) {
         try {
+            MultipartFile file = imageRequest.getFile();
             String name = file.getOriginalFilename() + "_" + Instant.now().toString();
             ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file.getContentType(), file.getInputStream(), file.getSize());
             Image image = new Image();
             image.setName(objectWriteResponse.object());
             image.setUrl(ImageUrlUtil.buildUrl(minioUrl, objectWriteResponse));
             Image persistedImage = imageRepository.save(image);
+            image.setType(imageRequest.getType());
             return ObjectUtil.copyProperties(persistedImage, new ImageDto(), ImageDto.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
