@@ -9,6 +9,7 @@ public class SpecificationUtil {
     private SpecificationUtil() {
     }
 
+    @SafeVarargs
     public static Expression<String> concat(CriteriaBuilder criteriaBuilder, String delimiter, Expression<String>... expressions) {
         Expression<String> result = null;
         for (int i = 0; i < expressions.length; i++) {

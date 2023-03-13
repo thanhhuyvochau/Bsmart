@@ -7,15 +7,13 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.CourseDto;
-import fpt.project.bsmart.entity.request.CourseModuleRequest;
-import fpt.project.bsmart.entity.request.CourseSectionRequest;
-import fpt.project.bsmart.entity.request.CreateCourseRequest;
-import fpt.project.bsmart.entity.request.ImageRequest;
+import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.CourseDetailResponse;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ICourseService;
 import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.specification.CourseSpecificationBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -128,8 +126,15 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public ApiPage<CourseResponse> getCourseForCoursePage(Pageable pageable) {
-        Page<Course> Courses = courseRepository.findByStatus(ECourseStatus.NOTSTART, pageable);
+    public ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest query, Pageable pageable) {
+
+        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
+                .queryLike(query.getQ())
+                .queryByCourseStatus(ECourseStatus.NOTSTART)
+                .queryBySubjectId(query.getSubjectId())
+                .queryByCategoryId(query.getCategoryId());
+        Page<Course> Courses = courseRepository.findAll(builder.build(), pageable);
+//        Page<Course> Courses = courseRepository.findByStatus(ECourseStatus.NOTSTART, pageable);
         return PageUtil.convert(Courses.map(ConvertUtil::convertCourseCourseResponse));
     }
 

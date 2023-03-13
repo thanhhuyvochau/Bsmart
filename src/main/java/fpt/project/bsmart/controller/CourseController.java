@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.CourseDto;
 
 
+import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.response.CourseDetailResponse;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Nullable;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -66,8 +68,8 @@ public class CourseController {
 
     @Operation(summary = "lấy tất cả các course đổ lên trang khoa học")
     @GetMapping
-    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage( Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(@Nullable CourseSearchRequest query, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(query ,pageable)));
     }
 
     @Operation(summary = "xem chi tiết khóa học trang khoa học")

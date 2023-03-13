@@ -5,6 +5,8 @@ package fpt.project.bsmart.entity.response;
 public class CourseResponse {
 
    private String imageUrl ;
+
+    private String courseName ;
    private String categoryName ;
 
    private String subjectName ;
@@ -34,6 +36,14 @@ public class CourseResponse {
 
     public void setSubjectName(String subjectName) {
         this.subjectName = subjectName;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 
     public String getMentorName() {

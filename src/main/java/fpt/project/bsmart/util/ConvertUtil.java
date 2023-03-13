@@ -199,6 +199,7 @@ public class ConvertUtil {
         if (course.getImage() != null) {
             courseResponse.setImageUrl(course.getImage().getUrl());
         }
+        courseResponse.setCourseName(course.getName());
         Subject subject = course.getSubject();
         if (subject != null) {
             courseResponse.setSubjectName(subject.getName());

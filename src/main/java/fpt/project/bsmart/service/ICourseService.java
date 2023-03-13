@@ -5,6 +5,7 @@ package fpt.project.bsmart.service;
 import fpt.project.bsmart.entity.common.ApiPage;
 
 import fpt.project.bsmart.entity.dto.CourseDto;
+import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.response.CourseDetailResponse;
@@ -20,7 +21,7 @@ public interface ICourseService {
 
     ApiPage<CourseDto> mentorGetCourse(Pageable pageable);
 
-    ApiPage<CourseResponse> getCourseForCoursePage( Pageable pageable);
+    ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest , Pageable pageable);
 
     CourseDetailResponse getDetailCourseForCoursePage(Long id);
 
