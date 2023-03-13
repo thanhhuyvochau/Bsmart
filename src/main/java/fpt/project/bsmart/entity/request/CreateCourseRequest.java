@@ -1,7 +1,9 @@
 package fpt.project.bsmart.entity.request;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
+import fpt.project.bsmart.entity.constant.ETypeLearn;
 
+import java.time.Instant;
 import java.util.List;
 
 public class CreateCourseRequest {
@@ -9,15 +11,21 @@ public class CreateCourseRequest {
     private String name;
     private ECourseLevel level;
 
+    private Long imageId;
     private Long categoryId;
 
-
-    private Long imageId;
     private Long subjectId;
 
-    private String description;
+    private ETypeLearn type;
 
-    private List<CourseSectionRequest> sections;
+    private Integer minStudent ;
+
+    private Integer maxStudent ;
+
+    private Instant startDateExpected  ;
+
+    private Instant endDateExpected  ;
+    private String description;
 
     public String getName() {
         return name;
@@ -35,21 +43,12 @@ public class CreateCourseRequest {
         this.level = level;
     }
 
-    public Long getSubjectId() {
-        return subjectId;
-    }
-
-
     public Long getImageId() {
         return imageId;
     }
 
     public void setImageId(Long imageId) {
         this.imageId = imageId;
-    }
-
-    public void setSubjectId(Long subjectId) {
-        this.subjectId = subjectId;
     }
 
     public Long getCategoryId() {
@@ -60,19 +59,59 @@ public class CreateCourseRequest {
         this.categoryId = categoryId;
     }
 
+    public Long getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(Long subjectId) {
+        this.subjectId = subjectId;
+    }
+
+    public ETypeLearn getType() {
+        return type;
+    }
+
+    public void setType(ETypeLearn type) {
+        this.type = type;
+    }
+
+    public Integer getMinStudent() {
+        return minStudent;
+    }
+
+    public void setMinStudent(Integer minStudent) {
+        this.minStudent = minStudent;
+    }
+
+    public Integer getMaxStudent() {
+        return maxStudent;
+    }
+
+    public void setMaxStudent(Integer maxStudent) {
+        this.maxStudent = maxStudent;
+    }
+
+    public Instant getStartDateExpected() {
+        return startDateExpected;
+    }
+
+    public void setStartDateExpected(Instant startDateExpected) {
+        this.startDateExpected = startDateExpected;
+    }
+
+    public Instant getEndDateExpected() {
+        return endDateExpected;
+    }
+
+    public void setEndDateExpected(Instant endDateExpected) {
+        this.endDateExpected = endDateExpected;
+    }
+
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public List<CourseSectionRequest> getSections() {
-        return sections;
-    }
-
-    public void setSections(List<CourseSectionRequest> sections) {
-        this.sections = sections;
     }
 }
