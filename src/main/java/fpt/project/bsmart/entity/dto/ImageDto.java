@@ -1,24 +1,22 @@
 package fpt.project.bsmart.entity.dto;
 
-import fpt.project.bsmart.entity.BaseEntity;
-import fpt.project.bsmart.entity.Course;
-import fpt.project.bsmart.entity.User;
-import fpt.project.bsmart.entity.constant.EImageType;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-import javax.persistence.*;
+import java.io.Serializable;
 
 
-
-public class ImageDto {
-    
+public class ImageDto implements Serializable {
+    @Schema(description = "ID ảnh đại diện", readOnly = true)
     private Long id;
-    private EImageType type;
-    
-    private String note;
-    
+
+    @Schema(description = "Tên ảnh đại diện")
+    private String name;
+
+    @Schema(description = "URL ảnh đại diện")
     private String url;
-    
-    private Long userId;
+
+    @Schema(description = "Số thứ tự")
+    private Integer numericalOrder;
 
     public Long getId() {
         return id;
@@ -28,28 +26,12 @@ public class ImageDto {
         this.id = id;
     }
 
-    public EImageType getType() {
-        return type;
+    public String getName() {
+        return name;
     }
 
-    public void setType(EImageType type) {
-        this.type = type;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getUrl() {
@@ -60,5 +42,11 @@ public class ImageDto {
         this.url = url;
     }
 
+    public Integer getNumericalOrder() {
+        return numericalOrder;
+    }
 
+    public void setNumericalOrder(Integer numericalOrder) {
+        this.numericalOrder = numericalOrder;
+    }
 }

@@ -4,11 +4,14 @@ package fpt.project.bsmart.service.Impl;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.CourseModuleRequest;
 import fpt.project.bsmart.entity.request.CourseSectionRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
+import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.repository.CategoryRepository;
 import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
@@ -27,10 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
-
-import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_BY_ID;
-
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDTO;
 
 
@@ -45,12 +45,16 @@ public class CourseServiceImpl implements ICourseService {
 
     private final UserRepository userRepository;
 
+
+
+
     public CourseServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil, CourseRepository courseRepository, SubjectRepository subjectRepository, UserRepository userRepository) {
         this.categoryRepository = categoryRepository;
         this.messageUtil = messageUtil;
         this.courseRepository = courseRepository;
         this.subjectRepository = subjectRepository;
         this.userRepository = userRepository;
+
     }
 
     @Override
@@ -58,8 +62,8 @@ public class CourseServiceImpl implements ICourseService {
         Subject subject = subjectRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + id));
         List<CourseDto> courseDtoList = new ArrayList<>();
-        if(!subject.getCourses().isEmpty()){
-            for (Course course : subject.getCourses()){
+        if (!subject.getCourses().isEmpty()) {
+            for (Course course : subject.getCourses()) {
                 courseDtoList.add(convertCourseToCourseDTO(course));
             }
         }
@@ -88,7 +92,7 @@ public class CourseServiceImpl implements ICourseService {
         course.setMentor(currentUserAccountLogin);
 
         course.setDescription(createCourseRequest.getDescription());
-
+        course.setStatus(ECourseStatus.REQUESTING);
 
         List<Role> roles = currentUserAccountLogin.getRoles();
         List<Boolean> checkRoleTeacher = roles.stream().map(role -> role.getCode().equals(EUserRole.TEACHER)).collect(Collectors.toList());
@@ -126,4 +130,30 @@ public class CourseServiceImpl implements ICourseService {
         return PageUtil.convert(allCourseMentor.map(ConvertUtil::convertCourseToCourseDTO));
 
     }
+
+    @Override
+    public ApiPage<CourseResponse> getCourseForCoursePage(Pageable pageable) {
+        Page<Course> Courses = courseRepository.findByStatus(ECourseStatus.NOTSTART, pageable);
+        return PageUtil.convert(Courses.map(ConvertUtil::convertCourseCourseResponse));
+    }
+
+    @Override
+    public CourseDto getDetailCourseForCoursePage(Long id) {
+        Course course = courseRepository.findByIdAndStatus(id, ECourseStatus.NOTSTART)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        return convertCourseToCourseDTO(course);
+    }
+
+//    @Override
+//    public Boolean mentorUploadImageForCourse(Long id, FileDto request) {
+//        Course course = courseRepository.findById(id)
+//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+//        FileDto fileDto = minioService.uploadFile(request);
+//        Image image = new Image();
+//        image.setUrl(fileDto.getUrl());
+//        image.setType(EImageType.AVATAR);
+//        course.setImage(image);
+//        courseRepository.save(course);
+//        return true;
+//    }
 }

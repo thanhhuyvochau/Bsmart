@@ -6,6 +6,7 @@ spring:
       matching-strategy: ant_path_matcher
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+
     url: jdbc:mysql://localhost:3306/bsmartdb
     username: root
     password: 123456
@@ -28,11 +29,11 @@ spring:
       max-request-size: 10MB
       file-size-threshold: 2KB
       max-file-size: 5MB
-minio:
-  bucket: requestformstudent
-  url: http://103.173.255.39:9000
-  access-key: ELrwUZXIzBLOlp5s
-  secret-key: gCHswS6KZKVohYsIiWKCnfvF5UWbBUWE
+#minio:
+#  bucket: requestformstudent
+#  url: http://103.173.255.39:9000
+#  access-key: ELrwUZXIzBLOlp5s
+#  secret-key: gCHswS6KZKVohYsIiWKCnfvF5UWbBUWE
 
 # Keycloak settings
 keycloak:
@@ -42,6 +43,7 @@ keycloak:
   auth-server-url: http://vuondau-keycloak.amazingtech.vn/auth
   credentials:
     secret: 0Z8fWR17uURSeTWmKd4EdapEUF8ck9ku
+
 
 
 
@@ -56,3 +58,4 @@ beholder:
       bezKoderSecretKey
     jwtExpirationMs:
       86400000
+

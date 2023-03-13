@@ -1,5 +1,6 @@
 package fpt.project.bsmart.service.Impl;
 
+import fpt.project.bsmart.entity.Bank;
 import fpt.project.bsmart.entity.Transaction;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.Wallet;
@@ -7,6 +8,8 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.ETransactionType;
 import fpt.project.bsmart.entity.dto.TransactionDto;
+import fpt.project.bsmart.entity.request.WithdrawRequest;
+import fpt.project.bsmart.repository.BankRepository;
 import fpt.project.bsmart.repository.TransactionRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.repository.WalletRepository;
@@ -31,11 +34,14 @@ public class TransactionService implements ITransactionService {
     private final UserRepository userRepository;
     private final MessageUtil messageUtil;
 
-    public TransactionService(WalletRepository walletRepository, TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil) {
+    private final BankRepository bankRepository;
+
+    public TransactionService(WalletRepository walletRepository, TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
+        this.bankRepository = bankRepository;
     }
 
     @Override
@@ -63,19 +69,21 @@ public class TransactionService implements ITransactionService {
         if (amount.compareTo(BigDecimal.valueOf(10000)) <= 0) {
             return false;
         }
-        Transaction transaction = Transaction.build(amount, wallet, ETransactionType.DEPOSIT);
+        Transaction transaction = Transaction.build(amount, null, null, null, wallet, ETransactionType.DEPOSIT);
         wallet.setBalance(wallet.getBalance().add(amount));
         transactionRepository.save(transaction);
         return true;
     }
 
     @Override
-    public Boolean withdraw(BigDecimal amount) {
+    public Boolean withdraw(WithdrawRequest request) {
         Wallet wallet = SecurityUtil.getCurrentUserWallet();
+        BigDecimal amount = request.getAmount();
         if (amount.compareTo(BigDecimal.ZERO) <= 0 || amount.compareTo(wallet.getBalance()) > 0) {
             return false;
         }
-        Transaction transaction = Transaction.build(amount, wallet, ETransactionType.WITHDRAW);
+        Bank bank = bankRepository.findById(request.getBankId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy ngân hàng hỗ trợ xin thử lại!"));
+        Transaction transaction = Transaction.build(amount, request.getBankAccount(), request.getBankAccountOwner(), bank, wallet, ETransactionType.WITHDRAW);
         wallet.setBalance(wallet.getBalance().subtract(amount));
         transactionRepository.save(transaction);
         return true;

@@ -29,12 +29,6 @@ spring:
       max-request-size: 10MB
       file-size-threshold: 2KB
       max-file-size: 5MB
-minio:
-  bucket: requestformstudent
-  url: http://103.173.255.39:9000
-  access-key: ELrwUZXIzBLOlp5s
-  secret-key: gCHswS6KZKVohYsIiWKCnfvF5UWbBUWE
-
 # Keycloak settings
 keycloak:
   realm: vuondau-application
@@ -47,13 +41,4 @@ keycloak:
 
 
 
-#------------------Security Specific Properties-------
-app:
-  secret-key: J@!gt*K
 
-beholder:
-  app:
-    jwtSecret:
-      bezKoderSecretKey
-    jwtExpirationMs:
-      86400000

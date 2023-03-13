@@ -3,12 +3,14 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.TransactionDto;
+import fpt.project.bsmart.entity.request.WithdrawRequest;
 import fpt.project.bsmart.service.ITransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
 
 @RestController
@@ -40,8 +42,8 @@ public class TransactionController {
 
     @Operation(summary = "Thành viên rút tiền từ vi")
     @PostMapping("/withdraw")
-    public ResponseEntity<ApiResponse<Boolean>> withdraw(@RequestBody BigDecimal amount) {
-        return ResponseEntity.ok(ApiResponse.success(iTransactionService.withdraw(amount)));
+    public ResponseEntity<ApiResponse<Boolean>> withdraw(@Valid @RequestBody WithdrawRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.withdraw(request)));
     }
 
 }

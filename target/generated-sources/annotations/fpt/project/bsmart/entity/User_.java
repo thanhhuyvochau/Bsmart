@@ -14,6 +14,7 @@ public abstract class User_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static volatile SingularAttribute<User, String> instagramLink;
 	public static volatile SingularAttribute<User, String> address;
 	public static volatile SingularAttribute<User, Wallet> wallet;
+	public static volatile SingularAttribute<User, String> introduce;
 	public static volatile ListAttribute<User, Role> roles;
 	public static volatile ListAttribute<User, Image> userImages;
 	public static volatile SingularAttribute<User, String> fullName;
@@ -31,6 +32,7 @@ public abstract class User_ extends fpt.project.bsmart.entity.BaseEntity_ {
 	public static final String INSTAGRAM_LINK = "instagramLink";
 	public static final String ADDRESS = "address";
 	public static final String WALLET = "wallet";
+	public static final String INTRODUCE = "introduce";
 	public static final String ROLES = "roles";
 	public static final String USER_IMAGES = "userImages";
 	public static final String FULL_NAME = "fullName";

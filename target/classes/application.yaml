@@ -2,8 +2,6 @@ server:
   port: 8080
 spring:
 
-  profiles:
-    active: local
   security:
     oauth2:
       resourceserver:
@@ -46,6 +44,7 @@ moodle:
 
 app:
   firebase-configuration-file: /store/vuondau-450bf-firebase-adminsdk-al83z-5d94e1225d.json
+  secret-key: J@!gt*K
 
 # Return URL after payment
 payment-redirect: http://localhost:10000/processing
@@ -84,3 +83,23 @@ mail:
   username: <login user to smtp server>
   password: <login password to smtp server>
   port: '587'
+
+bank:
+  url: https://api.vietqr.io/v2/banks
+
+#------------------Security Specific Properties-------
+beholder:
+  app:
+    jwtSecret:
+      bezKoderSecretKey
+    jwtExpirationMs:
+      86400000
+  #------------------MinIO DEV-------
+minio:
+  access:
+    key: esrUhRb4eLL3jS6J
+    secret: adlAujnLiVybfTFg2N19FpTxpoid3NMT
+  url: https://play.min.io:9443/
+  bucket:
+    name: bsmart
+  endpoint: https://play.min.io:9443/

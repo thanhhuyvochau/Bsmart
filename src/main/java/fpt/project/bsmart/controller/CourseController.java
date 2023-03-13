@@ -5,8 +5,8 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.CourseDto;
 
 
-
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
+import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +39,14 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createCourseRequest)));
     }
 
+//    @Operation(summary = "mentor thêm ảnh đại diện cho course")
+//    @PreAuthorize("hasAuthority('TEACHER')")
+//    @PostMapping("{id}/image")
+//    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageForCourse(@PathVariable Long id  , @ModelAttribute FileDto request) {
+//        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageForCourse(id , request)));
+//    }
+
+
     @Operation(summary = "mentor xem tất cả course của mình")
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/mentor")
@@ -46,4 +54,15 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetCourse(pageable)));
     }
 
+    @Operation(summary = "lấy tất cả các course đổ lên trang khoa học")
+    @GetMapping("/page")
+    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage( Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(pageable)));
+    }
+
+    @Operation(summary = "xem chi tiết khóa học trang khoa học")
+    @GetMapping("/{id}/detail-page")
+    public ResponseEntity<ApiResponse<CourseDto>> getDetailCourseForCoursePage(@PathVariable Long id ) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getDetailCourseForCoursePage(id)));
+    }
 }

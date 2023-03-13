@@ -4,6 +4,7 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.dto.*;
+import fpt.project.bsmart.entity.response.CourseResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -26,15 +27,14 @@ public class ConvertUtil {
     }
 
 
-
-    public static SectionDto convertSectionToSectionDto(Section section){
+    public static SectionDto convertSectionToSectionDto(Section section) {
         SectionDto sectionDto = ObjectUtil.copyProperties(section, new SectionDto(), SectionDto.class);
-        if(section.getCourse() != null){
+        if (section.getCourse() != null) {
             sectionDto.setCourseId(section.getCourse().getId());
         }
-        if(!section.getModules().isEmpty()){
+        if (!section.getModules().isEmpty()) {
             List<ModuleDto> moduleDtoList = new ArrayList<>();
-            for (Module module : section.getModules()){
+            for (Module module : section.getModules()) {
                 moduleDtoList.add(convertModuleToModuleDto(module));
             }
             sectionDto.setModules(moduleDtoList);
@@ -43,27 +43,23 @@ public class ConvertUtil {
     }
 
 
-
-
-
-
-    public static WalletDto convertWalletToWalletDto(Wallet wallet){
+    public static WalletDto convertWalletToWalletDto(Wallet wallet) {
         WalletDto walletDto = ObjectUtil.copyProperties(wallet, new WalletDto(), WalletDto.class);
-        if(wallet.getOwner() != null){
+        if (wallet.getOwner() != null) {
             walletDto.setOwner_id(wallet.getOwner().getId());
         }
         return walletDto;
     }
 
-    public static ImageDto convertImageToImageDto(Image image){
+    public static ImageDto convertImageToImageDto(Image image) {
         ImageDto imageDto = ObjectUtil.copyProperties(image, new ImageDto(), ImageDto.class);
-        if(image.getUser() != null){
-            imageDto.setUserId(image.getUser().getId());
+        if (image.getUser() != null) {
+//            imageDto.setUserId(image.getUser().getId());
         }
         return imageDto;
     }
 
-    public static RoleDto convertRoleToRoleDto(Role role){
+    public static RoleDto convertRoleToRoleDto(Role role) {
         RoleDto roleDto = ObjectUtil.copyProperties(role, new RoleDto(), RoleDto.class);
         roleDto.setName(role.getCode().getName());
         return roleDto;
@@ -111,7 +107,6 @@ public class ConvertUtil {
     }
 
 
-
     public static UserDto convertUsertoUserDto(User user) {
         UserDto userDto = ObjectUtil.copyProperties(user, new UserDto(), UserDto.class);
         if (!user.getRoles().isEmpty()) {
@@ -135,8 +130,6 @@ public class ConvertUtil {
     }
 
 
-
-
     public static ModuleDto convertModuleToModuleDto(Module module) {
         ModuleDto moduleDto = ObjectUtil.copyProperties(module, new ModuleDto(), ModuleDto.class);
         return moduleDto;
@@ -148,6 +141,7 @@ public class ConvertUtil {
         courseDto.setCode(course.getCode());
         courseDto.setName(course.getName());
         courseDto.setDescription(course.getDescription());
+        courseDto.setStatus(course.getStatus());
         if (course.getSubject() != null) {
             courseDto.setSubject(convertSubjectToSubjectDto(course.getSubject()));
         }
@@ -174,9 +168,33 @@ public class ConvertUtil {
         return courseDto;
     }
 
+    public static CourseResponse convertCourseCourseResponse(Course course) {
+        CourseResponse courseResponse = new CourseResponse();
+        if (course.getImage() != null) {
+            courseResponse.setImageUrl(course.getImage().getUrl());
+        }
+        Subject subject = course.getSubject();
+        if (subject != null) {
+            courseResponse.setSubjectName(subject.getName());
+            Category category = subject.getCategory();
+            if (category != null) {
+                courseResponse.setCategoryName(category.getName());
+            }
+        }
+        if (course.getMentor() != null) {
+            courseResponse.setMentorName(course.getMentor().getFullName());
+        }
+        courseResponse.setCourseDescription(course.getDescription());
+        return courseResponse;
+    }
+
 
     public static TransactionDto convertTransactionToDto(Transaction transaction) {
         return ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);
+    }
+
+    public static BankDto convertBankToBankDto(Bank bank) {
+        return ObjectUtil.copyProperties(bank, new BankDto(), BankDto.class, true);
     }
 
 }
