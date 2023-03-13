@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
+import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
@@ -17,6 +18,7 @@ import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -33,12 +35,15 @@ public class UserServiceImpl implements IUserService {
 
     private final RoleRepository roleRepository;
 
+    private final PasswordEncoder encoder;
+
     private final ImageRepository imageRepository;
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, ImageRepository imageRepository) {
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
+        this.encoder = encoder;
         this.imageRepository = imageRepository;
     }
 
@@ -47,7 +52,7 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + id));
     }
 
-    private User getCurrentLoginUser(){
+    private User getCurrentLoginUser() {
         return SecurityUtil.getCurrentUserAccountLogin();
     }
 
@@ -78,19 +83,19 @@ public class UserServiceImpl implements IUserService {
         User user = getCurrentLoginUser();
         List<String> errorMessages = new ArrayList<>();
 
-        if(!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())){
+        if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
             errorMessages.add("Facebook error message");
         }
 
-        if(!StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())){
+        if (!StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())) {
             errorMessages.add("Instagram error message");
         }
 
-        if(!StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())){
+        if (!StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())) {
             errorMessages.add("Twitter error message");
         }
 
-        if(!errorMessages.isEmpty()){
+        if (!errorMessages.isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(String.join(", ", errorMessages));
         }
@@ -107,25 +112,25 @@ public class UserServiceImpl implements IUserService {
         User user = getCurrentLoginUser();
         List<String> errorMessages = new ArrayList<>();
 
-        if(StringUtil.isNullOrEmpty(accountProfileEditRequest.getOldPassword())
-            || StringUtil.isNullOrEmpty(accountProfileEditRequest.getNewPassword())){
+        if (StringUtil.isNullOrEmpty(accountProfileEditRequest.getOldPassword())
+                || StringUtil.isNullOrEmpty(accountProfileEditRequest.getNewPassword())) {
             errorMessages.add("Không được để trống mật khẩu");
         }
 
-        if(!PasswordUtil.validationPassword(accountProfileEditRequest.getNewPassword())){
+        if (!PasswordUtil.validationPassword(accountProfileEditRequest.getNewPassword())) {
             errorMessages.add("Password mới không hợp lệ");
         }
         String encodedNewPassword = PasswordUtil.BCryptPasswordEncoder(accountProfileEditRequest.getNewPassword());
 
-        if(!PasswordUtil.IsOldPassword(accountProfileEditRequest.getOldPassword(), user.getPassword())){
+        if (!PasswordUtil.IsOldPassword(accountProfileEditRequest.getOldPassword(), user.getPassword())) {
             errorMessages.add("Mật khẩu cũ không trùng khớp");
-        }else{
-            if(accountProfileEditRequest.getOldPassword().equals(accountProfileEditRequest.getNewPassword())){
+        } else {
+            if (accountProfileEditRequest.getOldPassword().equals(accountProfileEditRequest.getNewPassword())) {
                 errorMessages.add("Mật khẩu mới trùng mật khẩu cũ");
             }
         }
 
-        if(!errorMessages.isEmpty()){
+        if (!errorMessages.isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(String.join(", ", errorMessages));
         }
@@ -137,19 +142,19 @@ public class UserServiceImpl implements IUserService {
     public Long editUserPersonalProfile(PersonalProfileEditRequest personalProfileEditRequest) {
         User user = getCurrentLoginUser();
         List<String> errorMessages = new ArrayList<>();
-        if(StringUtil.isNullOrEmpty(personalProfileEditRequest.getFullname())){
+        if (StringUtil.isNullOrEmpty(personalProfileEditRequest.getFullname())) {
             errorMessages.add("fullname error message");
         }
-        if(StringUtil.isNullOrEmpty(personalProfileEditRequest.getAddress())){
+        if (StringUtil.isNullOrEmpty(personalProfileEditRequest.getAddress())) {
             errorMessages.add("address error message");
         }
-        if(!StringUtil.isValidVietnameseMobilePhoneNumber(personalProfileEditRequest.getPhone())){
+        if (!StringUtil.isValidVietnameseMobilePhoneNumber(personalProfileEditRequest.getPhone())) {
             errorMessages.add("phone number error message");
         }
-        if(!DayUtil.isValidBirthday(personalProfileEditRequest.getBirthday())){
+        if (!DayUtil.isValidBirthday(personalProfileEditRequest.getBirthday())) {
             errorMessages.add("birthday error message");
         }
-        if(!errorMessages.isEmpty()){
+        if (!errorMessages.isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(String.join(", ", errorMessages));
         }
@@ -159,24 +164,26 @@ public class UserServiceImpl implements IUserService {
         user.setBirthday(personalProfileEditRequest.getBirthday());
         return userRepository.save(user).getId();
     }
-    
+
     public Long registerAccount(CreateAccountRequest createAccountRequest) {
+
+
         User user = new User();
-        if (  userRepository.existsByEmail(createAccountRequest.getEmail())){
+        if (userRepository.existsByEmail(createAccountRequest.getEmail())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Email : " + createAccountRequest.getEmail()+ "đã được đăng ký" ));
+                    .withMessage(messageUtil.getLocalMessage("Email : " + createAccountRequest.getEmail() + "đã được đăng ký"));
         }
 
-        if (  userRepository.existsByPhone(createAccountRequest.getPhone())){
+        if (userRepository.existsByPhone(createAccountRequest.getPhone())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Số điện thoại : " + createAccountRequest.getEmail()+ "đã được đăng ký" ));
+                    .withMessage(messageUtil.getLocalMessage("Số điện thoại : " + createAccountRequest.getEmail() + "đã được đăng ký"));
         }
 
 
         user.setEmail(createAccountRequest.getEmail());
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());
-        user.setPassword(createAccountRequest.getPassword());
+        user.setPassword(encoder.encode(createAccountRequest.getPassword()));
         user.setIntroduce(createAccountRequest.getIntroduce());
         List<Role> roleList = new ArrayList<>();
         Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
