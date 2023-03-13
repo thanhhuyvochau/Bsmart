@@ -4,6 +4,7 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.dto.*;
+import fpt.project.bsmart.entity.response.CourseDetailResponse;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import org.springframework.stereotype.Component;
 
@@ -168,11 +169,37 @@ public class ConvertUtil {
         return courseDto;
     }
 
+    public static CourseDetailResponse convertCourseToCourseDetailResponse(Course course) {
+        CourseDetailResponse response = ObjectUtil.copyProperties(course, new CourseDetailResponse(), CourseDetailResponse.class);
+        response.setLevel(course.getLevel());
+        response.setCode(course.getCode());
+        response.setName(course.getName());
+        response.setDescription(course.getDescription());
+        response.setStatus(course.getStatus());
+        if (course.getSubject() != null) {
+            response.setSubject(convertSubjectToSubjectDto(course.getSubject()));
+            if (course.getSubject().getCategory()!= null) {
+                response.setCategoryDto(convertCategoryToCategoryDto(course.getSubject().getCategory()));
+            }
+        }
+        if (course.getMentor() != null) {
+            response.setMentorId((course.getMentor().getId()));
+        }
+        if (course.getImage() != null) {
+            response.setImage(convertImageToImageDto(course.getImage()));
+        }
+
+
+
+        return response;
+    }
+
     public static CourseResponse convertCourseCourseResponse(Course course) {
         CourseResponse courseResponse = new CourseResponse();
         if (course.getImage() != null) {
             courseResponse.setImageUrl(course.getImage().getUrl());
         }
+        courseResponse.setCourseName(course.getName());
         Subject subject = course.getSubject();
         if (subject != null) {
             courseResponse.setSubjectName(subject.getName());

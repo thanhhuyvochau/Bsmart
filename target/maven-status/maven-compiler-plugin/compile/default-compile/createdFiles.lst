@@ -3,6 +3,7 @@ fpt\project\bsmart\config\security\service\UserDetailsService.class
 fpt\project\bsmart\entity\response\StudentResponse.class
 fpt\project\bsmart\entity\Transaction_.class
 fpt\project\bsmart\moodle\config\MoodleCaller.class
+fpt\project\bsmart\entity\request\ImageRequest.class
 fpt\project\bsmart\entity\Subject.class
 fpt\project\bsmart\entity\Category_.class
 fpt\project\bsmart\entity\dto\SimpleClassDto.class
@@ -65,6 +66,7 @@ fpt\project\bsmart\entity\request\CourseModuleRequest.class
 fpt\project\bsmart\entity\Transaction.class
 fpt\project\bsmart\entity\request\UploadImageRequest.class
 fpt\project\bsmart\moodle\response\CourseFormatOption.class
+fpt\project\bsmart\util\ImageUtil.class
 fpt\project\bsmart\service\IUserService.class
 fpt\project\bsmart\entity\constant\ECourseStatus.class
 fpt\project\bsmart\entity\dto\SectionDto.class
@@ -232,6 +234,7 @@ fpt\project\bsmart\entity\dto\TransactionDto.class
 fpt\project\bsmart\util\SpecificationUtil.class
 fpt\project\bsmart\util\keycloak\KeycloakRealmUtil.class
 fpt\project\bsmart\moodle\response\MoodleModuleResponse.class
+fpt\project\bsmart\entity\response\CourseDetailResponse.class
 fpt\project\bsmart\entity\response\GenderResponse.class
 fpt\project\bsmart\config\security\config\WebSecurityConfig.class
 fpt\project\bsmart\moodle\response\MoodleRecourseClassesDtoResponse.class

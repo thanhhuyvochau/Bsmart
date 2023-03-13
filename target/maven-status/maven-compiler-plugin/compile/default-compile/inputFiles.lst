@@ -16,6 +16,7 @@ C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\util\adapter\Mini
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\dto\CourseDto.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\Order.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\util\SecurityUtil.java
+C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\util\ImageUtil.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\util\PageUtil.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\constant\EDayOfWeekCode.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\request\CreateClassRequest.java
@@ -110,6 +111,7 @@ C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\service\Impl\Tran
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\dto\TimeInWeekDTO.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\Skill.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\request\JwtResponse.java
+C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\request\ImageRequest.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\util\keycloak\KeycloakRoleUtil.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\util\rest\response\BankWrapperResponse.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\Role.java
@@ -186,6 +188,7 @@ C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\response\G
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\moodle\response\CourseGradeResponse.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\controller\UserController.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\dto\WalletDto.java
+C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\response\CourseDetailResponse.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\util\MoodleUtil.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\entity\dto\SimpleClassDto.java
 C:\Users\Admin\Desktop\Bsmart\src\main\java\fpt\project\bsmart\moodle\request\MoodleMasterDataRequest.java

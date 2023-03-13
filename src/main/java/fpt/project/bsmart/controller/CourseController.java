@@ -5,7 +5,10 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.CourseDto;
 
 
+import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
+import fpt.project.bsmart.entity.request.ImageRequest;
+import fpt.project.bsmart.entity.response.CourseDetailResponse;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Nullable;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -39,6 +43,14 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createCourseRequest)));
     }
 
+//    @Operation(summary = "mentor upload hình cho khoá học")
+//    @PreAuthorize("hasAuthority('TEACHER')")
+//    @PostMapping("/image")
+//    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageCourse(@ModelAttribute ImageRequest ImageRequest) {
+//        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageCourse(ImageRequest)));
+//    }
+
+
 //    @Operation(summary = "mentor thêm ảnh đại diện cho course")
 //    @PreAuthorize("hasAuthority('TEACHER')")
 //    @PostMapping("{id}/image")
@@ -55,14 +67,14 @@ public class CourseController {
     }
 
     @Operation(summary = "lấy tất cả các course đổ lên trang khoa học")
-    @GetMapping("/page")
-    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage( Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(pageable)));
+    @GetMapping
+    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(@Nullable CourseSearchRequest query, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(query ,pageable)));
     }
 
     @Operation(summary = "xem chi tiết khóa học trang khoa học")
-    @GetMapping("/{id}/detail-page")
-    public ResponseEntity<ApiResponse<CourseDto>> getDetailCourseForCoursePage(@PathVariable Long id ) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<CourseDetailResponse>> getDetailCourseForCoursePage(@PathVariable Long id ) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getDetailCourseForCoursePage(id)));
     }
 }

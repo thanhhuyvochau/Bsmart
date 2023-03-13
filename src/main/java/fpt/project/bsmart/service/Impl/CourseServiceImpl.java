@@ -5,22 +5,15 @@ import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.CourseDto;
-import fpt.project.bsmart.entity.request.CourseModuleRequest;
-import fpt.project.bsmart.entity.request.CourseSectionRequest;
-import fpt.project.bsmart.entity.request.CreateCourseRequest;
+import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.response.CourseDetailResponse;
 import fpt.project.bsmart.entity.response.CourseResponse;
-import fpt.project.bsmart.repository.CategoryRepository;
-import fpt.project.bsmart.repository.CourseRepository;
-import fpt.project.bsmart.repository.SubjectRepository;
-import fpt.project.bsmart.repository.UserRepository;
+import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ICourseService;
-import fpt.project.bsmart.util.ConvertUtil;
-import fpt.project.bsmart.util.MessageUtil;
-import fpt.project.bsmart.util.PageUtil;
-import fpt.project.bsmart.util.SecurityUtil;
+import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.specification.CourseSpecificationBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -32,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDTO;
+import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDetailResponse;
 
 
 @Service
@@ -43,18 +37,15 @@ public class CourseServiceImpl implements ICourseService {
 
     private final SubjectRepository subjectRepository;
 
-    private final UserRepository userRepository;
+    private final ImageRepository imageRepository;
 
 
-
-
-    public CourseServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil, CourseRepository courseRepository, SubjectRepository subjectRepository, UserRepository userRepository) {
+    public CourseServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil, CourseRepository courseRepository, SubjectRepository subjectRepository, ImageRepository imageRepository) {
         this.categoryRepository = categoryRepository;
         this.messageUtil = messageUtil;
         this.courseRepository = courseRepository;
         this.subjectRepository = subjectRepository;
-        this.userRepository = userRepository;
-
+        this.imageRepository = imageRepository;
     }
 
     @Override
@@ -87,6 +78,9 @@ public class CourseServiceImpl implements ICourseService {
             }
         });
         // hình
+        Image image = imageRepository.findById(createCourseRequest.getImageId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createCourseRequest.getCategoryId()));
+        course.setImage(image);
         User currentUserAccountLogin = SecurityUtil.getCurrentUserAccountLogin();
 
         course.setMentor(currentUserAccountLogin);
@@ -132,16 +126,29 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public ApiPage<CourseResponse> getCourseForCoursePage(Pageable pageable) {
-        Page<Course> Courses = courseRepository.findByStatus(ECourseStatus.NOTSTART, pageable);
+    public ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest query, Pageable pageable) {
+
+        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
+                .queryLike(query.getQ())
+                .queryByCourseStatus(ECourseStatus.NOTSTART)
+                .queryBySubjectId(query.getSubjectId())
+                .queryByCategoryId(query.getCategoryId());
+        Page<Course> Courses = courseRepository.findAll(builder.build(), pageable);
+//        Page<Course> Courses = courseRepository.findByStatus(ECourseStatus.NOTSTART, pageable);
         return PageUtil.convert(Courses.map(ConvertUtil::convertCourseCourseResponse));
     }
 
     @Override
-    public CourseDto getDetailCourseForCoursePage(Long id) {
+    public CourseDetailResponse getDetailCourseForCoursePage(Long id) {
         Course course = courseRepository.findByIdAndStatus(id, ECourseStatus.NOTSTART)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-        return convertCourseToCourseDTO(course);
+        return convertCourseToCourseDetailResponse(course);
+    }
+
+    @Override
+    public Boolean mentorUploadImageCourse(ImageRequest imageRequest) {
+        ImageUtil.uploadImage(imageRequest);
+        return true;
     }
 
 //    @Override
