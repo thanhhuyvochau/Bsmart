@@ -1,16 +1,23 @@
 server:
   port: 8082
 spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysqldb:3306/bsmartdb
+
+    url: jdbc:mysql://localhost:3306/bsmartdb
     username: root
     password: 123456
+
+
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: 'true'
     hibernate:
       ddl-auto: update
+
   security:
     oauth2:
       resourceserver:
@@ -33,8 +40,22 @@ keycloak:
   realm: vuondau-application
   resource: springboot-admin-client
   app-client: vuondau
-  auth-server-url: http://keycloak:8080/auth
+  auth-server-url: http://vuondau-keycloak.amazingtech.vn/auth
   credentials:
     secret: 0Z8fWR17uURSeTWmKd4EdapEUF8ck9ku
 
+
+
+
+
+#------------------Security Specific Properties-------
+app:
+  secret-key: J@!gt*K
+
+beholder:
+  app:
+    jwtSecret:
+      bezKoderSecretKey
+    jwtExpirationMs:
+      86400000
 

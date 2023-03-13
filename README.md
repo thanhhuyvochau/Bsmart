@@ -21,3 +21,10 @@ monitoring and reporting.
 
 -DSpring.profiles.active=local
 
+### Development server information
+
+```
+host: 150.95.109.67
+ssh: ssh root@103.173.155.221 -p 9020
+password: s_IFvbN797b^lH
+```
