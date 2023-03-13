@@ -87,10 +87,7 @@
             <artifactId>minio</artifactId>
             <version>8.3.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
+
     </dependencies>
     <build>
         <plugins>
