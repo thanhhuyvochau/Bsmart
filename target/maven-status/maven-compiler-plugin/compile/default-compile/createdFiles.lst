@@ -87,6 +87,7 @@ fpt\project\bsmart\moodle\request\CreateEnrolCourseRequest.class
 fpt\project\bsmart\moodle\repository\MoodleCourseRepository$2.class
 fpt\project\bsmart\moodle\request\CreateCourseRequest$CreateCourseBody.class
 fpt\project\bsmart\controller\advice\ExceptionControllerAdvice.class
+fpt\project\bsmart\entity\SubCourse_.class
 fpt\project\bsmart\util\WebSocketUtil.class
 fpt\project\bsmart\entity\TimeTable.class
 fpt\project\bsmart\entity\constant\ETransactionStatus.class
@@ -183,6 +184,7 @@ fpt\project\bsmart\service\Impl\SubjectServiceImpl.class
 fpt\project\bsmart\config\rest\RestTemplateConfiguration.class
 fpt\project\bsmart\moodle\config\HttpHeadersCustom.class
 fpt\project\bsmart\entity\Bank.class
+fpt\project\bsmart\entity\SubCourse.class
 fpt\project\bsmart\repository\TransactionRepository.class
 fpt\project\bsmart\controller\UserController.class
 fpt\project\bsmart\entity\Skill.class
@@ -214,6 +216,7 @@ fpt\project\bsmart\moodle\response\MoodleLoginResponse$LoginResponseData.class
 fpt\project\bsmart\entity\Bank_.class
 fpt\project\bsmart\service\ICourseService.class
 fpt\project\bsmart\entity\common\ApiPage.class
+fpt\project\bsmart\entity\constant\ECclassType.class
 fpt\project\bsmart\service\ITransactionService.class
 fpt\project\bsmart\entity\request\LoginRequest.class
 fpt\project\bsmart\moodle\request\CreateCourseRequest.class
