@@ -18,4 +18,6 @@ public enum ECourseStatus {
     CANCEL; // Lớp bị hủy
 
 
+    ECourseStatus() {
     }
+}

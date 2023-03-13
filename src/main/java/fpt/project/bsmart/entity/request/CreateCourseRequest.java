@@ -12,7 +12,7 @@ public class CreateCourseRequest {
     private Long categoryId;
 
 
-
+    private Long imageId;
     private Long subjectId;
 
     private String description;
@@ -40,6 +40,13 @@ public class CreateCourseRequest {
     }
 
 
+    public Long getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(Long imageId) {
+        this.imageId = imageId;
+    }
 
     public void setSubjectId(Long subjectId) {
         this.subjectId = subjectId;
