@@ -26,12 +26,14 @@ public class Course {
     @Enumerated(EnumType.STRING)
     private ECourseStatus status;
 
-    @Column(name = "level")
-    @Enumerated(EnumType.STRING)
-    private ECourseLevel level;
 
     @Column(name = "reference_discount")
     private Double referenceDiscount = 0.0;
+
+
+    @Column(name = "level")
+    @Enumerated(EnumType.STRING)
+    private ECourseLevel level;
 
     @ManyToOne
     @JoinColumn(name = "subject_id")
@@ -41,16 +43,12 @@ public class Course {
     @JoinColumn(name = "mentor_id")
     private User mentor;
 
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id", referencedColumnName = "id")
     private Image image;
 
-    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Section> sections = new ArrayList<>();
-
-    @OneToMany(mappedBy = "course")
-    private List<Class> classes = new ArrayList<>();
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<SubCourse> subCourses;
 
     public Long getId() {
         return id;
@@ -84,7 +82,6 @@ public class Course {
         this.description = description;
     }
 
-
     public ECourseStatus getStatus() {
         return status;
     }
@@ -93,20 +90,20 @@ public class Course {
         this.status = status;
     }
 
-    public ECourseLevel getLevel() {
-        return level;
-    }
-
-    public void setLevel(ECourseLevel level) {
-        this.level = level;
-    }
-
     public Double getReferenceDiscount() {
         return referenceDiscount;
     }
 
     public void setReferenceDiscount(Double referenceDiscount) {
         this.referenceDiscount = referenceDiscount;
+    }
+
+    public ECourseLevel getLevel() {
+        return level;
+    }
+
+    public void setLevel(ECourseLevel level) {
+        this.level = level;
     }
 
     public Subject getSubject() {
@@ -133,19 +130,11 @@ public class Course {
         this.image = image;
     }
 
-    public List<Section> getSections() {
-        return sections;
+    public List<SubCourse> getSubCourses() {
+        return subCourses;
     }
 
-    public void setSections(List<Section> sections) {
-        this.sections = sections;
-    }
-
-    public List<Class> getClasses() {
-        return classes;
-    }
-
-    public void setClasses(List<Class> classes) {
-        this.classes = classes;
+    public void setSubCourses(List<SubCourse> subCourses) {
+        this.subCourses = subCourses;
     }
 }

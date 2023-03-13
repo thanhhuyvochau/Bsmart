@@ -32,7 +32,7 @@ public class CourseController {
     }
 
     @GetMapping("/subject/{id}")
-    public ResponseEntity<ApiResponse<List<CourseDto>>> getCoursesBySubject(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<List<CourseDto>>> getCoursesBySubject(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getCoursesBySubject(id)));
     }
 
@@ -69,12 +69,19 @@ public class CourseController {
     @Operation(summary = "lấy tất cả các course đổ lên trang khoa học")
     @GetMapping
     public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(@Nullable CourseSearchRequest query, Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(query ,pageable)));
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(query, pageable)));
     }
 
     @Operation(summary = "xem chi tiết khóa học trang khoa học")
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CourseDetailResponse>> getDetailCourseForCoursePage(@PathVariable Long id ) {
+    public ResponseEntity<ApiResponse<CourseDetailResponse>> getDetailCourseForCoursePage(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getDetailCourseForCoursePage(id)));
+    }
+
+    @Operation(summary = "mmeber đăng ký khoá học")
+    @PreAuthorize("hasAuthority('STUDENT')")
+    @PostMapping("/{id}/member-register")
+    public ResponseEntity<ApiResponse<Boolean>> memberRegisterCourse(@PathVariable Long id ) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.memberRegisterCourse(id)));
     }
 }

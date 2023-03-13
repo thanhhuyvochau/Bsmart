@@ -14,6 +14,7 @@ import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ICourseService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.CourseSpecificationBuilder;
+import org.checkerframework.checker.units.qual.s;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -63,11 +64,18 @@ public class CourseServiceImpl implements ICourseService {
 
     @Override
     public Long mentorCreateCourse(CreateCourseRequest createCourseRequest) {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUserAccountLogin();
+
 
         Course course = new Course();
+        course.setCode(currentUserAccountLogin.getId() + "-" + createCourseRequest.getName());
         course.setName(createCourseRequest.getName());
         course.setLevel(createCourseRequest.getLevel());
-        course.setDescription(createCourseRequest.getDescription());
+
+        Image image = imageRepository.findById(createCourseRequest.getImageId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + createCourseRequest.getImageId()));
+        course.setImage(image);
+
         Category category = categoryRepository.findById(createCourseRequest.getCategoryId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createCourseRequest.getCategoryId()));
 
@@ -77,12 +85,21 @@ public class CourseServiceImpl implements ICourseService {
                 course.setSubject(subject);
             }
         });
-        // hình
-        Image image = imageRepository.findById(createCourseRequest.getImageId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createCourseRequest.getCategoryId()));
-        course.setImage(image);
-        User currentUserAccountLogin = SecurityUtil.getCurrentUserAccountLogin();
 
+        course.setDescription(createCourseRequest.getDescription());
+
+        List<SubCourse> courseList = new ArrayList<>();
+        SubCourse subCourse = new SubCourse();
+        subCourse.setTypeLearn(createCourseRequest.getType());
+        subCourse.setMinStudent(createCourseRequest.getMinStudent());
+        subCourse.setMaxStudent(createCourseRequest.getMaxStudent());
+        subCourse.setStartDateExpected(createCourseRequest.getStartDateExpected());
+        subCourse.setEndDateExpected(createCourseRequest.getEndDateExpected());
+        subCourse.setStatus(ECourseStatus.REQUESTING);
+        subCourse.setCourse(course);
+        courseList.add(subCourse);
+
+        course.setSubCourses(courseList);
         course.setMentor(currentUserAccountLogin);
 
         course.setDescription(createCourseRequest.getDescription());
@@ -96,22 +113,22 @@ public class CourseServiceImpl implements ICourseService {
         }
 
 
-        List<CourseSectionRequest> sectionsRequestList = createCourseRequest.getSections();
-        List<Section> sectionList = new ArrayList<>();
-        sectionsRequestList.forEach(sectionRequest -> {
-            Section section = new Section();
-            section.setName(sectionRequest.getName());
-            List<CourseModuleRequest> modulesList = sectionRequest.getModules();
-            List<Module> moduleList = new ArrayList<>();
-            modulesList.forEach(moduleRequest -> {
-                Module module = new Module();
-                module.setName(moduleRequest.getName());
-                moduleList.add(module);
-            });
-            section.setModules(moduleList);
-            sectionList.add(section);
-        });
-        course.setSections(sectionList);
+//        List<CourseSectionRequest> sectionsRequestList = createCourseRequest.getSections();
+//        List<Section> sectionList = new ArrayList<>();
+//        sectionsRequestList.forEach(sectionRequest -> {
+//            Section section = new Section();
+//            section.setName(sectionRequest.getName());
+//            List<CourseModuleRequest> modulesList = sectionRequest.getModules();
+//            List<Module> moduleList = new ArrayList<>();
+//            modulesList.forEach(moduleRequest -> {
+//                Module module = new Module();
+//                module.setName(moduleRequest.getName());
+//                moduleList.add(module);
+//            });
+//            section.setModules(moduleList);
+//            sectionList.add(section);
+//        });
+//        course.setSections(sectionList);
         Course save = courseRepository.save(course);
         return save.getId();
     }
@@ -148,6 +165,19 @@ public class CourseServiceImpl implements ICourseService {
     @Override
     public Boolean mentorUploadImageCourse(ImageRequest imageRequest) {
         ImageUtil.uploadImage(imageRequest);
+        return true;
+    }
+
+    @Override
+    public Boolean memberRegisterCourse(Long id) {
+        User userLogin = SecurityUtil.getCurrentUserAccountLogin();
+        Course course = courseRepository.findByIdAndStatus(id, ECourseStatus.NOTSTART)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        if (!course.getStatus().equals(ECourseStatus.NOTSTART)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Khoá học không tồn tại , vui lòng kiểm tra lại"));
+        }
+
         return true;
     }
 

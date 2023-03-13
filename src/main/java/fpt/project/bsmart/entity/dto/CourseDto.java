@@ -33,9 +33,6 @@ public class CourseDto {
 
     private ImageDto image;
 
-    private List<SectionDto> sections = new ArrayList<>();
-
-    private List<Long> classes = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -125,19 +122,5 @@ public class CourseDto {
         this.image = image;
     }
 
-    public List<SectionDto> getSections() {
-        return sections;
-    }
 
-    public void setSections(List<SectionDto> sections) {
-        this.sections = sections;
-    }
-
-    public List<Long> getClasses() {
-        return classes;
-    }
-
-    public void setClasses(List<Long> classes) {
-        this.classes = classes;
-    }
 }

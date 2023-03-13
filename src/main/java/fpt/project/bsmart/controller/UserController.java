@@ -4,6 +4,7 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
+import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
@@ -89,7 +90,7 @@ public class UserController {
 
     @Operation(summary = "Member / Mentor register account")
     @PostMapping("/register")
-    public ResponseEntity<Long> registerAccount(@RequestBody CreateAccountRequest createAccountRequest) {
-        return ResponseEntity.ok(iUserService.registerAccount(createAccountRequest));
+    public ResponseEntity<ApiResponse<Long>> registerAccount(@RequestBody CreateAccountRequest createAccountRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iUserService.registerAccount(createAccountRequest)));
     }
 }

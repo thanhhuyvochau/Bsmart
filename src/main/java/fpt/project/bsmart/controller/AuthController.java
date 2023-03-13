@@ -33,7 +33,8 @@ import java.util.stream.Collectors;
 public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
-
+    @Autowired
+    JwtUtils jwtUtils;
     @Autowired
     UserRepository userRepository;
 
@@ -43,8 +44,6 @@ public class AuthController {
     @Autowired
     PasswordEncoder encoder;
 
-    @Autowired
-    JwtUtils jwtUtils;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {

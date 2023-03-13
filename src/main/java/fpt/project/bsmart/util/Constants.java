@@ -17,7 +17,7 @@ public class Constants {
         public static final String ROLE_NOT_FOUND_BY_ID = "ROLE_NOT_FOUND_BY_ID";
         public static final String USER_NOT_FOUND_BY_ID = "USER_NOT_FOUND_BY_ID";
 
-
+        public static final String IMAGE_NOT_FOUND_BY_ID = "IMAGE_NOT_FOUND_BY_ID";
     }
 
 

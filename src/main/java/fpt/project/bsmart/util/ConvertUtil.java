@@ -152,20 +152,20 @@ public class ConvertUtil {
         if (course.getImage() != null) {
             courseDto.setImage(convertImageToImageDto(course.getImage()));
         }
-        if (!course.getSections().isEmpty()) {
-            List<SectionDto> sectionDtoList = new ArrayList<>();
-            for (Section section : course.getSections()) {
-                sectionDtoList.add(convertSectionToSectionDto(section));
-            }
-            courseDto.setSections(sectionDtoList);
-        }
-        if (!course.getClasses().isEmpty()) {
-            List<Long> classList = new ArrayList<>();
-            for (Class _class : course.getClasses()) {
-                classList.add(_class.getId());
-            }
-            courseDto.setClasses(classList);
-        }
+//        if (!course.getSections().isEmpty()) {
+//            List<SectionDto> sectionDtoList = new ArrayList<>();
+//            for (Section section : course.getSections()) {
+//                sectionDtoList.add(convertSectionToSectionDto(section));
+//            }
+//            courseDto.setSections(sectionDtoList);
+//        }
+//        if (!course.getClasses().isEmpty()) {
+//            List<Long> classList = new ArrayList<>();
+//            for (Class _class : course.getClasses()) {
+//                classList.add(_class.getId());
+//            }
+//            courseDto.setClasses(classList);
+//        }
         return courseDto;
     }
 
