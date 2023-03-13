@@ -12,9 +12,9 @@ import java.util.Optional;
 
 public interface IUserService {
     User getUserById(Long id);
-    Long editUserSocialProfile(Long id, SocialProfileEditRequest socialProfileEditRequest);
-    Long editUserAccountProfile(Long id, AccountProfileEditRequest accountProfileEditRequest);
-    Long editUserPersonalProfile(Long id, PersonalProfileEditRequest personalProfileEditRequest);
+    Long editUserSocialProfile(SocialProfileEditRequest socialProfileEditRequest);
+    Long editUserAccountProfile(AccountProfileEditRequest accountProfileEditRequest);
+    Long editUserPersonalProfile(PersonalProfileEditRequest personalProfileEditRequest);
     Long uploadImageProfile(Long id, UploadImageRequest uploadImageRequest);
 //    Long saveUser(CreateAccountRequest createAccountRequest);
     Long registerAccount(CreateAccountRequest createAccountRequest);
