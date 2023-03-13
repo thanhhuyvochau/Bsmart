@@ -146,10 +146,7 @@ fpt\project\bsmart\config\security\service\UserDetailsServiceImpl.class
 fpt\project\bsmart\moodle\response\MoodleRoleResponse.class
 fpt\project\bsmart\util\keycloak\KeycloakClientUtil.class
 fpt\project\bsmart\controller\TransactionController.class
-<<<<<<< HEAD
-=======
 fpt\project\bsmart\util\ImageUrlUtil.class
->>>>>>> 869a2c271b8faa948136ec833fc76b1a7157a205
 fpt\project\bsmart\entity\request\CreateAccountRequest.class
 fpt\project\bsmart\repository\ImageRepository.class
 fpt\project\bsmart\entity\constant\EUserRole.class
@@ -181,10 +178,7 @@ fpt\project\bsmart\moodle\response\MoodleRecourseDtoResponse.class
 fpt\project\bsmart\service\Impl\SubjectServiceImpl.class
 fpt\project\bsmart\config\rest\RestTemplateConfiguration.class
 fpt\project\bsmart\moodle\config\HttpHeadersCustom.class
-<<<<<<< HEAD
-=======
 fpt\project\bsmart\entity\Bank.class
->>>>>>> 869a2c271b8faa948136ec833fc76b1a7157a205
 fpt\project\bsmart\repository\TransactionRepository.class
 fpt\project\bsmart\controller\UserController.class
 fpt\project\bsmart\entity\Skill.class
@@ -194,11 +188,8 @@ fpt\project\bsmart\moodle\repository\MoodleCourseRepository$8.class
 fpt\project\bsmart\repository\ModuleRepository.class
 fpt\project\bsmart\service\Impl\TimeInWeekServiceImpl.class
 fpt\project\bsmart\moodle\repository\MoodleCourseRepository$5.class
-<<<<<<< HEAD
-=======
 fpt\project\bsmart\controller\BankController.class
 fpt\project\bsmart\controller\ImageController.class
->>>>>>> 869a2c271b8faa948136ec833fc76b1a7157a205
 fpt\project\bsmart\entity\constant\ETransactionType.class
 fpt\project\bsmart\entity\dto\DayOfWeekDTO.class
 fpt\project\bsmart\entity\BankDto.class

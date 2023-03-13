@@ -2,6 +2,7 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.ImageDto;
+import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.service.ImageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +22,8 @@ public class ImageController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<ApiResponse<ImageDto>> uploadImage(@ModelAttribute("file") MultipartFile file) {
-        return ResponseEntity.ok(ApiResponse.success(imageService.uploadImage(file)));
+    public ResponseEntity<ApiResponse<ImageDto>> uploadImage(@ModelAttribute ImageRequest ImageRequest) {
+        return ResponseEntity.ok(ApiResponse.success(imageService.uploadImage(ImageRequest)));
     }
 
     @GetMapping
