@@ -6,8 +6,7 @@ spring:
       matching-strategy: ant_path_matcher
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-
-    url: jdbc:mysql://103.173.155.221:3307/bsmartdb
+    url: jdbc:mysql://mysqldb:3306/bsmartdb
     username: root
     password: 123456
 
