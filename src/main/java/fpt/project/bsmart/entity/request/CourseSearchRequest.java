@@ -1,15 +1,16 @@
 package fpt.project.bsmart.entity.request;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class CourseSearchRequest implements Serializable {
 
 
     private String q;
 
-    private Long categoryId ;
+    private List<Long>  categoryId ;
 
-    private Long subjectId ;
+    private List<Long> subjectId ;
 
     public String getQ() {
         return q;
@@ -19,19 +20,19 @@ public class CourseSearchRequest implements Serializable {
         this.q = q;
     }
 
-    public Long getCategoryId() {
+    public List<Long> getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(Long categoryId) {
+    public void setCategoryId(List<Long> categoryId) {
         this.categoryId = categoryId;
     }
 
-    public Long getSubjectId() {
+    public List<Long> getSubjectId() {
         return subjectId;
     }
 
-    public void setSubjectId(Long subjectId) {
+    public void setSubjectId(List<Long> subjectId) {
         this.subjectId = subjectId;
     }
 }

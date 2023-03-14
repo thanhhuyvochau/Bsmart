@@ -47,18 +47,18 @@ public class CourseSpecificationBuilder {
     }
 
 
-    public CourseSpecificationBuilder queryBySubjectId(Long subjectId) {
+    public CourseSpecificationBuilder queryBySubjectId(List<Long> subjectId) {
         if (subjectId == null) {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
-
-            return criteriaBuilder.and(root.get(Course_.SUBJECT).in(subjectId));
+            Path<Subject> objectPath = root.get(Course_.SUBJECT);
+            return criteriaBuilder.and(objectPath.get(Subject_.ID).in(subjectId));
         });
         return this;
     }
 
-    public CourseSpecificationBuilder queryByCategoryId(Long categoryId) {
+    public CourseSpecificationBuilder queryByCategoryId(List<Long> categoryId) {
         if (categoryId == null) {
             return this;
         }

@@ -196,6 +196,7 @@ public class ConvertUtil {
 
     public static CourseResponse convertCourseCourseResponse(Course course) {
         CourseResponse courseResponse = new CourseResponse();
+        courseResponse.setId(course.getId());
         if (course.getImage() != null) {
             courseResponse.setImageUrl(course.getImage().getUrl());
         }

@@ -151,7 +151,6 @@ public class CourseServiceImpl implements ICourseService {
                 .queryBySubjectId(query.getSubjectId())
                 .queryByCategoryId(query.getCategoryId());
         Page<Course> Courses = courseRepository.findAll(builder.build(), pageable);
-//        Page<Course> Courses = courseRepository.findByStatus(ECourseStatus.NOTSTART, pageable);
         return PageUtil.convert(Courses.map(ConvertUtil::convertCourseCourseResponse));
     }
 
