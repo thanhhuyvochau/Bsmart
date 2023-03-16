@@ -8,7 +8,7 @@ public class Skill extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "")
+    @Column(name = "name")
     private String name;
     @Column(name = "description")
 

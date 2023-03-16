@@ -23,7 +23,6 @@ public class Order extends BaseEntity {
     @Column(name = "refer_bonus")
     private BigDecimal referBonus;
     @Column(name = "total_bonus")
-
     private BigDecimal totalBonus;
     @Column(name = "refer_bonus_percent")
     private Float referBonusPercent;

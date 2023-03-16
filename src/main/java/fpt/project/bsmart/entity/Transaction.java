@@ -12,7 +12,7 @@ public class Transaction extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id")
     private Order order;
     @ManyToOne
@@ -133,6 +133,8 @@ public class Transaction extends BaseEntity {
         transaction.setReceivedBankAccount(receivedBankAccount);
         transaction.setBankAccountOwner(bankAccountOwner);
         transaction.setBank(bank);
+        transaction.setWallet(wallet);
+        transaction.setStatus(ETransactionStatus.SUCCESS);
         if (type.equals(ETransactionType.DEPOSIT)) {
             transaction.setAfterBalance(wallet.getBalance().add(amount));
         } else if (type.equals(ETransactionType.WITHDRAW)) {

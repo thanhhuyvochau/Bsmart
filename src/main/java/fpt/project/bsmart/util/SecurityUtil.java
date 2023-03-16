@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.Wallet;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.repository.UserRepository;
+import fpt.project.bsmart.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContext;
@@ -16,11 +17,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecurityUtil {
     private static MessageUtil messageUtil;
-    private static UserRepository staticOrderRepository;
+    private static UserRepository staticUserRepository;
+    private static WalletRepository staticWalletRepository;
 
-    public SecurityUtil(MessageUtil messageUtil, UserRepository userRepository) {
+    public SecurityUtil(MessageUtil messageUtil, UserRepository userRepository, WalletRepository walletRepository) {
         this.messageUtil = messageUtil;
-        staticOrderRepository = userRepository;
+        staticUserRepository = userRepository;
+        staticWalletRepository = walletRepository;
     }
 
     @Autowired
@@ -34,7 +37,7 @@ public class SecurityUtil {
         if (principal instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) principal;
             String email = userDetails.getEmail();
-            user = staticOrderRepository.findByEmail(email)
+            user = staticUserRepository.findByEmail(email)
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                             .withMessage(messageUtil.getLocalMessage("Tài khoản đăng nhập hiện tại không tìm thấy") + email));
         }
@@ -42,6 +45,13 @@ public class SecurityUtil {
     }
 
     public static Wallet getCurrentUserWallet() {
-        return getCurrentUserAccountLogin().getWallet();
+        User currentUserAccountLogin = getCurrentUserAccountLogin();
+        Wallet wallet = currentUserAccountLogin.getWallet();
+        if (wallet == null) {
+            wallet = new Wallet();
+            wallet.setOwner(currentUserAccountLogin);
+            staticWalletRepository.save(wallet);
+        }
+        return wallet;
     }
 }
