@@ -59,9 +59,12 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id));
     }
 
-    @Override
     public User getCurrentLoginUser() {
         return SecurityUtil.getCurrentUserAccountLogin();
+    }
+    @Override
+    public UserDto getLoginUser(){
+        return ConvertUtil.convertUsertoUserDto(getCurrentLoginUser());
     }
 
     public Long uploadImageProfile(Long id, UploadImageRequest uploadImageRequest) {
@@ -83,7 +86,10 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public UserDto getUserById(Long id) {
-        return ConvertUtil.convertUsertoUserDto(findUserById(id));
+        UserDto userDto = ConvertUtil.convertUsertoUserDto(findUserById(id));
+        userDto.setWallet(null);
+        userDto.setPassword(null);
+        return userDto;
     }
 
     @Override

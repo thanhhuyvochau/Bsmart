@@ -60,8 +60,8 @@ public class UserController {
 
     @Operation(summary = "Lấy thông tin user đang đăng nhập hiện tại")
     @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<User>> getCurrentLoginUser(){
-        return ResponseEntity.ok(ApiResponse.success(iUserService.getCurrentLoginUser()));
+    public ResponseEntity<ApiResponse<UserDto>> getCurrentLoginUser(){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.getLoginUser()));
     }
     @Operation(summary = "Chỉnh sửa liên kết mạng xã hội")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'STUDENT')")

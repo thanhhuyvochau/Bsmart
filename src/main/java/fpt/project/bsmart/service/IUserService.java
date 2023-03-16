@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public interface IUserService {
     UserDto getUserById(Long id);
-    User getCurrentLoginUser();
+    UserDto getLoginUser();
 
     Long editUserSocialProfile(SocialProfileEditRequest socialProfileEditRequest);
 
