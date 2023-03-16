@@ -2,17 +2,20 @@ package fpt.project.bsmart.service.Impl;
 
 
 import fpt.project.bsmart.entity.Image;
+import fpt.project.bsmart.entity.MentorProfile;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EImageType;
+import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
-import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.repository.ImageRepository;
+import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.RoleRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IUserService;
@@ -25,7 +28,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.*;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -38,21 +43,24 @@ public class UserServiceImpl implements IUserService {
     private final PasswordEncoder encoder;
 
     private final ImageRepository imageRepository;
+    private final MentorProfileRepository mentorProfileRepository;
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository) {
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
         this.imageRepository = imageRepository;
+        this.mentorProfileRepository = mentorProfileRepository;
     }
 
     private User findUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + id));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id));
     }
 
-    private User getCurrentLoginUser() {
+    @Override
+    public User getCurrentLoginUser() {
         return SecurityUtil.getCurrentUserAccountLogin();
     }
 
@@ -74,8 +82,8 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public User getUserById(Long id) {
-        return findUserById(id);
+    public UserDto getUserById(Long id) {
+        return ConvertUtil.convertUsertoUserDto(findUserById(id));
     }
 
     @Override
@@ -84,15 +92,15 @@ public class UserServiceImpl implements IUserService {
         List<String> errorMessages = new ArrayList<>();
 
         if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
-            errorMessages.add("Facebook error message");
+            errorMessages.add(messageUtil.getLocalMessage(INVALID_FACEBOOK_LINK));
         }
 
         if (!StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())) {
-            errorMessages.add("Instagram error message");
+            errorMessages.add(messageUtil.getLocalMessage(INVALID_INSTAGRAM_LINK));
         }
 
         if (!StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())) {
-            errorMessages.add("Twitter error message");
+            errorMessages.add(messageUtil.getLocalMessage(INVALID_TWITTER_LINK));
         }
 
         if (!errorMessages.isEmpty()) {
@@ -114,19 +122,19 @@ public class UserServiceImpl implements IUserService {
 
         if (StringUtil.isNullOrEmpty(accountProfileEditRequest.getOldPassword())
                 || StringUtil.isNullOrEmpty(accountProfileEditRequest.getNewPassword())) {
-            errorMessages.add("Không được để trống mật khẩu");
+            errorMessages.add(messageUtil.getLocalMessage(EMPTY_PASSWORD));
         }
 
         if (!PasswordUtil.validationPassword(accountProfileEditRequest.getNewPassword())) {
-            errorMessages.add("Password mới không hợp lệ");
+            errorMessages.add(messageUtil.getLocalMessage(INVALID_PASSWORD));
         }
         String encodedNewPassword = PasswordUtil.BCryptPasswordEncoder(accountProfileEditRequest.getNewPassword());
 
         if (!PasswordUtil.IsOldPassword(accountProfileEditRequest.getOldPassword(), user.getPassword())) {
-            errorMessages.add("Mật khẩu cũ không trùng khớp");
+            errorMessages.add(messageUtil.getLocalMessage(OLD_PASSWORD_MISMATCH));
         } else {
             if (accountProfileEditRequest.getOldPassword().equals(accountProfileEditRequest.getNewPassword())) {
-                errorMessages.add("Mật khẩu mới trùng mật khẩu cũ");
+                errorMessages.add(messageUtil.getLocalMessage(NEW_PASSWORD_DUPLICATE));
             }
         }
 
@@ -143,16 +151,16 @@ public class UserServiceImpl implements IUserService {
         User user = getCurrentLoginUser();
         List<String> errorMessages = new ArrayList<>();
         if (StringUtil.isNullOrEmpty(personalProfileEditRequest.getFullname())) {
-            errorMessages.add("fullname error message");
+            errorMessages.add(messageUtil.getLocalMessage(EMPTY_FULL_NAME));
         }
         if (StringUtil.isNullOrEmpty(personalProfileEditRequest.getAddress())) {
-            errorMessages.add("address error message");
+            errorMessages.add(messageUtil.getLocalMessage(EMPTY_ADDRESS));
         }
         if (!StringUtil.isValidVietnameseMobilePhoneNumber(personalProfileEditRequest.getPhone())) {
-            errorMessages.add("phone number error message");
+            errorMessages.add(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
         }
         if (!DayUtil.isValidBirthday(personalProfileEditRequest.getBirthday())) {
-            errorMessages.add("birthday error message");
+            errorMessages.add(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
         }
         if (!errorMessages.isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
@@ -190,6 +198,17 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
         roleList.add(role);
         user.setRoles(roleList);
+        if(role.getCode().equals(EUserRole.STUDENT)){
+            user.setStatus(true);
+        } else if (role.getCode().equals(EUserRole.TEACHER)) {
+            user.setStatus(false);
+            Long userId = userRepository.save(user).getId();
+            MentorProfile mentorProfile = new MentorProfile();
+            mentorProfile.setUser(user);
+            mentorProfile.setStatus(false);
+            mentorProfileRepository.save(mentorProfile);
+            return userId;
+        }
         return userRepository.save(user).getId();
     }
 //    @Override
