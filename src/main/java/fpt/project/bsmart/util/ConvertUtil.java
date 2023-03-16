@@ -6,6 +6,8 @@ import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.response.CourseDetailResponse;
 import fpt.project.bsmart.entity.response.CourseResponse;
+import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
+import fpt.project.bsmart.entity.response.SubCourseDetailResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -138,10 +140,8 @@ public class ConvertUtil {
 
     public static CourseDto convertCourseToCourseDTO(Course course) {
         CourseDto courseDto = ObjectUtil.copyProperties(course, new CourseDto(), CourseDto.class);
-        courseDto.setLevel(course.getLevel());
-        courseDto.setCode(course.getCode());
-        courseDto.setName(course.getName());
-        courseDto.setDescription(course.getDescription());
+
+
         courseDto.setStatus(course.getStatus());
         if (course.getSubject() != null) {
             courseDto.setSubject(convertSubjectToSubjectDto(course.getSubject()));
@@ -171,14 +171,11 @@ public class ConvertUtil {
 
     public static CourseDetailResponse convertCourseToCourseDetailResponse(Course course) {
         CourseDetailResponse response = ObjectUtil.copyProperties(course, new CourseDetailResponse(), CourseDetailResponse.class);
-        response.setLevel(course.getLevel());
-        response.setCode(course.getCode());
-        response.setName(course.getName());
-        response.setDescription(course.getDescription());
+
         response.setStatus(course.getStatus());
         if (course.getSubject() != null) {
             response.setSubject(convertSubjectToSubjectDto(course.getSubject()));
-            if (course.getSubject().getCategory()!= null) {
+            if (course.getSubject().getCategory() != null) {
                 response.setCategoryDto(convertCategoryToCategoryDto(course.getSubject().getCategory()));
             }
         }
@@ -190,16 +187,69 @@ public class ConvertUtil {
         }
 
 
+        return response;
+    }
 
+    public static SubCourseDetailResponse convertSubCourseToSubCourseDetailResponse(SubCourse subCourse) {
+        SubCourseDetailResponse response = ObjectUtil.copyProperties(subCourse, new SubCourseDetailResponse(), SubCourseDetailResponse.class);
+
+        response.setStatus(subCourse.getStatus());
+        Course course = subCourse.getCourse();
+        if (course!= null) {
+            response.setSubject(convertSubjectToSubjectDto(course.getSubject()));
+            if (course.getSubject().getCategory() != null) {
+                response.setCategoryDto(convertCategoryToCategoryDto(course.getSubject().getCategory()));
+            }
+            if (course.getMentor() != null) {
+                response.setMentorId((course.getMentor().getId()));
+            }
+            if (course.getImage() != null) {
+                response.setImage(convertImageToImageDto(course.getImage()));
+            }
+        }
+
+
+
+        return response;
+    }
+
+    public static CourseSubCourseResponse convertSubCourseToCourseSubCourseResponse(SubCourse subCourse) {
+        CourseSubCourseResponse response = new CourseSubCourseResponse();
+        Course course = subCourse.getCourse();
+        response.setSubCourseId(subCourse.getId());
+        response.setCourseId(course.getId());
+        response.setCourseCode(subCourse.getCode());
+        response.setCourseName(subCourse.getName());
+        response.setCourseDescription(subCourse.getDescription());
+        response.setTypeLearn(subCourse.getTypeLearn());
+        if (course.getImage() != null) {
+            response.setImageUrl(course.getImage().getUrl());
+        }
+
+        Subject subject = course.getSubject();
+        if (subject != null) {
+            response.setSubjectName(subject.getName());
+            Category category = subject.getCategory();
+            if (category != null) {
+                response.setCategoryName(category.getName());
+            }
+
+            if (course.getMentor() != null) {
+                response.setMentorName(course.getMentor().getFullName());
+            }
+
+
+        }
         return response;
     }
 
     public static CourseResponse convertCourseCourseResponse(Course course) {
         CourseResponse courseResponse = new CourseResponse();
+        courseResponse.setId(course.getId());
         if (course.getImage() != null) {
             courseResponse.setImageUrl(course.getImage().getUrl());
         }
-        courseResponse.setCourseName(course.getName());
+
         Subject subject = course.getSubject();
         if (subject != null) {
             courseResponse.setSubjectName(subject.getName());
@@ -207,14 +257,15 @@ public class ConvertUtil {
             if (category != null) {
                 courseResponse.setCategoryName(category.getName());
             }
+
+            if (course.getMentor() != null) {
+                courseResponse.setMentorName(course.getMentor().getFullName());
+            }
+
+
         }
-        if (course.getMentor() != null) {
-            courseResponse.setMentorName(course.getMentor().getFullName());
-        }
-        courseResponse.setCourseDescription(course.getDescription());
         return courseResponse;
     }
-
 
     public static TransactionDto convertTransactionToDto(Transaction transaction) {
         return ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);

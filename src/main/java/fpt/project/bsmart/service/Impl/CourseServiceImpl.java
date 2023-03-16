@@ -9,12 +9,12 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.CourseDetailResponse;
-import fpt.project.bsmart.entity.response.CourseResponse;
+import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
+import fpt.project.bsmart.entity.response.SubCourseDetailResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ICourseService;
 import fpt.project.bsmart.util.*;
-import fpt.project.bsmart.util.specification.CourseSpecificationBuilder;
-import org.checkerframework.checker.units.qual.s;
+import fpt.project.bsmart.util.specification.SubCourseSpecificationBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
-import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDTO;
-import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDetailResponse;
+import static fpt.project.bsmart.util.ConvertUtil.*;
 
 
 @Service
@@ -35,16 +35,19 @@ public class CourseServiceImpl implements ICourseService {
     private final MessageUtil messageUtil;
 
     private final CourseRepository courseRepository;
+    private final SubCourseRepository subCourseRepository;
+
 
     private final SubjectRepository subjectRepository;
 
     private final ImageRepository imageRepository;
 
 
-    public CourseServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil, CourseRepository courseRepository, SubjectRepository subjectRepository, ImageRepository imageRepository) {
+    public CourseServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil, CourseRepository courseRepository, SubCourseRepository subCourseRepository, SubjectRepository subjectRepository, ImageRepository imageRepository) {
         this.categoryRepository = categoryRepository;
         this.messageUtil = messageUtil;
         this.courseRepository = courseRepository;
+        this.subCourseRepository = subCourseRepository;
         this.subjectRepository = subjectRepository;
         this.imageRepository = imageRepository;
     }
@@ -63,47 +66,45 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public Long mentorCreateCourse(CreateCourseRequest createCourseRequest) {
+    public Long mentorCreateCourse(CreateSubCourseRequest createSubCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUserAccountLogin();
 
-
         Course course = new Course();
-        course.setCode(currentUserAccountLogin.getId() + "-" + createCourseRequest.getName());
-        course.setName(createCourseRequest.getName());
-        course.setLevel(createCourseRequest.getLevel());
 
-        Image image = imageRepository.findById(createCourseRequest.getImageId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + createCourseRequest.getImageId()));
-        course.setImage(image);
 
-        Category category = categoryRepository.findById(createCourseRequest.getCategoryId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createCourseRequest.getCategoryId()));
+        Category category = categoryRepository.findById(createSubCourseRequest.getCategoryId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createSubCourseRequest.getCategoryId()));
 
         List<Subject> subjects = category.getSubjects();
         subjects.forEach(subject -> {
-            if (subject.getId().equals(createCourseRequest.getSubjectId())) {
+            if (subject.getId().equals(createSubCourseRequest.getSubjectId())) {
                 course.setSubject(subject);
             }
         });
 
-        course.setDescription(createCourseRequest.getDescription());
+//        course.setDescription(createCourseRequest.getDescription());
 
         List<SubCourse> courseList = new ArrayList<>();
         SubCourse subCourse = new SubCourse();
-        subCourse.setTypeLearn(createCourseRequest.getType());
-        subCourse.setMinStudent(createCourseRequest.getMinStudent());
-        subCourse.setMaxStudent(createCourseRequest.getMaxStudent());
-        subCourse.setStartDateExpected(createCourseRequest.getStartDateExpected());
-        subCourse.setEndDateExpected(createCourseRequest.getEndDateExpected());
-        subCourse.setStatus(ECourseStatus.REQUESTING);
+        subCourse.setName(createSubCourseRequest.getName());
+        subCourse.setCode(currentUserAccountLogin.getId() + "-" + createSubCourseRequest.getName());
+        subCourse.setDescription(createSubCourseRequest.getDescription());
+        subCourse.setTypeLearn(createSubCourseRequest.getType());
+        subCourse.setMinStudent(createSubCourseRequest.getMinStudent());
+        subCourse.setMaxStudent(createSubCourseRequest.getMaxStudent());
+        subCourse.setStartDateExpected(createSubCourseRequest.getStartDateExpected());
+        subCourse.setEndDateExpected(createSubCourseRequest.getEndDateExpected());
+        subCourse.setStatus(REQUESTING);
+        subCourse.setLevel(createSubCourseRequest.getLevel());
+        Image image = imageRepository.findById(createSubCourseRequest.getImageId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + createSubCourseRequest.getImageId()));
+        course.setImage(image);
         subCourse.setCourse(course);
         courseList.add(subCourse);
 
         course.setSubCourses(courseList);
         course.setMentor(currentUserAccountLogin);
-
-        course.setDescription(createCourseRequest.getDescription());
-        course.setStatus(ECourseStatus.REQUESTING);
+        course.setStatus(REQUESTING);
 
         List<Role> roles = currentUserAccountLogin.getRoles();
         List<Boolean> checkRoleTeacher = roles.stream().map(role -> role.getCode().equals(EUserRole.TEACHER)).collect(Collectors.toList());
@@ -143,23 +144,27 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest query, Pageable pageable) {
+    public ApiPage<CourseSubCourseResponse> getCourseForCoursePage(CourseSearchRequest query, Pageable pageable) {
 
-        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
+        SubCourseSpecificationBuilder builder = SubCourseSpecificationBuilder.specifications()
                 .queryLike(query.getQ())
-                .queryByCourseStatus(ECourseStatus.NOTSTART)
+                .queryBySubCourseStatus(ECourseStatus.NOTSTART)
+                .queryBySubCourseType(query.getType())
                 .queryBySubjectId(query.getSubjectId())
                 .queryByCategoryId(query.getCategoryId());
-        Page<Course> Courses = courseRepository.findAll(builder.build(), pageable);
-//        Page<Course> Courses = courseRepository.findByStatus(ECourseStatus.NOTSTART, pageable);
-        return PageUtil.convert(Courses.map(ConvertUtil::convertCourseCourseResponse));
+        Page<SubCourse> subCourses = subCourseRepository.findAll(builder.build(), pageable);
+
+        return PageUtil.convert(subCourses.map(ConvertUtil::convertSubCourseToCourseSubCourseResponse));
     }
 
     @Override
-    public CourseDetailResponse getDetailCourseForCoursePage(Long id) {
-        Course course = courseRepository.findByIdAndStatus(id, ECourseStatus.NOTSTART)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-        return convertCourseToCourseDetailResponse(course);
+    public SubCourseDetailResponse getDetailCourseForCoursePage(Long subCourseId) {
+//        Course course = courseRepository.findByIdAndStatus(id, ECourseStatus.NOTSTART)
+//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+
+        SubCourse subCourse = subCourseRepository.findByIdAndStatus(subCourseId, ECourseStatus.NOTSTART)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
+        return convertSubCourseToSubCourseDetailResponse(subCourse);
     }
 
     @Override

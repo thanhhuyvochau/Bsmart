@@ -17,6 +17,18 @@ public class SubCourse {
     private Long id;
 
 
+    @Column(name = "name")
+    private String name;
+    @Column(name = "code")
+    private String code;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "level")
+    @Enumerated(EnumType.STRING)
+    private ECourseLevel level;
+
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private ECourseStatus status;
@@ -44,6 +56,9 @@ public class SubCourse {
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
+
+
+
     public Long getId() {
         return id;
     }
@@ -52,12 +67,46 @@ public class SubCourse {
         this.id = id;
     }
 
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public ECourseStatus getStatus() {
         return status;
     }
 
     public void setStatus(ECourseStatus status) {
         this.status = status;
+    }
+
+
+    public ECourseLevel getLevel() {
+        return level;
+    }
+
+    public void setLevel(ECourseLevel level) {
+        this.level = level;
     }
 
     public Instant getStartDateExpected() {

@@ -1,18 +1,27 @@
 package fpt.project.bsmart.entity.response;
 
 
-
 public class CourseResponse {
 
-   private String imageUrl ;
+    private Long id;
+    private String imageUrl;
 
-    private String courseName ;
-   private String categoryName ;
+    private String courseName;
+    private String categoryName;
 
-   private String subjectName ;
-   private String mentorName ;
+    private String subjectName;
+    private String mentorName;
 
-   private String courseDescription ;
+    private String courseDescription;
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getImageUrl() {
         return imageUrl;

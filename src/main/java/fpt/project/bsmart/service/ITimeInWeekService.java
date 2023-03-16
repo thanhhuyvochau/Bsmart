@@ -2,7 +2,6 @@ package fpt.project.bsmart.service;
 
 
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
-import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 
 import java.util.List;
