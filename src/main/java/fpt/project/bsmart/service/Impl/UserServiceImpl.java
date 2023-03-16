@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EImageType;
+import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
@@ -188,6 +189,12 @@ public class UserServiceImpl implements IUserService {
         List<Role> roleList = new ArrayList<>();
         Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
+        if (role.getCode().equals(EUserRole.STUDENT)){
+            user.setStatus(true);
+        }
+        if (role.getCode().equals(EUserRole.TEACHER)){
+            user.setStatus(false);
+        }
         roleList.add(role);
         user.setRoles(roleList);
         return userRepository.save(user).getId();

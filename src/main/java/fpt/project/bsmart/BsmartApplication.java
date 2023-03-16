@@ -36,26 +36,26 @@ public class BsmartApplication {
 
     }
 
-//    @EventListener(ApplicationReadyEvent.class)
-//    public void intiDataRole() throws JsonProcessingException {
-//
-//        List<Role> roles = roleRepository.findAll();
-//        Map<EUserRole, Role> roleMap = roles.stream().collect(Collectors.toMap(Role::getCode, Function.identity()));
-//        for (EUserRole value : EUserRole.values()) {
-//            Role role = roleMap.get(value);
-//            Role newRole = new Role();
-//            newRole.setCode(value);
-//            newRole.setName(value.getLabel());
-//
-//            if (role == null) {
-//                roles.add(newRole);
-//            } else if (!Objects.equals(newRole, role)) {
-//                role.setCode(value);
-//                role.setName(value.getLabel());
-//            }
-//        }
-//        roleRepository.saveAll(roles);
-//        moodleService.synchronizedRoleFromMoodle();
-//    }
+    @EventListener(ApplicationReadyEvent.class)
+    public void intiDataRole() throws JsonProcessingException {
+
+        List<Role> roles = roleRepository.findAll();
+        Map<EUserRole, Role> roleMap = roles.stream().collect(Collectors.toMap(Role::getCode, Function.identity()));
+        for (EUserRole value : EUserRole.values()) {
+            Role role = roleMap.get(value);
+            Role newRole = new Role();
+            newRole.setCode(value);
+
+
+            if (role == null) {
+                roles.add(newRole);
+            } else if (!Objects.equals(newRole, role)) {
+                role.setCode(value);
+
+            }
+        }
+        roleRepository.saveAll(roles);
+
+    }
 
 }
