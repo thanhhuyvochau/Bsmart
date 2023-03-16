@@ -196,6 +196,12 @@ public class UserServiceImpl implements IUserService {
         List<Role> roleList = new ArrayList<>();
         Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
+        if (role.getCode().equals(EUserRole.STUDENT)){
+            user.setStatus(true);
+        }
+        if (role.getCode().equals(EUserRole.TEACHER)){
+            user.setStatus(false);
+        }
         roleList.add(role);
         user.setRoles(roleList);
         if(role.getCode().equals(EUserRole.STUDENT)){

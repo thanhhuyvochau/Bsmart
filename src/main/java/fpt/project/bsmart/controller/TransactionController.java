@@ -46,4 +46,10 @@ public class TransactionController {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.withdraw(request)));
     }
 
+    @Operation(summary = "Thanh toán khóa học")
+    @PostMapping("/pay")
+    public ResponseEntity<ApiResponse<Boolean>> payCourse(@RequestBody Long courseId) {
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payCourse(courseId)));
+    }
+
 }

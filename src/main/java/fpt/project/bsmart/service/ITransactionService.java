@@ -17,4 +17,5 @@ public interface ITransactionService {
     Boolean withdraw(WithdrawRequest request);
 
     // Hiện tại sẽ chỉ làm các giao dịch rút tiền và nạp tiền
+    Boolean payCourse(Long courseId);
 }
