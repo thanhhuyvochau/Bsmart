@@ -3,10 +3,10 @@ package fpt.project.bsmart.entity.request;
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 
+import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
 
-public class CreateCourseRequest {
+public class CreateSubCourseRequest {
 
     private String name;
     private ECourseLevel level;
@@ -17,6 +17,8 @@ public class CreateCourseRequest {
     private Long subjectId;
 
     private ETypeLearn type;
+
+    private BigDecimal price;
 
     private Integer minStudent ;
 
@@ -101,6 +103,15 @@ public class CreateCourseRequest {
 
     public Instant getEndDateExpected() {
         return endDateExpected;
+    }
+
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public void setEndDateExpected(Instant endDateExpected) {

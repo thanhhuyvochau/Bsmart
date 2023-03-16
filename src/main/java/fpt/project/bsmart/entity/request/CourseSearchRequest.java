@@ -1,5 +1,7 @@
 package fpt.project.bsmart.entity.request;
 
+import fpt.project.bsmart.entity.constant.ETypeLearn;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -9,6 +11,8 @@ public class CourseSearchRequest implements Serializable {
     private String q;
 
     private List<Long>  categoryId ;
+    private ETypeLearn type ;
+
 
     private List<Long> subjectId ;
 
@@ -34,5 +38,13 @@ public class CourseSearchRequest implements Serializable {
 
     public void setSubjectId(List<Long> subjectId) {
         this.subjectId = subjectId;
+    }
+
+    public ETypeLearn getType() {
+        return type;
+    }
+
+    public void setType(ETypeLearn type) {
+        this.type = type;
     }
 }

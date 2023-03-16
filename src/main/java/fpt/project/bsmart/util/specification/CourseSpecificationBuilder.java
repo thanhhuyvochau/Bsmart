@@ -26,12 +26,12 @@ public class CourseSpecificationBuilder {
             return this;
         }
 
-        specifications.add((root, query, criteriaBuilder) -> {
-            Expression<String> courseName = root.get(Course_.name);
-            Expression<String> stringExpression = SpecificationUtil.concat(criteriaBuilder, " ", courseName);
-            String search = q.replaceAll("\\s\\s+", " ").trim();
-            return criteriaBuilder.like(stringExpression, '%' + search + '%');
-        });
+//        specifications.add((root, query, criteriaBuilder) -> {
+//            Expression<String> courseName = root.get(Course_.name);
+//            Expression<String> stringExpression = SpecificationUtil.concat(criteriaBuilder, " ", courseName);
+//            String search = q.replaceAll("\\s\\s+", " ").trim();
+//            return criteriaBuilder.like(stringExpression, '%' + search + '%');
+//        });
         return this;
 
     }
