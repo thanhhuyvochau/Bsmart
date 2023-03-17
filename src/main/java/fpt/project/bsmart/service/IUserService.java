@@ -1,6 +1,7 @@
 package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
@@ -12,7 +13,8 @@ import java.util.Optional;
 
 
 public interface IUserService {
-    User getUserById(Long id);
+    UserDto getUserById(Long id);
+    UserDto getLoginUser();
 
     Long editUserSocialProfile(SocialProfileEditRequest socialProfileEditRequest);
 

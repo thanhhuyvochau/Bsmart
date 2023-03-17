@@ -243,7 +243,7 @@ public class ConvertUtil {
         return response;
     }
 
-    public static CourseResponse convertCourseCourseResponse(Course course) {
+    public static CourseResponse convertCourseToCourseResponse(Course course) {
         CourseResponse courseResponse = new CourseResponse();
         courseResponse.setId(course.getId());
         if (course.getImage() != null) {
@@ -275,4 +275,18 @@ public class ConvertUtil {
         return ObjectUtil.copyProperties(bank, new BankDto(), BankDto.class, true);
     }
 
+    public static MentorProfileDTO convertMentorProfileToMentorProfileDto(MentorProfile mentorProfile){
+        MentorProfileDTO mentorProfileDTO = ObjectUtil.copyProperties(mentorProfile, new MentorProfileDTO(), MentorProfileDTO.class);
+        if(mentorProfile.getUser() != null){
+            mentorProfileDTO.setUser(convertUsertoUserDto(mentorProfile.getUser()));
+        }
+        if(!mentorProfile.getSkills().isEmpty()){
+            List<SubjectDto> skillList = new ArrayList<>();
+            for(Subject skill : mentorProfile.getSkills()){
+                skillList.add(convertSubjectToSubjectDto(skill));
+            }
+            mentorProfileDTO.setSkillList(skillList);
+        }
+        return mentorProfileDTO;
+    }
 }

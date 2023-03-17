@@ -18,9 +18,13 @@ public class MentorProfile extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "status")
     private Boolean status = false;
-    @OneToMany(mappedBy = "mentor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Skill> skills = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "mentor_skill",
+            joinColumns = @JoinColumn(name = "mentor_profile_id"),
+            inverseJoinColumns = @JoinColumn(name = "subject_id"))
+    private List<Subject> skills = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -62,11 +66,11 @@ public class MentorProfile extends BaseEntity {
         this.status = status;
     }
 
-    public List<Skill> getSkills() {
+    public List<Subject> getSkills() {
         return skills;
     }
 
-    public void setSkills(List<Skill> skills) {
+    public void setSkills(List<Subject> skills) {
         this.skills = skills;
     }
 }

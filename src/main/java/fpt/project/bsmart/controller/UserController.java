@@ -3,6 +3,7 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
@@ -51,9 +52,16 @@ public class UserController {
 //        return ResponseEntity.ok(new UserResponse(token, "Token generated successfully!"));
 //    }
 
+    @Operation(summary = "Lấy thông tin user theo id")
     @GetMapping("{id}")
-    public ResponseEntity<ApiResponse<User>> getUser(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<UserDto>> getUser(@PathVariable Long id){
         return ResponseEntity.ok(ApiResponse.success(iUserService.getUserById(id)));
+    }
+
+    @Operation(summary = "Lấy thông tin user đang đăng nhập hiện tại")
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<UserDto>> getCurrentLoginUser(){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.getLoginUser()));
     }
     @Operation(summary = "Chỉnh sửa liên kết mạng xã hội")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'STUDENT')")
