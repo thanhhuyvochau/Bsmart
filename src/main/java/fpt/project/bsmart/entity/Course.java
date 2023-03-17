@@ -1,11 +1,9 @@
 package fpt.project.bsmart.entity;
 
 
-import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -36,8 +34,11 @@ public class Course {
     @JoinColumn(name = "image_id", referencedColumnName = "id")
     private Image image;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL , fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SubCourse> subCourses;
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private ECourseStatus status;
 
     public Long getId() {
         return id;
@@ -102,5 +103,13 @@ public class Course {
 
     public void setSubCourses(List<SubCourse> subCourses) {
         this.subCourses = subCourses;
+    }
+
+    public ECourseStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ECourseStatus status) {
+        this.status = status;
     }
 }
