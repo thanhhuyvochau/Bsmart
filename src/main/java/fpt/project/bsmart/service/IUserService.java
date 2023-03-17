@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
+import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
@@ -26,6 +27,8 @@ public interface IUserService {
 
     //    Long saveUser(CreateAccountRequest createAccountRequest);
     Long registerAccount(CreateAccountRequest createAccountRequest);
+
+    Long  editMentorPersonalProfile(MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest);
 
 //    Optional<User> findByUsername(String username);
 }

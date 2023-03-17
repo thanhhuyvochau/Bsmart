@@ -43,22 +43,6 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createSubCourseRequest)));
     }
 
-//    @Operation(summary = "mentor upload hình cho khoá học")
-//    @PreAuthorize("hasAuthority('TEACHER')")
-//    @PostMapping("/image")
-//    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageCourse(@ModelAttribute ImageRequest ImageRequest) {
-//        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageCourse(ImageRequest)));
-//    }
-
-
-//    @Operation(summary = "mentor thêm ảnh đại diện cho course")
-//    @PreAuthorize("hasAuthority('TEACHER')")
-//    @PostMapping("{id}/image")
-//    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageForCourse(@PathVariable Long id  , @ModelAttribute FileDto request) {
-//        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageForCourse(id , request)));
-//    }
-
-
     @Operation(summary = "mentor xem tất cả course của mình")
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/mentor")
@@ -90,4 +74,21 @@ public class CourseController {
     public ResponseEntity<ApiResponse<Boolean>> memberRegisterCourse(@PathVariable Long id ) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.memberRegisterCourse(id)));
     }
+
+//    @Operation(summary = "mentor upload hình cho khoá học")
+//    @PreAuthorize("hasAuthority('TEACHER')")
+//    @PostMapping("/image")
+//    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageCourse(@ModelAttribute ImageRequest ImageRequest) {
+//        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageCourse(ImageRequest)));
+//    }
+
+
+//    @Operation(summary = "mentor thêm ảnh đại diện cho course")
+//    @PreAuthorize("hasAuthority('TEACHER')")
+//    @PostMapping("{id}/image")
+//    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageForCourse(@PathVariable Long id  , @ModelAttribute FileDto request) {
+//        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageForCourse(id , request)));
+//    }
+
+
 }
