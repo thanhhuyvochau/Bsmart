@@ -34,6 +34,7 @@ public class Constants {
             public static final String EMPTY_INTRODUCE = "EMPTY_INTRODUCE";
             public static final String EMPTY_YEAR_OF_EXPERIENCE = "EMPTY_YEAR_OF_EXPERIENCE";
             public static final String EMPTY_SKILL = "EMPTY_SKILL";
+            public static final String EMPTY_BIRTHDAY = "EMPTY_BIRTHDAY";
         }
         public static String OLD_PASSWORD_MISMATCH = "OLD_PASSWORD_MISMATCH";
         public static String NEW_PASSWORD_DUPLICATE = "NEW_PASSWORD_DUPLICATE";

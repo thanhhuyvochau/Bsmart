@@ -97,16 +97,20 @@ public class UserServiceImpl implements IUserService {
         User user = getCurrentLoginUser();
         List<String> errorMessages = new ArrayList<>();
 
-        if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
-            errorMessages.add(messageUtil.getLocalMessage(INVALID_FACEBOOK_LINK));
+        if(StringUtil.isNotNullOrEmpty(socialProfileEditRequest.getFacebookLink())){
+            if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
+                errorMessages.add(messageUtil.getLocalMessage(INVALID_FACEBOOK_LINK));
+            }
         }
-
-        if (!StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())) {
-            errorMessages.add(messageUtil.getLocalMessage(INVALID_INSTAGRAM_LINK));
+        if(StringUtil.isNotNullOrEmpty(socialProfileEditRequest.getInstagramLink())){
+            if (!StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())) {
+                errorMessages.add(messageUtil.getLocalMessage(INVALID_INSTAGRAM_LINK));
+            }
         }
-
-        if (!StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())) {
-            errorMessages.add(messageUtil.getLocalMessage(INVALID_TWITTER_LINK));
+        if(StringUtil.isNotNullOrEmpty(socialProfileEditRequest.getTwitterLink())){
+            if (!StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())) {
+                errorMessages.add(messageUtil.getLocalMessage(INVALID_TWITTER_LINK));
+            }
         }
 
         if (!errorMessages.isEmpty()) {
@@ -165,8 +169,12 @@ public class UserServiceImpl implements IUserService {
         if (!StringUtil.isValidVietnameseMobilePhoneNumber(personalProfileEditRequest.getPhone())) {
             errorMessages.add(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
         }
-        if (!DayUtil.isValidBirthday(personalProfileEditRequest.getBirthday())) {
-            errorMessages.add(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
+        if(personalProfileEditRequest.getBirthday() != null){
+            if (!DayUtil.isValidBirthday(personalProfileEditRequest.getBirthday())) {
+                errorMessages.add(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
+            }
+        }else{
+            errorMessages.add(messageUtil.getLocalMessage(EMPTY_BIRTHDAY));
         }
         if (!errorMessages.isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
