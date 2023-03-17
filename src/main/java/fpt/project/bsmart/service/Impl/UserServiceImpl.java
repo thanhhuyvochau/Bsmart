@@ -12,6 +12,7 @@ import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
+import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.repository.ImageRepository;
@@ -62,8 +63,9 @@ public class UserServiceImpl implements IUserService {
     public User getCurrentLoginUser() {
         return SecurityUtil.getCurrentUserAccountLogin();
     }
+
     @Override
-    public UserDto getLoginUser(){
+    public UserDto getLoginUser() {
         return ConvertUtil.convertUsertoUserDto(getCurrentLoginUser());
     }
 
@@ -126,27 +128,29 @@ public class UserServiceImpl implements IUserService {
         User user = getCurrentLoginUser();
         List<String> errorMessages = new ArrayList<>();
 
-        if (StringUtil.isNullOrEmpty(accountProfileEditRequest.getOldPassword())
-                || StringUtil.isNullOrEmpty(accountProfileEditRequest.getNewPassword())) {
-            errorMessages.add(messageUtil.getLocalMessage(EMPTY_PASSWORD));
+        if (accountProfileEditRequest.getOldPassword().isEmpty() ||
+                accountProfileEditRequest.getNewPassword().isEmpty()) {
+
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(EMPTY_PASSWORD));
         }
 
         if (!PasswordUtil.validationPassword(accountProfileEditRequest.getNewPassword())) {
-            errorMessages.add(messageUtil.getLocalMessage(INVALID_PASSWORD));
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
+
         }
         String encodedNewPassword = PasswordUtil.BCryptPasswordEncoder(accountProfileEditRequest.getNewPassword());
 
         if (!PasswordUtil.IsOldPassword(accountProfileEditRequest.getOldPassword(), user.getPassword())) {
-            errorMessages.add(messageUtil.getLocalMessage(OLD_PASSWORD_MISMATCH));
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(OLD_PASSWORD_MISMATCH));
+
         } else {
             if (accountProfileEditRequest.getOldPassword().equals(accountProfileEditRequest.getNewPassword())) {
-                errorMessages.add(messageUtil.getLocalMessage(NEW_PASSWORD_DUPLICATE));
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage(messageUtil.getLocalMessage(NEW_PASSWORD_DUPLICATE));
             }
-        }
-
-        if (!errorMessages.isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(String.join(", ", errorMessages));
         }
         user.setPassword(encodedNewPassword);
         return userRepository.save(user).getId();
@@ -155,32 +159,71 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Long editUserPersonalProfile(PersonalProfileEditRequest personalProfileEditRequest) {
         User user = getCurrentLoginUser();
-        List<String> errorMessages = new ArrayList<>();
-        if (StringUtil.isNullOrEmpty(personalProfileEditRequest.getFullname())) {
-            errorMessages.add(messageUtil.getLocalMessage(EMPTY_FULL_NAME));
+
+        if (personalProfileEditRequest.getBirthday() != null) {
+            if (!DayUtil.isValidBirthday(personalProfileEditRequest.getBirthday())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
+            }
+            user.setBirthday(personalProfileEditRequest.getBirthday());
         }
-        if (StringUtil.isNullOrEmpty(personalProfileEditRequest.getAddress())) {
-            errorMessages.add(messageUtil.getLocalMessage(EMPTY_ADDRESS));
+
+        if (personalProfileEditRequest.getPhone() != null) {
+            if (!StringUtil.isValidVietnameseMobilePhoneNumber(personalProfileEditRequest.getPhone())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
+            }
+            user.setPhone(personalProfileEditRequest.getPhone());
         }
-        if (!StringUtil.isValidVietnameseMobilePhoneNumber(personalProfileEditRequest.getPhone())) {
-            errorMessages.add(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
+
+
+        if (personalProfileEditRequest.getFullname() != null) {
+            user.setFullName(personalProfileEditRequest.getFullname());
         }
-        if (!DayUtil.isValidBirthday(personalProfileEditRequest.getBirthday())) {
-            errorMessages.add(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
+
+        if (personalProfileEditRequest.getAddress() != null) {
+            user.setAddress(personalProfileEditRequest.getAddress());
         }
-        if (!errorMessages.isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(String.join(", ", errorMessages));
+
+
+        return userRepository.save(user).getId();
+    }
+
+
+    @Override
+    public Long editMentorPersonalProfile(MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest) {
+        User user = getCurrentLoginUser();
+        if (mentorPersonalProfileEditRequest.getBirthday() != null) {
+            if (!DayUtil.isValidBirthday(mentorPersonalProfileEditRequest.getBirthday())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
+            }
+            user.setBirthday(mentorPersonalProfileEditRequest.getBirthday());
         }
-        user.setFullName(personalProfileEditRequest.getFullname());
-        user.setAddress(personalProfileEditRequest.getAddress());
-        user.setAddress(personalProfileEditRequest.getAddress());
-        user.setBirthday(personalProfileEditRequest.getBirthday());
+
+        if (mentorPersonalProfileEditRequest.getPhone() != null) {
+            if (!StringUtil.isValidVietnameseMobilePhoneNumber(mentorPersonalProfileEditRequest.getPhone())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
+            }
+            user.setPhone(mentorPersonalProfileEditRequest.getPhone());
+        }
+
+
+        if (mentorPersonalProfileEditRequest.getFullName() != null) {
+            user.setFullName(mentorPersonalProfileEditRequest.getFullName());
+        }
+
+        if (mentorPersonalProfileEditRequest.getAddress() != null) {
+            user.setAddress(mentorPersonalProfileEditRequest.getAddress());
+        }
+        if (mentorPersonalProfileEditRequest.getIntroduce()!=null) {
+            user.setIntroduce(mentorPersonalProfileEditRequest.getIntroduce());
+        }
         return userRepository.save(user).getId();
     }
 
     public Long registerAccount(CreateAccountRequest createAccountRequest) {
-
 
         User user = new User();
         if (userRepository.existsByEmail(createAccountRequest.getEmail())) {
@@ -202,15 +245,15 @@ public class UserServiceImpl implements IUserService {
         List<Role> roleList = new ArrayList<>();
         Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
-        if (role.getCode().equals(EUserRole.STUDENT)){
+        if (role.getCode().equals(EUserRole.STUDENT)) {
             user.setStatus(true);
         }
-        if (role.getCode().equals(EUserRole.TEACHER)){
+        if (role.getCode().equals(EUserRole.TEACHER)) {
             user.setStatus(false);
         }
         roleList.add(role);
         user.setRoles(roleList);
-        if(role.getCode().equals(EUserRole.STUDENT)){
+        if (role.getCode().equals(EUserRole.STUDENT)) {
             user.setStatus(true);
         } else if (role.getCode().equals(EUserRole.TEACHER)) {
             user.setStatus(false);
@@ -223,52 +266,8 @@ public class UserServiceImpl implements IUserService {
         }
         return userRepository.save(user).getId();
     }
-//    @Override
-//    public Long saveUser(CreateAccountRequest createAccountRequest) {
-//        User user = new User();
-//        user.setUsername(createAccountRequest.getUsername());
-//        user.setPassword(bCryptEncoder.encode(createAccountRequest.getPassword()));
-//        user.setEmail(createAccountRequest.getEmail());
-//        user.setAddress(createAccountRequest.getAddress());
-//        user.setBirthday(createAccountRequest.getBirthday());
-//        user.setPhone(createAccountRequest.getPhone());
-//        user.setFullName(createAccountRequest.getFullName());
-//        List<Role> roleList = new ArrayList<>();
-//        Role role = roleRepo.findRoleByCode(createAccountRequest.getRole())
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
-//        roleList.add(role);
-//        user.setRoles(roleList);
-//
-//        return userRepo.save(user).getId();
-//    }
 
-//    @Override
-//    public Optional<User> findByUsername(String username) {
-//        return userRepo.findByUsername(username);
-//    }
 
-//    @Override
-//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        Optional<User> opt = userRepo.findByUsername(username);
-//        org.springframework.security.core.userdetails.User springUser = null;
-//        if (!opt.isPresent()) {
-//            throw new UsernameNotFoundException("User with username: " + username + " not found");
-//        } else {
-//            User user = opt.get();    //retrieving user from DB
-//            List<Role> roles = user.getRoles();
-//            Set<GrantedAuthority> ga = new HashSet<>();
-//            for (Role role : roles) {
-//                ga.add(new SimpleGrantedAuthority(role.getCode().toString()));
-//            }
-//
-//            springUser = new org.springframework.security.core.userdetails.User(
-//                    username,
-//                    user.getPassword(),
-//                    ga);
-//        }
-//
-//        return springUser;
-//    }
 }
 
 

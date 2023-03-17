@@ -10,7 +10,7 @@ spring:
     import: optional:file:.env[.properties]
   messages:
     always-use-message-format: false
-    basename: i18n/messages
+    basename: i18n/messages_vi
     encoding: UTF-8
     use-code-as-default-message: false
 moodle:
