@@ -1,18 +1,34 @@
 package fpt.project.bsmart.entity.response;
 
 
+import fpt.project.bsmart.entity.constant.ETypeLearn;
+
+import java.math.BigDecimal;
+import java.util.List;
+
 public class CourseResponse {
 
     private Long id;
-    private String imageUrl;
 
+    private Long imageId;
+    private String imageUrl;
+    private String courseCode;
     private String courseName;
+
+    private Long categoryId;
     private String categoryName;
 
+    private Long subjectId;
     private String subjectName;
     private String mentorName;
 
     private String courseDescription;
+
+    private int totalSubCourse ;
+
+    private List<ETypeLearn> learns ;
+
+
 
 
     public Long getId() {
@@ -23,12 +39,44 @@ public class CourseResponse {
         this.id = id;
     }
 
+    public Long getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(Long imageId) {
+        this.imageId = imageId;
+    }
+
     public String getImageUrl() {
         return imageUrl;
     }
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     public String getCategoryName() {
@@ -39,20 +87,20 @@ public class CourseResponse {
         this.categoryName = categoryName;
     }
 
+    public Long getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(Long subjectId) {
+        this.subjectId = subjectId;
+    }
+
     public String getSubjectName() {
         return subjectName;
     }
 
     public void setSubjectName(String subjectName) {
         this.subjectName = subjectName;
-    }
-
-    public String getCourseName() {
-        return courseName;
-    }
-
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
     }
 
     public String getMentorName() {
@@ -69,5 +117,21 @@ public class CourseResponse {
 
     public void setCourseDescription(String courseDescription) {
         this.courseDescription = courseDescription;
+    }
+
+    public int getTotalSubCourse() {
+        return totalSubCourse;
+    }
+
+    public void setTotalSubCourse(int totalSubCourse) {
+        this.totalSubCourse = totalSubCourse;
+    }
+
+    public List<ETypeLearn> getLearns() {
+        return learns;
+    }
+
+    public void setLearns(List<ETypeLearn> learns) {
+        this.learns = learns;
     }
 }
