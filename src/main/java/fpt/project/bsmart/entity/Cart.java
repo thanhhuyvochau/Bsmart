@@ -17,7 +17,8 @@ public class Cart extends BaseEntity {
     private BigDecimal totalPrice = BigDecimal.ZERO;
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>();
-    @OneToOne(mappedBy = "cart")
+    @JoinColumn(name = "user_id")
+    @OneToOne
     private User user;
 
     public Long getId() {
@@ -58,5 +59,15 @@ public class Cart extends BaseEntity {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public void addCartItem(CartItem cartItem) {
+        this.cartItems.add(cartItem);
+        cartItem.setCart(this);
+    }
+
+    public void removeCartItem(CartItem cartItem) {
+        this.cartItems.remove(cartItem);
+        cartItem.setCart(null);
     }
 }

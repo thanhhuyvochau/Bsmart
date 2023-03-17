@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ConvertUtil {
@@ -291,18 +292,54 @@ public class ConvertUtil {
         return ObjectUtil.copyProperties(bank, new BankDto(), BankDto.class, true);
     }
 
-    public static MentorProfileDTO convertMentorProfileToMentorProfileDto(MentorProfile mentorProfile){
+    public static MentorProfileDTO convertMentorProfileToMentorProfileDto(MentorProfile mentorProfile) {
         MentorProfileDTO mentorProfileDTO = ObjectUtil.copyProperties(mentorProfile, new MentorProfileDTO(), MentorProfileDTO.class);
-        if(mentorProfile.getUser() != null){
+        if (mentorProfile.getUser() != null) {
             mentorProfileDTO.setUser(convertUsertoUserDto(mentorProfile.getUser()));
         }
-        if(!mentorProfile.getSkills().isEmpty()){
+        if (!mentorProfile.getSkills().isEmpty()) {
             List<SubjectDto> skillList = new ArrayList<>();
-            for(Subject skill : mentorProfile.getSkills()){
+            for (Subject skill : mentorProfile.getSkills()) {
                 skillList.add(convertSubjectToSubjectDto(skill));
             }
             mentorProfileDTO.setSkillList(skillList);
         }
         return mentorProfileDTO;
+    }
+
+    public static CartResponse convertCartToCartResponse(Cart cart) {
+        CartResponse cartResponse = ObjectUtil.copyProperties(cart, new CartResponse(), CartResponse.class, true);
+        List<CourseCartResponse> cartItemResponses = cart.getCartItems().stream().map(ConvertUtil::convertCartItemToResponse).collect(Collectors.toList());
+        cartResponse.getCartItems().addAll(cartItemResponses);
+        return cartResponse;
+    }
+
+    public static CourseCartResponse convertCartItemToResponse(CartItem cartItem) {
+        SubCourse chooseSubCourse = cartItem.getSubCourse();
+        Course course = chooseSubCourse.getCourse();
+
+        CourseCartResponse courseCartResponse = convertCourseToCourseCart(course);
+        for (SubCourse subCourse : course.getSubCourses()) {
+            SubCourseCartResponse subCourseCartResponse = ObjectUtil.copyProperties(subCourse, new SubCourseCartResponse(), SubCourseCartResponse.class, true);
+            if (subCourseCartResponse.getId().equals(chooseSubCourse.getId())) {
+                subCourseCartResponse.setIsChosen(true);
+            }
+            courseCartResponse.getSubCourses().add(subCourseCartResponse);
+        }
+        return courseCartResponse;
+    }
+
+    private static CourseCartResponse convertCourseToCourseCart(Course course) {
+        CourseCartResponse courseCartResponse = ObjectUtil.copyProperties(course, new CourseCartResponse(), CourseCartResponse.class);
+        if (course.getSubject() != null) {
+            courseCartResponse.setSubject(convertSubjectToSubjectDto(course.getSubject()));
+        }
+        if (course.getMentor() != null) {
+            courseCartResponse.setMentor(convertUsertoUserDto(course.getMentor()));
+        }
+        if (course.getImage() != null) {
+            courseCartResponse.setImage(convertImageToImageDto(course.getImage()));
+        }
+        return courseCartResponse;
     }
 }
