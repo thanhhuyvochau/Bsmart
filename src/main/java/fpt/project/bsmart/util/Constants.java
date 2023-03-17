@@ -26,6 +26,7 @@ public class Constants {
             public static final String INVALID_BIRTHDAY = "INVALID_BIRTHDAY";
             public static final String INVALID_PHONE_NUMBER = "INVALID_PHONE_NUMBER";
             public static final String INVALID_PASSWORD = "INVALID_PASSWORD";
+            public static final String INVALID_SOCIAL_LINK = "INVALID_SOCIAL_LINK";
         }
         public static class Empty{
             public static final String EMPTY_FULL_NAME = "EMPTY_FULL_NAME";

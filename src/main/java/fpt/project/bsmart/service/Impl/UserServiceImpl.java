@@ -69,6 +69,24 @@ public class UserServiceImpl implements IUserService {
         return ConvertUtil.convertUsertoUserDto(getCurrentLoginUser());
     }
 
+    @Override
+    public Long removeSocialLink(String link) {
+        if(StringUtil.isNullOrEmpty(link)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(INVALID_SOCIAL_LINK);
+        }
+        User user = getCurrentLoginUser();
+        if(user.getFacebookLink().equals(link)){
+            user.setFacebookLink(null);
+        } else if (user.getInstagramLink().equals(link)) {
+            user.setInstagramLink(null);
+        } else if (user.getTwitterLink().equals(link)) {
+            user.setTwitterLink(null);
+        }else {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(INVALID_SOCIAL_LINK);
+        }
+        return userRepository.save(user).getId();
+    }
+
     public Long uploadImageProfile(Long id, UploadImageRequest uploadImageRequest) {
         User user = findUserById(id);
         Image image = new Image();
