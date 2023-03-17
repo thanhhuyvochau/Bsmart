@@ -17,13 +17,6 @@ public class SubCourse {
     private Long id;
 
 
-    @Column(name = "name")
-    private String name;
-    @Column(name = "code")
-    private String code;
-
-    @Column(name = "description")
-    private String description;
 
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
@@ -52,6 +45,8 @@ public class SubCourse {
     @Column(name = "max_student")
     private Integer maxStudent;
 
+    @Column(name = "reference_discount")
+    private Double referenceDiscount = 0.0;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
@@ -68,29 +63,7 @@ public class SubCourse {
     }
 
 
-    public String getName() {
-        return name;
-    }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public ECourseStatus getStatus() {
         return status;
@@ -163,5 +136,13 @@ public class SubCourse {
 
     public void setEndDateExpected(Instant endDateExpected) {
         this.endDateExpected = endDateExpected;
+    }
+
+    public Double getReferenceDiscount() {
+        return referenceDiscount;
+    }
+
+    public void setReferenceDiscount(Double referenceDiscount) {
+        this.referenceDiscount = referenceDiscount;
     }
 }

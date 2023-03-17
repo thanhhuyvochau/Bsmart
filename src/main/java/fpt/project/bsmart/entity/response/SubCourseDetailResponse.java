@@ -3,43 +3,35 @@ package fpt.project.bsmart.entity.response;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.dto.ClassDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 
-import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import java.math.BigDecimal;
+import java.time.Instant;
 
 
 public class SubCourseDetailResponse {
 
     private Long id;
 
-
-
-    private String name;
-
-    private String code;
-
-
-    private String description;
-
+    private ECourseLevel level;
 
     private ECourseStatus status;
 
-    private ECourseLevel level;
+    private BigDecimal price;
 
-    private ImageDto image;
+    private Instant startDateExpected ;
 
-    private SubjectDto subject;
+    private Instant endDateExpected ;
 
-    private CategoryDto categoryDto;
+    private ETypeLearn typeLearn;
 
-    private Long mentorId;
+    private int minStudent ;
 
-    private ClassDto clazz ;
+    private  int maxStudent ;
 
 
     public Long getId() {
@@ -50,28 +42,12 @@ public class SubCourseDetailResponse {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public ECourseLevel getLevel() {
+        return level;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setLevel(ECourseLevel level) {
+        this.level = level;
     }
 
     public ECourseStatus getStatus() {
@@ -82,51 +58,53 @@ public class SubCourseDetailResponse {
         this.status = status;
     }
 
-    public ECourseLevel getLevel() {
-        return level;
+    public BigDecimal getPrice() {
+        return price;
     }
 
-    public void setLevel(ECourseLevel level) {
-        this.level = level;
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
-    public ImageDto getImage() {
-        return image;
+    public Instant getStartDateExpected() {
+        return startDateExpected;
     }
 
-    public void setImage(ImageDto image) {
-        this.image = image;
+    public void setStartDateExpected(Instant startDateExpected) {
+        this.startDateExpected = startDateExpected;
     }
 
-    public SubjectDto getSubject() {
-        return subject;
+    public Instant getEndDateExpected() {
+        return endDateExpected;
     }
 
-    public CategoryDto getCategoryDto() {
-        return categoryDto;
+    public void setEndDateExpected(Instant endDateExpected) {
+        this.endDateExpected = endDateExpected;
     }
 
-    public void setCategoryDto(CategoryDto categoryDto) {
-        this.categoryDto = categoryDto;
+    public ETypeLearn getTypeLearn() {
+        return typeLearn;
     }
 
-    public void setSubject(SubjectDto subject) {
-        this.subject = subject;
+    public void setTypeLearn(ETypeLearn typeLearn) {
+        this.typeLearn = typeLearn;
     }
 
-    public Long getMentorId() {
-        return mentorId;
+    public int getMinStudent() {
+        return minStudent;
     }
 
-    public void setMentorId(Long mentorId) {
-        this.mentorId = mentorId;
+    public void setMinStudent(int minStudent) {
+        this.minStudent = minStudent;
     }
 
-    public ClassDto getClazz() {
-        return clazz;
+    public int getMaxStudent() {
+        return maxStudent;
     }
 
-    public void setClazz(ClassDto clazz) {
-        this.clazz = clazz;
+    public void setMaxStudent(int maxStudent) {
+        this.maxStudent = maxStudent;
     }
+
+
 }

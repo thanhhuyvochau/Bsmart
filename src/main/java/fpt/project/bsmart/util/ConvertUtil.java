@@ -3,11 +3,9 @@ package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.*;
-import fpt.project.bsmart.entity.response.CourseDetailResponse;
-import fpt.project.bsmart.entity.response.CourseResponse;
-import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
-import fpt.project.bsmart.entity.response.SubCourseDetailResponse;
+import fpt.project.bsmart.entity.response.*;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -142,7 +140,7 @@ public class ConvertUtil {
         CourseDto courseDto = ObjectUtil.copyProperties(course, new CourseDto(), CourseDto.class);
 
 
-        courseDto.setStatus(course.getStatus());
+//        courseDto.setStatus(course.getStatus());
         if (course.getSubject() != null) {
             courseDto.setSubject(convertSubjectToSubjectDto(course.getSubject()));
         }
@@ -172,7 +170,7 @@ public class ConvertUtil {
     public static CourseDetailResponse convertCourseToCourseDetailResponse(Course course) {
         CourseDetailResponse response = ObjectUtil.copyProperties(course, new CourseDetailResponse(), CourseDetailResponse.class);
 
-        response.setStatus(course.getStatus());
+//        response.setStatus(course.getStatus());
         if (course.getSubject() != null) {
             response.setSubject(convertSubjectToSubjectDto(course.getSubject()));
             if (course.getSubject().getCategory() != null) {
@@ -190,26 +188,29 @@ public class ConvertUtil {
         return response;
     }
 
-    public static SubCourseDetailResponse convertSubCourseToSubCourseDetailResponse(SubCourse subCourse) {
-        SubCourseDetailResponse response = ObjectUtil.copyProperties(subCourse, new SubCourseDetailResponse(), SubCourseDetailResponse.class);
+    public static CourseSubCourseDetailResponse convertCourseSubCourseToCourseSubCourseDetailResponse(Course course) {
+        CourseSubCourseDetailResponse response = ObjectUtil.copyProperties(course, new CourseSubCourseDetailResponse(), CourseSubCourseDetailResponse.class);
 
-        response.setStatus(subCourse.getStatus());
-        Course course = subCourse.getCourse();
-        if (course!= null) {
-            response.setSubject(convertSubjectToSubjectDto(course.getSubject()));
-            if (course.getSubject().getCategory() != null) {
-                response.setCategoryDto(convertCategoryToCategoryDto(course.getSubject().getCategory()));
-            }
-            if (course.getMentor() != null) {
-                response.setMentorId((course.getMentor().getId()));
-            }
-            if (course.getImage() != null) {
-                response.setImage(convertImageToImageDto(course.getImage()));
+
+        Subject subject = course.getSubject();
+        if (subject != null) {
+            response.setSubject(convertSubjectToSubjectDto(subject));
+            Category category = subject.getCategory();
+            if (category != null) {
+                response.setCategory(convertCategoryToCategoryDto(category));
             }
         }
-
-
-
+        if (course.getMentor() != null) {
+            response.setMentorId(course.getMentor().getId());
+        }
+//        List<SubCourse> subCourses = course.getSubCourses();
+//        List<SubCourseDetailResponse> subCourseDetailResponseList = new ArrayList<>();
+//        subCourses.forEach(subCourse -> {
+//
+//            subCourseDetailResponseList.add(ObjectUtil.copyProperties(subCourse, new SubCourseDetailResponse(), SubCourseDetailResponse.class));
+//
+//        });
+//        response.setSubCourses(subCourseDetailResponseList);
         return response;
     }
 
@@ -218,9 +219,9 @@ public class ConvertUtil {
         Course course = subCourse.getCourse();
         response.setSubCourseId(subCourse.getId());
         response.setCourseId(course.getId());
-        response.setCourseCode(subCourse.getCode());
-        response.setCourseName(subCourse.getName());
-        response.setCourseDescription(subCourse.getDescription());
+//        response.setCourseCode(subCourse.getCode());
+//        response.setCourseName(subCourse.getName());
+//        response.setCourseDescription(subCourse.getDescription());
         response.setTypeLearn(subCourse.getTypeLearn());
         if (course.getImage() != null) {
             response.setImageUrl(course.getImage().getUrl());
@@ -243,18 +244,31 @@ public class ConvertUtil {
         return response;
     }
 
-    public static CourseResponse convertCourseCourseResponse(Course course) {
+    public static CourseResponse convertCourseCourseResponsePage(Course course) {
         CourseResponse courseResponse = new CourseResponse();
         courseResponse.setId(course.getId());
+        courseResponse.setCourseName(course.getName());
+        courseResponse.setCourseCode(course.getCode());
+        courseResponse.setCourseDescription(course.getDescription());
+        courseResponse.setTotalSubCourse(course.getSubCourses().size());
+        List<ETypeLearn> learns = new ArrayList<>();
+        List<SubCourse> subCourses = course.getSubCourses();
+        subCourses.forEach(subCourse -> {
+            learns.add(subCourse.getTypeLearn());
+        });
+        courseResponse.setLearns(learns);
         if (course.getImage() != null) {
+            courseResponse.setImageId(course.getImage().getId());
             courseResponse.setImageUrl(course.getImage().getUrl());
         }
 
         Subject subject = course.getSubject();
         if (subject != null) {
+            courseResponse.setSubjectId(subject.getId());
             courseResponse.setSubjectName(subject.getName());
             Category category = subject.getCategory();
             if (category != null) {
+                courseResponse.setCategoryId(category.getId());
                 courseResponse.setCategoryName(category.getName());
             }
 
