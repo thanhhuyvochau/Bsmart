@@ -29,8 +29,8 @@ public class SubCourseSpecificationBuilder {
         }
 
         specifications.add((root, query, criteriaBuilder) -> {
-            Expression<String> courseName = root.get(SubCourse_.name);
-            Expression<String> stringExpression = SpecificationUtil.concat(criteriaBuilder, " ", courseName);
+
+            Expression<String> stringExpression = SpecificationUtil.concat(criteriaBuilder, " ");
             String search = q.replaceAll("\\s\\s+", " ").trim();
             return criteriaBuilder.like(stringExpression, '%' + search + '%');
         });

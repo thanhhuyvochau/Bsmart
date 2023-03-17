@@ -15,16 +15,13 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "name")
+    private String name;
+    @Column(name = "code")
+    private String code;
 
-    @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private ECourseStatus status;
-
-
-    @Column(name = "reference_discount")
-    private Double referenceDiscount = 0.0;
-
-
+    @Column(name = "description")
+    private String description;
 
 
     @ManyToOne
@@ -39,7 +36,7 @@ public class Course {
     @JoinColumn(name = "image_id", referencedColumnName = "id")
     private Image image;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL , fetch = FetchType.LAZY)
     private List<SubCourse> subCourses;
 
     public Long getId() {
@@ -51,24 +48,29 @@ public class Course {
     }
 
 
-
-    public ECourseStatus getStatus() {
-        return status;
+    public String getName() {
+        return name;
     }
 
-    public void setStatus(ECourseStatus status) {
-        this.status = status;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Double getReferenceDiscount() {
-        return referenceDiscount;
+    public String getCode() {
+        return code;
     }
 
-    public void setReferenceDiscount(Double referenceDiscount) {
-        this.referenceDiscount = referenceDiscount;
+    public void setCode(String code) {
+        this.code = code;
     }
 
+    public String getDescription() {
+        return description;
+    }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public Subject getSubject() {
         return subject;

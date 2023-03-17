@@ -16,6 +16,7 @@ import java.util.Optional;
 @Repository
 public interface SubCourseRepository extends JpaRepository<SubCourse, Long> {
 
+    Page<SubCourse> findByCourse(Course course , Pageable pageable) ;
     Optional<SubCourse> findByIdAndStatus(Long id , ECourseStatus status) ;
     Page<SubCourse> findAll(Specification<SubCourse> build, Pageable pageable);
 }

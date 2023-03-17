@@ -11,7 +11,7 @@ public class CourseSearchRequest implements Serializable {
     private String q;
 
     private List<Long>  categoryId ;
-    private ETypeLearn type ;
+    private List<ETypeLearn> types ;
 
 
     private List<Long> subjectId ;
@@ -40,11 +40,11 @@ public class CourseSearchRequest implements Serializable {
         this.subjectId = subjectId;
     }
 
-    public ETypeLearn getType() {
-        return type;
+    public List<ETypeLearn> getTypes() {
+        return types;
     }
 
-    public void setType(ETypeLearn type) {
-        this.type = type;
+    public void setTypes(List<ETypeLearn> types) {
+        this.types = types;
     }
 }

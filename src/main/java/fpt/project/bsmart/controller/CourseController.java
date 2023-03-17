@@ -7,8 +7,8 @@ import fpt.project.bsmart.entity.dto.CourseDto;
 
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateSubCourseRequest;
-import fpt.project.bsmart.entity.response.CourseDetailResponse;
-import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
+import fpt.project.bsmart.entity.response.CourseResponse;
+import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
 import fpt.project.bsmart.entity.response.SubCourseDetailResponse;
 import fpt.project.bsmart.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,14 +68,20 @@ public class CourseController {
 
     @Operation(summary = "lấy tất cả các course đổ lên trang khoa học")
     @GetMapping
-    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> getCourseForCoursePage(@Nullable CourseSearchRequest query, Pageable pageable) {
+    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(@Nullable CourseSearchRequest query, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(query, pageable)));
     }
 
+    @Operation(summary = "lấy tất cả các subcourse theo course đô lên trang khoa học")
+    @GetMapping("{id}/sub-courses")
+    public ResponseEntity<ApiResponse<ApiPage<SubCourseDetailResponse>>> getAllSubCourseOfCourse(@PathVariable Long id , Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getAllSubCourseOfCourse(id, pageable)));
+    }
+
     @Operation(summary = "xem chi tiết khóa học trang khoa học")
-    @GetMapping("/{subCourseId}")
-    public ResponseEntity<ApiResponse<SubCourseDetailResponse>> getDetailCourseForCoursePage(@PathVariable Long subCourseId) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.getDetailCourseForCoursePage(subCourseId)));
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<CourseSubCourseDetailResponse>> getDetailCourseForCoursePage(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getDetailCourseForCoursePage(id)));
     }
 
     @Operation(summary = "member đăng ký khoá học")
