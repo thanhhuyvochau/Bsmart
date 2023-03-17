@@ -152,7 +152,7 @@ public class CourseServiceImpl implements ICourseService {
         CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
                 .queryLike(query.getQ())
                 .queryByCourseStatus(ECourseStatus.NOTSTART)
-//                .queryBySubCourseType(query.getTypes())
+                .queryBySubCourseType(query.getTypes())
                 .queryBySubjectId(query.getSubjectId())
                 .queryByCategoryId(query.getCategoryId());
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
