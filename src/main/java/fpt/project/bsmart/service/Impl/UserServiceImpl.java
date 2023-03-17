@@ -115,33 +115,25 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Long editUserSocialProfile(SocialProfileEditRequest socialProfileEditRequest) {
         User user = getCurrentLoginUser();
-        List<String> errorMessages = new ArrayList<>();
 
         if(StringUtil.isNotNullOrEmpty(socialProfileEditRequest.getFacebookLink())){
             if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
-                errorMessages.add(messageUtil.getLocalMessage(INVALID_FACEBOOK_LINK));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FACEBOOK_LINK));
             }
+            user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
         }
         if(StringUtil.isNotNullOrEmpty(socialProfileEditRequest.getInstagramLink())){
             if (!StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())) {
-                errorMessages.add(messageUtil.getLocalMessage(INVALID_INSTAGRAM_LINK));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_INSTAGRAM_LINK));
             }
+            user.setInstagramLink(socialProfileEditRequest.getInstagramLink());
         }
         if(StringUtil.isNotNullOrEmpty(socialProfileEditRequest.getTwitterLink())){
             if (!StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())) {
-                errorMessages.add(messageUtil.getLocalMessage(INVALID_TWITTER_LINK));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_TWITTER_LINK));
             }
+            user.setTwitterLink(socialProfileEditRequest.getTwitterLink());
         }
-
-        if (!errorMessages.isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(String.join(", ", errorMessages));
-        }
-
-        user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
-        user.setInstagramLink(socialProfileEditRequest.getInstagramLink());
-        user.setTwitterLink(socialProfileEditRequest.getTwitterLink());
-
         return userRepository.save(user).getId();
     }
 
