@@ -319,6 +319,7 @@ public class ConvertUtil {
         Course course = chooseSubCourse.getCourse();
 
         CourseCartResponse courseCartResponse = convertCourseToCourseCart(course);
+        courseCartResponse.setCartItemId(cartItem.getId());
         for (SubCourse subCourse : course.getSubCourses()) {
             SubCourseCartResponse subCourseCartResponse = ObjectUtil.copyProperties(subCourse, new SubCourseCartResponse(), SubCourseCartResponse.class, true);
             if (subCourseCartResponse.getId().equals(chooseSubCourse.getId())) {
