@@ -1,8 +1,6 @@
 package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "time_in_week")
@@ -14,13 +12,11 @@ public class TimeInWeek {
     @JoinColumn(name = "dow_id")
     private DayOfWeek dayOfWeek;
     @ManyToOne
-    @JoinColumn(name = "clazz_id")
-    private Class clazz;
+    @JoinColumn(name = "sub_course_id")
+    private SubCourse subCourse;
     @ManyToOne
     @JoinColumn(name = "slot_id")
     private Slot slot;
-    @OneToMany(mappedBy = "timeInWeek", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TimeTable> timeTables = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -38,12 +34,12 @@ public class TimeInWeek {
         this.dayOfWeek = dayOfWeek;
     }
 
-    public Class getClazz() {
-        return clazz;
+    public SubCourse getSubCourse() {
+        return subCourse;
     }
 
-    public void setClazz(Class clazz) {
-        this.clazz = clazz;
+    public void setSubCourse(SubCourse subCourse) {
+        this.subCourse = subCourse;
     }
 
     public Slot getSlot() {
@@ -54,11 +50,5 @@ public class TimeInWeek {
         this.slot = slot;
     }
 
-    public List<TimeTable> getTimeTables() {
-        return timeTables;
-    }
 
-    public void setTimeTables(List<TimeTable> timeTables) {
-        this.timeTables = timeTables;
-    }
 }
