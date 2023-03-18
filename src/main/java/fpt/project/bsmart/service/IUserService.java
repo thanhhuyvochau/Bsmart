@@ -17,6 +17,8 @@ public interface IUserService {
     UserDto getUserById(Long id);
     UserDto getLoginUser();
 
+    Long removeSocialLink(String link);
+
     Long editUserSocialProfile(SocialProfileEditRequest socialProfileEditRequest);
 
     Long editUserAccountProfile(AccountProfileEditRequest accountProfileEditRequest);

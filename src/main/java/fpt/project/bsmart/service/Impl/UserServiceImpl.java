@@ -69,6 +69,24 @@ public class UserServiceImpl implements IUserService {
         return ConvertUtil.convertUsertoUserDto(getCurrentLoginUser());
     }
 
+    @Override
+    public Long removeSocialLink(String link) {
+        if(StringUtil.isNullOrEmpty(link)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(INVALID_SOCIAL_LINK);
+        }
+        User user = getCurrentLoginUser();
+        if(user.getFacebookLink().equals(link)){
+            user.setFacebookLink(null);
+        } else if (user.getInstagramLink().equals(link)) {
+            user.setInstagramLink(null);
+        } else if (user.getTwitterLink().equals(link)) {
+            user.setTwitterLink(null);
+        }else {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(INVALID_SOCIAL_LINK);
+        }
+        return userRepository.save(user).getId();
+    }
+
     public Long uploadImageProfile(Long id, UploadImageRequest uploadImageRequest) {
         User user = findUserById(id);
         Image image = new Image();
@@ -97,29 +115,25 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Long editUserSocialProfile(SocialProfileEditRequest socialProfileEditRequest) {
         User user = getCurrentLoginUser();
-        List<String> errorMessages = new ArrayList<>();
 
-        if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
-            errorMessages.add(messageUtil.getLocalMessage(INVALID_FACEBOOK_LINK));
+        if(StringUtil.isNotNullOrEmpty(socialProfileEditRequest.getFacebookLink())){
+            if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FACEBOOK_LINK));
+            }
+            user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
         }
-
-        if (!StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())) {
-            errorMessages.add(messageUtil.getLocalMessage(INVALID_INSTAGRAM_LINK));
+        if(StringUtil.isNotNullOrEmpty(socialProfileEditRequest.getInstagramLink())){
+            if (!StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_INSTAGRAM_LINK));
+            }
+            user.setInstagramLink(socialProfileEditRequest.getInstagramLink());
         }
-
-        if (!StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())) {
-            errorMessages.add(messageUtil.getLocalMessage(INVALID_TWITTER_LINK));
+        if(StringUtil.isNotNullOrEmpty(socialProfileEditRequest.getTwitterLink())){
+            if (!StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_TWITTER_LINK));
+            }
+            user.setTwitterLink(socialProfileEditRequest.getTwitterLink());
         }
-
-        if (!errorMessages.isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(String.join(", ", errorMessages));
-        }
-
-        user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
-        user.setInstagramLink(socialProfileEditRequest.getInstagramLink());
-        user.setTwitterLink(socialProfileEditRequest.getTwitterLink());
-
         return userRepository.save(user).getId();
     }
 

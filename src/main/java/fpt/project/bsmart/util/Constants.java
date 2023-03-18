@@ -26,6 +26,7 @@ public class Constants {
             public static final String INVALID_BIRTHDAY = "INVALID_BIRTHDAY";
             public static final String INVALID_PHONE_NUMBER = "INVALID_PHONE_NUMBER";
             public static final String INVALID_PASSWORD = "INVALID_PASSWORD";
+            public static final String INVALID_SOCIAL_LINK = "INVALID_SOCIAL_LINK";
         }
         public static class Empty{
             public static final String EMPTY_FULL_NAME = "EMPTY_FULL_NAME";
@@ -34,6 +35,7 @@ public class Constants {
             public static final String EMPTY_INTRODUCE = "EMPTY_INTRODUCE";
             public static final String EMPTY_YEAR_OF_EXPERIENCE = "EMPTY_YEAR_OF_EXPERIENCE";
             public static final String EMPTY_SKILL = "EMPTY_SKILL";
+            public static final String EMPTY_BIRTHDAY = "EMPTY_BIRTHDAY";
         }
         public static String OLD_PASSWORD_MISMATCH = "OLD_PASSWORD_MISMATCH";
         public static String NEW_PASSWORD_DUPLICATE = "NEW_PASSWORD_DUPLICATE";
