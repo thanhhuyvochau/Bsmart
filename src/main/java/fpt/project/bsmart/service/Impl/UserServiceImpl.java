@@ -126,7 +126,6 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Long editUserAccountProfile(AccountProfileEditRequest accountProfileEditRequest) {
         User user = getCurrentLoginUser();
-        List<String> errorMessages = new ArrayList<>();
 
         if (accountProfileEditRequest.getOldPassword().isEmpty() ||
                 accountProfileEditRequest.getNewPassword().isEmpty()) {
