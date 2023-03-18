@@ -98,14 +98,13 @@ public class ConvertUtil {
 
     public static TimeInWeekDTO convertTimeInWeekToDto(TimeInWeek timeInWeek) {
         Slot slot = timeInWeek.getSlot();
-        Class clazz = timeInWeek.getClazz();
         DayOfWeek dayOfWeek = timeInWeek.getDayOfWeek();
 
         DayOfWeekDTO dayOfWeekDTO = convertDayOfWeekToDto(dayOfWeek);
         SlotDto slotDto = convertSlotToSlotDto(slot);
-        SimpleClassDto simpleClazz = convertClassToSimpleDto(clazz);
 
-        return new TimeInWeekDTO(dayOfWeekDTO, simpleClazz, slotDto);
+
+        return new TimeInWeekDTO(dayOfWeekDTO, null, slotDto);
     }
 
 

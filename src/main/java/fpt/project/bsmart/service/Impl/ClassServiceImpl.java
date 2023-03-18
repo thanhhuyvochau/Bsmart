@@ -28,25 +28,19 @@ public class ClassServiceImpl implements IClassService {
         this.classRepository = classRepository;
     }
 
-    @Override
-    public Long mentorCreateClass(CreateClassRequest createClassRequest) {
-        Class classes = new Class();
-        classes.setCode(createClassRequest.getCode());
-        classes.setStartDate(createClassRequest.getStartDate());
-        classes.setEndDate(createClassRequest.getEndDate());
-        classes.setMinStudentNumber(createClassRequest.getMinStudentNumber());
-        classes.setMaxStudentNumber(createClassRequest.getMaxStudentNumber());
-        classes.setExpectedStartDate(createClassRequest.getExpectedStartDate());
-        classes.setTypeLearn(createClassRequest.getTypeLearn());
-        classes.setPrice(createClassRequest.getPrice());
-
-        Course course = courseRepository.findById(createClassRequest.getCourseId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createClassRequest.getCourseId()));
-
-        classes.setCourse(course);
-        Class save = classRepository.save(classes);
-        return save.getId();
-    }
+//    @Override
+//    public Long mentorCreateClass(CreateClassRequest createClassRequest) {
+//        Class classes = new Class();
+//        classes.setStartDate(createClassRequest.getStartDate());
+//        classes.setEndDate(createClassRequest.getEndDate());
+//        classes.setExpectedStartDate(createClassRequest.getExpectedStartDate());
+//        Course course = courseRepository.findById(createClassRequest.getCourseId())
+//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+//                        .withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createClassRequest.getCourseId()));
+//
+//        classes.setCourse(course);
+//        Class save = classRepository.save(classes);
+//        return save.getId();
+//    }
 
 }

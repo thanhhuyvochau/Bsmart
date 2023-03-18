@@ -23,12 +23,12 @@ public class ClassController {
         this.iClassService = iClassService;
     }
 
-    @Operation(summary = "mentor tao lớp học")
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @PostMapping
-    public ResponseEntity<ApiResponse<Long>> mentorCreateClass(@Valid @RequestBody CreateClassRequest createClassRequest) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClass(createClassRequest)));
-    }
+//    @Operation(summary = "mentor tao lớp học")
+//    @PreAuthorize("hasAuthority('TEACHER')")
+//    @PostMapping
+//    public ResponseEntity<ApiResponse<Long>> mentorCreateClass(@Valid @RequestBody CreateClassRequest createClassRequest) {
+//        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClass(createClassRequest)));
+//    }
 
 
 }
