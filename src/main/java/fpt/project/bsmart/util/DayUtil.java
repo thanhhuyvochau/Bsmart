@@ -4,7 +4,6 @@ import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -97,17 +96,31 @@ public class DayUtil {
         LocalDate localDate = birthday.atOffset(ZoneOffset.UTC).toLocalDate();
         return localDate.isBefore(LocalDate.now());
     }
+
     public static EDayOfWeekCode getDayOfWeek(Instant instant) {
         int dayOfWeekKey = instant.atZone(ZoneOffset.UTC).getDayOfWeek().getValue();
-        switch (dayOfWeekKey){
-            case 1:return EDayOfWeekCode.MONDAY;
-            case 2:return EDayOfWeekCode.TUESDAY;;
-            case 3:return EDayOfWeekCode.WEDNESDAY;;
-            case 4:return EDayOfWeekCode.THURSDAY;;
-            case 5:return EDayOfWeekCode.FRIDAY;;
-            case 6:return EDayOfWeekCode.SATURDAY;;
-            case 7:return EDayOfWeekCode.SUNDAY;
+        switch (dayOfWeekKey) {
+            case 1:
+                return EDayOfWeekCode.MONDAY;
+            case 2:
+                return EDayOfWeekCode.TUESDAY;
+
+            case 3:
+                return EDayOfWeekCode.WEDNESDAY;
+
+            case 4:
+                return EDayOfWeekCode.THURSDAY;
+
+            case 5:
+                return EDayOfWeekCode.FRIDAY;
+
+            case 6:
+                return EDayOfWeekCode.SATURDAY;
+
+            case 7:
+                return EDayOfWeekCode.SUNDAY;
         }
+        return null;
     }
 
 }
