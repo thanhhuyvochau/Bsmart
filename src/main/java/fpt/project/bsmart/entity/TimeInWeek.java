@@ -49,6 +49,4 @@ public class TimeInWeek {
     public void setSlot(Slot slot) {
         this.slot = slot;
     }
-
-
 }

@@ -1,9 +1,6 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.constant.ETypeLearn;
-
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +11,6 @@ public class Class {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "expected_start_date")
-    private Instant expectedStartDate;
     @Column(name = "start_date")
     private Instant startDate;
     @Column(name = "end_date")
@@ -26,20 +21,15 @@ public class Class {
     @JoinColumn(name = "sub_course_id")
     private SubCourse subCourse;
 
+    @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TimeTable> timeTables = new ArrayList<>();
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Instant getExpectedStartDate() {
-        return expectedStartDate;
-    }
-
-    public void setExpectedStartDate(Instant expectedStartDate) {
-        this.expectedStartDate = expectedStartDate;
     }
 
     public Instant getStartDate() {
@@ -72,5 +62,13 @@ public class Class {
 
     public void setSubCourse(SubCourse subCourse) {
         this.subCourse = subCourse;
+    }
+
+    public List<TimeTable> getTimeTables() {
+        return timeTables;
+    }
+
+    public void setTimeTables(List<TimeTable> timeTables) {
+        this.timeTables = timeTables;
     }
 }

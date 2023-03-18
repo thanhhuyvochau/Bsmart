@@ -2,6 +2,7 @@ package fpt.project.bsmart.entity;
 
 
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import org.checkerframework.checker.units.qual.C;
 
 import javax.persistence.*;
 import java.util.List;
@@ -39,6 +40,9 @@ public class Course {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private ECourseStatus status;
+
+    @Column(name = "number_of_slot")
+    private Integer numberOfSlot = 0;
 
     public Long getId() {
         return id;
@@ -111,5 +115,13 @@ public class Course {
 
     public void setStatus(ECourseStatus status) {
         this.status = status;
+    }
+
+    public Integer getNumberOfSlot() {
+        return numberOfSlot;
+    }
+
+    public void setNumberOfSlot(Integer numberOfSlot) {
+        this.numberOfSlot = numberOfSlot;
     }
 }
