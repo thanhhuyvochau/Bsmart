@@ -17,6 +17,15 @@ public class TimeTable {
     private String classRoom;
     @Column(name = "class_url")
     private String classURL;
+    @ManyToOne
+    @JoinColumn(name = "slot_id")
+    private Slot slot;
+    @ManyToOne
+    @JoinColumn(name = "day_of_week_id")
+    private DayOfWeek dayOfWeek;
+    @ManyToOne
+    @JoinColumn(name = "clazz_id")
+    private Class clazz;
 
     public Long getId() {
         return id;
@@ -56,5 +65,29 @@ public class TimeTable {
 
     public void setClassURL(String classURL) {
         this.classURL = classURL;
+    }
+
+    public Slot getSlot() {
+        return slot;
+    }
+
+    public void setSlot(Slot slot) {
+        this.slot = slot;
+    }
+
+    public DayOfWeek getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public void setDayOfWeek(DayOfWeek dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
+    }
+
+    public Class getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(Class clazz) {
+        this.clazz = clazz;
     }
 }
