@@ -71,17 +71,17 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public Long removeSocialLink(String link) {
-        if(StringUtil.isNullOrEmpty(link)){
+        if (StringUtil.isNullOrEmpty(link)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(INVALID_SOCIAL_LINK);
         }
         User user = getCurrentLoginUser();
-        if(user.getFacebookLink().equals(link)){
+        if (user.getFacebookLink().equals(link)) {
             user.setFacebookLink(null);
         } else if (user.getInstagramLink().equals(link)) {
             user.setInstagramLink(null);
         } else if (user.getTwitterLink().equals(link)) {
             user.setTwitterLink(null);
-        }else {
+        } else {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(INVALID_SOCIAL_LINK);
         }
         return userRepository.save(user).getId();
@@ -116,19 +116,19 @@ public class UserServiceImpl implements IUserService {
     public Long editUserSocialProfile(SocialProfileEditRequest socialProfileEditRequest) {
         User user = getCurrentLoginUser();
 
-        if(StringUtil.isNotNullOrEmpty(socialProfileEditRequest.getFacebookLink())){
+        if (socialProfileEditRequest.getFacebookLink() != null) {
             if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FACEBOOK_LINK));
             }
             user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
         }
-        if(StringUtil.isNotNullOrEmpty(socialProfileEditRequest.getInstagramLink())){
+        if (socialProfileEditRequest.getInstagramLink() != null) {
             if (!StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_INSTAGRAM_LINK));
             }
             user.setInstagramLink(socialProfileEditRequest.getInstagramLink());
         }
-        if(StringUtil.isNotNullOrEmpty(socialProfileEditRequest.getTwitterLink())){
+        if (socialProfileEditRequest.getTwitterLink() != null) {
             if (!StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_TWITTER_LINK));
             }
@@ -140,7 +140,6 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Long editUserAccountProfile(AccountProfileEditRequest accountProfileEditRequest) {
         User user = getCurrentLoginUser();
-        List<String> errorMessages = new ArrayList<>();
 
         if (accountProfileEditRequest.getOldPassword().isEmpty() ||
                 accountProfileEditRequest.getNewPassword().isEmpty()) {
@@ -231,7 +230,7 @@ public class UserServiceImpl implements IUserService {
         if (mentorPersonalProfileEditRequest.getAddress() != null) {
             user.setAddress(mentorPersonalProfileEditRequest.getAddress());
         }
-        if (mentorPersonalProfileEditRequest.getIntroduce()!=null) {
+        if (mentorPersonalProfileEditRequest.getIntroduce() != null) {
             user.setIntroduce(mentorPersonalProfileEditRequest.getIntroduce());
         }
         return userRepository.save(user).getId();
