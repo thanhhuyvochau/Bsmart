@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.SubCourse;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.request.AddCartItemRequest;
+import fpt.project.bsmart.entity.request.DeleteCartItemRequest;
 import fpt.project.bsmart.entity.request.UpdateCartItemRequest;
 import fpt.project.bsmart.entity.response.CartResponse;
 import fpt.project.bsmart.repository.CartItemRepository;
@@ -62,18 +63,29 @@ public class CartServiceImpl implements ICartService {
         cartItem.setSubCourse(subCourse);
 
         cart.addCartItem(cartItem);
-        cart.setTotalItem(cart.getCartItems().size());
-        cart.setTotalPrice(CartUtil.calculateTotalPrice(cart));
         return cart.getTotalItem();
     }
 
     @Override
-    public Integer removeCourseToCart(Long courseId) {
-        return null;
+    public Integer removeCourseToCart(DeleteCartItemRequest request) {
+        Cart cart = SecurityUtil.getCurrentUserCart();
+        CartItem cartItem = cartItemRepository.findById(request.getCartItemId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm item cần chình sửa, vui lòng thử lại!"));
+        cart.removeCartItem(cartItem);
+        return cart.getCartItems().size();
     }
 
     @Override
     public Integer updateCourseInCart(UpdateCartItemRequest request) {
-        return null;
+        Cart cart = SecurityUtil.getCurrentUserCart();
+        SubCourse newSubCourse = subCourseRepository.findById(request.getSubCourseId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy khóa học hoặc khóa học không còn hợp lệ!"));
+        CartItem cartItem = cartItemRepository.findById(request.getCartItemId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm item cần chình sửa, vui lòng thử lại!"));
+        SubCourse oldSubCourse = cartItem.getSubCourse();
+
+        if (!Objects.equals(newSubCourse.getId(), oldSubCourse.getId()) && Objects.equals(newSubCourse.getCourse().getId(), oldSubCourse.getCourse().getId())) {
+            cartItem.setSubCourse(newSubCourse);
+            cart.setTotalPrice(CartUtil.calculateTotalPrice(cart));
+        }
+        return cart.getTotalItem();
     }
 }

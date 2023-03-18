@@ -4,10 +4,9 @@ package fpt.project.bsmart.entity.request;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-public class UpdateCartItemRequest implements Serializable {
-    @NotNull
+public class PayCourseRequest implements Serializable {
+
     private Long cartItemId;
-    @NotNull
     private Long subCourseId;
 
     public Long getCartItemId() {

@@ -29,6 +29,8 @@ public class CourseCartResponse {
 
     private List<SubCourseCartResponse> subCourses = new ArrayList<>();
 
+    private Long cartItemId;
+
     public Long getId() {
         return id;
     }
@@ -91,5 +93,13 @@ public class CourseCartResponse {
 
     public void setSubCourses(List<SubCourseCartResponse> subCourses) {
         this.subCourses = subCourses;
+    }
+
+    public Long getCartItemId() {
+        return cartItemId;
+    }
+
+    public void setCartItemId(Long cartItemId) {
+        this.cartItemId = cartItemId;
     }
 }
