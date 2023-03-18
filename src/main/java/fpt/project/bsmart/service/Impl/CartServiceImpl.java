@@ -63,8 +63,6 @@ public class CartServiceImpl implements ICartService {
         cartItem.setSubCourse(subCourse);
 
         cart.addCartItem(cartItem);
-        cart.setTotalItem(cart.getCartItems().size());
-        cart.setTotalPrice(CartUtil.calculateTotalPrice(cart));
         return cart.getTotalItem();
     }
 
@@ -72,7 +70,7 @@ public class CartServiceImpl implements ICartService {
     public Integer removeCourseToCart(DeleteCartItemRequest request) {
         Cart cart = SecurityUtil.getCurrentUserCart();
         CartItem cartItem = cartItemRepository.findById(request.getCartItemId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm item cần chình sửa, vui lòng thử lại!"));
-        cart.getCartItems().remove(cartItem);
+        cart.removeCartItem(cartItem);
         return cart.getCartItems().size();
     }
 
@@ -86,7 +84,6 @@ public class CartServiceImpl implements ICartService {
 
         if (!Objects.equals(newSubCourse.getId(), oldSubCourse.getId()) && Objects.equals(newSubCourse.getCourse().getId(), oldSubCourse.getCourse().getId())) {
             cartItem.setSubCourse(newSubCourse);
-            cart.setTotalItem(cart.getCartItems().size());
             cart.setTotalPrice(CartUtil.calculateTotalPrice(cart));
         }
         return cart.getTotalItem();

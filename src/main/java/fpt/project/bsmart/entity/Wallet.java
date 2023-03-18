@@ -60,4 +60,11 @@ public class Wallet extends BaseEntity {
     public void setTransactions(List<Transaction> transactions) {
         this.transactions = transactions;
     }
+
+    public void decreaseBalance(BigDecimal amount) {
+        this.balance = this.balance.subtract(amount);
+    }
+    public void increaseBalance(BigDecimal amount) {
+        this.balance = this.balance.add(amount);
+    }
 }

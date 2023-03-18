@@ -1,5 +1,7 @@
 package fpt.project.bsmart.entity;
 
+import fpt.project.bsmart.util.CartUtil;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -64,10 +66,17 @@ public class Cart extends BaseEntity {
     public void addCartItem(CartItem cartItem) {
         this.cartItems.add(cartItem);
         cartItem.setCart(this);
+        this.modifyCart();
     }
 
     public void removeCartItem(CartItem cartItem) {
         this.cartItems.remove(cartItem);
         cartItem.setCart(null);
+        this.modifyCart();
+    }
+
+    private void modifyCart() {
+        this.setTotalItem(this.getCartItems().size());
+        this.setTotalPrice(CartUtil.calculateTotalPrice(this));
     }
 }
