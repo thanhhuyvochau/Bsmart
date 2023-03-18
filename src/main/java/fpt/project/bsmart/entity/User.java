@@ -57,8 +57,7 @@ public class User extends BaseEntity {
     private Wallet wallet = new Wallet();
     @OneToOne(mappedBy = "user")
     private MentorProfile mentorProfile;
-    @OneToOne
-    @JoinColumn(name = "cart_id")
+    @OneToOne(mappedBy = "user")
     private Cart cart;
 
     public Long getId() {

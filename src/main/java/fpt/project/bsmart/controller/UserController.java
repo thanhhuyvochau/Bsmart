@@ -50,6 +50,13 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserDto>> getCurrentLoginUser(){
         return ResponseEntity.ok(ApiResponse.success(iUserService.getLoginUser()));
     }
+
+    @Operation(summary = "Xóa liên kết mạng xã hội")
+    @PreAuthorize("hasAnyAuthority('TEACHER','STUDENT')")
+    @PutMapping("/social/remove")
+    public ResponseEntity<ApiResponse<Long>> removeSocialLink(String link){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.removeSocialLink(link)));
+    }
     @Operation(summary = "Chỉnh sửa liên kết mạng xã hội")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'STUDENT')")
     @PutMapping("/social")

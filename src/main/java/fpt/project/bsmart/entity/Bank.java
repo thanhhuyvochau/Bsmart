@@ -25,7 +25,7 @@ public class Bank extends BaseEntity {
     @Column(name = "lookup_support")
     private Integer lookupSupported = 0;
 
-    @OneToMany(mappedBy = "bank", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transaction> transactions = new ArrayList<>();
 
     public Long getId() {
