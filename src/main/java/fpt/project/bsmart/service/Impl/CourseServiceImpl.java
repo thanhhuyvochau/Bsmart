@@ -105,10 +105,12 @@ public class CourseServiceImpl implements ICourseService {
         subCourse.setStartDateExpected(createSubCourseRequest.getStartDateExpected());
         subCourse.setEndDateExpected(createSubCourseRequest.getEndDateExpected());
         subCourse.setStatus(REQUESTING);
+        subCourse.setTitle(createSubCourseRequest.getSubCourseTile());
+
         subCourse.setLevel(createSubCourseRequest.getLevel());
         Image image = imageRepository.findById(createSubCourseRequest.getImageId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + createSubCourseRequest.getImageId()));
-        course.setImage(image);
+        subCourse.setImage(image);
         subCourse.setCourse(course);
         courseList.add(subCourse);
 
@@ -188,19 +190,8 @@ public class CourseServiceImpl implements ICourseService {
 
 
         Page<SubCourse> subCoursesList = subCourseRepository.findByCourse(course, pageable);
-//        List<SubCourseDetailResponse> subCourseDetailResponseList = new ArrayList<>( );
-//        if (subCoursesList.isPresent()) {
-//            subCoursesList.map(subCourse -> {
-//                subCourseDetailResponseList.add(ObjectUtil.copyProperties(subCourse, new SubCourseDetailResponse(), SubCourseDetailResponse.class));
-//                return subCourse ;
-//            });
-//        }
 
-//
-//        Page<SubCourseDetailResponse> page = new PageImpl<>(subCourseDetailResponseList);
-        return PageUtil.convert(subCoursesList.map(subCourse -> {
-            return ObjectUtil.copyProperties(subCourse, new SubCourseDetailResponse(), SubCourseDetailResponse.class);
-        }));
+        return PageUtil.convert(subCoursesList.map(ConvertUtil::convertSubCourseToSubCourseDetailResponse));
 
 
     }

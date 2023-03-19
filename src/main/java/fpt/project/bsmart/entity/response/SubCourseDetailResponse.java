@@ -4,18 +4,18 @@ package fpt.project.bsmart.entity.response;
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
-import fpt.project.bsmart.entity.dto.CategoryDto;
-import fpt.project.bsmart.entity.dto.ClassDto;
-import fpt.project.bsmart.entity.dto.ImageDto;
-import fpt.project.bsmart.entity.dto.SubjectDto;
+import fpt.project.bsmart.entity.dto.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 
 public class SubCourseDetailResponse {
 
     private Long id;
+
+    private String title ;
 
     private ECourseLevel level;
 
@@ -33,6 +33,9 @@ public class SubCourseDetailResponse {
 
     private  int maxStudent ;
 
+    private ImageDto image ;
+    private List<TimeInWeekDTO> timeInWeeks ;
+
 
     public Long getId() {
         return id;
@@ -40,6 +43,22 @@ public class SubCourseDetailResponse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public ImageDto getImage() {
+        return image;
+    }
+
+    public void setImage(ImageDto image) {
+        this.image = image;
     }
 
     public ECourseLevel getLevel() {
@@ -106,5 +125,11 @@ public class SubCourseDetailResponse {
         this.maxStudent = maxStudent;
     }
 
+    public List<TimeInWeekDTO> getTimeInWeeks() {
+        return timeInWeeks;
+    }
 
+    public void setTimeInWeeks(List<TimeInWeekDTO> timeInWeeks) {
+        this.timeInWeeks = timeInWeeks;
+    }
 }

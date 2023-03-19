@@ -2,6 +2,7 @@ package fpt.project.bsmart.entity.response;
 
 
 import fpt.project.bsmart.entity.constant.ETypeLearn;
+import fpt.project.bsmart.entity.dto.ImageDto;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,8 +11,8 @@ public class CourseResponse {
 
     private Long id;
 
-    private Long imageId;
-    private String imageUrl;
+    private List<ImageDto>images ;
+
     private String courseCode;
     private String courseName;
 
@@ -39,20 +40,12 @@ public class CourseResponse {
         this.id = id;
     }
 
-    public Long getImageId() {
-        return imageId;
+    public List<ImageDto> getImages() {
+        return images;
     }
 
-    public void setImageId(Long imageId) {
-        this.imageId = imageId;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImages(List<ImageDto> images) {
+        this.images = images;
     }
 
     public String getCourseCode() {

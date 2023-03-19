@@ -147,9 +147,9 @@ public class ConvertUtil {
         if (course.getMentor() != null) {
             courseDto.setMentorId((course.getMentor().getId()));
         }
-        if (course.getImage() != null) {
-            courseDto.setImage(convertImageToImageDto(course.getImage()));
-        }
+//        if (course.getImage() != null) {
+//            courseDto.setImage(convertImageToImageDto(course.getImage()));
+//        }
 //        if (!course.getSections().isEmpty()) {
 //            List<SectionDto> sectionDtoList = new ArrayList<>();
 //            for (Section section : course.getSections()) {
@@ -180,16 +180,31 @@ public class ConvertUtil {
         if (course.getMentor() != null) {
             response.setMentorId((course.getMentor().getId()));
         }
-        if (course.getImage() != null) {
-            response.setImage(convertImageToImageDto(course.getImage()));
-        }
+//        if (course.getImage() != null) {
+//            response.setImage(convertImageToImageDto(course.getImage()));
+//        }
 
 
         return response;
     }
 
+    public static SubCourseDetailResponse convertSubCourseToSubCourseDetailResponse(SubCourse subCourse) {
+        SubCourseDetailResponse subCourseDetailResponse = ObjectUtil.copyProperties(subCourse, new SubCourseDetailResponse(), SubCourseDetailResponse.class);
+
+        subCourseDetailResponse.setImage(ObjectUtil.copyProperties(subCourse.getImage() , new ImageDto() , ImageDto.class));
+        List<TimeInWeek> timeInWeeks = subCourse.getTimeInWeeks();
+
+        List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>( );
+        timeInWeeks.forEach(timeInWeek -> {
+            timeInWeekDTOS.add(convertTimeInWeekToDto(timeInWeek) );
+        });
+        subCourseDetailResponse.setTimeInWeeks(timeInWeekDTOS);
+        return subCourseDetailResponse ;
+    }
+
     public static CourseSubCourseDetailResponse convertCourseSubCourseToCourseSubCourseDetailResponse(Course course) {
         CourseSubCourseDetailResponse response = ObjectUtil.copyProperties(course, new CourseSubCourseDetailResponse(), CourseSubCourseDetailResponse.class);
+
 
 
         Subject subject = course.getSubject();
@@ -223,9 +238,9 @@ public class ConvertUtil {
 //        response.setCourseName(subCourse.getName());
 //        response.setCourseDescription(subCourse.getDescription());
         response.setTypeLearn(subCourse.getTypeLearn());
-        if (course.getImage() != null) {
-            response.setImageUrl(course.getImage().getUrl());
-        }
+//        if (course.getImage() != null) {
+//            response.setImageUrl(course.getImage().getUrl());
+//        }
 
         Subject subject = course.getSubject();
         if (subject != null) {
@@ -255,14 +270,16 @@ public class ConvertUtil {
         courseResponse.setTotalSubCourse(course.getSubCourses().size());
         List<ETypeLearn> learns = new ArrayList<>();
         List<SubCourse> subCourses = course.getSubCourses();
+        List<ImageDto>images = new ArrayList<>( );
         subCourses.forEach(subCourse -> {
             learns.add(subCourse.getTypeLearn());
+            if (subCourse.getImage()!=null) {
+                images.add(ObjectUtil.copyProperties(subCourse.getImage(), new ImageDto() , ImageDto.class)) ;
+            }
         });
+        courseResponse.setImages(images);
         courseResponse.setLearns(learns);
-        if (course.getImage() != null) {
-            courseResponse.setImageId(course.getImage().getId());
-            courseResponse.setImageUrl(course.getImage().getUrl());
-        }
+
 
         Subject subject = course.getSubject();
         if (subject != null) {
@@ -337,9 +354,9 @@ public class ConvertUtil {
         if (course.getMentor() != null) {
             courseCartResponse.setMentor(convertUsertoUserDto(course.getMentor()));
         }
-        if (course.getImage() != null) {
-            courseCartResponse.setImage(convertImageToImageDto(course.getImage()));
-        }
+//        if (course.getImage() != null) {
+//            courseCartResponse.setImage(convertImageToImageDto(course.getImage()));
+//        }
         return courseCartResponse;
     }
 }

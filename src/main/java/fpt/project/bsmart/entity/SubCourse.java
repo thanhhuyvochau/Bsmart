@@ -17,7 +17,8 @@ public class SubCourse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Column(name = "title")
+    private String title ;
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
     private ECourseLevel level;
@@ -52,6 +53,10 @@ public class SubCourse {
     @JoinColumn(name = "course_id")
     private Course course;
 
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_id", referencedColumnName = "id")
+    private Image image;
     @OneToMany(mappedBy = "subCourse", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Class> classes = new ArrayList<>();
 
@@ -64,6 +69,14 @@ public class SubCourse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public ECourseStatus getStatus() {
@@ -170,5 +183,13 @@ public class SubCourse {
     public void removeTimeInWeek(TimeInWeek timeInWeek) {
         this.timeInWeeks.remove(timeInWeek);
         timeInWeek.setSubCourse(null);
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
     }
 }
