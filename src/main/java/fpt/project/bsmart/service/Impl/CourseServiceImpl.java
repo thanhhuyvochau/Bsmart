@@ -23,9 +23,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static fpt.project.bsmart.entity.constant.ECourseStatus.NOTSTART;
 import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.ConvertUtil.*;
@@ -44,14 +46,19 @@ public class CourseServiceImpl implements ICourseService {
 
     private final ImageRepository imageRepository;
 
+    private final DayOfWeekRepository dayOfWeekRepository;
+    private final SlotRepository slotRepository;
 
-    public CourseServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil, CourseRepository courseRepository, SubCourseRepository subCourseRepository, SubjectRepository subjectRepository, ImageRepository imageRepository) {
+
+    public CourseServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil, CourseRepository courseRepository, SubCourseRepository subCourseRepository, SubjectRepository subjectRepository, ImageRepository imageRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository) {
         this.categoryRepository = categoryRepository;
         this.messageUtil = messageUtil;
         this.courseRepository = courseRepository;
         this.subCourseRepository = subCourseRepository;
         this.subjectRepository = subjectRepository;
         this.imageRepository = imageRepository;
+        this.dayOfWeekRepository = dayOfWeekRepository;
+        this.slotRepository = slotRepository;
     }
 
     @Override
@@ -83,14 +90,15 @@ public class CourseServiceImpl implements ICourseService {
                 course.setSubject(subject);
             }
         });
-
-//        course.setDescription(createCourseRequest.getDescription());
+        course.setStatus(NOTSTART);
+        course.setName(createSubCourseRequest.getName());
+        course.setCode(createSubCourseRequest.getCode());
+        course.setDescription(createSubCourseRequest.getDescription());
+        course.setNumberOfSlot(createSubCourseRequest.getNumberOfSlot());
 
         List<SubCourse> courseList = new ArrayList<>();
         SubCourse subCourse = new SubCourse();
-//        subCourse.setName(createSubCourseRequest.getName());
-//        subCourse.setCode(currentUserAccountLogin.getId() + "-" + createSubCourseRequest.getName());
-//        subCourse.setDescription(createSubCourseRequest.getDescription());
+
         subCourse.setTypeLearn(createSubCourseRequest.getType());
         subCourse.setMinStudent(createSubCourseRequest.getMinStudent());
         subCourse.setMaxStudent(createSubCourseRequest.getMaxStudent());
@@ -106,7 +114,7 @@ public class CourseServiceImpl implements ICourseService {
 
         course.setSubCourses(courseList);
         course.setMentor(currentUserAccountLogin);
-//        course.setStatus(REQUESTING);
+
 
         List<Role> roles = currentUserAccountLogin.getRoles();
         List<Boolean> checkRoleTeacher = roles.stream().map(role -> role.getCode().equals(EUserRole.TEACHER)).collect(Collectors.toList());
@@ -114,24 +122,22 @@ public class CourseServiceImpl implements ICourseService {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Người dùng không phải là giáo viên"));
         }
+        List<Long> slotIds = createSubCourseRequest.getTimeInWeekRequests().stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
+        List<Long> dowIds = createSubCourseRequest.getTimeInWeekRequests().stream().map(TimeInWeekRequest::getDayOfWeekId).collect(Collectors.toList());
+
+        Map<Long, Slot> slotMap = slotRepository.findAllById(slotIds).stream().collect(Collectors.toMap(Slot::getId, Function.identity()));
+        Map<Long, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAllById(dowIds).stream().collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
 
 
-//        List<CourseSectionRequest> sectionsRequestList = createCourseRequest.getSections();
-//        List<Section> sectionList = new ArrayList<>();
-//        sectionsRequestList.forEach(sectionRequest -> {
-//            Section section = new Section();
-//            section.setName(sectionRequest.getName());
-//            List<CourseModuleRequest> modulesList = sectionRequest.getModules();
-//            List<Module> moduleList = new ArrayList<>();
-//            modulesList.forEach(moduleRequest -> {
-//                Module module = new Module();
-//                module.setName(moduleRequest.getName());
-//                moduleList.add(module);
-//            });
-//            section.setModules(moduleList);
-//            sectionList.add(section);
-//        });
-//        course.setSections(sectionList);
+        for (TimeInWeekRequest timeInWeekRequest : createSubCourseRequest.getTimeInWeekRequests()) {
+            TimeInWeek timeInWeek = new TimeInWeek();
+            timeInWeek.setDayOfWeek(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()));
+            timeInWeek.setSlot(slotMap.get(timeInWeekRequest.getSlotId()));
+            timeInWeek.setSubCourse(subCourse);
+            subCourse.addTimeInWeek(timeInWeek);
+        }
+
+
         Course save = courseRepository.save(course);
         return save.getId();
     }
@@ -156,7 +162,7 @@ public class CourseServiceImpl implements ICourseService {
                 .queryBySubjectId(query.getSubjectId())
                 .queryByCategoryId(query.getCategoryId());
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
-        List<Course> coursesList= coursesPage.stream().distinct().collect(Collectors.toList());
+        List<Course> coursesList = coursesPage.stream().distinct().collect(Collectors.toList());
         List<CourseResponse> courseResponseList = new ArrayList<>();
         for (Course course : coursesList) {
             courseResponseList.add(convertCourseCourseResponsePage(course));
@@ -176,7 +182,7 @@ public class CourseServiceImpl implements ICourseService {
 
 
     @Override
-    public ApiPage<SubCourseDetailResponse> getAllSubCourseOfCourse(Long id,  Pageable pageable) {
+    public ApiPage<SubCourseDetailResponse> getAllSubCourseOfCourse(Long id, Pageable pageable) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 
@@ -192,7 +198,7 @@ public class CourseServiceImpl implements ICourseService {
 
 //
 //        Page<SubCourseDetailResponse> page = new PageImpl<>(subCourseDetailResponseList);
-        return   PageUtil.convert(subCoursesList.map(subCourse -> {
+        return PageUtil.convert(subCoursesList.map(subCourse -> {
             return ObjectUtil.copyProperties(subCourse, new SubCourseDetailResponse(), SubCourseDetailResponse.class);
         }));
 
@@ -217,7 +223,6 @@ public class CourseServiceImpl implements ICourseService {
 
         return true;
     }
-
 
 
 //    @Override
