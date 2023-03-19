@@ -5,9 +5,11 @@ import fpt.project.bsmart.entity.constant.ETypeLearn;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CreateSubCourseRequest {
-
+    private String code ;
     private String name;
     private ECourseLevel level;
 
@@ -28,6 +30,19 @@ public class CreateSubCourseRequest {
 
     private Instant endDateExpected  ;
     private String description;
+
+    private Integer  numberOfSlot ;
+
+    private List<TimeInWeekRequest> timeInWeekRequests = new ArrayList<>();
+
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 
     public String getName() {
         return name;
@@ -124,5 +139,21 @@ public class CreateSubCourseRequest {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<TimeInWeekRequest> getTimeInWeekRequests() {
+        return timeInWeekRequests;
+    }
+
+    public void setTimeInWeekRequests(List<TimeInWeekRequest> timeInWeekRequests) {
+        this.timeInWeekRequests = timeInWeekRequests;
+    }
+
+    public Integer getNumberOfSlot() {
+        return numberOfSlot;
+    }
+
+    public void setNumberOfSlot(Integer numberOfSlot) {
+        this.numberOfSlot = numberOfSlot;
     }
 }
