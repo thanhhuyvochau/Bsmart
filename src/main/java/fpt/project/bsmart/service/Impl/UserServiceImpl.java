@@ -108,7 +108,7 @@ public class UserServiceImpl implements IUserService {
     public UserDto getUserById(Long id) {
         UserDto userDto = ConvertUtil.convertUsertoUserDto(findUserById(id));
         userDto.setWallet(null);
-        userDto.setPassword(null);
+
         return userDto;
     }
 
