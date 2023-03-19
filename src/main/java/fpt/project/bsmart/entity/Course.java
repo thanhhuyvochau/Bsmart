@@ -31,9 +31,7 @@ public class Course {
     @JoinColumn(name = "mentor_id")
     private User mentor;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "image_id", referencedColumnName = "id")
-    private Image image;
+
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SubCourse> subCourses;
@@ -93,13 +91,7 @@ public class Course {
         this.mentor = mentor;
     }
 
-    public Image getImage() {
-        return image;
-    }
 
-    public void setImage(Image image) {
-        this.image = image;
-    }
 
     public List<SubCourse> getSubCourses() {
         return subCourses;

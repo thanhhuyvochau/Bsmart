@@ -31,6 +31,7 @@ public class CreateSubCourseRequest {
     private Instant endDateExpected  ;
     private String description;
 
+    private String subCourseTile ;
     private Integer  numberOfSlot ;
 
     private List<TimeInWeekRequest> timeInWeekRequests = new ArrayList<>();
@@ -94,6 +95,14 @@ public class CreateSubCourseRequest {
 
     public Integer getMinStudent() {
         return minStudent;
+    }
+
+    public String getSubCourseTile() {
+        return subCourseTile;
+    }
+
+    public void setSubCourseTile(String subCourseTile) {
+        this.subCourseTile = subCourseTile;
     }
 
     public void setMinStudent(Integer minStudent) {
