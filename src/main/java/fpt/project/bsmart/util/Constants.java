@@ -20,6 +20,8 @@ public class Constants {
         public static final String MENTOR_PROFILE_NOT_FOUND_BY_USER = "MENTOR_PROFILE_NOT_FOUND_BY_USER";
 
         public static class Invalid{
+
+            public static final String USERNAME_PASSWORD_INCORRECT = "USERNAME_PASSWORD_INCORRECT";
             public static final String INVALID_FACEBOOK_LINK = "INVALID_FACEBOOK_LINK";
             public static final String INVALID_INSTAGRAM_LINK = "INVALID_INSTAGRAM_LINK";
             public static final String INVALID_TWITTER_LINK = "INVALID_TWITTER_LINK";

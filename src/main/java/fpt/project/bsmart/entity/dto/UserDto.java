@@ -16,7 +16,9 @@ public class UserDto {
 
     private String username;
 
-    private String password;
+
+
+    private String introduce;
 
     private String fullName;
 
@@ -60,13 +62,7 @@ public class UserDto {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
-    }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
     public String getFullName() {
         return fullName;
@@ -82,6 +78,15 @@ public class UserDto {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+
+    public String getIntroduce() {
+        return introduce;
+    }
+
+    public void setIntroduce(String introduce) {
+        this.introduce = introduce;
     }
 
     public Instant getBirthday() {
