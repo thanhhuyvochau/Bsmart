@@ -16,6 +16,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -60,8 +61,14 @@ public class TimeInWeekServiceImpl implements ITimeInWeekService {
         List<TimeInWeek> timeInWeeks = new ArrayList<>();
         for (TimeInWeekRequest timeInWeekRequest : request.getTimeInWeekRequests()) {
             TimeInWeek timeInWeek = new TimeInWeek();
-            timeInWeek.setDayOfWeek(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()));
-            timeInWeek.setSlot(slotMap.get(timeInWeekRequest.getSlotId()));
+            DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy ngày trong tuần đã chọn vui lòng thử lại!"));
+            timeInWeek.setDayOfWeek(dayOfWeek);
+
+            Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy slot đã chọn vui lòng thử lại!"));
+            timeInWeek.setSlot(slot);
+
             timeInWeek.setSubCourse(subCourse);
             subCourse.addTimeInWeek(timeInWeek);
         }
