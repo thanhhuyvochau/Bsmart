@@ -1,5 +1,7 @@
 package fpt.project.bsmart.entity.request;
 
+import java.util.Objects;
+
 public class TimeInWeekRequest {
     private Long dayOfWeekId;
     private Long slotId;
@@ -18,5 +20,18 @@ public class TimeInWeekRequest {
 
     public void setSlotId(Long slotId) {
         this.slotId = slotId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TimeInWeekRequest that = (TimeInWeekRequest) o;
+        return Objects.equals(dayOfWeekId, that.dayOfWeekId) && Objects.equals(slotId, that.slotId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dayOfWeekId, slotId);
     }
 }

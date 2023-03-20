@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.TimeInWeek;
 import fpt.project.bsmart.entity.TimeTable;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
+import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
@@ -12,7 +13,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TimeInWeekUtil {
 
@@ -45,4 +48,6 @@ public class TimeInWeekUtil {
         }
         return timeTables;
     }
+
+
 }

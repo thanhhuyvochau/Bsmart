@@ -9,6 +9,7 @@ import fpt.project.bsmart.entity.request.SubCourseTimeRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ITimeInWeekService;
+import fpt.project.bsmart.util.ObjectUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -50,29 +51,39 @@ public class TimeInWeekServiceImpl implements ITimeInWeekService {
 
     @Override
     public Boolean createTimeInWeek(SubCourseTimeRequest request) {
-        List<Long> slotIds = request.getTimeInWeekRequests().stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
-        List<Long> dowIds = request.getTimeInWeekRequests().stream().map(TimeInWeekRequest::getDayOfWeekId).collect(Collectors.toList());
-
-        Map<Long, Slot> slotMap = slotRepository.findAllById(slotIds).stream().collect(Collectors.toMap(Slot::getId, Function.identity()));
-        Map<Long, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAllById(dowIds).stream().collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
-
         SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm khóa học cần tạo lịch!"));
-        List<TimeInWeek> timeInWeeks = new ArrayList<>();
-        for (TimeInWeekRequest timeInWeekRequest : request.getTimeInWeekRequests()) {
-            TimeInWeek timeInWeek = new TimeInWeek();
-            DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy ngày trong tuần đã chọn vui lòng thử lại!"));
-            timeInWeek.setDayOfWeek(dayOfWeek);
-
-            Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy slot đã chọn vui lòng thử lại!"));
-            timeInWeek.setSlot(slot);
-
-            timeInWeek.setSubCourse(subCourse);
-            subCourse.addTimeInWeek(timeInWeek);
+        if (!subCourse.getTimeInWeeks().isEmpty()) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không thể tạo thêm lịch cho khóa học này, vui lòng chỉ chỉnh sửa hoặc tạo mới!");
         }
-        return true;
+        List<TimeInWeekRequest> timeInWeekRequests = request.getTimeInWeekRequests();
+        TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
+        if (duplicateElement == null) {
+            List<Long> slotIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
+            List<Long> dowIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getDayOfWeekId).collect(Collectors.toList());
+
+            Map<Long, Slot> slotMap = slotRepository.findAllById(slotIds).stream().collect(Collectors.toMap(Slot::getId, Function.identity()));
+            Map<Long, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAllById(dowIds).stream().collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
+
+
+            List<TimeInWeek> timeInWeeks = new ArrayList<>();
+            for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
+                TimeInWeek timeInWeek = new TimeInWeek();
+                DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy ngày trong tuần đã chọn vui lòng thử lại!"));
+                timeInWeek.setDayOfWeek(dayOfWeek);
+
+                Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy slot đã chọn vui lòng thử lại!"));
+                timeInWeek.setSlot(slot);
+
+                timeInWeek.setSubCourse(subCourse);
+                subCourse.addTimeInWeek(timeInWeek);
+            }
+            return true;
+        } else {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Đã bị trùng lịch và slot, vui lòng kiểm tra lại!");
+        }
     }
 
 //    @Override
