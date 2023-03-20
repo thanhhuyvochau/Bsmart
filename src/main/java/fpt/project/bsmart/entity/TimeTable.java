@@ -21,9 +21,6 @@ public class TimeTable {
     @JoinColumn(name = "slot_id")
     private Slot slot;
     @ManyToOne
-    @JoinColumn(name = "day_of_week_id")
-    private DayOfWeek dayOfWeek;
-    @ManyToOne
     @JoinColumn(name = "clazz_id")
     private Class clazz;
 
@@ -73,14 +70,6 @@ public class TimeTable {
 
     public void setSlot(Slot slot) {
         this.slot = slot;
-    }
-
-    public DayOfWeek getDayOfWeek() {
-        return dayOfWeek;
-    }
-
-    public void setDayOfWeek(DayOfWeek dayOfWeek) {
-        this.dayOfWeek = dayOfWeek;
     }
 
     public Class getClazz() {

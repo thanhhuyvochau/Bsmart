@@ -61,12 +61,8 @@ public class TimeInWeekServiceImpl implements ITimeInWeekService {
         if (duplicateElement == null) {
             List<Long> slotIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
             List<Long> dowIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getDayOfWeekId).collect(Collectors.toList());
-
             Map<Long, Slot> slotMap = slotRepository.findAllById(slotIds).stream().collect(Collectors.toMap(Slot::getId, Function.identity()));
             Map<Long, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAllById(dowIds).stream().collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
-
-
-            List<TimeInWeek> timeInWeeks = new ArrayList<>();
             for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
                 TimeInWeek timeInWeek = new TimeInWeek();
                 DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
