@@ -36,7 +36,6 @@ public class TimeInWeekUtil {
                     timeTable.setCurrentSlotNums((numberOfSlot - i) + 1);
                     timeTable.setSlot(dow.getSlot());
                     timeTable.setClazz(clazz);
-                    timeTable.setDayOfWeek(dow.getDayOfWeek());
                     timeTables.add(timeTable);
                     i--;
                 }
@@ -45,4 +44,6 @@ public class TimeInWeekUtil {
         }
         return timeTables;
     }
+
+
 }

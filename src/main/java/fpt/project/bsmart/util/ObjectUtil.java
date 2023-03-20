@@ -7,6 +7,7 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -97,4 +98,14 @@ public class ObjectUtil {
     }
 
 
+    public static <T> T isHasDuplicate(List<T> checkedList) {
+        Set<T> distinctElements = new HashSet<>();
+        for (T element : checkedList) {
+            boolean add = distinctElements.add(element);
+            if (!add) {
+                return element;
+            }
+        }
+        return null;
+    }
 }

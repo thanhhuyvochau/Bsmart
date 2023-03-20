@@ -17,7 +17,6 @@ public class Skill extends BaseEntity {
 
     private String certificateUrl;
     @Column(name = "skill_tag")
-
     private String skillTag;
     @ManyToOne
     @JoinColumn(name = "mentor_id")
