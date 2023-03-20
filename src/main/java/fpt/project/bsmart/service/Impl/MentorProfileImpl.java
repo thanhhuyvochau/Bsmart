@@ -84,11 +84,11 @@ public class MentorProfileImpl implements IMentorProfileService {
         if(StringUtil.isNullOrEmpty(updateMentorProfileRequest.getYearOfExperiences())){
             errorMessages.add(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_YEAR_OF_EXPERIENCE));
         }
-        if(updateMentorProfileRequest.getSubjectIdList().isEmpty()){
+        if(updateMentorProfileRequest.getSubjectIds().isEmpty()){
             errorMessages.add(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_SKILL));
         }
-        List<Subject> skillList = subjectRepository.getSubjectsByIdList(updateMentorProfileRequest.getSubjectIdList());
-        List<Long> differentIdList = getTheDifferentIdList(updateMentorProfileRequest.getSubjectIdList(),skillList);
+        List<Subject> skillList = subjectRepository.getSubjectsByIdList(updateMentorProfileRequest.getSubjectIds());
+        List<Long> differentIdList = getTheDifferentIdList(updateMentorProfileRequest.getSubjectIds(),skillList);
         if(!differentIdList.isEmpty()){
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SKILL_NOT_FOUND_BY_ID) + differentIdList);
         }

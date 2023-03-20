@@ -6,7 +6,7 @@ import java.util.List;
 public class UpdateMentorProfileRequest {
     private String introduce;
     private String yearOfExperiences;
-    private List<Long> subjectIdList = new ArrayList<>();
+    private List<Long> subjectIds = new ArrayList<>();
 
     public String getIntroduce() {
         return introduce;
@@ -24,11 +24,11 @@ public class UpdateMentorProfileRequest {
         this.yearOfExperiences = yearOfExperiences;
     }
 
-    public List<Long> getSubjectIdList() {
-        return subjectIdList;
+    public List<Long> getSubjectIds() {
+        return subjectIds;
     }
 
-    public void setSubjectIdList(List<Long> subjectIdList) {
-        this.subjectIdList = subjectIdList;
+    public void setSubjectIds(List<Long> subjectIds) {
+        this.subjectIds = subjectIds;
     }
 }
