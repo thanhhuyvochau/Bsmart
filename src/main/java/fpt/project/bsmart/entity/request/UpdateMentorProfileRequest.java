@@ -1,12 +1,15 @@
 package fpt.project.bsmart.entity.request;
 
+
+import fpt.project.bsmart.entity.dto.MentorSkillDto;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class UpdateMentorProfileRequest {
     private String introduce;
     private String yearOfExperiences;
-    private List<Long> subjectIds = new ArrayList<>();
+    private List<MentorSkillDto> mentorSkills = new ArrayList<>();
 
     public String getIntroduce() {
         return introduce;
@@ -24,11 +27,11 @@ public class UpdateMentorProfileRequest {
         this.yearOfExperiences = yearOfExperiences;
     }
 
-    public List<Long> getSubjectIds() {
-        return subjectIds;
+    public List<MentorSkillDto> getMentorSkills() {
+        return mentorSkills;
     }
 
-    public void setSubjectIds(List<Long> subjectIds) {
-        this.subjectIds = subjectIds;
+    public void setMentorSkills(List<MentorSkillDto> mentorSkills) {
+        this.mentorSkills = mentorSkills;
     }
 }
