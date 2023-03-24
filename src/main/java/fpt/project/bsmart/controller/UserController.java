@@ -24,8 +24,10 @@ import fpt.project.bsmart.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -86,15 +88,27 @@ public class UserController {
     }
 
 
-    @Operation(summary = "upload dại diện - CMMD.CDCC ")
-    @PostMapping("/{id}/image")
-    public ResponseEntity<Long> uploadImageRegisterProfile(@PathVariable Long id, @ModelAttribute UploadImageRequest uploadImageRequest) throws IOException {
-        return ResponseEntity.ok(iUserService.uploadImageProfile(id, uploadImageRequest));
+    @Operation(summary = "upload dại diện - CMMD.CDCC")
+    @PreAuthorize("hasAnyAuthority('TEACHER' , 'STUDENT')")
+    @PostMapping("/upload-image")
+    public ResponseEntity<ApiResponse<Long>> uploadImageRegisterProfile( @ModelAttribute UploadImageRequest uploadImageRequest) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(iUserService.uploadImageProfile( uploadImageRequest)));
     }
+
+    @Operation(summary = "upload nhiều bằng cấp ")
+    @PreAuthorize("hasAnyAuthority('TEACHER' , 'STUDENT')")
+    @PostMapping("/upload-images")
+    public ResponseEntity<ApiResponse<List<Long>>> uploadDegree( @RequestParam("files") MultipartFile[] files) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(iUserService.uploadDegree( files)));
+    }
+
 
     @Operation(summary = "Member / Mentor register account")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Long>> registerAccount(@RequestBody CreateAccountRequest createAccountRequest) {
         return ResponseEntity.ok(ApiResponse.success(iUserService.registerAccount(createAccountRequest)));
     }
+
+
+
 }
