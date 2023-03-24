@@ -1,12 +1,10 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.MentorProfile;
-import fpt.project.bsmart.entity.Role;
-import fpt.project.bsmart.entity.Subject;
-import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
+import fpt.project.bsmart.entity.dto.MentorSkillDto;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
 import fpt.project.bsmart.repository.MentorProfileRepository;
@@ -21,6 +19,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_BY_ID;
+
 @Service
 public class MentorProfileImpl implements IMentorProfileService {
     private final MentorProfileRepository mentorProfileRepository;
@@ -33,7 +33,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         this.messageUtil = messageUtil;
     }
 
-    private MentorProfile findById(Long id){
+    private MentorProfile findById(Long id) {
         return mentorProfileRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(""));
     }
@@ -42,12 +42,12 @@ public class MentorProfileImpl implements IMentorProfileService {
     public MentorProfileDTO getMentorProfile(Long id) {
         MentorProfile mentorProfile = findById(id);
         //Check if mentor profile is not active so only that mentor and admin can access
-        if(!mentorProfile.getStatus() || !mentorProfile.getUser().getStatus()){
+        if (!mentorProfile.getStatus() || !mentorProfile.getUser().getStatus()) {
             User user = SecurityUtil.getCurrentUserAccountLogin();
             List<EUserRole> roleList = user.getRoles().stream()
                     .map(Role::getCode)
                     .collect(Collectors.toList());
-            if(!roleList.contains(EUserRole.MANAGER) || !Objects.equals(user.getId(), mentorProfile.getId())){
+            if (!roleList.contains(EUserRole.MANAGER) || !Objects.equals(user.getId(), mentorProfile.getId())) {
                 throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
             }
         }
@@ -56,9 +56,9 @@ public class MentorProfileImpl implements IMentorProfileService {
     }
 
     @Override
-    public List<MentorProfileDTO> getPendingMentorProfileList(){
+    public List<MentorProfileDTO> getPendingMentorProfileList() {
         List<MentorProfileDTO> mentorProfileDTOList = new ArrayList<>();
-        for (MentorProfile mentorProfile : mentorProfileRepository.getPendingMentorProfileList()){
+        for (MentorProfile mentorProfile : mentorProfileRepository.getPendingMentorProfileList()) {
             mentorProfileDTOList.add(ConvertUtil.convertMentorProfileToMentorProfileDto(mentorProfile));
         }
         return mentorProfileDTOList;
@@ -78,30 +78,38 @@ public class MentorProfileImpl implements IMentorProfileService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER + user.getId())));
         List<String> errorMessages = new ArrayList<>();
-        if(StringUtil.isNullOrEmpty(updateMentorProfileRequest.getIntroduce())){
+        if (StringUtil.isNullOrEmpty(updateMentorProfileRequest.getIntroduce())) {
             errorMessages.add(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_INTRODUCE));
         }
-        if(StringUtil.isNullOrEmpty(updateMentorProfileRequest.getYearOfExperiences())){
+        if (StringUtil.isNullOrEmpty(updateMentorProfileRequest.getYearOfExperiences())) {
             errorMessages.add(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_YEAR_OF_EXPERIENCE));
         }
-        if(updateMentorProfileRequest.getSubjectIdList().isEmpty()){
+        if (!updateMentorProfileRequest.getMentorSkills().isEmpty()) {
             errorMessages.add(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_SKILL));
         }
-        List<Subject> skillList = subjectRepository.getSubjectsByIdList(updateMentorProfileRequest.getSubjectIdList());
-        List<Long> differentIdList = getTheDifferentIdList(updateMentorProfileRequest.getSubjectIdList(),skillList);
-        if(!differentIdList.isEmpty()){
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SKILL_NOT_FOUND_BY_ID) + differentIdList);
+
+        List<MentorSkill> mentorSkills = new ArrayList<>();
+        for (MentorSkillDto mentorSkillDto : updateMentorProfileRequest.getMentorSkills()) {
+            MentorSkill mentorSkill = new MentorSkill();
+            Subject subject = subjectRepository.findById(mentorSkillDto.getSkillId())
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID + mentorSkillDto.getSkillId())));
+            mentorSkill.setSkillId(subject);
+            mentorSkill.setYearOfExperiences(mentorSkill.getYearOfExperiences());
+            mentorSkill.setMentorProfile(mentorProfile);
+            mentorSkills.add(mentorSkill);
         }
+
+        mentorProfile.setSkills(mentorSkills);
         mentorProfile.setIntroduce(updateMentorProfileRequest.getIntroduce());
-        mentorProfile.setYearsOfExperience(updateMentorProfileRequest.getYearOfExperiences());
-        mentorProfile.setSkills(skillList);
-        if(!mentorProfile.getStatus() && !user.getStatus()){
+        mentorProfile.setWorkingExperience(updateMentorProfileRequest.getYearOfExperiences());
+        //
+        if (!mentorProfile.getStatus() && !user.getStatus()) {
             mentorProfile.setStatus(true);
         }
         return mentorProfileRepository.save(mentorProfile).getId();
     }
 
-    private List<Long> getTheDifferentIdList(List<Long> requestIdList, List<Subject> skillList){
+    private List<Long> getTheDifferentIdList(List<Long> requestIdList, List<Subject> skillList) {
         List<Long> skillIdList = skillList.stream()
                 .map(Subject::getId)
                 .collect(Collectors.toList());

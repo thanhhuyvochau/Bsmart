@@ -12,19 +12,17 @@ public class MentorProfile extends BaseEntity {
     private Long id;
     @Column(name = "introduce")
     private String introduce;
-    @Column(name = "year_of_experience")
-    private String yearsOfExperience;
+    @Column(name = "working_experience")
+    private String workingExperience;
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name = "status")
     private Boolean status = false;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "mentor_skill",
-            joinColumns = @JoinColumn(name = "mentor_profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "subject_id"))
-    private List<Subject> skills = new ArrayList<>();
+
+    @OneToMany(mappedBy = "mentorProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MentorSkill> skills = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -42,12 +40,12 @@ public class MentorProfile extends BaseEntity {
         this.introduce = introduce;
     }
 
-    public String getYearsOfExperience() {
-        return yearsOfExperience;
+    public String getWorkingExperience() {
+        return workingExperience;
     }
 
-    public void setYearsOfExperience(String yearsOfExperience) {
-        this.yearsOfExperience = yearsOfExperience;
+    public void setWorkingExperience(String yearsOfExperience) {
+        this.workingExperience = yearsOfExperience;
     }
 
     public User getUser() {
@@ -66,11 +64,11 @@ public class MentorProfile extends BaseEntity {
         this.status = status;
     }
 
-    public List<Subject> getSkills() {
+    public List<MentorSkill> getSkills() {
         return skills;
     }
 
-    public void setSkills(List<Subject> skills) {
+    public void setSkills(List<MentorSkill> skills) {
         this.skills = skills;
     }
 }

@@ -8,7 +8,7 @@ public class MentorProfileDTO {
     private String yearsOfExperience;
     private UserDto user;
 
-    private List<SubjectDto> skillList;
+    private List<MentorSkillDto> skillList;
 
     public Long getId() {
         return id;
@@ -42,11 +42,11 @@ public class MentorProfileDTO {
         this.user = user;
     }
 
-    public List<SubjectDto> getSkillList() {
+    public List<MentorSkillDto> getSkillList() {
         return skillList;
     }
 
-    public void setSkillList(List<SubjectDto> skillList) {
+    public void setSkillList(List<MentorSkillDto> skillList) {
         this.skillList = skillList;
     }
 }
