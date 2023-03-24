@@ -77,17 +77,16 @@ public class MentorProfileImpl implements IMentorProfileService {
         MentorProfile mentorProfile = mentorProfileRepository.getMentorProfileByUser(user)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER + user.getId())));
-        List<String> errorMessages = new ArrayList<>();
-        if (StringUtil.isNullOrEmpty(updateMentorProfileRequest.getIntroduce())) {
-            errorMessages.add(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_INTRODUCE));
-        }
-        if (StringUtil.isNullOrEmpty(updateMentorProfileRequest.getYearOfExperiences())) {
-            errorMessages.add(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_YEAR_OF_EXPERIENCE));
-        }
-        if (!updateMentorProfileRequest.getMentorSkills().isEmpty()) {
-            errorMessages.add(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_SKILL));
+
+        if(updateMentorProfileRequest.getIntroduce()!= null ) {
+            mentorProfile.setIntroduce(updateMentorProfileRequest.getIntroduce());
         }
 
+        if (updateMentorProfileRequest.getYearOfExperiences()!= null) {
+            mentorProfile.setWorkingExperience(updateMentorProfileRequest.getYearOfExperiences());
+        }
+
+    if (updateMentorProfileRequest.getMentorSkills()!= null) {
         List<MentorSkill> mentorSkills = new ArrayList<>();
         for (MentorSkillDto mentorSkillDto : updateMentorProfileRequest.getMentorSkills()) {
             MentorSkill mentorSkill = new MentorSkill();
@@ -100,12 +99,12 @@ public class MentorProfileImpl implements IMentorProfileService {
         }
 
         mentorProfile.setSkills(mentorSkills);
-        mentorProfile.setIntroduce(updateMentorProfileRequest.getIntroduce());
-        mentorProfile.setWorkingExperience(updateMentorProfileRequest.getYearOfExperiences());
-        //
-        if (!mentorProfile.getStatus() && !user.getStatus()) {
-            mentorProfile.setStatus(true);
-        }
+    }
+//        if (!mentorProfile.getStatus() && !user.getStatus()) {
+//            mentorProfile.setStatus(true);
+//        }
+
+
         return mentorProfileRepository.save(mentorProfile).getId();
     }
 

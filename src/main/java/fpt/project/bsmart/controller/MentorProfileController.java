@@ -44,7 +44,7 @@ public class MentorProfileController {
     @Operation(summary = "Cập nhật hồ sơ giảng viên")
     @PreAuthorize("hasAuthority('TEACHER')")
     @PutMapping
-    public ResponseEntity<ApiResponse<Long>> updateMentorProfile(UpdateMentorProfileRequest updateMentorProfileRequest){
+    public ResponseEntity<ApiResponse<Long>> updateMentorProfile(@RequestBody UpdateMentorProfileRequest updateMentorProfileRequest){
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateMentorProfile(updateMentorProfileRequest)));
     }
 
