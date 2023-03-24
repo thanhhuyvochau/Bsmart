@@ -126,16 +126,16 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public List<Long> uploadFiles(MultipartFile[] files) throws IOException {
+    public List<Long> uploadDegree(MultipartFile[] files) throws IOException {
         User user = getCurrentLoginUser();
         List<Long> imageIds  = new ArrayList<>();
         for (MultipartFile file : files) {
             Image image = new Image();
-
             String name = file.getOriginalFilename() + "-" + Instant.now().toString();
             ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file.getContentType(),
                     file.getInputStream(), file.getSize());
             image.setName(name);
+            image.setType(EImageType.DEGREE);
             image.setUrl(ImageUrlUtil.buildUrl(minioUrl, objectWriteResponse));
             image.setUser(user);
             Image save = imageRepository.save(image);

@@ -35,7 +35,7 @@ public interface IUserService {
 
     Long  editMentorPersonalProfile(MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest);
 
-    List<Long> uploadFiles(MultipartFile[] files) throws IOException;
+    List<Long> uploadDegree(MultipartFile[] files) throws IOException;
 
 //    Optional<User> findByUsername(String username);
 }

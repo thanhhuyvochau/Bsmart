@@ -88,18 +88,18 @@ public class UserController {
     }
 
 
-    @Operation(summary = "upload dại diện - CMMD.CDCC ")
+    @Operation(summary = "upload dại diện - CMMD.CDCC")
     @PreAuthorize("hasAnyAuthority('TEACHER' , 'STUDENT')")
     @PostMapping("/upload-image")
     public ResponseEntity<ApiResponse<Long>> uploadImageRegisterProfile( @ModelAttribute UploadImageRequest uploadImageRequest) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(iUserService.uploadImageProfile( uploadImageRequest)));
     }
 
-    @Operation(summary = "upload dại diện - CMMD.CDCC (2) ")
+    @Operation(summary = "upload nhiều bằng cấp ")
     @PreAuthorize("hasAnyAuthority('TEACHER' , 'STUDENT')")
     @PostMapping("/upload-images")
-    public ResponseEntity<ApiResponse<List<Long>>> uploadFiles( @RequestParam("files") MultipartFile[] files) throws IOException {
-        return ResponseEntity.ok(ApiResponse.success(iUserService.uploadFiles( files)));
+    public ResponseEntity<ApiResponse<List<Long>>> uploadDegree( @RequestParam("files") MultipartFile[] files) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(iUserService.uploadDegree( files)));
     }
 
 
