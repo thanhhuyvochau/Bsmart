@@ -54,10 +54,10 @@ public class TransactionController {
     }
 
     @Operation(summary = "Thanh toán khóa học nhanh")
-    @PostMapping("/pay-quick")
+    @PostMapping("/pay-quick/subcourse/{subCourseId}")
     @PreAuthorize("hasAnyAuthority('STUDENT')")
-    public ResponseEntity<ApiResponse<Boolean>> payCourseQuickly(@RequestBody PayCourseRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payQuickCourse(request)));
+    public ResponseEntity<ApiResponse<Boolean>> payCourseQuickly(@PathVariable Long  subCourseId) {
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payQuickCourse(subCourseId)));
     }
 
     @Operation(summary = "Thanh toán khóa học từ giỏ hàng")

@@ -60,6 +60,9 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user")
     private Cart cart;
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
+    private List<Order> order = new ArrayList<>();
+
     public Long getId() {
         return id;
     }
@@ -202,5 +205,13 @@ public class User extends BaseEntity {
 
     public void setCart(Cart cart) {
         this.cart = cart;
+    }
+
+    public List<Order> getOrder() {
+        return order;
+    }
+
+    public void setOrder(List<Order> order) {
+        this.order = order;
     }
 }
