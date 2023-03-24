@@ -21,12 +21,18 @@ import fpt.project.bsmart.repository.RoleRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.adapter.MinioAdapter;
+import io.minio.ObjectWriteResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
@@ -35,6 +41,10 @@ import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.*;
 
 @Service
 public class UserServiceImpl implements IUserService {
+
+
+    @Value("${minio.endpoint}")
+    String minioUrl;
     private final UserRepository userRepository;
 
     private final MessageUtil messageUtil;
@@ -46,13 +56,20 @@ public class UserServiceImpl implements IUserService {
     private final ImageRepository imageRepository;
     private final MentorProfileRepository mentorProfileRepository;
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository) {
+    private final MinioAdapter minioAdapter;
+
+
+
+
+
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
         this.imageRepository = imageRepository;
         this.mentorProfileRepository = mentorProfileRepository;
+        this.minioAdapter = minioAdapter;
     }
 
     private User findUserById(Long id) {
@@ -87,21 +104,44 @@ public class UserServiceImpl implements IUserService {
         return userRepository.save(user).getId();
     }
 
-    public Long uploadImageProfile(Long id, UploadImageRequest uploadImageRequest) {
-        User user = findUserById(id);
+    public Long uploadImageProfile(UploadImageRequest uploadImageRequest) throws IOException {
+        User user = getCurrentLoginUser();
         Image image = new Image();
         String name = uploadImageRequest.getFile().getOriginalFilename() + "-" + Instant.now().toString();
-//        ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, uploadImageRequest.getFile().getContentType(),
-//                uploadImageRequest.getFile().getInputStream(), uploadImageRequest.getFile().getSize());
+        ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, uploadImageRequest.getFile().getContentType(),
+                uploadImageRequest.getFile().getInputStream(), uploadImageRequest.getFile().getSize());
         image.setName(name);
-//        image.setUrl(RequestUrlUtil.buildUrl(minioUrl, objectWriteResponse));
+        image.setUrl(ImageUrlUtil.buildUrl(minioUrl, objectWriteResponse));
         image.setUser(user);
         if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
             image.setType(EImageType.AVATAR);
-        } else if (uploadImageRequest.getImageType().equals(EImageType.CI)) {
-            image.setType(EImageType.CI);
+        } if (uploadImageRequest.getImageType().equals(EImageType.FRONTCI)) {
+            image.setType(EImageType.FRONTCI);
+        }
+        if (uploadImageRequest.getImageType().equals(EImageType.BACKCI)) {
+            image.setType(EImageType.BACKCI);
         }
         return imageRepository.save(image).getId();
+
+    }
+
+    @Override
+    public List<Long> uploadFiles(MultipartFile[] files) throws IOException {
+        User user = getCurrentLoginUser();
+        List<Long> imageIds  = new ArrayList<>();
+        for (MultipartFile file : files) {
+            Image image = new Image();
+
+            String name = file.getOriginalFilename() + "-" + Instant.now().toString();
+            ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file.getContentType(),
+                    file.getInputStream(), file.getSize());
+            image.setName(name);
+            image.setUrl(ImageUrlUtil.buildUrl(minioUrl, objectWriteResponse));
+            image.setUser(user);
+            Image save = imageRepository.save(image);
+            imageIds.add(save.getId()) ;
+        }
+        return imageIds;
     }
 
     @Override
@@ -235,6 +275,8 @@ public class UserServiceImpl implements IUserService {
         }
         return userRepository.save(user).getId();
     }
+
+
 
     public Long registerAccount(CreateAccountRequest createAccountRequest) {
 
