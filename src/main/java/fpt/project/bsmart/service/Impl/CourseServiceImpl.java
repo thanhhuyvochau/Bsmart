@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
+import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
 import fpt.project.bsmart.entity.response.SubCourseDetailResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ICourseService;
@@ -78,8 +79,12 @@ public class CourseServiceImpl implements ICourseService {
     public Long mentorCreateCourse(CreateSubCourseRequest createSubCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUserAccountLogin();
 
-        Course course = new Course();
+        if (createSubCourseRequest.getPrice() == null ){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Vui lòng nhập tiền cho khóa học"));
+        }
 
+        Course course = new Course();
 
         Category category = categoryRepository.findById(createSubCourseRequest.getCategoryId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createSubCourseRequest.getCategoryId()));
@@ -106,7 +111,7 @@ public class CourseServiceImpl implements ICourseService {
         subCourse.setEndDateExpected(createSubCourseRequest.getEndDateExpected());
         subCourse.setStatus(REQUESTING);
         subCourse.setTitle(createSubCourseRequest.getSubCourseTile());
-
+        subCourse.setPrice(createSubCourseRequest.getPrice());
         subCourse.setLevel(createSubCourseRequest.getLevel());
         Image image = imageRepository.findById(createSubCourseRequest.getImageId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + createSubCourseRequest.getImageId()));
@@ -193,6 +198,24 @@ public class CourseServiceImpl implements ICourseService {
 
         return PageUtil.convert(subCoursesList.map(ConvertUtil::convertSubCourseToSubCourseDetailResponse));
 
+
+    }
+
+    @Override
+    public ApiPage<CourseSubCourseResponse> memberGetCourse(Pageable pageable) {
+        User userLogin = SecurityUtil.getCurrentUserAccountLogin();
+        List<Order> orders = userLogin.getOrder();
+        List<SubCourse> subCourses = new ArrayList<>();
+        orders.forEach(order -> {
+            List<OrderDetail> orderDetails = order.getOrderDetails();
+            orderDetails.forEach(orderDetail -> {
+                subCourses.add(orderDetail.getSubCourse());
+
+            });
+        });
+        Page<SubCourse> page = new PageImpl<>(subCourses);
+
+        return PageUtil.convert(page.map(ConvertUtil::convertSubCourseToCourseSubCourseResponse));
 
     }
 

@@ -136,6 +136,8 @@ public class ConvertUtil {
         return moduleDto;
     }
 
+
+
     public static CourseDto convertCourseToCourseDTO(Course course) {
         CourseDto courseDto = ObjectUtil.copyProperties(course, new CourseDto(), CourseDto.class);
 

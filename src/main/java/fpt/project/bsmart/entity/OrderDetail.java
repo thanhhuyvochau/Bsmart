@@ -12,7 +12,7 @@ public class OrderDetail extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "sub_course_id")
     private SubCourse subCourse;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
     @Column(name = "original_price")
@@ -84,4 +84,6 @@ public class OrderDetail extends BaseEntity {
     public void setReferralStatus(boolean referralStatus) {
         this.referralStatus = referralStatus;
     }
+
+
 }

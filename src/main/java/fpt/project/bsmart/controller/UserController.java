@@ -97,7 +97,7 @@ public class UserController {
 
     @Operation(summary = "upload nhiều bằng cấp ")
     @PreAuthorize("hasAnyAuthority('TEACHER' , 'STUDENT')")
-    @PostMapping("/upload-images")
+    @PostMapping("/upload-degree")
     public ResponseEntity<ApiResponse<List<Long>>> uploadDegree( @RequestParam("files") MultipartFile[] files) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(iUserService.uploadDegree( files)));
     }
