@@ -8,10 +8,9 @@ public class MentorSkill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
-
     @ManyToOne
     @JoinColumn(name = "skill_id")
-    private Subject skillId;
+    private Subject skill;
     @Column(name = "year_of_experiences")
     private int yearOfExperiences;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -26,12 +25,12 @@ public class MentorSkill {
         Id = id;
     }
 
-    public Subject getSkillId() {
-        return skillId;
+    public Subject getSkill() {
+        return skill;
     }
 
-    public void setSkillId(Subject skillId) {
-        this.skillId = skillId;
+    public void setSkill(Subject skillId) {
+        this.skill = skillId;
     }
 
     public int getYearOfExperiences() {

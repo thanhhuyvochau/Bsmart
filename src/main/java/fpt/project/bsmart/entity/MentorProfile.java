@@ -69,6 +69,9 @@ public class MentorProfile extends BaseEntity {
     }
 
     public void setSkills(List<MentorSkill> skills) {
-        this.skills = skills;
+        this.skills.clear();
+        if(skills != null){
+            this.skills.addAll(skills);
+        }
     }
 }
