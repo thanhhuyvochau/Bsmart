@@ -24,13 +24,11 @@ import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_B
 @Service
 public class MentorProfileImpl implements IMentorProfileService {
     private final MentorProfileRepository mentorProfileRepository;
-    private final MentorSkillRepository mentorSkillRepository;
     private final SubjectRepository subjectRepository;
     private final MessageUtil messageUtil;
 
     public MentorProfileImpl(MentorProfileRepository mentorProfileRepository, MentorSkillRepository mentorSkillRepository, SubjectRepository subjectRepository, MessageUtil messageUtil) {
         this.mentorProfileRepository = mentorProfileRepository;
-        this.mentorSkillRepository = mentorSkillRepository;
         this.subjectRepository = subjectRepository;
         this.messageUtil = messageUtil;
     }
