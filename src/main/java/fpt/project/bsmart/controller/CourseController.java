@@ -5,10 +5,12 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.CourseDto;
 
 
+import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateSubCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
+import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
 import fpt.project.bsmart.entity.response.SubCourseDetailResponse;
 import fpt.project.bsmart.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,6 +52,15 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetCourse(pageable)));
     }
 
+
+    @Operation(summary = "Member xem khóa học đã đăng ký")
+    @PreAuthorize("hasAnyAuthority('STUDENT')")
+    @GetMapping("/member")
+    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourse(Pageable pageable){
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourse(pageable)));
+    }
+
+
     @Operation(summary = "lấy tất cả các course đổ lên trang khoa học")
     @GetMapping
     public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(@Nullable CourseSearchRequest query, Pageable pageable) {
@@ -74,6 +85,8 @@ public class CourseController {
     public ResponseEntity<ApiResponse<Boolean>> memberRegisterCourse(@PathVariable Long id ) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.memberRegisterCourse(id)));
     }
+
+
 
 //    @Operation(summary = "mentor upload hình cho khoá học")
 //    @PreAuthorize("hasAuthority('TEACHER')")

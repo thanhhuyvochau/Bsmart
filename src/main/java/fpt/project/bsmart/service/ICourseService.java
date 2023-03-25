@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.request.CreateSubCourseRequest;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
+import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
 import fpt.project.bsmart.entity.response.SubCourseDetailResponse;
 import org.springframework.data.domain.Pageable;
 
@@ -31,6 +32,8 @@ public interface ICourseService {
     Boolean memberRegisterCourse(Long id);
 
     ApiPage<SubCourseDetailResponse> getAllSubCourseOfCourse(Long id,  Pageable pageable);
+
+    ApiPage<CourseSubCourseResponse>  memberGetCourse(Pageable pageable);
 
 //    Boolean mentorUploadImageForCourse(Long id, FileDto request);
 }
