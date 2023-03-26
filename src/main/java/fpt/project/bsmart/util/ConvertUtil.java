@@ -127,6 +127,9 @@ public class ConvertUtil {
         if (user.getWallet() != null) {
             userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
         }
+        if(user.getMentorProfile() != null){
+            userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
+        }
         return userDto;
     }
 
@@ -313,7 +316,7 @@ public class ConvertUtil {
     public static MentorProfileDTO convertMentorProfileToMentorProfileDto(MentorProfile mentorProfile) {
         MentorProfileDTO mentorProfileDTO = ObjectUtil.copyProperties(mentorProfile, new MentorProfileDTO(), MentorProfileDTO.class);
         if (mentorProfile.getUser() != null) {
-            mentorProfileDTO.setUser(convertUsertoUserDto(mentorProfile.getUser()));
+            mentorProfileDTO.setUserId(mentorProfile.getUser().getId());
         }
         if (!mentorProfile.getSkills().isEmpty()) {
             List<MentorSkillDto> skillList = new ArrayList<>();
