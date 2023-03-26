@@ -8,7 +8,7 @@ import java.util.List;
 
 public class UpdateMentorProfileRequest {
     private String introduce;
-    private String yearOfExperiences;
+    private String workingExperiences;
     private List<MentorSkillDto> mentorSkills = new ArrayList<>();
 
     public String getIntroduce() {
@@ -19,12 +19,12 @@ public class UpdateMentorProfileRequest {
         this.introduce = introduce;
     }
 
-    public String getYearOfExperiences() {
-        return yearOfExperiences;
+    public String getWorkingExperiences() {
+        return workingExperiences;
     }
 
-    public void setYearOfExperiences(String yearOfExperiences) {
-        this.yearOfExperiences = yearOfExperiences;
+    public void setWorkingExperiences(String workingExperiences) {
+        this.workingExperiences = workingExperiences;
     }
 
     public List<MentorSkillDto> getMentorSkills() {

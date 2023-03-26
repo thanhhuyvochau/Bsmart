@@ -42,6 +42,8 @@ public class UserDto {
 
     private WalletDto wallet;
 
+    private MentorProfileDTO mentorProfile;
+
     public Integer getId() {
         return id;
     }
@@ -155,5 +157,13 @@ public class UserDto {
 
     public void setUserImages(List<ImageDto> userImages) {
         this.userImages = userImages;
+    }
+
+    public MentorProfileDTO getMentorProfile() {
+        return mentorProfile;
+    }
+
+    public void setMentorProfile(MentorProfileDTO mentorProfile) {
+        this.mentorProfile = mentorProfile;
     }
 }
