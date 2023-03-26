@@ -93,8 +93,8 @@ public class MentorProfileImpl implements IMentorProfileService {
             mentorProfile.setIntroduce(updateMentorProfileRequest.getIntroduce());
         }
 
-        if (updateMentorProfileRequest.getYearOfExperiences() != null) {
-            mentorProfile.setWorkingExperience(updateMentorProfileRequest.getYearOfExperiences());
+        if (updateMentorProfileRequest.getWorkingExperiences() != null) {
+            mentorProfile.setWorkingExperience(updateMentorProfileRequest.getWorkingExperiences());
         }
 
         if (updateMentorProfileRequest.getMentorSkills() != null) {
