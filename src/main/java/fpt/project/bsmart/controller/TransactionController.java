@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -63,7 +64,7 @@ public class TransactionController {
     @Operation(summary = "Thanh toán khóa học từ giỏ hàng")
     @PostMapping("/pay")
     @PreAuthorize("hasAnyAuthority('STUDENT')")
-    public ResponseEntity<ApiResponse<Boolean>> payCourseFromCart(@RequestBody PayCourseRequest request) {
+    public ResponseEntity<ApiResponse<Boolean>> payCourseFromCart(@RequestBody List<PayCourseRequest> request) {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.payCourseFromCart(request)));
     }
 

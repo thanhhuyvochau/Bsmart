@@ -22,7 +22,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID;
 
@@ -134,39 +137,46 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public Boolean payCourseFromCart(PayCourseRequest request) {
+    public Boolean payCourseFromCart(List<PayCourseRequest> request) {
         Cart cart = SecurityUtil.getCurrentUserCart();
-        CartItem cartItem = cartItemRepository.findById(request.getCartItemId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm item cần chình sửa, vui lòng thử lại!"));
-
-        SubCourse subCourse = cartItem.getSubCourse();
-        BigDecimal price = subCourse.getPrice();
-        Wallet wallet = SecurityUtil.getCurrentUserWallet();
-        BigDecimal presentBalance = wallet.getBalance();
-        if (presentBalance.compareTo(price) < 0) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Số dư của bạn không đủ để thanh toán khóc học này, vui lòng nạp thêm!");
+        List<Long> cartItemIds = request.stream().map(PayCourseRequest::getCartItemId).collect(Collectors.toList());
+        List<CartItem> boughtCartItems = cartItemRepository.findAllById(cartItemIds);
+        if (!Objects.equals(boughtCartItems.size(), cartItemIds.size())) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Có lỗi đã xảy ra, có thể do khóa học trong giỏ hàng không hợp lệ!");
         }
-        OrderDetail orderDetail = new OrderDetail();
-        orderDetail.setSubCourse(subCourse);
-        orderDetail.setFinalPrice(price);
-        orderDetail.setOriginalPrice(price);
+        List<Transaction> transactions = new ArrayList<>();
+        for (CartItem cartItem : boughtCartItems) {
+            SubCourse subCourse = cartItem.getSubCourse();
+            BigDecimal price = subCourse.getPrice();
+            Wallet wallet = SecurityUtil.getCurrentUserWallet();
+            BigDecimal presentBalance = wallet.getBalance();
+            if (presentBalance.compareTo(price) < 0) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Số dư của bạn không đủ để thanh toán khóc học này, vui lòng nạp thêm!");
+            }
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setSubCourse(subCourse);
+            orderDetail.setFinalPrice(price);
+            orderDetail.setOriginalPrice(price);
 
-        Order order = new Order();
-        order.setStatus(EOrderStatus.SUCCESS);
-        order.setTotalPrice(price);
-        order.getOrderDetails().add(orderDetail);
+            Order order = new Order();
+            order.setStatus(EOrderStatus.SUCCESS);
+            order.setTotalPrice(price);
+            order.getOrderDetails().add(orderDetail);
 
-        Transaction transaction = new Transaction();
-        transaction.setAmount(cartItem.getPrice());
-        transaction.setStatus(ETransactionStatus.SUCCESS);
-        transaction.setOrder(order);
-        transaction.setWallet(wallet);
-        transaction.setType(ETransactionType.PAY);
-        transaction.setBeforeBalance(presentBalance);
-        transaction.setAfterBalance(presentBalance.subtract(price));
+            Transaction transaction = new Transaction();
+            transaction.setAmount(cartItem.getPrice());
+            transaction.setStatus(ETransactionStatus.SUCCESS);
+            transaction.setOrder(order);
+            transaction.setWallet(wallet);
+            transaction.setType(ETransactionType.PAY);
+            transaction.setBeforeBalance(presentBalance);
+            transaction.setAfterBalance(presentBalance.subtract(price));
 
-        cart.removeCartItem(cartItem);
-        wallet.decreaseBalance(transaction.getAmount());
-        transactionRepository.save(transaction);
+            cart.removeCartItem(cartItem);
+            wallet.decreaseBalance(transaction.getAmount());
+            transactions.add(transaction);
+        }
+        transactionRepository.saveAll(transactions);
         return true;
     }
 }
