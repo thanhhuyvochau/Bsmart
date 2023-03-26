@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface IMentorProfileService {
     MentorProfileDTO getMentorProfile(Long id);
+    List<MentorProfileDTO> getAllMentors();
     List<MentorProfileDTO> getPendingMentorProfileList();
     Long approveMentorProfile(Long id);
     Long updateMentorProfile(UpdateMentorProfileRequest updateMentorProfileRequest);

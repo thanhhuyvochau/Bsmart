@@ -56,6 +56,17 @@ public class MentorProfileImpl implements IMentorProfileService {
     }
 
     @Override
+    public List<MentorProfileDTO> getAllMentors() {
+        List<MentorProfileDTO> mentorProfileDTOS = new ArrayList<>();
+        for (MentorProfile mentorProfile : mentorProfileRepository.findAll()){
+            mentorProfile.getUser().setPassword(null);
+            mentorProfile.getUser().setWallet(null);
+            mentorProfileDTOS.add(ConvertUtil.convertMentorProfileToMentorProfileDto(mentorProfile));
+        }
+        return mentorProfileDTOS;
+    }
+
+    @Override
     public List<MentorProfileDTO> getPendingMentorProfileList() {
         List<MentorProfileDTO> mentorProfileDTOList = new ArrayList<>();
         for (MentorProfile mentorProfile : mentorProfileRepository.getPendingMentorProfileList()) {

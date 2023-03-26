@@ -27,6 +27,12 @@ public class MentorProfileController {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getMentorProfile(id)));
     }
 
+    @Operation(summary = "Lấy danh sách toàn bộ giảng viên")
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<MentorProfileDTO>>> getAllMentors(){
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getAllMentors()));
+    }
+
     @Operation(summary = "Lấy danh sách giảng viên chờ duyệt")
     @PreAuthorize("hasAuthority('MANAGER')")
     @GetMapping("/pending")
