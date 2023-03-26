@@ -5,7 +5,7 @@ import java.util.List;
 public class MentorProfileDTO {
     private Long id;
     private String introduce;
-    private String yearsOfExperience;
+    private String workingExperience;
     private UserDto user;
 
     private List<MentorSkillDto> skillList;
@@ -26,12 +26,12 @@ public class MentorProfileDTO {
         this.introduce = introduce;
     }
 
-    public String getYearsOfExperience() {
-        return yearsOfExperience;
+    public String getWorkingExperience() {
+        return workingExperience;
     }
 
-    public void setYearsOfExperience(String yearsOfExperience) {
-        this.yearsOfExperience = yearsOfExperience;
+    public void setWorkingExperience(String workingExperience) {
+        this.workingExperience = workingExperience;
     }
 
     public UserDto getUser() {
