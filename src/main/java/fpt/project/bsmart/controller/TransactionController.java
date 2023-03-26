@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -54,16 +55,16 @@ public class TransactionController {
     }
 
     @Operation(summary = "Thanh toán khóa học nhanh")
-    @PostMapping("/pay-quick/subcourse/{subCourseId}")
+    @PostMapping("/pay-quick")
     @PreAuthorize("hasAnyAuthority('STUDENT')")
-    public ResponseEntity<ApiResponse<Boolean>> payCourseQuickly(@PathVariable Long  subCourseId) {
-        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payQuickCourse(subCourseId)));
+    public ResponseEntity<ApiResponse<Boolean>> payCourseQuickly(@RequestBody PayCourseRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payQuickCourse(request)));
     }
 
     @Operation(summary = "Thanh toán khóa học từ giỏ hàng")
     @PostMapping("/pay")
     @PreAuthorize("hasAnyAuthority('STUDENT')")
-    public ResponseEntity<ApiResponse<Boolean>> payCourseFromCart(@RequestBody PayCourseRequest request) {
+    public ResponseEntity<ApiResponse<Boolean>> payCourseFromCart(@RequestBody List<PayCourseRequest> request) {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.payCourseFromCart(request)));
     }
 

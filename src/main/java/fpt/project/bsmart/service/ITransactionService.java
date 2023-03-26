@@ -8,6 +8,7 @@ import fpt.project.bsmart.entity.request.WithdrawRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface ITransactionService {
     ApiPage<TransactionDto> getSelfTransactions(Pageable pageable);
@@ -19,6 +20,7 @@ public interface ITransactionService {
     Boolean withdraw(WithdrawRequest request);
 
     // Hiện tại sẽ chỉ làm các giao dịch rút tiền và nạp tiền
-    Boolean payQuickCourse(Long  subCourseId);
-    Boolean payCourseFromCart(PayCourseRequest request);
+    Boolean payQuickCourse(PayCourseRequest request);
+    Boolean payCourseFromCart(List<PayCourseRequest> request);
+
 }
