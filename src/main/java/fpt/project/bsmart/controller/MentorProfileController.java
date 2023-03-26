@@ -44,7 +44,7 @@ public class MentorProfileController {
     @Operation(summary = "Cập nhật hồ sơ giảng viên")
     @PreAuthorize("hasAuthority('TEACHER')")
     @PutMapping
-    public ResponseEntity<ApiResponse<Long>> updateMentorProfile(UpdateMentorProfileRequest updateMentorProfileRequest){
+    public ResponseEntity<ApiResponse<Long>> updateMentorProfile(@RequestBody UpdateMentorProfileRequest updateMentorProfileRequest){
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateMentorProfile(updateMentorProfileRequest)));
     }
 
@@ -54,4 +54,12 @@ public class MentorProfileController {
     public ResponseEntity<ApiResponse<List<Long>>> updateMentorCertificate(List<ImageRequest> imageRequests){
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateCertificate(imageRequests)));
     }
+
+//    @Operation(summary = "CHƯA HỖ TRỢ --- Upload chứng chỉ của giảng viên")
+//    @PreAuthorize("hasAuthority('TEACHER')")
+//    @PostMapping("/certificate")
+//    public ResponseEntity<ApiResponse<List<Long>>> updateAvatar(List<ImageRequest> imageRequests){
+//        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateCertificate(imageRequests)));
+//    }
+
 }

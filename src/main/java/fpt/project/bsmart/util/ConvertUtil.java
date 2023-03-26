@@ -136,6 +136,8 @@ public class ConvertUtil {
         return moduleDto;
     }
 
+
+
     public static CourseDto convertCourseToCourseDTO(Course course) {
         CourseDto courseDto = ObjectUtil.copyProperties(course, new CourseDto(), CourseDto.class);
 
@@ -314,13 +316,21 @@ public class ConvertUtil {
             mentorProfileDTO.setUser(convertUsertoUserDto(mentorProfile.getUser()));
         }
         if (!mentorProfile.getSkills().isEmpty()) {
-            List<SubjectDto> skillList = new ArrayList<>();
-            for (Subject skill : mentorProfile.getSkills()) {
-                skillList.add(convertSubjectToSubjectDto(skill));
+            List<MentorSkillDto> skillList = new ArrayList<>();
+            for(MentorSkill mentorSkill : mentorProfile.getSkills()){
+                MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
+                skillList.add(mentorSkillDto);
             }
             mentorProfileDTO.setSkillList(skillList);
         }
         return mentorProfileDTO;
+    }
+
+    public static MentorSkillDto convertMentorSkillToMentorSkillDto(MentorSkill mentorSkill){
+        MentorSkillDto mentorSkillDto = new MentorSkillDto();
+        mentorSkillDto.setSkillId(mentorSkill.getSkill().getId());
+        mentorSkillDto.setYearOfExperiences(mentorSkill.getYearOfExperiences());
+        return mentorSkillDto;
     }
 
     public static CartResponse convertCartToCartResponse(Cart cart) {

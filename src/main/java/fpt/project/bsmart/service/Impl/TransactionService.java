@@ -41,16 +41,19 @@ public class TransactionService implements ITransactionService {
 
     private final CourseRepository courseRepository;
 
+    private final OrderRepository orderRepository;
+
     private final SubCourseRepository subCourseRepository;
     private final CartItemRepository cartItemRepository;
 
-    public TransactionService(WalletRepository walletRepository, TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CourseRepository courseRepository, SubCourseRepository subCourseRepository, CartItemRepository cartItemRepository) {
+    public TransactionService(WalletRepository walletRepository, TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CourseRepository courseRepository, OrderRepository orderRepository, SubCourseRepository subCourseRepository, CartItemRepository cartItemRepository) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.bankRepository = bankRepository;
         this.courseRepository = courseRepository;
+        this.orderRepository = orderRepository;
         this.subCourseRepository = subCourseRepository;
         this.cartItemRepository = cartItemRepository;
     }
@@ -106,10 +109,28 @@ public class TransactionService implements ITransactionService {
         SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
         BigDecimal price = subCourse.getPrice();
+        if (price == null) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Hệ thống đang chỉnh sửa về giá của khóa học ! Vui long thử lại sau");
+        }
+
         Wallet wallet = SecurityUtil.getCurrentUserWallet();
         BigDecimal presentBalance = wallet.getBalance();
         if (presentBalance.compareTo(price) < 0) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Số dư của bạn không đủ để thanh toán khóc học này, vui lòng nạp thêm!");
+        }
+
+        List<SubCourse> subCourses = new ArrayList<>();
+        User owner = wallet.getOwner();
+        List<Order> orders = owner.getOrder();
+        orders.forEach(order -> {
+            List<OrderDetail> orderDetails = order.getOrderDetails();
+            orderDetails.forEach(orderDetail -> {
+                subCourses.add(orderDetail.getSubCourse());
+            });
+        });
+        List<SubCourse> checkRegistered = subCourses.stream().filter(subCou -> subCou.getId().equals(subCourse.getId())).collect(Collectors.toList());
+        if (!checkRegistered.isEmpty()) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Bạn đã thanh toán khóa học này trươc đó !!!");
         }
         // TODO: Tạm thời chưa xử lý khuyến mãi, sẽ bổ sung xử lý KM sau
         OrderDetail orderDetail = new OrderDetail();
@@ -117,10 +138,14 @@ public class TransactionService implements ITransactionService {
         orderDetail.setFinalPrice(price);
         orderDetail.setOriginalPrice(price);
 
+
         Order order = new Order();
         order.setStatus(EOrderStatus.SUCCESS);
         order.setTotalPrice(price);
         order.getOrderDetails().add(orderDetail);
+        order.setUser(wallet.getOwner());
+
+        orderDetail.setOrder(order);
 
         Transaction transaction = new Transaction();
         transaction.setAmount(subCourse.getPrice());
@@ -132,6 +157,8 @@ public class TransactionService implements ITransactionService {
         transaction.setAfterBalance(presentBalance.subtract(price));
 
         wallet.decreaseBalance(transaction.getAmount());
+
+
         transactionRepository.save(transaction);
         return true;
     }

@@ -41,6 +41,7 @@ public class Constants {
         }
         public static String OLD_PASSWORD_MISMATCH = "OLD_PASSWORD_MISMATCH";
         public static String NEW_PASSWORD_DUPLICATE = "NEW_PASSWORD_DUPLICATE";
+        public static String SUBJECT_ID_DUPLICATE = "SUBJECT_ID_DUPLICATE";
         public static String FORBIDDEN = "FORBIDDEN";
     }
 

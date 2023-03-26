@@ -19,11 +19,11 @@ public class Subject extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @ManyToMany(mappedBy = "skills")
-    private List<MentorProfile> mentorProfiles = new ArrayList<>();
-
     @OneToMany(mappedBy = "subject")
     private List<Course> courses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "skill")
+    private List<MentorSkill> mentorSkills = new ArrayList<>();
 
     public Long getId() {
         return id;
