@@ -78,16 +78,6 @@ public class CourseController {
     public ResponseEntity<ApiResponse<CourseSubCourseDetailResponse>> getDetailCourseForCoursePage(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getDetailCourseForCoursePage(id)));
     }
-
-    @Operation(summary = "member đăng ký khoá học")
-    @PreAuthorize("hasAuthority('STUDENT')")
-    @PostMapping("/{id}/member-register")
-    public ResponseEntity<ApiResponse<Boolean>> memberRegisterCourse(@PathVariable Long id ) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.memberRegisterCourse(id)));
-    }
-
-
-
 //    @Operation(summary = "mentor upload hình cho khoá học")
 //    @PreAuthorize("hasAuthority('TEACHER')")
 //    @PostMapping("/image")
