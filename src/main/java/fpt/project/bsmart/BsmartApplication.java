@@ -1,8 +1,11 @@
 package fpt.project.bsmart;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import fpt.project.bsmart.entity.DayOfWeek;
 import fpt.project.bsmart.entity.Role;
+import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.repository.DayOfWeekRepository;
 import fpt.project.bsmart.repository.RoleRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,6 +13,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,9 +27,11 @@ public class BsmartApplication {
 
 
     private final RoleRepository roleRepository;
+    private final DayOfWeekRepository dayOfWeekRepository;
 
-    public BsmartApplication(RoleRepository roleRepository) {
+    public BsmartApplication(RoleRepository roleRepository, DayOfWeekRepository dayOfWeekRepository) {
         this.roleRepository = roleRepository;
+        this.dayOfWeekRepository = dayOfWeekRepository;
     }
 
 
@@ -56,6 +62,25 @@ public class BsmartApplication {
         }
         roleRepository.saveAll(roles);
 
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void intiDayOfWeek() throws JsonProcessingException {
+        List<DayOfWeek> dayOfWeeks = new ArrayList<>();
+        EDayOfWeekCode[] values = EDayOfWeekCode.values();
+        Map<EDayOfWeekCode, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAll().stream().collect(Collectors.toMap(DayOfWeek::getCode, Function.identity()));
+        for (EDayOfWeekCode value : values) {
+            DayOfWeek dayOfWeek = dayOfWeekMap.get(value);
+            if (dayOfWeek == null) {
+                dayOfWeek = new DayOfWeek();
+                dayOfWeek.setCode(value);
+                dayOfWeek.setName(value.getName());
+                dayOfWeeks.add(dayOfWeek);
+            }
+        }
+        if (!dayOfWeeks.isEmpty()) {
+            dayOfWeekRepository.saveAll(dayOfWeeks);
+        }
     }
 
 }
