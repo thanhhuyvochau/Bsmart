@@ -4,12 +4,15 @@ import fpt.project.bsmart.config.security.jwt.JwtUtils;
 import fpt.project.bsmart.config.security.service.UserDetailsImpl;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.entity.request.LoginRequest;
 import fpt.project.bsmart.entity.request.SignupRequest;
+import fpt.project.bsmart.entity.response.CartResponse;
 import fpt.project.bsmart.repository.RoleRepository;
 import fpt.project.bsmart.repository.UserRepository;
+import fpt.project.bsmart.service.IAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -45,6 +48,12 @@ public class AuthController {
     PasswordEncoder encoder;
 
 
+    private final IAuthService iAuthService ;
+
+    public AuthController(IAuthService iAuthService) {
+        this.iAuthService = iAuthService;
+    }
+
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
@@ -64,55 +73,60 @@ public class AuthController {
                 userDetails.getEmail(),
                 roles));
     }
-
-    @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-
-
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("Error: Email is already in use!");
-        }
-
-        // Create new user's account
-        User user = new User();
-        user.setEmail(signUpRequest.getEmail());
-        user.setPassword(encoder.encode(signUpRequest.getPassword()));
-
-        EUserRole role = signUpRequest.getRole();
-        List<Role> roles = new ArrayList<>();
-
-        if (role == null) {
-            Role userRole = roleRepository.findRoleByCode(role)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(userRole);
-        } else {
-
-            switch (role) {
-                case TEACHER:
-                    Role teacherRole = roleRepository.findRoleByCode(EUserRole.TEACHER)
-                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                    roles.add(teacherRole);
-
-                    break;
-                case STUDENT:
-                    Role studentRole = roleRepository.findRoleByCode(EUserRole.STUDENT)
-                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                    roles.add(studentRole);
-
-                    break;
-                default:
-                    Role adminRole = roleRepository.findRoleByCode(EUserRole.MANAGER)
-                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                    roles.add(adminRole);
-            }
-
-        }
-
-        user.setRoles(roles);
-        userRepository.save(user);
-
-        return ResponseEntity.ok("User registered successfully!");
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<JwtResponse>> userLogin(@Valid @RequestBody LoginRequest loginRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iAuthService.userLogin(loginRequest)));
     }
+
+
+//    @PostMapping("/signup")
+//    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+//
+//
+//        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+//            return ResponseEntity
+//                    .badRequest()
+//                    .body("Error: Email is already in use!");
+//        }
+//
+//        // Create new user's account
+//        User user = new User();
+//        user.setEmail(signUpRequest.getEmail());
+//        user.setPassword(encoder.encode(signUpRequest.getPassword()));
+//
+//        EUserRole role = signUpRequest.getRole();
+//        List<Role> roles = new ArrayList<>();
+//
+//        if (role == null) {
+//            Role userRole = roleRepository.findRoleByCode(role)
+//                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+//            roles.add(userRole);
+//        } else {
+//
+//            switch (role) {
+//                case TEACHER:
+//                    Role teacherRole = roleRepository.findRoleByCode(EUserRole.TEACHER)
+//                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+//                    roles.add(teacherRole);
+//
+//                    break;
+//                case STUDENT:
+//                    Role studentRole = roleRepository.findRoleByCode(EUserRole.STUDENT)
+//                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+//                    roles.add(studentRole);
+//
+//                    break;
+//                default:
+//                    Role adminRole = roleRepository.findRoleByCode(EUserRole.MANAGER)
+//                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+//                    roles.add(adminRole);
+//            }
+//
+//        }
+//
+//        user.setRoles(roles);
+//        userRepository.save(user);
+//
+//        return ResponseEntity.ok("User registered successfully!");
+//    }
 }

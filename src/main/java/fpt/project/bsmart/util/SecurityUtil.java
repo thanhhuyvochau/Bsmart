@@ -2,10 +2,13 @@ package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.config.security.service.UserDetailsImpl;
 import fpt.project.bsmart.config.security.service.UserDetailsServiceImpl;
+import fpt.project.bsmart.entity.Cart;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.Wallet;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.repository.CartRepository;
 import fpt.project.bsmart.repository.UserRepository;
+import fpt.project.bsmart.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContext;
@@ -16,11 +19,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecurityUtil {
     private static MessageUtil messageUtil;
-    private static UserRepository staticOrderRepository;
+    private static UserRepository staticUserRepository;
+    private static WalletRepository staticWalletRepository;
+    private static CartRepository staticCartRepository;
 
-    public SecurityUtil(MessageUtil messageUtil, UserRepository userRepository) {
+    public SecurityUtil(MessageUtil messageUtil, UserRepository userRepository, WalletRepository walletRepository, CartRepository cartRepository) {
         this.messageUtil = messageUtil;
-        staticOrderRepository = userRepository;
+        staticUserRepository = userRepository;
+        staticWalletRepository = walletRepository;
+        staticCartRepository = cartRepository;
     }
 
     @Autowired
@@ -34,7 +41,7 @@ public class SecurityUtil {
         if (principal instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) principal;
             String email = userDetails.getEmail();
-            user = staticOrderRepository.findByEmail(email)
+            user = staticUserRepository.findByEmail(email)
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                             .withMessage(messageUtil.getLocalMessage("Tài khoản đăng nhập hiện tại không tìm thấy") + email));
         }
@@ -42,6 +49,24 @@ public class SecurityUtil {
     }
 
     public static Wallet getCurrentUserWallet() {
-        return getCurrentUserAccountLogin().getWallet();
+        User currentUserAccountLogin = getCurrentUserAccountLogin();
+        Wallet wallet = currentUserAccountLogin.getWallet();
+        if (wallet == null) {
+            wallet = new Wallet();
+            wallet.setOwner(currentUserAccountLogin);
+            staticWalletRepository.save(wallet);
+        }
+        return wallet;
+    }
+
+    public static Cart getCurrentUserCart() {
+        User currentUserAccountLogin = getCurrentUserAccountLogin();
+        Cart cart = currentUserAccountLogin.getCart();
+        if (cart == null) {
+            cart = new Cart();
+            cart.setUser(currentUserAccountLogin);
+            staticCartRepository.save(cart);
+        }
+        return cart;
     }
 }

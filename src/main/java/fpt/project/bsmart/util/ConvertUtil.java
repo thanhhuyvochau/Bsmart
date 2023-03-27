@@ -3,15 +3,14 @@ package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.*;
-import fpt.project.bsmart.entity.response.CourseDetailResponse;
-import fpt.project.bsmart.entity.response.CourseResponse;
-import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
-import fpt.project.bsmart.entity.response.SubCourseDetailResponse;
+import fpt.project.bsmart.entity.response.*;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ConvertUtil {
@@ -99,14 +98,13 @@ public class ConvertUtil {
 
     public static TimeInWeekDTO convertTimeInWeekToDto(TimeInWeek timeInWeek) {
         Slot slot = timeInWeek.getSlot();
-        Class clazz = timeInWeek.getClazz();
         DayOfWeek dayOfWeek = timeInWeek.getDayOfWeek();
 
         DayOfWeekDTO dayOfWeekDTO = convertDayOfWeekToDto(dayOfWeek);
         SlotDto slotDto = convertSlotToSlotDto(slot);
-        SimpleClassDto simpleClazz = convertClassToSimpleDto(clazz);
 
-        return new TimeInWeekDTO(dayOfWeekDTO, simpleClazz, slotDto);
+
+        return new TimeInWeekDTO(dayOfWeekDTO, null, slotDto);
     }
 
 
@@ -129,6 +127,9 @@ public class ConvertUtil {
         if (user.getWallet() != null) {
             userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
         }
+        if(user.getMentorProfile() != null){
+            userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
+        }
         return userDto;
     }
 
@@ -138,20 +139,22 @@ public class ConvertUtil {
         return moduleDto;
     }
 
+
+
     public static CourseDto convertCourseToCourseDTO(Course course) {
         CourseDto courseDto = ObjectUtil.copyProperties(course, new CourseDto(), CourseDto.class);
 
 
-        courseDto.setStatus(course.getStatus());
+//        courseDto.setStatus(course.getStatus());
         if (course.getSubject() != null) {
             courseDto.setSubject(convertSubjectToSubjectDto(course.getSubject()));
         }
         if (course.getMentor() != null) {
             courseDto.setMentorId((course.getMentor().getId()));
         }
-        if (course.getImage() != null) {
-            courseDto.setImage(convertImageToImageDto(course.getImage()));
-        }
+//        if (course.getImage() != null) {
+//            courseDto.setImage(convertImageToImageDto(course.getImage()));
+//        }
 //        if (!course.getSections().isEmpty()) {
 //            List<SectionDto> sectionDtoList = new ArrayList<>();
 //            for (Section section : course.getSections()) {
@@ -172,7 +175,7 @@ public class ConvertUtil {
     public static CourseDetailResponse convertCourseToCourseDetailResponse(Course course) {
         CourseDetailResponse response = ObjectUtil.copyProperties(course, new CourseDetailResponse(), CourseDetailResponse.class);
 
-        response.setStatus(course.getStatus());
+//        response.setStatus(course.getStatus());
         if (course.getSubject() != null) {
             response.setSubject(convertSubjectToSubjectDto(course.getSubject()));
             if (course.getSubject().getCategory() != null) {
@@ -182,34 +185,52 @@ public class ConvertUtil {
         if (course.getMentor() != null) {
             response.setMentorId((course.getMentor().getId()));
         }
-        if (course.getImage() != null) {
-            response.setImage(convertImageToImageDto(course.getImage()));
-        }
+//        if (course.getImage() != null) {
+//            response.setImage(convertImageToImageDto(course.getImage()));
+//        }
 
 
         return response;
     }
 
     public static SubCourseDetailResponse convertSubCourseToSubCourseDetailResponse(SubCourse subCourse) {
-        SubCourseDetailResponse response = ObjectUtil.copyProperties(subCourse, new SubCourseDetailResponse(), SubCourseDetailResponse.class);
+        SubCourseDetailResponse subCourseDetailResponse = ObjectUtil.copyProperties(subCourse, new SubCourseDetailResponse(), SubCourseDetailResponse.class);
 
-        response.setStatus(subCourse.getStatus());
-        Course course = subCourse.getCourse();
-        if (course!= null) {
-            response.setSubject(convertSubjectToSubjectDto(course.getSubject()));
-            if (course.getSubject().getCategory() != null) {
-                response.setCategoryDto(convertCategoryToCategoryDto(course.getSubject().getCategory()));
-            }
-            if (course.getMentor() != null) {
-                response.setMentorId((course.getMentor().getId()));
-            }
-            if (course.getImage() != null) {
-                response.setImage(convertImageToImageDto(course.getImage()));
+        subCourseDetailResponse.setImage(ObjectUtil.copyProperties(subCourse.getImage() , new ImageDto() , ImageDto.class));
+        List<TimeInWeek> timeInWeeks = subCourse.getTimeInWeeks();
+
+        List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>( );
+        timeInWeeks.forEach(timeInWeek -> {
+            timeInWeekDTOS.add(convertTimeInWeekToDto(timeInWeek) );
+        });
+        subCourseDetailResponse.setTimeInWeeks(timeInWeekDTOS);
+        return subCourseDetailResponse ;
+    }
+
+    public static CourseSubCourseDetailResponse convertCourseSubCourseToCourseSubCourseDetailResponse(Course course) {
+        CourseSubCourseDetailResponse response = ObjectUtil.copyProperties(course, new CourseSubCourseDetailResponse(), CourseSubCourseDetailResponse.class);
+
+
+
+        Subject subject = course.getSubject();
+        if (subject != null) {
+            response.setSubject(convertSubjectToSubjectDto(subject));
+            Category category = subject.getCategory();
+            if (category != null) {
+                response.setCategory(convertCategoryToCategoryDto(category));
             }
         }
-
-
-
+        if (course.getMentor() != null) {
+            response.setMentorId(course.getMentor().getId());
+        }
+//        List<SubCourse> subCourses = course.getSubCourses();
+//        List<SubCourseDetailResponse> subCourseDetailResponseList = new ArrayList<>();
+//        subCourses.forEach(subCourse -> {
+//
+//            subCourseDetailResponseList.add(ObjectUtil.copyProperties(subCourse, new SubCourseDetailResponse(), SubCourseDetailResponse.class));
+//
+//        });
+//        response.setSubCourses(subCourseDetailResponseList);
         return response;
     }
 
@@ -218,13 +239,13 @@ public class ConvertUtil {
         Course course = subCourse.getCourse();
         response.setSubCourseId(subCourse.getId());
         response.setCourseId(course.getId());
-        response.setCourseCode(subCourse.getCode());
-        response.setCourseName(subCourse.getName());
-        response.setCourseDescription(subCourse.getDescription());
+//        response.setCourseCode(subCourse.getCode());
+//        response.setCourseName(subCourse.getName());
+//        response.setCourseDescription(subCourse.getDescription());
         response.setTypeLearn(subCourse.getTypeLearn());
-        if (course.getImage() != null) {
-            response.setImageUrl(course.getImage().getUrl());
-        }
+//        if (course.getImage() != null) {
+//            response.setImageUrl(course.getImage().getUrl());
+//        }
 
         Subject subject = course.getSubject();
         if (subject != null) {
@@ -243,18 +264,35 @@ public class ConvertUtil {
         return response;
     }
 
-    public static CourseResponse convertCourseCourseResponse(Course course) {
+    public static CourseResponse convertCourseCourseResponsePage(Course course) {
+
+
         CourseResponse courseResponse = new CourseResponse();
         courseResponse.setId(course.getId());
-        if (course.getImage() != null) {
-            courseResponse.setImageUrl(course.getImage().getUrl());
-        }
+        courseResponse.setCourseName(course.getName());
+        courseResponse.setCourseCode(course.getCode());
+        courseResponse.setCourseDescription(course.getDescription());
+        courseResponse.setTotalSubCourse(course.getSubCourses().size());
+        List<ETypeLearn> learns = new ArrayList<>();
+        List<SubCourse> subCourses = course.getSubCourses();
+        List<ImageDto>images = new ArrayList<>( );
+        subCourses.forEach(subCourse -> {
+            learns.add(subCourse.getTypeLearn());
+            if (subCourse.getImage()!=null) {
+                images.add(ObjectUtil.copyProperties(subCourse.getImage(), new ImageDto() , ImageDto.class)) ;
+            }
+        });
+        courseResponse.setImages(images);
+        courseResponse.setLearns(learns);
+
 
         Subject subject = course.getSubject();
         if (subject != null) {
+            courseResponse.setSubjectId(subject.getId());
             courseResponse.setSubjectName(subject.getName());
             Category category = subject.getCategory();
             if (category != null) {
+                courseResponse.setCategoryId(category.getId());
                 courseResponse.setCategoryName(category.getName());
             }
 
@@ -275,4 +313,63 @@ public class ConvertUtil {
         return ObjectUtil.copyProperties(bank, new BankDto(), BankDto.class, true);
     }
 
+    public static MentorProfileDTO convertMentorProfileToMentorProfileDto(MentorProfile mentorProfile) {
+        MentorProfileDTO mentorProfileDTO = ObjectUtil.copyProperties(mentorProfile, new MentorProfileDTO(), MentorProfileDTO.class);
+        if (mentorProfile.getUser() != null) {
+            mentorProfileDTO.setUserId(mentorProfile.getUser().getId());
+        }
+        if (!mentorProfile.getSkills().isEmpty()) {
+            List<MentorSkillDto> skillList = new ArrayList<>();
+            for(MentorSkill mentorSkill : mentorProfile.getSkills()){
+                MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
+                skillList.add(mentorSkillDto);
+            }
+            mentorProfileDTO.setSkillList(skillList);
+        }
+        return mentorProfileDTO;
+    }
+
+    public static MentorSkillDto convertMentorSkillToMentorSkillDto(MentorSkill mentorSkill){
+        MentorSkillDto mentorSkillDto = new MentorSkillDto();
+        mentorSkillDto.setSkillId(mentorSkill.getSkill().getId());
+        mentorSkillDto.setYearOfExperiences(mentorSkill.getYearOfExperiences());
+        return mentorSkillDto;
+    }
+
+    public static CartResponse convertCartToCartResponse(Cart cart) {
+        CartResponse cartResponse = ObjectUtil.copyProperties(cart, new CartResponse(), CartResponse.class, true);
+        List<CourseCartResponse> cartItemResponses = cart.getCartItems().stream().map(ConvertUtil::convertCartItemToResponse).collect(Collectors.toList());
+        cartResponse.getCartItems().addAll(cartItemResponses);
+        return cartResponse;
+    }
+
+    public static CourseCartResponse convertCartItemToResponse(CartItem cartItem) {
+        SubCourse chooseSubCourse = cartItem.getSubCourse();
+        Course course = chooseSubCourse.getCourse();
+
+        CourseCartResponse courseCartResponse = convertCourseToCourseCart(course);
+        courseCartResponse.setCartItemId(cartItem.getId());
+        for (SubCourse subCourse : course.getSubCourses()) {
+            SubCourseCartResponse subCourseCartResponse = ObjectUtil.copyProperties(subCourse, new SubCourseCartResponse(), SubCourseCartResponse.class, true);
+            if (subCourseCartResponse.getId().equals(chooseSubCourse.getId())) {
+                subCourseCartResponse.setIsChosen(true);
+            }
+            courseCartResponse.getSubCourses().add(subCourseCartResponse);
+        }
+        return courseCartResponse;
+    }
+
+    private static CourseCartResponse convertCourseToCourseCart(Course course) {
+        CourseCartResponse courseCartResponse = ObjectUtil.copyProperties(course, new CourseCartResponse(), CourseCartResponse.class);
+        if (course.getSubject() != null) {
+            courseCartResponse.setSubject(convertSubjectToSubjectDto(course.getSubject()));
+        }
+        if (course.getMentor() != null) {
+            courseCartResponse.setMentor(convertUsertoUserDto(course.getMentor()));
+        }
+//        if (course.getImage() != null) {
+//            courseCartResponse.setImage(convertImageToImageDto(course.getImage()));
+//        }
+        return courseCartResponse;
+    }
 }

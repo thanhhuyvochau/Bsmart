@@ -9,9 +9,6 @@ public class TimeTable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "time_in_week_id")
-    private TimeInWeek timeInWeek;
     @Column(name = "date")
     private Instant date;
     @Column(name = "current_slot_nums")
@@ -20,6 +17,12 @@ public class TimeTable {
     private String classRoom;
     @Column(name = "class_url")
     private String classURL;
+    @ManyToOne
+    @JoinColumn(name = "slot_id")
+    private Slot slot;
+    @ManyToOne
+    @JoinColumn(name = "clazz_id")
+    private Class clazz;
 
     public Long getId() {
         return id;
@@ -27,14 +30,6 @@ public class TimeTable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public TimeInWeek getTimeInWeek() {
-        return timeInWeek;
-    }
-
-    public void setTimeInWeek(TimeInWeek timeInWeek) {
-        this.timeInWeek = timeInWeek;
     }
 
     public Instant getDate() {
@@ -67,5 +62,21 @@ public class TimeTable {
 
     public void setClassURL(String classURL) {
         this.classURL = classURL;
+    }
+
+    public Slot getSlot() {
+        return slot;
+    }
+
+    public void setSlot(Slot slot) {
+        this.slot = slot;
+    }
+
+    public Class getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(Class clazz) {
+        this.clazz = clazz;
     }
 }

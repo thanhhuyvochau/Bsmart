@@ -8,6 +8,8 @@ import fpt.project.bsmart.entity.constant.ETypeLearn;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "sub_course")
@@ -15,16 +17,8 @@ public class SubCourse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-
-    @Column(name = "name")
-    private String name;
-    @Column(name = "code")
-    private String code;
-
-    @Column(name = "description")
-    private String description;
-
+    @Column(name = "title")
+    private String title ;
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
     private ECourseLevel level;
@@ -52,12 +46,22 @@ public class SubCourse {
     @Column(name = "max_student")
     private Integer maxStudent;
 
+    @Column(name = "reference_discount")
+    private Double referenceDiscount = 0.0;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
 
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_id", referencedColumnName = "id")
+    private Image image;
+    @OneToMany(mappedBy = "subCourse", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Class> classes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "subCourse", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TimeInWeek> timeInWeeks = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -67,29 +71,12 @@ public class SubCourse {
         this.id = id;
     }
 
-
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public ECourseStatus getStatus() {
@@ -99,7 +86,6 @@ public class SubCourse {
     public void setStatus(ECourseStatus status) {
         this.status = status;
     }
-
 
     public ECourseLevel getLevel() {
         return level;
@@ -163,5 +149,47 @@ public class SubCourse {
 
     public void setEndDateExpected(Instant endDateExpected) {
         this.endDateExpected = endDateExpected;
+    }
+
+    public Double getReferenceDiscount() {
+        return referenceDiscount;
+    }
+
+    public void setReferenceDiscount(Double referenceDiscount) {
+        this.referenceDiscount = referenceDiscount;
+    }
+
+    public List<Class> getClasses() {
+        return classes;
+    }
+
+    public void setClasses(List<Class> classes) {
+        this.classes = classes;
+    }
+
+    public List<TimeInWeek> getTimeInWeeks() {
+        return timeInWeeks;
+    }
+
+    public void setTimeInWeeks(List<TimeInWeek> timeInWeeks) {
+        this.timeInWeeks = timeInWeeks;
+    }
+
+    public void addTimeInWeek(TimeInWeek timeInWeek) {
+        this.timeInWeeks.add(timeInWeek);
+        timeInWeek.setSubCourse(this);
+    }
+
+    public void removeTimeInWeek(TimeInWeek timeInWeek) {
+        this.timeInWeeks.remove(timeInWeek);
+        timeInWeek.setSubCourse(null);
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
     }
 }

@@ -1,5 +1,7 @@
 package fpt.project.bsmart.util;
 
+import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -24,7 +26,6 @@ public class DayUtil {
 
 
         SimpleDateFormat myFormat = new SimpleDateFormat("yyyy MM dd");
-
 
         Date dateOne = myFormat.parse(oneSubString);
         Date dateTwo = myFormat.parse(twoSubString);
@@ -77,7 +78,6 @@ public class DayUtil {
                 .limit(numOfDaysBetween)
                 .mapToObj(startLocalDate::plusDays)
                 .collect(Collectors.toList());
-        LocalDate returnLocalDate = null;
         for (LocalDate ld : collectDay) {
             java.time.DayOfWeek dayf = ld.getDayOfWeek();
             System.out.println(dayf);
@@ -88,21 +88,39 @@ public class DayUtil {
 
             }
         }
-        return returnLocalDate;
+        return null;
 
     }
 
     public static boolean isValidBirthday(Instant birthday) {
-        // Get the local date of the birthday in the default time zone
         LocalDate localDate = birthday.atOffset(ZoneOffset.UTC).toLocalDate();
+        return localDate.isBefore(LocalDate.now());
+    }
 
-        // Ensure that the time component is zero
-        boolean isMidnight = (birthday.getEpochSecond() % 86400 == 0);
+    public static EDayOfWeekCode getDayOfWeek(Instant instant) {
+        int dayOfWeekKey = instant.atZone(ZoneOffset.UTC).getDayOfWeek().getValue();
+        switch (dayOfWeekKey) {
+            case 1:
+                return EDayOfWeekCode.MONDAY;
+            case 2:
+                return EDayOfWeekCode.TUESDAY;
 
-        // Ensure that the date is in the past and not in the future
-        boolean isPast = localDate.isBefore(LocalDate.now());
+            case 3:
+                return EDayOfWeekCode.WEDNESDAY;
 
-        return isMidnight && isPast;
+            case 4:
+                return EDayOfWeekCode.THURSDAY;
+
+            case 5:
+                return EDayOfWeekCode.FRIDAY;
+
+            case 6:
+                return EDayOfWeekCode.SATURDAY;
+
+            case 7:
+                return EDayOfWeekCode.SUNDAY;
+        }
+        return null;
     }
 
 }

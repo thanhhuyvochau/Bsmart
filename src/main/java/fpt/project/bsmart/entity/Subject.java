@@ -22,6 +22,9 @@ public class Subject extends BaseEntity {
     @OneToMany(mappedBy = "subject")
     private List<Course> courses = new ArrayList<>();
 
+    @OneToMany(mappedBy = "skill")
+    private List<MentorSkill> mentorSkills = new ArrayList<>();
+
     public Long getId() {
         return id;
     }

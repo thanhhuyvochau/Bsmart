@@ -57,6 +57,11 @@ public class User extends BaseEntity {
     private Wallet wallet = new Wallet();
     @OneToOne(mappedBy = "user")
     private MentorProfile mentorProfile;
+    @OneToOne(mappedBy = "user")
+    private Cart cart;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
+    private List<Order> order = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -192,5 +197,21 @@ public class User extends BaseEntity {
 
     public void setMentorProfile(MentorProfile mentorProfile) {
         this.mentorProfile = mentorProfile;
+    }
+
+    public Cart getCart() {
+        return cart;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
+    }
+
+    public List<Order> getOrder() {
+        return order;
+    }
+
+    public void setOrder(List<Order> order) {
+        this.order = order;
     }
 }

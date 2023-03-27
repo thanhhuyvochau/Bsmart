@@ -8,7 +8,7 @@ public class Skill extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "")
+    @Column(name = "name")
     private String name;
     @Column(name = "description")
 
@@ -17,7 +17,6 @@ public class Skill extends BaseEntity {
 
     private String certificateUrl;
     @Column(name = "skill_tag")
-
     private String skillTag;
     @ManyToOne
     @JoinColumn(name = "mentor_id")

@@ -3,43 +3,38 @@ package fpt.project.bsmart.entity.response;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.dto.CategoryDto;
-import fpt.project.bsmart.entity.dto.ClassDto;
-import fpt.project.bsmart.entity.dto.ImageDto;
-import fpt.project.bsmart.entity.dto.SubjectDto;
+import fpt.project.bsmart.entity.constant.ETypeLearn;
+import fpt.project.bsmart.entity.dto.*;
 
-import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
 
 
 public class SubCourseDetailResponse {
 
     private Long id;
 
-
-
-    private String name;
-
-    private String code;
-
-
-    private String description;
-
-
-    private ECourseStatus status;
+    private String title ;
 
     private ECourseLevel level;
 
-    private ImageDto image;
+    private ECourseStatus status;
 
-    private SubjectDto subject;
+    private BigDecimal price;
 
-    private CategoryDto categoryDto;
+    private Instant startDateExpected ;
 
-    private Long mentorId;
+    private Instant endDateExpected ;
 
-    private ClassDto clazz ;
+    private ETypeLearn typeLearn;
+
+    private int minStudent ;
+
+    private  int maxStudent ;
+
+    private ImageDto image ;
+    private List<TimeInWeekDTO> timeInWeeks ;
 
 
     public Long getId() {
@@ -50,44 +45,12 @@ public class SubCourseDetailResponse {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public ECourseStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ECourseStatus status) {
-        this.status = status;
-    }
-
-    public ECourseLevel getLevel() {
-        return level;
-    }
-
-    public void setLevel(ECourseLevel level) {
-        this.level = level;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public ImageDto getImage() {
@@ -98,35 +61,75 @@ public class SubCourseDetailResponse {
         this.image = image;
     }
 
-    public SubjectDto getSubject() {
-        return subject;
+    public ECourseLevel getLevel() {
+        return level;
     }
 
-    public CategoryDto getCategoryDto() {
-        return categoryDto;
+    public void setLevel(ECourseLevel level) {
+        this.level = level;
     }
 
-    public void setCategoryDto(CategoryDto categoryDto) {
-        this.categoryDto = categoryDto;
+    public ECourseStatus getStatus() {
+        return status;
     }
 
-    public void setSubject(SubjectDto subject) {
-        this.subject = subject;
+    public void setStatus(ECourseStatus status) {
+        this.status = status;
     }
 
-    public Long getMentorId() {
-        return mentorId;
+    public BigDecimal getPrice() {
+        return price;
     }
 
-    public void setMentorId(Long mentorId) {
-        this.mentorId = mentorId;
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
-    public ClassDto getClazz() {
-        return clazz;
+    public Instant getStartDateExpected() {
+        return startDateExpected;
     }
 
-    public void setClazz(ClassDto clazz) {
-        this.clazz = clazz;
+    public void setStartDateExpected(Instant startDateExpected) {
+        this.startDateExpected = startDateExpected;
+    }
+
+    public Instant getEndDateExpected() {
+        return endDateExpected;
+    }
+
+    public void setEndDateExpected(Instant endDateExpected) {
+        this.endDateExpected = endDateExpected;
+    }
+
+    public ETypeLearn getTypeLearn() {
+        return typeLearn;
+    }
+
+    public void setTypeLearn(ETypeLearn typeLearn) {
+        this.typeLearn = typeLearn;
+    }
+
+    public int getMinStudent() {
+        return minStudent;
+    }
+
+    public void setMinStudent(int minStudent) {
+        this.minStudent = minStudent;
+    }
+
+    public int getMaxStudent() {
+        return maxStudent;
+    }
+
+    public void setMaxStudent(int maxStudent) {
+        this.maxStudent = maxStudent;
+    }
+
+    public List<TimeInWeekDTO> getTimeInWeeks() {
+        return timeInWeeks;
+    }
+
+    public void setTimeInWeeks(List<TimeInWeekDTO> timeInWeeks) {
+        this.timeInWeeks = timeInWeeks;
     }
 }

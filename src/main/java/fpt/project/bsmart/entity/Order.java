@@ -14,7 +14,6 @@ public class Order extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "total_price")
-
     private BigDecimal totalPrice;
     @Column(name = "center_bonus")
     private BigDecimal centerBonus;
@@ -23,7 +22,6 @@ public class Order extends BaseEntity {
     @Column(name = "refer_bonus")
     private BigDecimal referBonus;
     @Column(name = "total_bonus")
-
     private BigDecimal totalBonus;
     @Column(name = "refer_bonus_percent")
     private Float referBonusPercent;
@@ -31,11 +29,15 @@ public class Order extends BaseEntity {
     private Float studentBonusPercent;
     @Column(name = "center_bonus_percent")
     private Float centerBonusPercent;
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private EOrderStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Long getId() {
         return id;
@@ -124,4 +126,14 @@ public class Order extends BaseEntity {
     public void setStatus(EOrderStatus status) {
         this.status = status;
     }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+
 }

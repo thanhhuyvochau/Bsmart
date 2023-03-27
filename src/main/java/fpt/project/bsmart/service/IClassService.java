@@ -1,12 +1,8 @@
 package fpt.project.bsmart.service;
 
-import fpt.project.bsmart.entity.dto.CategoryDto;
-import fpt.project.bsmart.entity.request.CreateClassRequest;
-import fpt.project.bsmart.entity.request.category.CategoryRequest;
-
-import java.util.List;
+import fpt.project.bsmart.entity.request.category.CreateClassRequest;
 
 public interface IClassService {
 
-    Long mentorCreateClass(CreateClassRequest createClassRequest);
+    Boolean createClass(CreateClassRequest request);
 }

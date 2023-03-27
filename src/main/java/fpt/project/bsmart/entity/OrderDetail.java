@@ -10,9 +10,9 @@ public class OrderDetail extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "class_id")
-    private Class clazz;
-    @ManyToOne
+    @JoinColumn(name = "sub_course_id")
+    private SubCourse subCourse;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
     @Column(name = "original_price")
@@ -33,12 +33,16 @@ public class OrderDetail extends BaseEntity {
         this.id = id;
     }
 
-    public Class getClazz() {
-        return clazz;
+    public SubCourse getSubCourse() {
+        return subCourse;
     }
 
-    public void setClazz(Class clazz) {
-        this.clazz = clazz;
+    public void setSubCourse(SubCourse subCourse) {
+        this.subCourse = subCourse;
+    }
+
+    public void setReferralStatus(Boolean referralStatus) {
+        this.referralStatus = referralStatus;
     }
 
     public Order getOrder() {
@@ -80,4 +84,6 @@ public class OrderDetail extends BaseEntity {
     public void setReferralStatus(boolean referralStatus) {
         this.referralStatus = referralStatus;
     }
+
+
 }

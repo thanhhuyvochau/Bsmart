@@ -8,7 +8,8 @@ import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateSubCourseRequest;
 import fpt.project.bsmart.entity.request.ImageRequest;
-import fpt.project.bsmart.entity.response.CourseDetailResponse;
+import fpt.project.bsmart.entity.response.CourseResponse;
+import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
 import fpt.project.bsmart.entity.response.SubCourseDetailResponse;
 import org.springframework.data.domain.Pageable;
@@ -22,13 +23,17 @@ public interface ICourseService {
 
     ApiPage<CourseDto> mentorGetCourse(Pageable pageable);
 
-    ApiPage<CourseSubCourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest , Pageable pageable);
+    ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest , Pageable pageable);
 
-    SubCourseDetailResponse getDetailCourseForCoursePage(Long subCourseId);
+    CourseSubCourseDetailResponse getDetailCourseForCoursePage(Long subCourseId);
 
     Boolean mentorUploadImageCourse(ImageRequest imageRequest);
 
     Boolean memberRegisterCourse(Long id);
+
+    ApiPage<SubCourseDetailResponse> getAllSubCourseOfCourse(Long id,  Pageable pageable);
+
+    ApiPage<CourseSubCourseResponse>  memberGetCourse(Pageable pageable);
 
 //    Boolean mentorUploadImageForCourse(Long id, FileDto request);
 }

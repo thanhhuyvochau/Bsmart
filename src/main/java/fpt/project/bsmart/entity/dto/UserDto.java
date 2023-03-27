@@ -14,6 +14,8 @@ public class UserDto {
 
     private Integer id;
 
+    private String introduce;
+
     private String fullName;
 
     private String email;
@@ -40,6 +42,8 @@ public class UserDto {
 
     private WalletDto wallet;
 
+    private MentorProfileDTO mentorProfile;
+
     public Integer getId() {
         return id;
     }
@@ -47,7 +51,6 @@ public class UserDto {
     public void setId(Integer id) {
         this.id = id;
     }
-
 
     public String getFullName() {
         return fullName;
@@ -63,6 +66,15 @@ public class UserDto {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+
+    public String getIntroduce() {
+        return introduce;
+    }
+
+    public void setIntroduce(String introduce) {
+        this.introduce = introduce;
     }
 
     public Instant getBirthday() {
@@ -145,5 +157,13 @@ public class UserDto {
 
     public void setUserImages(List<ImageDto> userImages) {
         this.userImages = userImages;
+    }
+
+    public MentorProfileDTO getMentorProfile() {
+        return mentorProfile;
+    }
+
+    public void setMentorProfile(MentorProfileDTO mentorProfile) {
+        this.mentorProfile = mentorProfile;
     }
 }
