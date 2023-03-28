@@ -16,6 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class SecurityUtil {
     private static MessageUtil messageUtil;
@@ -68,5 +70,13 @@ public class SecurityUtil {
             staticCartRepository.save(cart);
         }
         return cart;
+    }
+
+    public static Optional<String> getCurrentUserName() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Object principal = securityContext.getAuthentication().getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) principal;
+        String email = userDetails.getEmail();
+        return Optional.ofNullable(email);
     }
 }

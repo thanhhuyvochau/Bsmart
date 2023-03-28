@@ -88,6 +88,15 @@ public class CourseServiceImpl implements ICourseService {
 
         Category category = categoryRepository.findById(createSubCourseRequest.getCategoryId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createSubCourseRequest.getCategoryId()));
+        if(createSubCourseRequest.getCategoryId()== null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Vui lòng chọn lĩnh vực cho khoá học"));
+        }
+
+        if(createSubCourseRequest.getSubjectId()== null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Vui lòng chọn môn học cho khoá học"));
+        }
 
         List<Subject> subjects = category.getSubjects();
         subjects.forEach(subject -> {
