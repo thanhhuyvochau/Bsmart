@@ -1,5 +1,6 @@
 package fpt.project.bsmart.entity.dto;
 
+import fpt.project.bsmart.entity.constant.EImageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
@@ -15,7 +16,7 @@ public class ImageDto implements Serializable {
     @Schema(description = "URL ảnh đại diện")
     private String url;
 
-
+    private EImageType type;
 
     public Long getId() {
         return id;
@@ -41,5 +42,11 @@ public class ImageDto implements Serializable {
         this.url = url;
     }
 
+    public EImageType getType() {
+        return type;
+    }
 
+    public void setType(EImageType type) {
+        this.type = type;
+    }
 }
