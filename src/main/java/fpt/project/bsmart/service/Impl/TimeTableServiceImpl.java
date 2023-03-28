@@ -48,7 +48,7 @@ public class TimeTableServiceImpl implements ITimeTableService {
 
     private Boolean isHasRightToEdit(Class clazz) {
         User currentUser = SecurityUtil.getCurrentUserAccountLogin();
-        User mentor = clazz.getSubCourse().getCourse().getMentor();
+        User mentor = clazz.getSubCourse().getMentor();
         boolean isManager = currentUser.getRoles().stream().anyMatch(role -> Objects.equals(role.getCode(), EUserRole.MANAGER));
 
         if (Objects.equals(currentUser.getId(), mentor.getId())) {

@@ -15,12 +15,9 @@ import java.util.Optional;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
-    //    Optional<Course> findByIdAndStatus(Long id , ECourseStatus status) ;
-    Page<Course> findByMentor(User user, Pageable pageable);
-//    Page<Course> findByStatus(ECourseStatus status,  Pageable pageable) ;
 
 
     Page<Course> findAll(Specification<Course> build, Pageable pageable);
 
-    Optional<Course> findByIdAndStatus(Long id, ECourseStatus status);
+
 }

@@ -36,6 +36,8 @@ public class SubCourseDetailResponse {
     private ImageDto image ;
     private List<TimeInWeekDTO> timeInWeeks ;
 
+    private Boolean purchase ;
+
 
     public Long getId() {
         return id;
@@ -131,5 +133,13 @@ public class SubCourseDetailResponse {
 
     public void setTimeInWeeks(List<TimeInWeekDTO> timeInWeeks) {
         this.timeInWeeks = timeInWeeks;
+    }
+
+    public Boolean getPurchase() {
+        return purchase;
+    }
+
+    public void setPurchase(Boolean purchase) {
+        this.purchase = purchase;
     }
 }

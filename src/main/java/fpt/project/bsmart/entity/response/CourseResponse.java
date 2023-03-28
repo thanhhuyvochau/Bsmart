@@ -3,6 +3,7 @@ package fpt.project.bsmart.entity.response;
 
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.ImageDto;
+import fpt.project.bsmart.entity.dto.UserDto;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,7 +22,7 @@ public class CourseResponse {
 
     private Long subjectId;
     private String subjectName;
-    private String mentorName;
+
 
     private String courseDescription;
 
@@ -29,7 +30,7 @@ public class CourseResponse {
 
     private List<ETypeLearn> learns ;
 
-
+    private List<String> mentorName ;
 
 
     public Long getId() {
@@ -96,13 +97,7 @@ public class CourseResponse {
         this.subjectName = subjectName;
     }
 
-    public String getMentorName() {
-        return mentorName;
-    }
 
-    public void setMentorName(String mentorName) {
-        this.mentorName = mentorName;
-    }
 
     public String getCourseDescription() {
         return courseDescription;
@@ -126,5 +121,13 @@ public class CourseResponse {
 
     public void setLearns(List<ETypeLearn> learns) {
         this.learns = learns;
+    }
+
+    public List<String> getMentorName() {
+        return mentorName;
+    }
+
+    public void setMentorName(List<String> mentorName) {
+        this.mentorName = mentorName;
     }
 }

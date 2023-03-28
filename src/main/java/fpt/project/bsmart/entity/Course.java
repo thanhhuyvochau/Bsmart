@@ -27,9 +27,7 @@ public class Course {
     @JoinColumn(name = "subject_id")
     private Subject subject;
 
-    @ManyToOne
-    @JoinColumn(name = "mentor_id")
-    private User mentor;
+
 
 
 
@@ -83,13 +81,7 @@ public class Course {
         this.subject = subject;
     }
 
-    public User getMentor() {
-        return mentor;
-    }
 
-    public void setMentor(User mentor) {
-        this.mentor = mentor;
-    }
 
 
 
