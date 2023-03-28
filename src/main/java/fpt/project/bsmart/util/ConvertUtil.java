@@ -349,7 +349,7 @@ public class ConvertUtil {
                 MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
                 skillList.add(mentorSkillDto);
             }
-            mentorProfileDTO.setSkillList(skillList);
+            mentorProfileDTO.setMentorSkills(skillList);
         }
         return mentorProfileDTO;
     }

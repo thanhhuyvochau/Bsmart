@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
+import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.service.IMentorProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,12 @@ public class MentorProfileController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<MentorProfileDTO>>> getAllMentors(){
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getAllMentors()));
+    }
+
+    @Operation(summary = "Lấy toàn bộ danh sách giảng viên chỉ có id và tên")
+    @GetMapping("/name")
+    public ResponseEntity<ApiResponse<List<MentorProfileResponse>>> getAllMentorProfiles(){
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getAllMentorProfiles()));
     }
 
     @Operation(summary = "Lấy danh sách giảng viên chờ duyệt")
