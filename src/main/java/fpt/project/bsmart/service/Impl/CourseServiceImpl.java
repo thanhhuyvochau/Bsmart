@@ -28,8 +28,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.entity.constant.ECourseStatus.NOTSTART;
-import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
+import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.ConvertUtil.*;
 
@@ -79,7 +78,7 @@ public class CourseServiceImpl implements ICourseService {
     public Long mentorCreateCourse(CreateSubCourseRequest createSubCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUserAccountLogin();
 
-        if (createSubCourseRequest.getPrice() == null ){
+        if (createSubCourseRequest.getPrice() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Vui lòng nhập tiền cho khóa học"));
         }
@@ -88,12 +87,12 @@ public class CourseServiceImpl implements ICourseService {
 
         Category category = categoryRepository.findById(createSubCourseRequest.getCategoryId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createSubCourseRequest.getCategoryId()));
-        if(createSubCourseRequest.getCategoryId()== null) {
+        if (createSubCourseRequest.getCategoryId() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Vui lòng chọn lĩnh vực cho khoá học"));
         }
 
-        if(createSubCourseRequest.getSubjectId()== null) {
+        if (createSubCourseRequest.getSubjectId() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Vui lòng chọn môn học cho khoá học"));
         }
@@ -122,6 +121,7 @@ public class CourseServiceImpl implements ICourseService {
         subCourse.setTitle(createSubCourseRequest.getSubCourseTile());
         subCourse.setPrice(createSubCourseRequest.getPrice());
         subCourse.setLevel(createSubCourseRequest.getLevel());
+        subCourse.setMentor(currentUserAccountLogin);
         Image image = imageRepository.findById(createSubCourseRequest.getImageId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + createSubCourseRequest.getImageId()));
         subCourse.setImage(image);
@@ -129,7 +129,7 @@ public class CourseServiceImpl implements ICourseService {
         courseList.add(subCourse);
 
         course.setSubCourses(courseList);
-        course.setMentor(currentUserAccountLogin);
+//        course.setMentor(currentUserAccountLogin);
 
 
         List<Role> roles = currentUserAccountLogin.getRoles();
@@ -159,11 +159,16 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public ApiPage<CourseDto> mentorGetCourse(Pageable pageable) {
+    public ApiPage<CourseSubCourseResponse> mentorGetCourse(ECourseStatus status, Pageable pageable) {
         User userLogin = SecurityUtil.getCurrentUserAccountLogin();
-        Page<Course> allCourseMentor = courseRepository.findByMentor(userLogin, pageable);
+        Page<SubCourse> allCourseMentor;
+        if (status.equals(ALL)) {
+            allCourseMentor = subCourseRepository.findByMentor(userLogin, pageable);
+        } else {
 
-        return PageUtil.convert(allCourseMentor.map(ConvertUtil::convertCourseToCourseDTO));
+            allCourseMentor = subCourseRepository.findByStatusAndMentor(status, userLogin, pageable);
+        }
+        return PageUtil.convert(allCourseMentor.map(ConvertUtil::convertSubCourseToCourseSubCourseResponse));
 
     }
 
@@ -177,9 +182,16 @@ public class CourseServiceImpl implements ICourseService {
                 .queryBySubCourseType(query.getTypes())
                 .queryBySubjectId(query.getSubjectId())
                 .queryByCategoryId(query.getCategoryId());
+
+
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
         List<Course> coursesList = coursesPage.stream().distinct().collect(Collectors.toList());
         List<CourseResponse> courseResponseList = new ArrayList<>();
+
+
+        User userLogin = SecurityUtil.getCurrentUserAccountLogin();
+
+
         for (Course course : coursesList) {
             courseResponseList.add(convertCourseCourseResponsePage(course));
         }
@@ -199,27 +211,37 @@ public class CourseServiceImpl implements ICourseService {
 
     @Override
     public ApiPage<SubCourseDetailResponse> getAllSubCourseOfCourse(Long id, Pageable pageable) {
+
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 
+        User userLogin = SecurityUtil.getCurrentUserAccountLogin();
 
         Page<SubCourse> subCoursesList = subCourseRepository.findByCourse(course, pageable);
-
-        return PageUtil.convert(subCoursesList.map(ConvertUtil::convertSubCourseToSubCourseDetailResponse));
-
-
+        return PageUtil.convert(subCoursesList.map(subCourse -> {
+            return ConvertUtil.convertSubCourseToSubCourseDetailResponse(userLogin, subCourse);
+        }));
     }
 
     @Override
-    public ApiPage<CourseSubCourseResponse> memberGetCourse(Pageable pageable) {
+    public ApiPage<CourseSubCourseResponse> memberGetCourse(ECourseStatus status ,Pageable pageable) {
         User userLogin = SecurityUtil.getCurrentUserAccountLogin();
         List<Order> orders = userLogin.getOrder();
         List<SubCourse> subCourses = new ArrayList<>();
         orders.forEach(order -> {
             List<OrderDetail> orderDetails = order.getOrderDetails();
             orderDetails.forEach(orderDetail -> {
-                subCourses.add(orderDetail.getSubCourse());
-
+                if (orderDetail.getSubCourse()!= null) {
+                    if (status.equals(ALL)){
+                        subCourses.add(orderDetail.getSubCourse());
+                    }
+                    else {
+                        SubCourse subCourse = orderDetail.getSubCourse();
+                        if (subCourse.getStatus().equals(status)){
+                            subCourses.add(orderDetail.getSubCourse());
+                        }
+                    }
+                }
             });
         });
         Page<SubCourse> page = new PageImpl<>(subCourses);
