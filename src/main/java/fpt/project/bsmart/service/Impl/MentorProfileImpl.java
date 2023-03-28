@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.MentorSkillDto;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
+import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.MentorSkillRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
@@ -64,6 +65,18 @@ public class MentorProfileImpl implements IMentorProfileService {
             mentorProfileDTOS.add(ConvertUtil.convertMentorProfileToMentorProfileDto(mentorProfile));
         }
         return mentorProfileDTOS;
+    }
+
+    @Override
+    public List<MentorProfileResponse> getAllMentorProfiles() {
+        List<MentorProfileResponse> mentorProfileResponses = new ArrayList<>();
+        for (MentorProfile mentorProfile : mentorProfileRepository.findAll()){
+            MentorProfileResponse mentorProfileResponse = new MentorProfileResponse();
+            mentorProfileResponse.setId(mentorProfile.getId());
+            mentorProfileResponse.setName(mentorProfile.getUser().getFullName());
+            mentorProfileResponses.add(mentorProfileResponse);
+        }
+        return mentorProfileResponses;
     }
 
     @Override
