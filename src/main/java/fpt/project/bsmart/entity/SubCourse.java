@@ -63,6 +63,13 @@ public class SubCourse {
     @OneToMany(mappedBy = "subCourse", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimeInWeek> timeInWeeks = new ArrayList<>();
 
+    @OneToMany(mappedBy = "subCourse", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderDetail> orderDetails = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "mentor_id")
+    private User mentor;
+
     public Long getId() {
         return id;
     }
@@ -191,5 +198,21 @@ public class SubCourse {
 
     public void setImage(Image image) {
         this.image = image;
+    }
+
+    public User getMentor() {
+        return mentor;
+    }
+
+    public void setMentor(User mentor) {
+        this.mentor = mentor;
+    }
+
+    public List<OrderDetail> getOrderDetails() {
+        return orderDetails;
+    }
+
+    public void setOrderDetails(List<OrderDetail> orderDetails) {
+        this.orderDetails = orderDetails;
     }
 }

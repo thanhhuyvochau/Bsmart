@@ -41,7 +41,7 @@ public class MentorProfileImpl implements IMentorProfileService {
 
     @Override
     public MentorProfileDTO getMentorProfile(Long id) {
-        MentorProfile mentorProfile = findById(id);2
+        MentorProfile mentorProfile = findById(id);
         //Check if mentor profile is not active so only that mentor and admin can access
         if (!mentorProfile.getStatus() || !mentorProfile.getUser().getStatus()) {
             User user = Optional.ofNullable(SecurityUtil.getCurrentUserAccountLogin()).orElseThrow(() -> ApiException.create(HttpStatus.FORBIDDEN).withMessage("Bạn không có quyền xem hồ sơ của giáo viên này!"));

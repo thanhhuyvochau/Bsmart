@@ -2,6 +2,7 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.CourseDto;
 
 
@@ -48,16 +49,16 @@ public class CourseController {
     @Operation(summary = "mentor xem tất cả course của mình")
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/mentor")
-    public ResponseEntity<ApiResponse<ApiPage<CourseDto>>> mentorGetCourse(Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetCourse(pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> mentorGetCourse(ECourseStatus status ,  Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetCourse( status  , pageable)));
     }
 
 
     @Operation(summary = "Member xem khóa học đã đăng ký")
     @PreAuthorize("hasAnyAuthority('STUDENT')")
     @GetMapping("/member")
-    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourse(Pageable pageable){
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourse(pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourse(ECourseStatus status ,Pageable pageable){
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourse(status,pageable)));
     }
 
 

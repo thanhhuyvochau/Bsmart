@@ -15,8 +15,9 @@ public enum ECourseStatus {
 
     ENDED,// Lớp đã kết thúc
 
-    CANCEL; // Lớp bị hủy
+    CANCEL, // Lớp bị hủy
 
+    ALL ;// Tất cả
 
     ECourseStatus() {
     }
