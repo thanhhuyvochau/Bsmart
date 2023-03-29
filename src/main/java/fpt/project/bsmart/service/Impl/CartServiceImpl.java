@@ -57,7 +57,13 @@ public class CartServiceImpl implements ICartService {
         if (!Objects.equals(status, ECourseStatus.NOTSTART)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy khóa học hoặc khóa học không còn hợp lệ!");
         }
-
+        boolean anyMatch = cart.getCartItems().stream().anyMatch(cartItem -> {
+            SubCourse existingSubCourse = cartItem.getSubCourse();
+            return Objects.equals(existingSubCourse.getId(), subCourse.getId());
+        });
+        if (anyMatch) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khóa học đã tồn tại trong giỏ hàng và không thể thêm nữa");
+        }
         CartItem cartItem = new CartItem();
         cartItem.setPrice(subCourse.getPrice());
         cartItem.setSubCourse(subCourse);

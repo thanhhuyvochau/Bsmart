@@ -44,7 +44,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         MentorProfile mentorProfile = findById(id);
         //Check if mentor profile is not active so only that mentor and admin can access
         if (!mentorProfile.getStatus() || !mentorProfile.getUser().getStatus()) {
-            User user = SecurityUtil.getCurrentUserAccountLogin();
+            User user = Optional.ofNullable(SecurityUtil.getCurrentUserAccountLogin()).orElseThrow(() -> ApiException.create(HttpStatus.FORBIDDEN).withMessage("Bạn không có quyền xem hồ sơ của giáo viên này!"));
             List<EUserRole> roleList = user.getRoles().stream()
                     .map(Role::getCode)
                     .collect(Collectors.toList());
