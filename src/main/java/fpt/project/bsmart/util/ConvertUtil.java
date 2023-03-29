@@ -306,7 +306,9 @@ public class ConvertUtil {
     }
 
     public static TransactionDto convertTransactionToDto(Transaction transaction) {
-        return ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);
+        TransactionDto transactionDto = ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);
+        transactionDto.setStatusName(transactionDto.getStatusName());
+        return transactionDto;
     }
 
     public static BankDto convertBankToBankDto(Bank bank) {
