@@ -43,15 +43,15 @@ public class MentorProfileImpl implements IMentorProfileService {
     public MentorProfileDTO getMentorProfile(Long id) {
         MentorProfile mentorProfile = findById(id);
         //Check if mentor profile is not active so only that mentor and admin can access
-        if (!mentorProfile.getStatus() || !mentorProfile.getUser().getStatus()) {
-            User user = SecurityUtil.getCurrentUserAccountLogin();
-            List<EUserRole> roleList = user.getRoles().stream()
-                    .map(Role::getCode)
-                    .collect(Collectors.toList());
-            if (!(roleList.contains(EUserRole.MANAGER) || Objects.equals(user.getId(), mentorProfile.getUser().getId()))) {
-                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
-            }
-        }
+//        if (!mentorProfile.getStatus() || !mentorProfile.getUser().getStatus()) {
+//            User user = Optional.ofNullable(SecurityUtil.getCurrentUserAccountLogin()).orElseThrow(() -> ApiException.create(HttpStatus.FORBIDDEN).withMessage("Bạn không có quyền xem hồ sơ của giáo viên này!"));
+//            List<EUserRole> roleList = user.getRoles().stream()
+//                    .map(Role::getCode)
+//                    .collect(Collectors.toList());
+//            if (!(roleList.contains(EUserRole.MANAGER) || Objects.equals(user.getId(), mentorProfile.getUser().getId()))) {
+//                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
+//            }
+//        }
         MentorProfileDTO mentorProfileDTO = ConvertUtil.convertMentorProfileToMentorProfileDto(mentorProfile);
         return mentorProfileDTO;
     }

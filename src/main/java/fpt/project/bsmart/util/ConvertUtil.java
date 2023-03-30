@@ -331,7 +331,9 @@ public class ConvertUtil {
     }
 
     public static TransactionDto convertTransactionToDto(Transaction transaction) {
-        return ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);
+        TransactionDto transactionDto = ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);
+        transactionDto.setStatusName(transactionDto.getStatusName());
+        return transactionDto;
     }
 
     public static BankDto convertBankToBankDto(Bank bank) {
@@ -343,7 +345,7 @@ public class ConvertUtil {
         if (mentorProfile.getUser() != null) {
             mentorProfileDTO.setUserId(mentorProfile.getUser().getId());
         }
-        if (!mentorProfile.getSkills().isEmpty()) {
+        if (mentorProfile.getSkills() !=null ) {
             List<MentorSkillDto> skillList = new ArrayList<>();
             for (MentorSkill mentorSkill : mentorProfile.getSkills()) {
                 MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
@@ -351,6 +353,7 @@ public class ConvertUtil {
             }
             mentorProfileDTO.setMentorSkills(skillList);
         }
+        mentorProfileDTO.setWorkingExperience(mentorProfile.getWorkingExperience());
         return mentorProfileDTO;
     }
 

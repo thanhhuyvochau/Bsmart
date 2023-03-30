@@ -32,12 +32,12 @@ public class CartController {
     public ResponseEntity<ApiResponse<Integer>> addCourseToCart(@Valid @RequestBody AddCartItemRequest request) {
         return ResponseEntity.ok(ApiResponse.success(cartService.addCourseToCart(request)));
     }
-
-    @Operation(summary = "Cập nhật hàng trong giỏ")
-    @PutMapping
-    public ResponseEntity<ApiResponse<Integer>> updateCartItem(@Valid @RequestBody UpdateCartItemRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(cartService.updateCourseInCart(request)));
-    }
+    //TODO: Tạm thời sẽ không cho cập nhật giỏ hàng vì mỗi hàng trong giỏ hàng sẽ là 1 sub course riêng biệt không được trùng nhau
+//    @Operation(summary = "Cập nhật hàng trong giỏ")
+//    @PutMapping
+//    public ResponseEntity<ApiResponse<Integer>> updateCartItem(@Valid @RequestBody UpdateCartItemRequest request) {
+//        return ResponseEntity.ok(ApiResponse.success(cartService.updateCourseInCart(request)));
+//    }
 
     @Operation(summary = "Xóa hàng trong giỏ")
     @DeleteMapping
