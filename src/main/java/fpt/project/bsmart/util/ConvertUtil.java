@@ -340,7 +340,10 @@ public class ConvertUtil {
     public static MentorProfileDTO convertMentorProfileToMentorProfileDto(MentorProfile mentorProfile) {
         MentorProfileDTO mentorProfileDTO = ObjectUtil.copyProperties(mentorProfile, new MentorProfileDTO(), MentorProfileDTO.class);
         if (mentorProfile.getUser() != null) {
-            mentorProfileDTO.setUserId(mentorProfile.getUser().getId());
+            mentorProfile.getUser().setPassword(null);
+            mentorProfile.getUser().setWallet(null);
+            mentorProfile.getUser().setMentorProfile(null);
+            mentorProfileDTO.setUser(convertUsertoUserDto(mentorProfile.getUser()));
         }
         if (mentorProfile.getSkills() !=null ) {
             List<MentorSkillDto> skillList = new ArrayList<>();

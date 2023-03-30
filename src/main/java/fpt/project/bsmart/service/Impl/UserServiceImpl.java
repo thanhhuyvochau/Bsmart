@@ -288,37 +288,30 @@ public class UserServiceImpl implements IUserService {
 
         if (userRepository.existsByPhone(createAccountRequest.getPhone())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Số điện thoại : " + createAccountRequest.getEmail() + "đã được đăng ký"));
+                    .withMessage(messageUtil.getLocalMessage("Số điện thoại : " + createAccountRequest.getPhone() + "đã được đăng ký"));
         }
-
-
         user.setEmail(createAccountRequest.getEmail());
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());
         user.setPassword(encoder.encode(createAccountRequest.getPassword()));
         user.setIntroduce(createAccountRequest.getIntroduce());
-        List<Role> roleList = new ArrayList<>();
-        Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
-        if (role.getCode().equals(EUserRole.STUDENT)) {
-            user.setStatus(true);
-        }
-        if (role.getCode().equals(EUserRole.TEACHER)) {
-            user.setStatus(false);
-        }
-        roleList.add(role);
-        user.setRoles(roleList);
-        if (role.getCode().equals(EUserRole.STUDENT)) {
-            user.setStatus(true);
-        } else if (role.getCode().equals(EUserRole.TEACHER)) {
-            user.setStatus(false);
-            Long userId = userRepository.save(user).getId();
-            MentorProfile mentorProfile = new MentorProfile();
-            mentorProfile.setUser(user);
-            mentorProfile.setStatus(false);
-            mentorProfileRepository.save(mentorProfile);
-            return userId;
-        }
+//        List<Role> roleList = new ArrayList<>();
+//        Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
+//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
+//
+//        roleList.add(role);
+//        user.setRoles(roleList);
+//        if (role.getCode().equals(EUserRole.STUDENT)) {
+//            user.setStatus(true);
+//        } else if (role.getCode().equals(EUserRole.TEACHER)) {
+//            user.setStatus(false);
+//            Long userId = userRepository.save(user).getId();
+//            MentorProfile mentorProfile = new MentorProfile();
+//            mentorProfile.setUser(user);
+//            mentorProfile.setStatus(false);
+//            mentorProfileRepository.save(mentorProfile);
+//            return userId;
+//        }
         return userRepository.save(user).getId();
     }
 
