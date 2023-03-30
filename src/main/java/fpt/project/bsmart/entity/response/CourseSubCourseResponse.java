@@ -20,6 +20,8 @@ public class CourseSubCourseResponse {
     private String courseName;
     private String courseCode;
 
+
+
     private String subCourseTitle;
 
     private ECourseStatus status;
