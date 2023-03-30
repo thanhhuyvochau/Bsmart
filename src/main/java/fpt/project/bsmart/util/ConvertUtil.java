@@ -345,7 +345,7 @@ public class ConvertUtil {
         if (mentorProfile.getUser() != null) {
             mentorProfileDTO.setUserId(mentorProfile.getUser().getId());
         }
-        if (!mentorProfile.getSkills().isEmpty()) {
+        if (mentorProfile.getSkills() !=null ) {
             List<MentorSkillDto> skillList = new ArrayList<>();
             for (MentorSkill mentorSkill : mentorProfile.getSkills()) {
                 MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
@@ -353,6 +353,7 @@ public class ConvertUtil {
             }
             mentorProfileDTO.setMentorSkills(skillList);
         }
+        mentorProfileDTO.setWorkingExperience(mentorProfile.getWorkingExperience());
         return mentorProfileDTO;
     }
 
