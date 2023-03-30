@@ -234,9 +234,6 @@ public class ConvertUtil {
                 response.setCategory(convertCategoryToCategoryDto(category));
             }
         }
-//        if (course.getMentor() != null) {
-//            response.setMentorId(course.getMentor().getId());
-//        }
 
         return response;
     }

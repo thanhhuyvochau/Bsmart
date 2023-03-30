@@ -76,7 +76,6 @@ public class MentorProfileImpl implements IMentorProfileService {
             if (mentorProfile.getUser() != null) {
                 mentorProfileResponse.setName(mentorProfile.getUser().getFullName());
             }
-
             mentorProfileResponses.add(mentorProfileResponse);
         }
         return mentorProfileResponses;

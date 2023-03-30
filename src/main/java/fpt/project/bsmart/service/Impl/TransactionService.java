@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -39,6 +40,9 @@ public class TransactionService implements ITransactionService {
 
     private final BankRepository bankRepository;
 
+    private final OrderDetailRepository orderDetailRepository;
+
+
     private final CourseRepository courseRepository;
 
     private final OrderRepository orderRepository;
@@ -46,16 +50,20 @@ public class TransactionService implements ITransactionService {
     private final SubCourseRepository subCourseRepository;
     private final CartItemRepository cartItemRepository;
 
-    public TransactionService(WalletRepository walletRepository, TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CourseRepository courseRepository, OrderRepository orderRepository, SubCourseRepository subCourseRepository, CartItemRepository cartItemRepository) {
+    private final ReferralCodeRepository referralCodeRepository;
+
+    public TransactionService(WalletRepository walletRepository, TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, OrderDetailRepository orderDetailRepository, CourseRepository courseRepository, OrderRepository orderRepository, SubCourseRepository subCourseRepository, CartItemRepository cartItemRepository, ReferralCodeRepository referralCodeRepository) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.bankRepository = bankRepository;
+        this.orderDetailRepository = orderDetailRepository;
         this.courseRepository = courseRepository;
         this.orderRepository = orderRepository;
         this.subCourseRepository = subCourseRepository;
         this.cartItemRepository = cartItemRepository;
+        this.referralCodeRepository = referralCodeRepository;
     }
 
     @Override
@@ -133,11 +141,12 @@ public class TransactionService implements ITransactionService {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Bạn đã thanh toán khóa học này trươc đó !!!");
         }
         // TODO: Tạm thời chưa xử lý khuyến mãi, sẽ bổ sung xử lý KM sau
+
+
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setSubCourse(subCourse);
         orderDetail.setFinalPrice(price);
         orderDetail.setOriginalPrice(price);
-
 
         Order order = new Order();
         order.setStatus(EOrderStatus.SUCCESS);
@@ -145,21 +154,69 @@ public class TransactionService implements ITransactionService {
         order.getOrderDetails().add(orderDetail);
         order.setUser(wallet.getOwner());
 
+        List<ReferralCode> referalCodeList = new ArrayList<>();
+        ReferralCode referralCode = null;
+        if (request.getReferralCode() != null) {
+            referralCode = referralCodeRepository.findByCodeAndStatusIsTrue(request.getReferralCode())
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("Mã giới thiệu không tìm thấy!!") + request.getReferralCode()));
+
+
+            ReferralCodeType referralCodeType = referralCode.getReferralCodeType();
+            if (referralCodeType == null) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("link  giới thiệu không thuộc loại khuyến mãi nào ");
+            }
+            Double discount = referralCodeType.getDiscount();
+            if (discount != null && discount > 0) {
+                price = price.subtract(price.multiply(BigDecimal.valueOf(discount)).divide(BigDecimal.valueOf(100), 2, RoundingMode.CEILING));
+            }
+
+            if (referralCode.getUsed() == null) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiêu đã được sử dụng rồi !! Vui lòng nhập mã khác");
+            }
+            if (referralCode.getUser() == null) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiệu không tìm thấy ");
+            }
+            if (referralCode.getUsed()) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiêu đã được sử dụng rồi !! Vui lòng nhập mã khác");
+            }
+            referalCodeList.add(referralCode);
+
+
+
+
+            orderDetail.setReferralCode(request.getReferralCode());
+            orderDetail.getReferralCodes().addAll(referalCodeList);
+            orderDetail.setReferralCodes(referalCodeList);
+        }
+        orderRepository.save(order) ;
         orderDetail.setOrder(order);
 
+        orderDetailRepository.save(orderDetail);
+        if (referralCode != null) {
+            referralCode.setUsed(true);
+            referralCode.setStatus(false);
+            referralCode.setOrderDetail(orderDetail);
+
+            User user = referralCode.getUser();
+            Double point = user.getPoint();
+            user.setPoint(point + 10D);
+        }
+
+
+
         Transaction transaction = new Transaction();
-        transaction.setAmount(subCourse.getPrice());
+        transaction.setAmount(price);
         transaction.setStatus(ETransactionStatus.SUCCESS);
         transaction.setOrder(order);
         transaction.setWallet(wallet);
         transaction.setType(ETransactionType.PAY);
         transaction.setBeforeBalance(presentBalance);
         transaction.setAfterBalance(presentBalance.subtract(price));
-
         wallet.decreaseBalance(transaction.getAmount());
 
-
         transactionRepository.save(transaction);
+
+
         return true;
     }
 
