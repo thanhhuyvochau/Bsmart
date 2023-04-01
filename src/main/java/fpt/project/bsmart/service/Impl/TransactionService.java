@@ -61,8 +61,7 @@ public class TransactionService implements ITransactionService {
     @Override
     public ApiPage<TransactionDto> getSelfTransactions(Pageable pageable) {
         Wallet wallet = SecurityUtil.getCurrentUserWallet();
-        List<Transaction> transactions = wallet.getTransactions();
-        Page<Transaction> transactionsPages = PageUtil.toPage(transactions, pageable);
+        Page<Transaction> transactionsPages = transactionRepository.findAllByWallet(wallet, pageable);
         return PageUtil.convert(transactionsPages.map(ConvertUtil::convertTransactionToDto));
     }
 
@@ -71,8 +70,7 @@ public class TransactionService implements ITransactionService {
         User user = userRepository.findById(userId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                 .withMessage(messageUtil.getLocalMessage("Không tìm thấy người dùng hiện tại với id:") + userId));
         Wallet wallet = user.getWallet();
-        List<Transaction> transactions = wallet.getTransactions();
-        Page<Transaction> transactionsPages = PageUtil.toPage(transactions, pageable);
+        Page<Transaction> transactionsPages = transactionRepository.findAllByWallet(wallet, pageable);
         return PageUtil.convert(transactionsPages.map(ConvertUtil::convertTransactionToDto));
     }
 
