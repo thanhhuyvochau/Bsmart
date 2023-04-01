@@ -332,7 +332,7 @@ public class ConvertUtil {
 
     public static TransactionDto convertTransactionToDto(Transaction transaction) {
         TransactionDto transactionDto = ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);
-        transactionDto.setStatusName(transactionDto.getStatusName());
+        transactionDto.setStatusName(transaction.getStatus().getLabel());
         return transactionDto;
     }
 

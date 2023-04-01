@@ -27,8 +27,6 @@ public class TimeTableServiceImpl implements ITimeTableService {
 
         if (isValidTimeTable(timeTable, clazz)) {
 
-
-
         } else {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Dữ liệu chỉnh sửa thời khóa biểu không hợp lệ vui lòng thử lại");
         }
