@@ -17,6 +17,7 @@ public class TransactionDto extends BaseEntity {
     private String statusName;
 
     private ETransactionType type;
+    private String typeName;
 
     private BigDecimal beforeBalance;
 
@@ -77,5 +78,13 @@ public class TransactionDto extends BaseEntity {
 
     public void setStatusName(String statusName) {
         this.statusName = statusName;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 }
