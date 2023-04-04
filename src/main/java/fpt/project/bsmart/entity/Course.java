@@ -22,14 +22,9 @@ public class Course {
     @Column(name = "description")
     private String description;
 
-
     @ManyToOne
     @JoinColumn(name = "subject_id")
     private Subject subject;
-
-
-
-
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SubCourse> subCourses;
