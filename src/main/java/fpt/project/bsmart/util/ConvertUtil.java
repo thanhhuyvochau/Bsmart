@@ -123,7 +123,9 @@ public class ConvertUtil {
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (Image image : user.getUserImages()) {
-                imageDtoList.add(convertImageToImageDto(image));
+                if(image.isStatus()){
+                    imageDtoList.add(convertImageToImageDto(image));
+                }
             }
             userDto.setUserImages(imageDtoList);
         }
