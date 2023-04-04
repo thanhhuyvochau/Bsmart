@@ -2,6 +2,8 @@ package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "order_detail")
@@ -21,8 +23,10 @@ public class OrderDetail extends BaseEntity {
     private BigDecimal finalPrice;
     @Column(name = "referral_code")
     private String referralCode;
-    @Column(name = "referral_status")
-    private Boolean referralStatus;
+
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "orderDetail")
+    private List<ReferralCode> referralCodes = new ArrayList<>();
 
 
     public Long getId() {
@@ -41,9 +45,7 @@ public class OrderDetail extends BaseEntity {
         this.subCourse = subCourse;
     }
 
-    public void setReferralStatus(Boolean referralStatus) {
-        this.referralStatus = referralStatus;
-    }
+
 
     public Order getOrder() {
         return order;
@@ -77,13 +79,13 @@ public class OrderDetail extends BaseEntity {
         this.referralCode = referralCode;
     }
 
-    public Boolean getReferralStatus() {
-        return referralStatus;
+
+
+    public List<ReferralCode> getReferralCodes() {
+        return referralCodes;
     }
 
-    public void setReferralStatus(boolean referralStatus) {
-        this.referralStatus = referralStatus;
+    public void setReferralCodes(List<ReferralCode> referralCodes) {
+        this.referralCodes = referralCodes;
     }
-
-
 }

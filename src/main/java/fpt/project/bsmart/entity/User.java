@@ -13,7 +13,7 @@ import java.util.List;
 public class User extends BaseEntity {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "user_name")
@@ -51,6 +51,9 @@ public class User extends BaseEntity {
     @Column(name = "instagram_link")
     private String instagramLink;
 
+    @Column(name = "intro_point")
+    private Double point ;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<Image> userImages = new ArrayList<>();
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
@@ -62,6 +65,9 @@ public class User extends BaseEntity {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<Order> order = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
+    private List<ReferralCode> referralCodes = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -213,5 +219,21 @@ public class User extends BaseEntity {
 
     public void setOrder(List<Order> order) {
         this.order = order;
+    }
+
+    public Double getPoint() {
+        return point;
+    }
+
+    public void setPoint(Double point) {
+        this.point = point;
+    }
+
+    public List<ReferralCode> getReferralCodes() {
+        return referralCodes;
+    }
+
+    public void setReferralCodes(List<ReferralCode> referralCodes) {
+        this.referralCodes = referralCodes;
     }
 }

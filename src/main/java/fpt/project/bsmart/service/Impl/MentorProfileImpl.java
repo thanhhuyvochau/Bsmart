@@ -64,7 +64,12 @@ public class MentorProfileImpl implements IMentorProfileService {
     @Override
     public List<MentorProfileDTO> getAllMentors() {
         List<MentorProfileDTO> mentorProfileDTOS = new ArrayList<>();
-        for (MentorProfile mentorProfile : mentorProfileRepository.findAll()){
+
+        for (MentorProfile mentorProfile : mentorProfileRepository.findAll()) {
+            mentorProfile.getUser().setPassword(null);
+            mentorProfile.getUser().setWallet(null);
+
+
             mentorProfileDTOS.add(ConvertUtil.convertMentorProfileToMentorProfileDto(mentorProfile));
         }
         return mentorProfileDTOS;
@@ -73,10 +78,12 @@ public class MentorProfileImpl implements IMentorProfileService {
     @Override
     public List<MentorProfileResponse> getAllMentorProfiles() {
         List<MentorProfileResponse> mentorProfileResponses = new ArrayList<>();
-        for (MentorProfile mentorProfile : mentorProfileRepository.findAll()){
+        for (MentorProfile mentorProfile : mentorProfileRepository.findAll()) {
             MentorProfileResponse mentorProfileResponse = new MentorProfileResponse();
             mentorProfileResponse.setId(mentorProfile.getId());
-            mentorProfileResponse.setName(mentorProfile.getUser().getFullName());
+            if (mentorProfile.getUser() != null) {
+                mentorProfileResponse.setName(mentorProfile.getUser().getFullName());
+            }
             mentorProfileResponses.add(mentorProfileResponse);
         }
         return mentorProfileResponses;
