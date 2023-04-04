@@ -16,6 +16,10 @@ import fpt.project.bsmart.util.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.Year;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -112,6 +116,21 @@ public class MentorProfileImpl implements IMentorProfileService {
             List<MentorSkillDto> mentorSkillsDto = updateMentorProfileRequest.getMentorSkills();
             Set<Long> skillIds = new HashSet<>();
             for (MentorSkillDto mentorSkillDto : mentorSkillsDto) {
+                if(mentorSkillDto.getYearOfExperiences() <= 0){
+                    throw ApiException.create(HttpStatus.BAD_REQUEST)
+                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.NEGATIVE_YEAR_OF_EXPERIENCES) + mentorSkillDto.getYearOfExperiences());
+                }
+                ZonedDateTime userBirthYear = mentorProfile.getUser().getBirthday().atZone(ZoneOffset.UTC);
+                int userAge = Year.now().getValue() - userBirthYear.getYear();
+                boolean validMaximumYearOfExperience = userAge - mentorSkillDto.getYearOfExperiences() > 1;
+                if(!validMaximumYearOfExperience){
+                    throw ApiException.create(HttpStatus.BAD_REQUEST)
+                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_YEAR_OF_EXPERIENCES) + mentorSkillDto.getYearOfExperiences());
+                }
+                if(mentorSkillDto.getSkillId() == null){
+                    throw ApiException.create(HttpStatus.BAD_REQUEST)
+                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_SKILL));
+                }
                 if (!skillIds.add(mentorSkillDto.getSkillId())) {
                     // Duplicate skillId found, raise error
                     throw ApiException.create(HttpStatus.BAD_REQUEST)
