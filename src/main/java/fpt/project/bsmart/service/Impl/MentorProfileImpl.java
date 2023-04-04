@@ -116,7 +116,7 @@ public class MentorProfileImpl implements IMentorProfileService {
             List<MentorSkillDto> mentorSkillsDto = updateMentorProfileRequest.getMentorSkills();
             Set<Long> skillIds = new HashSet<>();
             for (MentorSkillDto mentorSkillDto : mentorSkillsDto) {
-                if(mentorSkillDto.getYearOfExperiences() < 0){
+                if(mentorSkillDto.getYearOfExperiences() <= 0){
                     throw ApiException.create(HttpStatus.BAD_REQUEST)
                             .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.NEGATIVE_YEAR_OF_EXPERIENCES) + mentorSkillDto.getYearOfExperiences());
                 }
