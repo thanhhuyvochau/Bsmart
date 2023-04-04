@@ -364,6 +364,7 @@ public class ConvertUtil {
     public static MentorSkillDto convertMentorSkillToMentorSkillDto(MentorSkill mentorSkill) {
         MentorSkillDto mentorSkillDto = new MentorSkillDto();
         mentorSkillDto.setSkillId(mentorSkill.getSkill().getId());
+        mentorSkillDto.setName(mentorSkill.getSkill().getName());
         mentorSkillDto.setYearOfExperiences(mentorSkill.getYearOfExperiences());
         return mentorSkillDto;
     }

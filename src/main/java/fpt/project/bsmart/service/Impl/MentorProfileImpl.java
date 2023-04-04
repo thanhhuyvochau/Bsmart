@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.MentorSkillDto;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
+import fpt.project.bsmart.entity.request.UpdateSkillRequest;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.MentorSkillRepository;
@@ -113,37 +114,37 @@ public class MentorProfileImpl implements IMentorProfileService {
         }
 
         if (updateMentorProfileRequest.getMentorSkills() != null) {
-            List<MentorSkillDto> mentorSkillsDto = updateMentorProfileRequest.getMentorSkills();
+            List<UpdateSkillRequest> mentorUpdateSkills = updateMentorProfileRequest.getMentorSkills();
             Set<Long> skillIds = new HashSet<>();
-            for (MentorSkillDto mentorSkillDto : mentorSkillsDto) {
-                if(mentorSkillDto.getYearOfExperiences() <= 0){
+            for (UpdateSkillRequest mentorUpdateSkill : mentorUpdateSkills) {
+                if(mentorUpdateSkill.getYearOfExperiences() <= 0){
                     throw ApiException.create(HttpStatus.BAD_REQUEST)
-                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.NEGATIVE_YEAR_OF_EXPERIENCES) + mentorSkillDto.getYearOfExperiences());
+                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.NEGATIVE_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
                 }
                 ZonedDateTime userBirthYear = mentorProfile.getUser().getBirthday().atZone(ZoneOffset.UTC);
                 int userAge = Year.now().getValue() - userBirthYear.getYear();
-                boolean validMaximumYearOfExperience = userAge - mentorSkillDto.getYearOfExperiences() > 1;
+                boolean validMaximumYearOfExperience = userAge - mentorUpdateSkill.getYearOfExperiences() > 1;
                 if(!validMaximumYearOfExperience){
                     throw ApiException.create(HttpStatus.BAD_REQUEST)
-                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_YEAR_OF_EXPERIENCES) + mentorSkillDto.getYearOfExperiences());
+                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
                 }
-                if(mentorSkillDto.getSkillId() == null){
+                if(mentorUpdateSkill.getSkillId() == null){
                     throw ApiException.create(HttpStatus.BAD_REQUEST)
                             .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_SKILL));
                 }
-                if (!skillIds.add(mentorSkillDto.getSkillId())) {
+                if (!skillIds.add(mentorUpdateSkill.getSkillId())) {
                     // Duplicate skillId found, raise error
                     throw ApiException.create(HttpStatus.BAD_REQUEST)
-                            .withMessage(messageUtil.getLocalMessage(SUBJECT_ID_DUPLICATE) + mentorSkillDto.getSkillId());
+                            .withMessage(messageUtil.getLocalMessage(SUBJECT_ID_DUPLICATE) + mentorUpdateSkill.getSkillId());
                 }
             }
             List<MentorSkill> mentorSkills = new ArrayList<>();
-            for (MentorSkillDto mentorSkillDto : mentorSkillsDto) {
+            for (UpdateSkillRequest mentorUpdateSkill : mentorUpdateSkills) {
                 MentorSkill mentorSkill = new MentorSkill();
-                Subject subject = subjectRepository.findById(mentorSkillDto.getSkillId())
-                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + mentorSkillDto.getSkillId()));
+                Subject subject = subjectRepository.findById(mentorUpdateSkill.getSkillId())
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + mentorUpdateSkill.getSkillId()));
                 mentorSkill.setSkill(subject);
-                mentorSkill.setYearOfExperiences(mentorSkillDto.getYearOfExperiences());
+                mentorSkill.setYearOfExperiences(mentorUpdateSkill.getYearOfExperiences());
                 mentorSkill.setMentorProfile(mentorProfile);
                 mentorSkills.add(mentorSkill);
             }
