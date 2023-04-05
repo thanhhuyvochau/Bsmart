@@ -36,5 +36,7 @@ public interface ICourseService {
 
     ApiPage<CourseSubCourseResponse>  memberGetCourse(ECourseStatus status,Pageable pageable);
 
+    ApiPage<CourseSubCourseResponse> memberGetCourseSuggest( Pageable pageable);
+
 //    Boolean mentorUploadImageForCourse(Long id, FileDto request);
 }

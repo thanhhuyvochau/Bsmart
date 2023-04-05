@@ -123,19 +123,22 @@ public class ConvertUtil {
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (Image image : user.getUserImages()) {
-                imageDtoList.add(convertImageToImageDto(image));
+                if (image.isStatus()) {
+                    imageDtoList.add(convertImageToImageDto(image));
+                }
+
+                userDto.setUserImages(imageDtoList);
             }
-            userDto.setUserImages(imageDtoList);
+            if (user.getWallet() != null) {
+                userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
+            }
+            if (user.getMentorProfile() != null) {
+                userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
+            }
         }
-        if (user.getWallet() != null) {
-            userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
-        }
-        if (user.getMentorProfile() != null) {
-            userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
-        }
+
         return userDto;
     }
-
 
     public static ModuleDto convertModuleToModuleDto(Module module) {
         ModuleDto moduleDto = ObjectUtil.copyProperties(module, new ModuleDto(), ModuleDto.class);
@@ -346,7 +349,7 @@ public class ConvertUtil {
             mentorProfile.getUser().setMentorProfile(null);
             mentorProfileDTO.setUser(convertUsertoUserDto(mentorProfile.getUser()));
         }
-        if (mentorProfile.getSkills() !=null ) {
+        if (mentorProfile.getSkills() != null) {
             List<MentorSkillDto> skillList = new ArrayList<>();
             for (MentorSkill mentorSkill : mentorProfile.getSkills()) {
                 MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
@@ -361,6 +364,7 @@ public class ConvertUtil {
     public static MentorSkillDto convertMentorSkillToMentorSkillDto(MentorSkill mentorSkill) {
         MentorSkillDto mentorSkillDto = new MentorSkillDto();
         mentorSkillDto.setSkillId(mentorSkill.getSkill().getId());
+        mentorSkillDto.setName(mentorSkill.getSkill().getName());
         mentorSkillDto.setYearOfExperiences(mentorSkill.getYearOfExperiences());
         return mentorSkillDto;
     }

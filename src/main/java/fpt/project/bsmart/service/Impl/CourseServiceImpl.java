@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -224,20 +225,19 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public ApiPage<CourseSubCourseResponse> memberGetCourse(ECourseStatus status ,Pageable pageable) {
+    public ApiPage<CourseSubCourseResponse> memberGetCourse(ECourseStatus status, Pageable pageable) {
         User userLogin = SecurityUtil.getCurrentUserAccountLogin();
         List<Order> orders = userLogin.getOrder();
         List<SubCourse> subCourses = new ArrayList<>();
         orders.forEach(order -> {
             List<OrderDetail> orderDetails = order.getOrderDetails();
             orderDetails.forEach(orderDetail -> {
-                if (orderDetail.getSubCourse()!= null) {
-                    if (status.equals(ALL)){
+                if (orderDetail.getSubCourse() != null) {
+                    if (status.equals(ALL)) {
                         subCourses.add(orderDetail.getSubCourse());
-                    }
-                    else {
+                    } else {
                         SubCourse subCourse = orderDetail.getSubCourse();
-                        if (subCourse.getStatus().equals(status)){
+                        if (subCourse.getStatus().equals(status)) {
                             subCourses.add(orderDetail.getSubCourse());
                         }
                     }
@@ -247,6 +247,20 @@ public class CourseServiceImpl implements ICourseService {
         Page<SubCourse> page = new PageImpl<>(subCourses);
 
         return PageUtil.convert(page.map(ConvertUtil::convertSubCourseToCourseSubCourseResponse));
+
+    }
+
+    @Override
+    public ApiPage<CourseSubCourseResponse> memberGetCourseSuggest( Pageable pageable) {
+        User userLogin = SecurityUtil.getCurrentUserAccountLogin();
+        Page<SubCourse> subCoursesList;
+        if (userLogin == null) {
+            subCoursesList = subCourseRepository.findByStatus(NOTSTART, pageable);
+        } else {
+            subCoursesList = subCourseRepository.findByStatus(NOTSTART, pageable);
+        }
+
+        return PageUtil.convert(subCoursesList.map(ConvertUtil::convertSubCourseToCourseSubCourseResponse));
 
     }
 

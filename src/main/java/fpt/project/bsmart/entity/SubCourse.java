@@ -13,7 +13,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "sub_course")
-public class SubCourse {
+public class SubCourse  extends  BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
