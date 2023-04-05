@@ -16,6 +16,9 @@ public class ImageDto implements Serializable {
     @Schema(description = "URL ảnh đại diện")
     private String url;
 
+
+    private boolean status;
+
     private EImageType type;
 
     public Long getId() {
@@ -48,5 +51,13 @@ public class ImageDto implements Serializable {
 
     public void setType(EImageType type) {
         this.type = type;
+    }
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 }
