@@ -53,6 +53,7 @@ public class Image extends BaseEntity {
         this.name = name;
     }
 
+
     public boolean isStatus() {
         return status;
     }
@@ -84,4 +85,6 @@ public class Image extends BaseEntity {
     public void setUrl(String url) {
         this.url = url;
     }
+
+
 }
