@@ -126,18 +126,19 @@ public class ConvertUtil {
                 if (image.isStatus()) {
                     imageDtoList.add(convertImageToImageDto(image));
                 }
+
+                userDto.setUserImages(imageDtoList);
             }
-            userDto.setUserImages(imageDtoList);
+            if (user.getWallet() != null) {
+                userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
+            }
+            if (user.getMentorProfile() != null) {
+                userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
+            }
         }
-        if (user.getWallet() != null) {
-            userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
-        }
-        if (user.getMentorProfile() != null) {
-            userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
-        }
+
         return userDto;
     }
-
 
     public static ModuleDto convertModuleToModuleDto(Module module) {
         ModuleDto moduleDto = ObjectUtil.copyProperties(module, new ModuleDto(), ModuleDto.class);
@@ -331,7 +332,8 @@ public class ConvertUtil {
 
     public static TransactionDto convertTransactionToDto(Transaction transaction) {
         TransactionDto transactionDto = ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);
-        transactionDto.setStatusName(transactionDto.getStatusName());
+        transactionDto.setStatusName(transaction.getStatus().getLabel());
+        transactionDto.setTypeName(transaction.getType().getLabel());
         return transactionDto;
     }
 
@@ -342,7 +344,10 @@ public class ConvertUtil {
     public static MentorProfileDTO convertMentorProfileToMentorProfileDto(MentorProfile mentorProfile) {
         MentorProfileDTO mentorProfileDTO = ObjectUtil.copyProperties(mentorProfile, new MentorProfileDTO(), MentorProfileDTO.class);
         if (mentorProfile.getUser() != null) {
-            mentorProfileDTO.setUserId(mentorProfile.getUser().getId());
+            mentorProfile.getUser().setPassword(null);
+            mentorProfile.getUser().setWallet(null);
+            mentorProfile.getUser().setMentorProfile(null);
+            mentorProfileDTO.setUser(convertUsertoUserDto(mentorProfile.getUser()));
         }
         if (mentorProfile.getSkills() != null) {
             List<MentorSkillDto> skillList = new ArrayList<>();
@@ -359,6 +364,7 @@ public class ConvertUtil {
     public static MentorSkillDto convertMentorSkillToMentorSkillDto(MentorSkill mentorSkill) {
         MentorSkillDto mentorSkillDto = new MentorSkillDto();
         mentorSkillDto.setSkillId(mentorSkill.getSkill().getId());
+        mentorSkillDto.setName(mentorSkill.getSkill().getName());
         mentorSkillDto.setYearOfExperiences(mentorSkill.getYearOfExperiences());
         return mentorSkillDto;
     }

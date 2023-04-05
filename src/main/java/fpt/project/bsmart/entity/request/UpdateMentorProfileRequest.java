@@ -9,7 +9,7 @@ import java.util.List;
 public class UpdateMentorProfileRequest {
     private String introduce;
     private String workingExperiences;
-    private List<MentorSkillDto> mentorSkills = new ArrayList<>();
+    private List<UpdateSkillRequest> mentorSkills = new ArrayList<>();
 
     public String getIntroduce() {
         return introduce;
@@ -27,11 +27,11 @@ public class UpdateMentorProfileRequest {
         this.workingExperiences = workingExperiences;
     }
 
-    public List<MentorSkillDto> getMentorSkills() {
+    public List<UpdateSkillRequest> getMentorSkills() {
         return mentorSkills;
     }
 
-    public void setMentorSkills(List<MentorSkillDto> mentorSkills) {
+    public void setMentorSkills(List<UpdateSkillRequest> mentorSkills) {
         this.mentorSkills = mentorSkills;
     }
 }

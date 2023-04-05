@@ -34,6 +34,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
@@ -72,6 +73,10 @@ public class UserServiceImpl implements IUserService {
         this.minioAdapter = minioAdapter;
     }
 
+    private static void accept(Image image) {
+        image.setStatus(false);
+    }
+
     private User findUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id));
@@ -106,6 +111,36 @@ public class UserServiceImpl implements IUserService {
 
     public Long uploadImageProfile(UploadImageRequest uploadImageRequest) throws IOException {
         User user = getCurrentLoginUser();
+        List<Image> userImages = user.getUserImages();
+
+        List<Image> images = user.getUserImages();
+        if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)){
+            List<Image> avatarCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
+            avatarCurrent.forEach(image1 -> {
+                accept(image1);
+                images.add(image1);
+            });
+        }
+
+        if (uploadImageRequest.getImageType().equals(EImageType.FRONTCI)){
+            List<Image> CIFrontCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.FRONTCI)).collect(Collectors.toList());
+            CIFrontCurrent.forEach(image -> {
+                accept(image);
+                images.add(image);
+            }) ;
+
+        }
+        if (uploadImageRequest.getImageType().equals(EImageType.BACKCI)){
+            List<Image> CIBackCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.BACKCI)).collect(Collectors.toList());
+            CIBackCurrent.forEach(image -> {
+                accept(image);
+                images.add(image);
+            }) ;
+
+        }
+
+
+        imageRepository.saveAll(images)  ;
         Image image = new Image();
         String name = uploadImageRequest.getFile().getOriginalFilename() + "-" + Instant.now().toString();
         ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, uploadImageRequest.getFile().getContentType(),
@@ -113,6 +148,7 @@ public class UserServiceImpl implements IUserService {
         image.setName(name);
         image.setUrl(ImageUrlUtil.buildUrl(minioUrl, objectWriteResponse));
         image.setUser(user);
+        image.setStatus(true);
         if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
             image.setType(EImageType.AVATAR);
         } if (uploadImageRequest.getImageType().equals(EImageType.FRONTCI)) {
@@ -135,6 +171,7 @@ public class UserServiceImpl implements IUserService {
             ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file.getContentType(),
                     file.getInputStream(), file.getSize());
             image.setName(name);
+            image.setStatus(true);
             image.setType(EImageType.DEGREE);
             image.setUrl(ImageUrlUtil.buildUrl(minioUrl, objectWriteResponse));
             image.setUser(user);
@@ -288,37 +325,30 @@ public class UserServiceImpl implements IUserService {
 
         if (userRepository.existsByPhone(createAccountRequest.getPhone())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Số điện thoại : " + createAccountRequest.getEmail() + "đã được đăng ký"));
+                    .withMessage(messageUtil.getLocalMessage("Số điện thoại : " + createAccountRequest.getPhone() + "đã được đăng ký"));
         }
-
-
         user.setEmail(createAccountRequest.getEmail());
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());
         user.setPassword(encoder.encode(createAccountRequest.getPassword()));
         user.setIntroduce(createAccountRequest.getIntroduce());
-        List<Role> roleList = new ArrayList<>();
-        Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
-        if (role.getCode().equals(EUserRole.STUDENT)) {
-            user.setStatus(true);
-        }
-        if (role.getCode().equals(EUserRole.TEACHER)) {
-            user.setStatus(false);
-        }
-        roleList.add(role);
-        user.setRoles(roleList);
-        if (role.getCode().equals(EUserRole.STUDENT)) {
-            user.setStatus(true);
-        } else if (role.getCode().equals(EUserRole.TEACHER)) {
-            user.setStatus(false);
-            Long userId = userRepository.save(user).getId();
-            MentorProfile mentorProfile = new MentorProfile();
-            mentorProfile.setUser(user);
-            mentorProfile.setStatus(false);
-            mentorProfileRepository.save(mentorProfile);
-            return userId;
-        }
+//        List<Role> roleList = new ArrayList<>();
+//        Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
+//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
+//
+//        roleList.add(role);
+//        user.setRoles(roleList);
+//        if (role.getCode().equals(EUserRole.STUDENT)) {
+//            user.setStatus(true);
+//        } else if (role.getCode().equals(EUserRole.TEACHER)) {
+//            user.setStatus(false);
+//            Long userId = userRepository.save(user).getId();
+//            MentorProfile mentorProfile = new MentorProfile();
+//            mentorProfile.setUser(user);
+//            mentorProfile.setStatus(false);
+//            mentorProfileRepository.save(mentorProfile);
+//            return userId;
+//        }
         return userRepository.save(user).getId();
     }
 

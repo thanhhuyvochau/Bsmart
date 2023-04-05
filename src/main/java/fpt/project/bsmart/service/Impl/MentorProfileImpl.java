@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.MentorSkillDto;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
+import fpt.project.bsmart.entity.request.UpdateSkillRequest;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.MentorSkillRepository;
@@ -16,6 +17,10 @@ import fpt.project.bsmart.util.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.Year;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,9 +64,12 @@ public class MentorProfileImpl implements IMentorProfileService {
     @Override
     public List<MentorProfileDTO> getAllMentors() {
         List<MentorProfileDTO> mentorProfileDTOS = new ArrayList<>();
+
         for (MentorProfile mentorProfile : mentorProfileRepository.findAll()) {
             mentorProfile.getUser().setPassword(null);
             mentorProfile.getUser().setWallet(null);
+
+
             mentorProfileDTOS.add(ConvertUtil.convertMentorProfileToMentorProfileDto(mentorProfile));
         }
         return mentorProfileDTOS;
@@ -113,22 +121,37 @@ public class MentorProfileImpl implements IMentorProfileService {
         }
 
         if (updateMentorProfileRequest.getMentorSkills() != null) {
-            List<MentorSkillDto> mentorSkillsDto = updateMentorProfileRequest.getMentorSkills();
+            List<UpdateSkillRequest> mentorUpdateSkills = updateMentorProfileRequest.getMentorSkills();
             Set<Long> skillIds = new HashSet<>();
-            for (MentorSkillDto mentorSkillDto : mentorSkillsDto) {
-                if (!skillIds.add(mentorSkillDto.getSkillId())) {
+            for (UpdateSkillRequest mentorUpdateSkill : mentorUpdateSkills) {
+                if(mentorUpdateSkill.getYearOfExperiences() <= 0){
+                    throw ApiException.create(HttpStatus.BAD_REQUEST)
+                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.NEGATIVE_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
+                }
+                ZonedDateTime userBirthYear = mentorProfile.getUser().getBirthday().atZone(ZoneOffset.UTC);
+                int userAge = Year.now().getValue() - userBirthYear.getYear();
+                boolean validMaximumYearOfExperience = userAge - mentorUpdateSkill.getYearOfExperiences() > 1;
+                if(!validMaximumYearOfExperience){
+                    throw ApiException.create(HttpStatus.BAD_REQUEST)
+                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
+                }
+                if(mentorUpdateSkill.getSkillId() == null){
+                    throw ApiException.create(HttpStatus.BAD_REQUEST)
+                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_SKILL));
+                }
+                if (!skillIds.add(mentorUpdateSkill.getSkillId())) {
                     // Duplicate skillId found, raise error
                     throw ApiException.create(HttpStatus.BAD_REQUEST)
-                            .withMessage(messageUtil.getLocalMessage(SUBJECT_ID_DUPLICATE) + mentorSkillDto.getSkillId());
+                            .withMessage(messageUtil.getLocalMessage(SUBJECT_ID_DUPLICATE) + mentorUpdateSkill.getSkillId());
                 }
             }
             List<MentorSkill> mentorSkills = new ArrayList<>();
-            for (MentorSkillDto mentorSkillDto : mentorSkillsDto) {
+            for (UpdateSkillRequest mentorUpdateSkill : mentorUpdateSkills) {
                 MentorSkill mentorSkill = new MentorSkill();
-                Subject subject = subjectRepository.findById(mentorSkillDto.getSkillId())
-                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + mentorSkillDto.getSkillId()));
+                Subject subject = subjectRepository.findById(mentorUpdateSkill.getSkillId())
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + mentorUpdateSkill.getSkillId()));
                 mentorSkill.setSkill(subject);
-                mentorSkill.setYearOfExperiences(mentorSkillDto.getYearOfExperiences());
+                mentorSkill.setYearOfExperiences(mentorUpdateSkill.getYearOfExperiences());
                 mentorSkill.setMentorProfile(mentorProfile);
                 mentorSkills.add(mentorSkill);
             }
