@@ -2,9 +2,7 @@ package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
-import fpt.project.bsmart.entity.dto.MentorSkillDto;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
 import fpt.project.bsmart.entity.request.UpdateSkillRequest;
@@ -17,12 +15,10 @@ import fpt.project.bsmart.util.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.Year;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_ID_DUPLICATE;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_BY_ID;
@@ -116,8 +112,8 @@ public class MentorProfileImpl implements IMentorProfileService {
             mentorProfile.setIntroduce(updateMentorProfileRequest.getIntroduce());
         }
 
-        if (updateMentorProfileRequest.getWorkingExperiences() != null) {
-            mentorProfile.setWorkingExperience(updateMentorProfileRequest.getWorkingExperiences());
+        if (updateMentorProfileRequest.getWorkingExperience() != null) {
+            mentorProfile.setWorkingExperience(updateMentorProfileRequest.getWorkingExperience());
         }
 
         if (updateMentorProfileRequest.getMentorSkills() != null) {
