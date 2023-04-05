@@ -76,7 +76,7 @@ public class CourseServiceImpl implements ICourseService {
 
     @Override
     public Long mentorCreateCourse(CreateSubCourseRequest createSubCourseRequest) {
-        User currentUserAccountLogin = SecurityUtil.getCurrentUserAccountLogin();
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
 
         if (createSubCourseRequest.getPrice() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
@@ -160,7 +160,7 @@ public class CourseServiceImpl implements ICourseService {
 
     @Override
     public ApiPage<CourseSubCourseResponse> mentorGetCourse(ECourseStatus status, Pageable pageable) {
-        User userLogin = SecurityUtil.getCurrentUserAccountLogin();
+        User userLogin = SecurityUtil.getCurrentUser();
         Page<SubCourse> allCourseMentor;
         if (status.equals(ALL)) {
             allCourseMentor = subCourseRepository.findByMentor(userLogin, pageable);
@@ -189,7 +189,7 @@ public class CourseServiceImpl implements ICourseService {
         List<CourseResponse> courseResponseList = new ArrayList<>();
 
 
-        User userLogin = SecurityUtil.getCurrentUserAccountLogin();
+        User userLogin = SecurityUtil.getCurrentUser();
 
 
         for (Course course : coursesList) {
@@ -215,7 +215,7 @@ public class CourseServiceImpl implements ICourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 
-        User userLogin = SecurityUtil.getCurrentUserAccountLogin();
+        User userLogin = SecurityUtil.getCurrentUser();
 
         Page<SubCourse> subCoursesList = subCourseRepository.findByCourse(course, pageable);
         return PageUtil.convert(subCoursesList.map(subCourse -> {
@@ -225,7 +225,7 @@ public class CourseServiceImpl implements ICourseService {
 
     @Override
     public ApiPage<CourseSubCourseResponse> memberGetCourse(ECourseStatus status ,Pageable pageable) {
-        User userLogin = SecurityUtil.getCurrentUserAccountLogin();
+        User userLogin = SecurityUtil.getCurrentUser();
         List<Order> orders = userLogin.getOrder();
         List<SubCourse> subCourses = new ArrayList<>();
         orders.forEach(order -> {
@@ -258,7 +258,7 @@ public class CourseServiceImpl implements ICourseService {
 
     @Override
     public Boolean memberRegisterCourse(Long id) {
-        User userLogin = SecurityUtil.getCurrentUserAccountLogin();
+        User userLogin = SecurityUtil.getCurrentUser();
 //        Course course = courseRepository.findByIdAndStatus(id, ECourseStatus.NOTSTART)
 //                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 //        if (!course.getStatus().equals(ECourseStatus.NOTSTART)) {

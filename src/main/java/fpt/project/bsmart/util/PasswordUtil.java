@@ -20,12 +20,12 @@ public class PasswordUtil {
         return m.matches();
     }
 
-    public static String BCryptPasswordEncoder(String password) {
-        org.springframework.security.crypto.password.PasswordEncoder encoder
-                = new BCryptPasswordEncoder();
-        String passwd = encoder.encode(password);
-        return passwd;
-    }
+//    public static String BCryptPasswordEncoder(String password) {
+//        org.springframework.security.crypto.password.PasswordEncoder encoder
+//                = new BCryptPasswordEncoder();
+//        String passwd = encoder.encode(password);
+//        return passwd;
+//    }
 
     public static boolean IsOldPassword(String oldPassword, String encodedOldPassword){
         org.springframework.security.crypto.password.PasswordEncoder encoder = new BCryptPasswordEncoder();

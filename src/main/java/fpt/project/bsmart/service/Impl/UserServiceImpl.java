@@ -2,12 +2,10 @@ package fpt.project.bsmart.service.Impl;
 
 
 import fpt.project.bsmart.entity.Image;
-import fpt.project.bsmart.entity.MentorProfile;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EImageType;
-import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
@@ -22,6 +20,8 @@ import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.adapter.MinioAdapter;
+import fpt.project.bsmart.util.keycloak.KeycloakRoleUtil;
+import fpt.project.bsmart.util.keycloak.KeycloakUserUtil;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -29,18 +29,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.EMPTY_PASSWORD;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 @Service
+@Transactional
 public class UserServiceImpl implements IUserService {
 
 
@@ -58,12 +59,11 @@ public class UserServiceImpl implements IUserService {
     private final MentorProfileRepository mentorProfileRepository;
 
     private final MinioAdapter minioAdapter;
+    private final KeycloakUserUtil keycloakUserUtil;
+    private final KeycloakRoleUtil keycloakRoleUtil;
 
 
-
-
-
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter) {
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, KeycloakUserUtil keycloakUserUtil, KeycloakRoleUtil keycloakRoleUtil) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
@@ -71,6 +71,8 @@ public class UserServiceImpl implements IUserService {
         this.imageRepository = imageRepository;
         this.mentorProfileRepository = mentorProfileRepository;
         this.minioAdapter = minioAdapter;
+        this.keycloakUserUtil = keycloakUserUtil;
+        this.keycloakRoleUtil = keycloakRoleUtil;
     }
 
     private static void accept(Image image) {
@@ -83,7 +85,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     public User getCurrentLoginUser() {
-        return SecurityUtil.getCurrentUserAccountLogin();
+        return SecurityUtil.getCurrentUser();
     }
 
     @Override
@@ -114,7 +116,7 @@ public class UserServiceImpl implements IUserService {
         List<Image> userImages = user.getUserImages();
 
         List<Image> images = user.getUserImages();
-        if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)){
+        if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
             List<Image> avatarCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
             avatarCurrent.forEach(image1 -> {
                 accept(image1);
@@ -122,25 +124,25 @@ public class UserServiceImpl implements IUserService {
             });
         }
 
-        if (uploadImageRequest.getImageType().equals(EImageType.FRONTCI)){
+        if (uploadImageRequest.getImageType().equals(EImageType.FRONTCI)) {
             List<Image> CIFrontCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.FRONTCI)).collect(Collectors.toList());
             CIFrontCurrent.forEach(image -> {
                 accept(image);
                 images.add(image);
-            }) ;
+            });
 
         }
-        if (uploadImageRequest.getImageType().equals(EImageType.BACKCI)){
+        if (uploadImageRequest.getImageType().equals(EImageType.BACKCI)) {
             List<Image> CIBackCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.BACKCI)).collect(Collectors.toList());
             CIBackCurrent.forEach(image -> {
                 accept(image);
                 images.add(image);
-            }) ;
+            });
 
         }
 
 
-        imageRepository.saveAll(images)  ;
+        imageRepository.saveAll(images);
         Image image = new Image();
         String name = uploadImageRequest.getFile().getOriginalFilename() + "-" + Instant.now().toString();
         ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, uploadImageRequest.getFile().getContentType(),
@@ -151,7 +153,8 @@ public class UserServiceImpl implements IUserService {
         image.setStatus(true);
         if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
             image.setType(EImageType.AVATAR);
-        } if (uploadImageRequest.getImageType().equals(EImageType.FRONTCI)) {
+        }
+        if (uploadImageRequest.getImageType().equals(EImageType.FRONTCI)) {
             image.setType(EImageType.FRONTCI);
         }
         if (uploadImageRequest.getImageType().equals(EImageType.BACKCI)) {
@@ -164,7 +167,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public List<Long> uploadDegree(MultipartFile[] files) throws IOException {
         User user = getCurrentLoginUser();
-        List<Long> imageIds  = new ArrayList<>();
+        List<Long> imageIds = new ArrayList<>();
         for (MultipartFile file : files) {
             Image image = new Image();
             String name = file.getOriginalFilename() + "-" + Instant.now().toString();
@@ -176,7 +179,7 @@ public class UserServiceImpl implements IUserService {
             image.setUrl(ImageUrlUtil.buildUrl(minioUrl, objectWriteResponse));
             image.setUser(user);
             Image save = imageRepository.save(image);
-            imageIds.add(save.getId()) ;
+            imageIds.add(save.getId());
         }
         return imageIds;
     }
@@ -230,7 +233,7 @@ public class UserServiceImpl implements IUserService {
                     .withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
 
         }
-        String encodedNewPassword = PasswordUtil.BCryptPasswordEncoder(accountProfileEditRequest.getNewPassword());
+        String encodedNewPassword = encoder.encode(accountProfileEditRequest.getNewPassword());
 
         if (!PasswordUtil.IsOldPassword(accountProfileEditRequest.getOldPassword(), user.getPassword())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
@@ -242,8 +245,9 @@ public class UserServiceImpl implements IUserService {
                         .withMessage(messageUtil.getLocalMessage(NEW_PASSWORD_DUPLICATE));
             }
         }
-        user.setPassword(encodedNewPassword);
-        return userRepository.save(user).getId();
+        User savedUser = userRepository.save(user);
+        keycloakUserUtil.update(savedUser, accountProfileEditRequest.getNewPassword());
+        return savedUser.getId();
     }
 
     @Override
@@ -314,9 +318,7 @@ public class UserServiceImpl implements IUserService {
     }
 
 
-
     public Long registerAccount(CreateAccountRequest createAccountRequest) {
-
         User user = new User();
         if (userRepository.existsByEmail(createAccountRequest.getEmail())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
@@ -327,32 +329,23 @@ public class UserServiceImpl implements IUserService {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Số điện thoại : " + createAccountRequest.getPhone() + "đã được đăng ký"));
         }
+        Role role = roleRepository.findRoleByCode(createAccountRequest.getRole()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Role không tìm thấy!"));
         user.setEmail(createAccountRequest.getEmail());
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());
-        user.setPassword(encoder.encode(createAccountRequest.getPassword()));
         user.setIntroduce(createAccountRequest.getIntroduce());
-//        List<Role> roleList = new ArrayList<>();
-//        Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khong tim thay role"));
-//
-//        roleList.add(role);
-//        user.setRoles(roleList);
-//        if (role.getCode().equals(EUserRole.STUDENT)) {
-//            user.setStatus(true);
-//        } else if (role.getCode().equals(EUserRole.TEACHER)) {
-//            user.setStatus(false);
-//            Long userId = userRepository.save(user).getId();
-//            MentorProfile mentorProfile = new MentorProfile();
-//            mentorProfile.setUser(user);
-//            mentorProfile.setStatus(false);
-//            mentorProfileRepository.save(mentorProfile);
-//            return userId;
-//        }
-        return userRepository.save(user).getId();
+        user.setPassword(encoder.encode(createAccountRequest.getPassword()));
+        user.getRoles().add(role);
+        User savedUser = userRepository.save(user);
+
+        Boolean saveAccountSuccess = keycloakUserUtil.create(user, createAccountRequest.getPassword());
+        Boolean assignRoleSuccess = keycloakRoleUtil.assignRoleToUser(createAccountRequest.getRole().getKeycloakRole(), user);
+        if (saveAccountSuccess && assignRoleSuccess) {
+            return savedUser.getId();
+        } else {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Tạo tài khoản thất bại, vui lòng thử lại!");
+        }
     }
-
-
 }
 
 
