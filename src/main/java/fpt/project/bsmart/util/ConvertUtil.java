@@ -123,7 +123,9 @@ public class ConvertUtil {
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (Image image : user.getUserImages()) {
-                imageDtoList.add(convertImageToImageDto(image));
+                if(image.isStatus()){
+                    imageDtoList.add(convertImageToImageDto(image));
+                }
             }
             userDto.setUserImages(imageDtoList);
         }
@@ -361,6 +363,7 @@ public class ConvertUtil {
     public static MentorSkillDto convertMentorSkillToMentorSkillDto(MentorSkill mentorSkill) {
         MentorSkillDto mentorSkillDto = new MentorSkillDto();
         mentorSkillDto.setSkillId(mentorSkill.getSkill().getId());
+        mentorSkillDto.setName(mentorSkill.getSkill().getName());
         mentorSkillDto.setYearOfExperiences(mentorSkill.getYearOfExperiences());
         return mentorSkillDto;
     }

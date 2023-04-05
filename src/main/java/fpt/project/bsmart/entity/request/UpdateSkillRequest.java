@@ -1,8 +1,7 @@
-package fpt.project.bsmart.entity.dto;
+package fpt.project.bsmart.entity.request;
 
-public class MentorSkillDto {
+public class UpdateSkillRequest {
     private Long skillId;
-    private String name;
     private int yearOfExperiences;
 
     public Long getSkillId() {
@@ -13,14 +12,6 @@ public class MentorSkillDto {
         this.skillId = skillId;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public int getYearOfExperiences() {
         return yearOfExperiences;
     }
@@ -28,5 +19,4 @@ public class MentorSkillDto {
     public void setYearOfExperiences(int yearOfExperiences) {
         this.yearOfExperiences = yearOfExperiences;
     }
-
 }
