@@ -1,15 +1,18 @@
 package fpt.project.bsmart.service;
 
+import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.request.ImageRequest;
+import fpt.project.bsmart.entity.request.MentorSearchRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface IMentorProfileService {
     MentorProfileDTO getMentorProfile(Long id);
-    List<MentorProfileDTO> getAllMentors();
+    ApiPage<MentorProfileDTO> getAllMentors(MentorSearchRequest mentorSearchRequest, Pageable pageable);
     List<MentorProfileResponse> getAllMentorProfiles();
     List<MentorProfileDTO> getPendingMentorProfileList();
     Long approveMentorProfile(Long id);
