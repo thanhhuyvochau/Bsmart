@@ -14,7 +14,7 @@ public class UserDto {
 
     private Long id;
 
-    private String introduce;
+    //private String introduce;
 
     private String fullName;
 
@@ -69,13 +69,14 @@ public class UserDto {
     }
 
 
+    /*
     public String getIntroduce() {
         return introduce;
     }
-
     public void setIntroduce(String introduce) {
         this.introduce = introduce;
     }
+    */
 
     public Instant getBirthday() {
         return birthday;
