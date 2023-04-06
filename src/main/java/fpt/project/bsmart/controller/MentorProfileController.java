@@ -1,16 +1,20 @@
 package fpt.project.bsmart.controller;
 
+import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.request.ImageRequest;
+import fpt.project.bsmart.entity.request.MentorSearchRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.service.IMentorProfileService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 @RestController
@@ -30,8 +34,8 @@ public class MentorProfileController {
 
     @Operation(summary = "Lấy danh sách toàn bộ giảng viên")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<MentorProfileDTO>>> getAllMentors(){
-        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getAllMentors()));
+    public ResponseEntity<ApiResponse<ApiPage<MentorProfileDTO>>> getAllMentors(@Nullable MentorSearchRequest mentorSearchRequest, Pageable pageable){
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getAllMentors(mentorSearchRequest, pageable)));
     }
 
     @Operation(summary = "Lấy toàn bộ danh sách giảng viên chỉ có id và tên")
