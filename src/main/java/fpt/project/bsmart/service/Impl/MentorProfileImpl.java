@@ -25,6 +25,7 @@ import java.time.Year;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_ID_DUPLICATE;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_BY_ID;
