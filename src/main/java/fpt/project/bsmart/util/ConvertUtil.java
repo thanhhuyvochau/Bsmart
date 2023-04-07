@@ -133,6 +133,7 @@ public class ConvertUtil {
                 userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
             }
             if (user.getMentorProfile() != null) {
+                userDto.getMentorProfile().setUser(null);
                 userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
             }
         }
