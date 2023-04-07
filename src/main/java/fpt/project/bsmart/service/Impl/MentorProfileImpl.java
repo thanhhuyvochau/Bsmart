@@ -2,10 +2,10 @@ package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
-import fpt.project.bsmart.entity.dto.MentorSkillDto;
 import fpt.project.bsmart.entity.request.ImageRequest;
+import fpt.project.bsmart.entity.request.MentorSearchRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
 import fpt.project.bsmart.entity.request.UpdateSkillRequest;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
@@ -14,10 +14,13 @@ import fpt.project.bsmart.repository.MentorSkillRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
 import fpt.project.bsmart.service.IMentorProfileService;
 import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.specification.MentorProfileSpecificationBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.Year;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -62,17 +65,18 @@ public class MentorProfileImpl implements IMentorProfileService {
     }
 
     @Override
-    public List<MentorProfileDTO> getAllMentors() {
+    public ApiPage<MentorProfileDTO> getAllMentors(MentorSearchRequest mentorSearchRequest, Pageable pageable) {
+        MentorProfileSpecificationBuilder builder = MentorProfileSpecificationBuilder.specificationBuilder()
+                .searchByUserName(mentorSearchRequest.getQ())
+                .searchBySkill(mentorSearchRequest.getSkills());
+        Page<MentorProfile> mentorProfilePage = mentorProfileRepository.findAll(builder.build(), pageable);
+        List<MentorProfile> mentorProfiles = mentorProfilePage.stream().collect(Collectors.toList());
         List<MentorProfileDTO> mentorProfileDTOS = new ArrayList<>();
-
-        for (MentorProfile mentorProfile : mentorProfileRepository.findAll()) {
-            mentorProfile.getUser().setPassword(null);
-            mentorProfile.getUser().setWallet(null);
-
-
+        for (MentorProfile mentorProfile : mentorProfiles){
             mentorProfileDTOS.add(ConvertUtil.convertMentorProfileToMentorProfileDto(mentorProfile));
         }
-        return mentorProfileDTOS;
+        Page<MentorProfileDTO> page = new PageImpl<>(mentorProfileDTOS);
+        return PageUtil.convert(page);
     }
 
     @Override
@@ -107,7 +111,7 @@ public class MentorProfileImpl implements IMentorProfileService {
 
     @Override
     public Long updateMentorProfile(UpdateMentorProfileRequest updateMentorProfileRequest) {
-        User user = SecurityUtil.getCurrentUserAccountLogin();
+        User user = SecurityUtil.getCurrentUser();
         MentorProfile mentorProfile = mentorProfileRepository.getMentorProfileByUser(user)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + user.getId()));
@@ -116,8 +120,8 @@ public class MentorProfileImpl implements IMentorProfileService {
             mentorProfile.setIntroduce(updateMentorProfileRequest.getIntroduce());
         }
 
-        if (updateMentorProfileRequest.getWorkingExperiences() != null) {
-            mentorProfile.setWorkingExperience(updateMentorProfileRequest.getWorkingExperiences());
+        if (updateMentorProfileRequest.getWorkingExperience() != null) {
+            mentorProfile.setWorkingExperience(updateMentorProfileRequest.getWorkingExperience());
         }
 
         if (updateMentorProfileRequest.getMentorSkills() != null) {

@@ -5,7 +5,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://vuondau-keycloak.amazingtech.vn/auth/realms/vuondau-application
+          issuer-uri: http://103.173.155.221:8088/auth/realms/bsmart
   config:
     import: optional:file:.env[.properties]
   messages:
@@ -102,3 +102,11 @@ minio:
   bucket:
     name: bsmart
   endpoint: http://103.173.155.221:9000
+
+keycloak:
+  realm: bsmart
+  resource: springboot-admin-client
+  app-client: bsmart
+  auth-server-url: http://103.173.155.221:8088/auth
+  credentials:
+    secret: 56ce136b-1dc5-40cb-8a2f-dfb97005a3ef
