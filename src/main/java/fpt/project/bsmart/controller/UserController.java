@@ -54,34 +54,34 @@ public class UserController {
     }
 
     @Operation(summary = "Xóa liên kết mạng xã hội")
-    @PreAuthorize("hasAnyAuthority('TEACHER','STUDENT')")
+    @PreAuthorize("hasAnyRole('TEACHER','STUDENT')")
     @PutMapping("/social/remove")
     public ResponseEntity<ApiResponse<Long>> removeSocialLink(String link){
         return ResponseEntity.ok(ApiResponse.success(iUserService.removeSocialLink(link)));
     }
     @Operation(summary = "Chỉnh sửa liên kết mạng xã hội")
-    @PreAuthorize("hasAnyAuthority('TEACHER', 'STUDENT')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @PutMapping("/social")
     public ResponseEntity<ApiResponse<Long>> editSocialProfile(@RequestBody SocialProfileEditRequest socialProfileEditRequest){
         return ResponseEntity.ok(ApiResponse.success(iUserService.editUserSocialProfile(socialProfileEditRequest)));
     }
 
     @Operation(summary = "Chỉnh sửa thông tin tài khoản")
-    @PreAuthorize("hasAnyAuthority('TEACHER', 'STUDENT')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @PutMapping("/account")
     public ResponseEntity<ApiResponse<Long>> editAccountProfile(@RequestBody AccountProfileEditRequest accountProfileEditRequest){
         return ResponseEntity.ok(ApiResponse.success(iUserService.editUserAccountProfile(accountProfileEditRequest)));
     }
 
     @Operation(summary = "Member chỉnh sửa thông tin cá nhân")
-    @PreAuthorize("hasAnyAuthority('STUDENT')")
+    @PreAuthorize("hasAnyRole('STUDENT')")
     @PutMapping("/member-personal")
     public ResponseEntity<ApiResponse<Long>> editMemberPersonalProfile(@RequestBody PersonalProfileEditRequest personalProfileEditRequest){
         return ResponseEntity.ok(ApiResponse.success(iUserService.editUserPersonalProfile(personalProfileEditRequest)));
     }
 
     @Operation(summary = "Mentor chỉnh sửa thông tin cá nhân")
-    @PreAuthorize("hasAnyAuthority('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER')")
     @PutMapping("/mentor-personal")
     public ResponseEntity<ApiResponse<Long>> editMentorPersonalProfile(@RequestBody MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest){
         return ResponseEntity.ok(ApiResponse.success(iUserService.editMentorPersonalProfile(mentorPersonalProfileEditRequest)));
@@ -89,14 +89,14 @@ public class UserController {
 
 
     @Operation(summary = "upload dại diện - CMMD.CDCC")
-    @PreAuthorize("hasAnyAuthority('TEACHER' , 'STUDENT')")
+    @PreAuthorize("hasAnyRole('TEACHER' , 'STUDENT')")
     @PostMapping("/upload-image")
     public ResponseEntity<ApiResponse<Long>> uploadImageRegisterProfile( @ModelAttribute UploadImageRequest uploadImageRequest) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(iUserService.uploadImageProfile( uploadImageRequest)));
     }
 
     @Operation(summary = "upload nhiều bằng cấp ")
-    @PreAuthorize("hasAnyAuthority('TEACHER' , 'STUDENT')")
+    @PreAuthorize("hasAnyRole('TEACHER' , 'STUDENT')")
     @PostMapping("/upload-degree")
     public ResponseEntity<ApiResponse<List<Long>>> uploadDegree( @RequestParam("files") MultipartFile[] files) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(iUserService.uploadDegree( files)));
