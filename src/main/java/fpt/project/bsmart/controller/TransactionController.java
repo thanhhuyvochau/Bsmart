@@ -28,42 +28,42 @@ public class TransactionController {
 
     @Operation(summary = "Thành viên tự lấy thông tin giao dịch về ví tiền")
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('STUDENT','TEACHER')")
+    @PreAuthorize("hasAnyRole('STUDENT','TEACHER')")
     public ResponseEntity<ApiResponse<ApiPage<TransactionDto>>> getSelfTransaction(Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.getSelfTransactions(pageable)));
     }
 
     @Operation(summary = "Admin lấy thông tin giao dịch về ví tiền của thành viên")
     @GetMapping("/{userId}")
-    @PreAuthorize("hasAnyAuthority('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER')")
     public ResponseEntity<ApiResponse<ApiPage<TransactionDto>>> getSelfTransaction(Pageable pageable, @PathVariable Long userId) {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.getUserTransactions(pageable, userId)));
     }
 
     @Operation(summary = "Thành viên nạp tiền vào vi")
     @PostMapping("/deposit")
-    @PreAuthorize("hasAnyAuthority('STUDENT')")
+    @PreAuthorize("hasAnyRole('STUDENT')")
     public ResponseEntity<ApiResponse<Boolean>> deposit(@Valid @RequestBody DepositRequest request) {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.deposit(request)));
     }
 
     @Operation(summary = "Thành viên rút tiền từ vi")
     @PostMapping("/withdraw")
-    @PreAuthorize("hasAnyAuthority('STUDENT','TEACHER')")
+    @PreAuthorize("hasAnyRole('STUDENT','TEACHER')")
     public ResponseEntity<ApiResponse<Boolean>> withdraw(@Valid @RequestBody WithdrawRequest request) {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.withdraw(request)));
     }
 
     @Operation(summary = "Thanh toán khóa học nhanh")
     @PostMapping("/pay-quick")
-    @PreAuthorize("hasAnyAuthority('STUDENT')")
+    @PreAuthorize("hasAnyRole('STUDENT')")
     public ResponseEntity<ApiResponse<Boolean>> payCourseQuickly(@RequestBody PayCourseRequest request) {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.payQuickCourse(request)));
     }
 
     @Operation(summary = "Thanh toán khóa học từ giỏ hàng")
     @PostMapping("/pay")
-    @PreAuthorize("hasAnyAuthority('STUDENT')")
+    @PreAuthorize("hasAnyRole('STUDENT')")
     public ResponseEntity<ApiResponse<Boolean>> payCourseFromCart(@RequestBody List<PayCourseRequest> request) {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.payCourseFromCart(request)));
     }

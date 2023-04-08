@@ -40,14 +40,14 @@ public class CourseController {
     }
 
     @Operation(summary = "mentor tao khoá học")
-    @PreAuthorize("hasAuthority('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping
     public ResponseEntity<ApiResponse<Long>> mentorCreateCourse(@Valid @RequestBody CreateSubCourseRequest createSubCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createSubCourseRequest)));
     }
 
     @Operation(summary = "mentor xem tất cả course của mình")
-    @PreAuthorize("hasAuthority('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/mentor")
     public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> mentorGetCourse(ECourseStatus status ,  Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetCourse( status  , pageable)));
@@ -55,7 +55,7 @@ public class CourseController {
 
 
     @Operation(summary = "Member xem khóa học đã đăng ký")
-    @PreAuthorize("hasAnyAuthority('STUDENT')")
+    @PreAuthorize("hasAnyRole('STUDENT')")
     @GetMapping("/member")
     public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourse(ECourseStatus status ,Pageable pageable){
         return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourse(status,pageable)));
@@ -80,7 +80,7 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getDetailCourseForCoursePage(id)));
     }
 //    @Operation(summary = "mentor upload hình cho khoá học")
-//    @PreAuthorize("hasAuthority('TEACHER')")
+//    @PreAuthorize("hasAnyRole('TEACHER')")
 //    @PostMapping("/image")
 //    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageCourse(@ModelAttribute ImageRequest ImageRequest) {
 //        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageCourse(ImageRequest)));
@@ -88,7 +88,7 @@ public class CourseController {
 
 
 //    @Operation(summary = "mentor thêm ảnh đại diện cho course")
-//    @PreAuthorize("hasAuthority('TEACHER')")
+//    @PreAuthorize("hasAnyRole('TEACHER')")
 //    @PostMapping("{id}/image")
 //    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageForCourse(@PathVariable Long id  , @ModelAttribute FileDto request) {
 //        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageForCourse(id , request)));

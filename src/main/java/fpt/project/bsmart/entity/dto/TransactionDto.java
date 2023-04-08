@@ -22,7 +22,7 @@ public class TransactionDto extends BaseEntity {
     private BigDecimal beforeBalance;
 
     private BigDecimal afterBalance;
-
+    private String iconUrl;
 
     public Long getId() {
         return id;
@@ -86,5 +86,13 @@ public class TransactionDto extends BaseEntity {
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
+    }
+
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
     }
 }

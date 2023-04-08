@@ -5,7 +5,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://103.173.155.221:8088/auth/realms/bsmart
+          issuer-uri: http://103.173.155.221:8088/auth/realms/Bsmart
   config:
     import: optional:file:.env[.properties]
   messages:
@@ -110,3 +110,7 @@ keycloak:
   auth-server-url: http://103.173.155.221:8088/auth
   credentials:
     secret: 56ce136b-1dc5-40cb-8a2f-dfb97005a3ef
+
+icon:
+  success: http://103.173.155.221:9000/bsmart/checked.png
+  fail: http://103.173.155.221:9000/bsmart/fail.png
