@@ -36,3 +36,13 @@ password: s_IFvbN797b^lH
 [Code Naming](https://www.tutorialspoint.com/why-we-should-follow-the-naming-conventions-in-java#:~:text=In%20Java%2C%20class%20names%20generally,of%20each%20separate%20word%20capitalized.)
 
 [Git Conventions](https://viblo.asia/p/lam-the-nao-de-viet-conventional-commits-cho-de-su-dung-07LKXbb2lV4)
+
+
+### Keycloak
+
+```
+Keycloak URL: http://103.173.155.221:8088/
+Username: admin
+Password: Pa55w0rd
+Realm: bsmart
+```
