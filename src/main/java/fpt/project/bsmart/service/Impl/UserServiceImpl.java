@@ -2,10 +2,12 @@ package fpt.project.bsmart.service.Impl;
 
 
 import fpt.project.bsmart.entity.Image;
+import fpt.project.bsmart.entity.MentorProfile;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EImageType;
+import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
@@ -336,8 +338,16 @@ public class UserServiceImpl implements IUserService {
         user.setIntroduce(createAccountRequest.getIntroduce());
         user.setPassword(encoder.encode(createAccountRequest.getPassword()));
         user.getRoles().add(role);
+        if (role.getCode().equals(EUserRole.STUDENT)) {
+            user.setStatus(true);
+        } else if (role.getCode().equals(EUserRole.TEACHER)) {
+            user.setStatus(false);
+            MentorProfile mentorProfile = new MentorProfile();
+            mentorProfile.setUser(user);
+            mentorProfile.setStatus(false);
+            mentorProfileRepository.save(mentorProfile);
+        }
         User savedUser = userRepository.save(user);
-
         Boolean saveAccountSuccess = keycloakUserUtil.create(user, createAccountRequest.getPassword());
         Boolean assignRoleSuccess = keycloakRoleUtil.assignRoleToUser(createAccountRequest.getRole().getKeycloakRole(), user);
         if (saveAccountSuccess && assignRoleSuccess) {
