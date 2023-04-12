@@ -65,7 +65,7 @@ public class CourseController {
     // ################################## Mentor ##########################################
 
     @Operation(summary = "mentor tao khoá học")
-    @PreAuthorize("hasAuthority('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping
     public ResponseEntity<ApiResponse<Long>> mentorCreateCourse(@Valid @RequestBody CreateCourseRequest createCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createCourseRequest)));
@@ -80,7 +80,7 @@ public class CourseController {
     // ################################## Member ##########################################
 
     @Operation(summary = "Member xem khóa học đã đăng ký")
-    @PreAuthorize("hasAnyAuthority('STUDENT')")
+    @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/member")
     public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourse(ECourseStatus status, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourse(status, pageable)));
