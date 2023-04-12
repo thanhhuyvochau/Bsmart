@@ -20,7 +20,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://103.173.155.221:8088/auth/realms/bsmart
+          issuer-uri: http://103.173.155.221:8088/auth/realms/Bsmart
   servlet:
     multipart:
       enabled: 'true'

@@ -45,35 +45,35 @@ public class MentorProfileController {
     }
 
     @Operation(summary = "Lấy danh sách giảng viên chờ duyệt")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/pending")
     public ResponseEntity<ApiResponse<List<MentorProfileDTO>>> getPendingMentorProfile(){
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getPendingMentorProfileList()));
     }
 
     @Operation(summary = "Duyệt hồ sơ giảng viên")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER')")
     @PutMapping("/{id}/approve")
     public ResponseEntity<ApiResponse<Long>> approveMentorProfile(@PathVariable Long id){
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.approveMentorProfile(id)));
     }
 
     @Operation(summary = "Cập nhật hồ sơ giảng viên")
-    @PreAuthorize("hasAuthority('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER')")
     @PutMapping
     public ResponseEntity<ApiResponse<Long>> updateMentorProfile(@RequestBody UpdateMentorProfileRequest updateMentorProfileRequest){
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateMentorProfile(updateMentorProfileRequest)));
     }
 
     @Operation(summary = "CHƯA HỖ TRỢ --- Upload chứng chỉ của giảng viên")
-    @PreAuthorize("hasAuthority('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping("/certificate")
     public ResponseEntity<ApiResponse<List<Long>>> updateMentorCertificate(List<ImageRequest> imageRequests){
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateCertificate(imageRequests)));
     }
 
 //    @Operation(summary = "CHƯA HỖ TRỢ --- Upload chứng chỉ của giảng viên")
-//    @PreAuthorize("hasAuthority('TEACHER')")
+//    @PreAuthorize("hasAnyRole('TEACHER')")
 //    @PostMapping("/certificate")
 //    public ResponseEntity<ApiResponse<List<Long>>> updateAvatar(List<ImageRequest> imageRequests){
 //        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateCertificate(imageRequests)));

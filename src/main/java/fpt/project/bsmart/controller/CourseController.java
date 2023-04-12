@@ -43,6 +43,8 @@ public class CourseController {
 
 
 
+
+
     @Operation(summary = "lấy tất cả các course đổ lên trang khoa học")
     @GetMapping
     public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(@Nullable CourseSearchRequest query, Pageable pageable) {
@@ -91,7 +93,7 @@ public class CourseController {
     }
 
 //    @Operation(summary = "mentor upload hình cho khoá học")
-//    @PreAuthorize("hasAuthority('TEACHER')")
+//    @PreAuthorize("hasAnyRole('TEACHER')")
 //    @PostMapping("/image")
 //    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageCourse(@ModelAttribute ImageRequest ImageRequest) {
 //        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageCourse(ImageRequest)));
@@ -99,7 +101,7 @@ public class CourseController {
 
 
 //    @Operation(summary = "mentor thêm ảnh đại diện cho course")
-//    @PreAuthorize("hasAuthority('TEACHER')")
+//    @PreAuthorize("hasAnyRole('TEACHER')")
 //    @PostMapping("{id}/image")
 //    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageForCourse(@PathVariable Long id  , @ModelAttribute FileDto request) {
 //        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageForCourse(id , request)));

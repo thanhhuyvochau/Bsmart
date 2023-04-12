@@ -1,13 +1,11 @@
 package fpt.project.bsmart.util.specification;
 
-import fpt.project.bsmart.entity.MentorProfile;
-import fpt.project.bsmart.entity.MentorProfile_;
-import fpt.project.bsmart.entity.User;
-import fpt.project.bsmart.entity.User_;
+import fpt.project.bsmart.entity.*;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +22,18 @@ public class MentorProfileSpecificationBuilder {
             Join<MentorProfile, User> join = root.join(MentorProfile_.USER, JoinType.LEFT);
             return criteriaBuilder.like(join.get(User_.FULL_NAME), "%" + name + "%");
         }));
+        return this;
+    }
+
+    public MentorProfileSpecificationBuilder searchBySkill(List<Long> skillIds){
+        if(skillIds == null || skillIds.isEmpty()){
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            Join<MentorProfile, MentorSkill> join = root.join(MentorProfile_.SKILLS, JoinType.LEFT);
+            Path<Object> objectPath = join.get(MentorSkill_.SKILL);
+            return criteriaBuilder.and(objectPath.in(skillIds));
+        });
         return this;
     }
 

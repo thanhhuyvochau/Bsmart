@@ -31,14 +31,18 @@ public class SecurityUtil {
 
     public static User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Jwt principal = (Jwt) authentication.getPrincipal();
-        String username = principal.getClaimAsString("preferred_username");
-        User currentUser = Optional.ofNullable(staticUserRepository.findByEmail(username))
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Student not found by username"));
-        if (currentUser.getKeycloakUserId() == null){
-            currentUser.setKeycloakUserId(principal.getClaimAsString("id"));
+        try {
+            Jwt principal = (Jwt) authentication.getPrincipal();
+            String username = principal.getClaimAsString("preferred_username");
+            User currentUser = Optional.ofNullable(staticUserRepository.findByEmail(username))
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Student not found by username"));
+            if (currentUser.getKeycloakUserId() == null) {
+                currentUser.setKeycloakUserId(principal.getClaimAsString("id"));
+            }
+            return currentUser;
+        } catch (Exception e) {
+            return null;
         }
-        return currentUser;
     }
 
     public static Wallet getCurrentUserWallet() {

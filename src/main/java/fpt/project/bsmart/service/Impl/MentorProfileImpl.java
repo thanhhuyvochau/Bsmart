@@ -22,10 +22,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-
-import javax.annotation.Nullable;
-
 import java.time.Year;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -70,9 +66,10 @@ public class MentorProfileImpl implements IMentorProfileService {
     }
 
     @Override
-    public ApiPage<MentorProfileDTO> getAllMentors(@Nullable MentorSearchRequest mentorSearchRequest, Pageable pageable) {
+    public ApiPage<MentorProfileDTO> getAllMentors(MentorSearchRequest mentorSearchRequest, Pageable pageable) {
         MentorProfileSpecificationBuilder builder = MentorProfileSpecificationBuilder.specificationBuilder()
-                .searchByUserName(mentorSearchRequest.getQ());
+                .searchByUserName(mentorSearchRequest.getQ())
+                .searchBySkill(mentorSearchRequest.getSkills());
         Page<MentorProfile> mentorProfilePage = mentorProfileRepository.findAll(builder.build(), pageable);
         List<MentorProfile> mentorProfiles = mentorProfilePage.stream().collect(Collectors.toList());
         List<MentorProfileDTO> mentorProfileDTOS = new ArrayList<>();
