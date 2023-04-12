@@ -20,7 +20,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://vuondau-keycloak.amazingtech.vn/auth/realms/vuondau-application
+          issuer-uri: http://103.173.155.221:8088/auth/realms/bsmart
   servlet:
     multipart:
       enabled: 'true'
@@ -35,17 +35,12 @@ spring:
 
 # Keycloak settings
 keycloak:
-  realm: vuondau-application
+  realm: bsmart
   resource: springboot-admin-client
-  app-client: vuondau
-  auth-server-url: http://vuondau-keycloak.amazingtech.vn/auth
+  app-client: bsmart
+  auth-server-url: http://keycloak:8080/auth
   credentials:
-    secret: 0Z8fWR17uURSeTWmKd4EdapEUF8ck9ku
-
-
-
-
-
+    secret: 56ce136b-1dc5-40cb-8a2f-dfb97005a3ef
 #------------------Security Specific Properties-------
 app:
   secret-key: J@!gt*K
@@ -56,4 +51,6 @@ beholder:
       bezKoderSecretKey
     jwtExpirationMs:
       86400000
+
+
 

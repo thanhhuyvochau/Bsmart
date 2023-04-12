@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.JwtResponse;
+import fpt.project.bsmart.entity.request.SignupRequest;
 import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
@@ -36,6 +37,4 @@ public interface IUserService {
     Long  editMentorPersonalProfile(MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest);
 
     List<Long> uploadDegree(MultipartFile[] files) throws IOException;
-
-//    Optional<User> findByUsername(String username);
 }

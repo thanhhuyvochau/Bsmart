@@ -49,6 +49,9 @@ public class SubCourse  extends  BaseEntity{
     @Column(name = "reference_discount")
     private Double referenceDiscount = 0.0;
 
+    @Column(name = "number_of_slot")
+    private Integer numberOfSlot = 0;
+
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
@@ -214,5 +217,13 @@ public class SubCourse  extends  BaseEntity{
 
     public void setOrderDetails(List<OrderDetail> orderDetails) {
         this.orderDetails = orderDetails;
+    }
+
+    public Integer getNumberOfSlot() {
+        return numberOfSlot;
+    }
+
+    public void setNumberOfSlot(Integer numberOfSlot) {
+        this.numberOfSlot = numberOfSlot;
     }
 }

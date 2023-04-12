@@ -9,12 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CreateSubCourseRequest {
-    private String code ;
-    private String name;
+
     private ECourseLevel level;
 
     private Long imageId;
-    private Long categoryId;
 
     private Long subjectId;
 
@@ -29,29 +27,12 @@ public class CreateSubCourseRequest {
     private Instant startDateExpected  ;
 
     private Instant endDateExpected  ;
-    private String description;
+
 
     private String subCourseTile ;
     private Integer  numberOfSlot ;
 
     private List<TimeInWeekRequest> timeInWeekRequests = new ArrayList<>();
-
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public ECourseLevel getLevel() {
         return level;
@@ -67,14 +48,6 @@ public class CreateSubCourseRequest {
 
     public void setImageId(Long imageId) {
         this.imageId = imageId;
-    }
-
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
     }
 
     public Long getSubjectId() {
@@ -93,16 +66,16 @@ public class CreateSubCourseRequest {
         this.type = type;
     }
 
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
     public Integer getMinStudent() {
         return minStudent;
-    }
-
-    public String getSubCourseTile() {
-        return subCourseTile;
-    }
-
-    public void setSubCourseTile(String subCourseTile) {
-        this.subCourseTile = subCourseTile;
     }
 
     public void setMinStudent(Integer minStudent) {
@@ -129,25 +102,26 @@ public class CreateSubCourseRequest {
         return endDateExpected;
     }
 
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
     public void setEndDateExpected(Instant endDateExpected) {
         this.endDateExpected = endDateExpected;
     }
 
-    public String getDescription() {
-        return description;
+    public String getSubCourseTile() {
+        return subCourseTile;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setSubCourseTile(String subCourseTile) {
+        this.subCourseTile = subCourseTile;
+    }
+
+    public Integer getNumberOfSlot() {
+        return numberOfSlot;
+    }
+
+
+
+    public void setNumberOfSlot(Integer numberOfSlot) {
+        this.numberOfSlot = numberOfSlot;
     }
 
     public List<TimeInWeekRequest> getTimeInWeekRequests() {
@@ -156,13 +130,5 @@ public class CreateSubCourseRequest {
 
     public void setTimeInWeekRequests(List<TimeInWeekRequest> timeInWeekRequests) {
         this.timeInWeekRequests = timeInWeekRequests;
-    }
-
-    public Integer getNumberOfSlot() {
-        return numberOfSlot;
-    }
-
-    public void setNumberOfSlot(Integer numberOfSlot) {
-        this.numberOfSlot = numberOfSlot;
     }
 }

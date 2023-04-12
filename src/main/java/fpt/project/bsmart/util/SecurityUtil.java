@@ -1,7 +1,5 @@
 package fpt.project.bsmart.util;
 
-import fpt.project.bsmart.config.security.service.UserDetailsImpl;
-import fpt.project.bsmart.config.security.service.UserDetailsServiceImpl;
 import fpt.project.bsmart.entity.Cart;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.Wallet;
@@ -9,11 +7,10 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.repository.CartRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.repository.WalletRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -32,26 +29,20 @@ public class SecurityUtil {
         staticCartRepository = cartRepository;
     }
 
-    @Autowired
-    private static UserDetailsServiceImpl userDetailsService;
-
-    public static User getCurrentUserAccountLogin() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Object principal = securityContext.getAuthentication().getPrincipal();
-        UserDetails userDetails1 = null;
-        User user = null;
-        if (principal instanceof UserDetailsImpl) {
-            UserDetailsImpl userDetails = (UserDetailsImpl) principal;
-            String email = userDetails.getEmail();
-            user = staticUserRepository.findByEmail(email)
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage(messageUtil.getLocalMessage("Tài khoản đăng nhập hiện tại không tìm thấy") + email));
+    public static User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt principal = (Jwt) authentication.getPrincipal();
+        String username = principal.getClaimAsString("preferred_username");
+        User currentUser = Optional.ofNullable(staticUserRepository.findByEmail(username))
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Student not found by username"));
+        if (currentUser.getKeycloakUserId() == null){
+            currentUser.setKeycloakUserId(principal.getClaimAsString("id"));
         }
-        return user;
+        return currentUser;
     }
 
     public static Wallet getCurrentUserWallet() {
-        User currentUserAccountLogin = getCurrentUserAccountLogin();
+        User currentUserAccountLogin = getCurrentUser();
         Wallet wallet = currentUserAccountLogin.getWallet();
         if (wallet == null) {
             wallet = new Wallet();
@@ -62,7 +53,7 @@ public class SecurityUtil {
     }
 
     public static Cart getCurrentUserCart() {
-        User currentUserAccountLogin = getCurrentUserAccountLogin();
+        User currentUserAccountLogin = getCurrentUser();
         Cart cart = currentUserAccountLogin.getCart();
         if (cart == null) {
             cart = new Cart();
@@ -73,10 +64,12 @@ public class SecurityUtil {
     }
 
     public static Optional<String> getCurrentUserName() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Object principal = securityContext.getAuthentication().getPrincipal();
-        UserDetailsImpl userDetails = (UserDetailsImpl) principal;
-        String email = userDetails.getEmail();
-        return Optional.ofNullable(email);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getPrincipal().equals("anonymousUser")) {
+            return Optional.empty();
+        }
+        Jwt principal = (Jwt) authentication.getPrincipal();
+        String username = principal.getClaimAsString("preferred_username");
+        return Optional.ofNullable(username);
     }
 }

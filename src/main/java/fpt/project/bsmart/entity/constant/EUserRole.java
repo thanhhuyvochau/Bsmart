@@ -1,16 +1,19 @@
 package fpt.project.bsmart.entity.constant;
 
 public enum EUserRole {
-    TEACHER("Giáo viên", "teacher"),
-    STUDENT("Học sinh", "student"),
-    MANAGER("Quản lý", "manager");
+    TEACHER("Giáo viên", "teacher","ROLE_TEACHER"),
+    STUDENT("Học sinh", "student","ROLE_STUDENT"),
+    MANAGER("Quản lý", "manager","ROLE_MANAGER");
 
     private final String label;
     private final String name;
 
-    EUserRole(String label, String name) {
+    private final String keycloakRole;
+
+    EUserRole(String label, String name, String keycloakRole) {
         this.label = label;
         this.name = name;
+        this.keycloakRole = keycloakRole;
     }
 
     public String getLabel() {
@@ -18,5 +21,9 @@ public enum EUserRole {
     }
     public String getName(){
         return  name;
+    }
+
+    public String getKeycloakRole() {
+        return keycloakRole;
     }
 }

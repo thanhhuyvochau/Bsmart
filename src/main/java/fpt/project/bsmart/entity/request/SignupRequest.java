@@ -7,7 +7,6 @@ import java.util.List;
 public class SignupRequest {
     private String email ;
     private String password ;
-
     private EUserRole role;
 
     public String getEmail() {

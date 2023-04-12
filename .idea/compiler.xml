@@ -24,6 +24,7 @@
           <entry name="$MAVEN_REPOSITORY$/com/sun/xml/fastinfoset/FastInfoset/1.2.15/FastInfoset-1.2.15.jar" />
         </processorPath>
         <module name="Bsmart" />
+        <module name="Bsmart (1)" />
       </profile>
     </annotationProcessing>
   </component>

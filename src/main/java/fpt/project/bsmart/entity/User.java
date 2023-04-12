@@ -19,16 +19,13 @@ public class User extends BaseEntity {
     @Column(name = "user_name")
     private String username;
 
-    @Column(name = "password")
-    private String password;
-
-
     @Column(name = "full_name")
     private String fullName;
 
     @Column(name = "email")
     private String email;
-
+    @Column(name = "password")
+    private String password;
     @Column(name = "birthday")
     private Instant birthday;
 
@@ -68,6 +65,8 @@ public class User extends BaseEntity {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<ReferralCode> referralCodes = new ArrayList<>();
+    @Column(name = "keycloak_user_id")
+    private String keycloakUserId;
 
     public Long getId() {
         return id;
@@ -83,14 +82,6 @@ public class User extends BaseEntity {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getFullName() {
@@ -235,5 +226,21 @@ public class User extends BaseEntity {
 
     public void setReferralCodes(List<ReferralCode> referralCodes) {
         this.referralCodes = referralCodes;
+    }
+
+    public String getKeycloakUserId() {
+        return keycloakUserId;
+    }
+
+    public void setKeycloakUserId(String keycloakUserId) {
+        this.keycloakUserId = keycloakUserId;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
