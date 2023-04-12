@@ -40,11 +40,6 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getCoursesBySubject(id)));
     }
 
-
-
-
-
-
     @Operation(summary = "lấy tất cả các course đổ lên trang khoa học")
     @GetMapping
     public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(@Nullable CourseSearchRequest query, Pageable pageable) {
@@ -80,7 +75,7 @@ public class CourseController {
     // ################################## Member ##########################################
 
     @Operation(summary = "Member xem khóa học đã đăng ký")
-    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('STUDENT')")
     @GetMapping("/member")
     public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourse(ECourseStatus status, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourse(status, pageable)));
