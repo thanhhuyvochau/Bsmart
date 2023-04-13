@@ -2,22 +2,24 @@ package fpt.project.bsmart.entity.request;
 
 import fpt.project.bsmart.entity.constant.EUserRole;
 
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
 public class CreateAccountRequest {
-
+    @NotNull
     private String fullName;
-
+    @NotNull
     private String email;
-
+    @NotNull
     private String phone;
-
-
+    @NotNull
     private String password;
-
+    @NotNull
     private EUserRole role;
-
+    @NotNull
     private String introduce;
+    @NotNull
+    private Instant birthDay;
     public String getFullName() {
         return fullName;
     }
@@ -64,5 +66,13 @@ public class CreateAccountRequest {
 
     public void setIntroduce(String introduce) {
         this.introduce = introduce;
+    }
+
+    public Instant getBirthDay() {
+        return birthDay;
+    }
+
+    public void setBirthDay(Instant birthDay) {
+        this.birthDay = birthDay;
     }
 }

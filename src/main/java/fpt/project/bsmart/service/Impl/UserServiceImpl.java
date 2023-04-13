@@ -338,6 +338,7 @@ public class UserServiceImpl implements IUserService {
         user.setIntroduce(createAccountRequest.getIntroduce());
         user.setPassword(encoder.encode(createAccountRequest.getPassword()));
         user.getRoles().add(role);
+        user.setBirthday(createAccountRequest.getBirthDay());
         if (role.getCode().equals(EUserRole.STUDENT)) {
             user.setStatus(true);
         } else if (role.getCode().equals(EUserRole.TEACHER)) {

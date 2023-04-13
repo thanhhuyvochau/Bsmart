@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -105,7 +106,7 @@ public class UserController {
 
     @Operation(summary = "Member / Mentor register account")
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<Long>> registerAccount(@RequestBody CreateAccountRequest createAccountRequest) {
+    public ResponseEntity<ApiResponse<Long>> registerAccount(@Valid @RequestBody CreateAccountRequest createAccountRequest) {
         return ResponseEntity.ok(ApiResponse.success(iUserService.registerAccount(createAccountRequest)));
     }
 
