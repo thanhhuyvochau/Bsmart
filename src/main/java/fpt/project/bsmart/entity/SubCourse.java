@@ -13,7 +13,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "sub_course")
-public class SubCourse {
+public class SubCourse  extends  BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -48,6 +48,9 @@ public class SubCourse {
 
     @Column(name = "reference_discount")
     private Double referenceDiscount = 0.0;
+
+    @Column(name = "number_of_slot")
+    private Integer numberOfSlot = 0;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
@@ -214,5 +217,13 @@ public class SubCourse {
 
     public void setOrderDetails(List<OrderDetail> orderDetails) {
         this.orderDetails = orderDetails;
+    }
+
+    public Integer getNumberOfSlot() {
+        return numberOfSlot;
+    }
+
+    public void setNumberOfSlot(Integer numberOfSlot) {
+        this.numberOfSlot = numberOfSlot;
     }
 }

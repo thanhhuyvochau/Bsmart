@@ -32,8 +32,7 @@ public class Course {
     @Enumerated(EnumType.STRING)
     private ECourseStatus status;
 
-    @Column(name = "number_of_slot")
-    private Integer numberOfSlot = 0;
+
 
     public Long getId() {
         return id;
@@ -96,11 +95,5 @@ public class Course {
         this.status = status;
     }
 
-    public Integer getNumberOfSlot() {
-        return numberOfSlot;
-    }
 
-    public void setNumberOfSlot(Integer numberOfSlot) {
-        this.numberOfSlot = numberOfSlot;
-    }
 }
