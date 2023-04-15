@@ -197,7 +197,7 @@ public class CourseServiceImpl implements ICourseService {
                 .queryByCategoryId(query.getCategoryId());
 
 
-        Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
+        Page<Course> coursesPage = courseRepository.findAll(builder.build(),pageable);
         List<Course> coursesList = coursesPage.stream().distinct().collect(Collectors.toList());
         List<CourseResponse> courseResponseList = new ArrayList<>();
 //        User userLogin = SecurityUtil.getCurrentUser();

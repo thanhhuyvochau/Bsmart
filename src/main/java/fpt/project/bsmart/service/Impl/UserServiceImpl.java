@@ -92,7 +92,8 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public UserDto getLoginUser() {
-        return ConvertUtil.convertUsertoUserDto(getCurrentLoginUser());
+        User currentLoginUser = getCurrentLoginUser();
+        return ConvertUtil.convertUsertoUserDto(currentLoginUser);
     }
 
     @Override
