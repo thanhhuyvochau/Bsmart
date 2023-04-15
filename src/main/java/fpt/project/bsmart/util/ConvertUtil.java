@@ -145,25 +145,16 @@ public class ConvertUtil {
 
                 userDto.setUserImages(imageDtoList);
             }
-            if (user.getWallet() != null) {
-                userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
-            }
-            if (user.getMentorProfile() != null) {
-                userDto.getMentorProfile().setUser(null);
-                userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
-            }
-
-
             userDto.setUserImages(imageDtoList);
         }
+
+
         if (user.getWallet() != null) {
             userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
         }
         if (user.getMentorProfile() != null) {
-            userDto.getMentorProfile().setUser(null);
             userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
-
-
+            userDto.getMentorProfile().setUser(null);
         }
 
         return userDto;
