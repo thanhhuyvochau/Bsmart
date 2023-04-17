@@ -3,18 +3,34 @@ package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.response.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
 public class ConvertUtil {
 
+    private static String successIcon;
+
+    private static String failIcon;
+
+    @Value("${icon.success}")
+    public void setSuccessIconUrl(String url) {
+        successIcon = url;
+    }
+
+    @Value("${icon.fail}")
+    public void setFailIconUrl(String url) {
+        failIcon = url;
+    }
 
     public static CategoryDto convertCategoryToCategoryDto(Category category) {
         return ObjectUtil.copyProperties(category, new CategoryDto(), CategoryDto.class);
@@ -103,8 +119,11 @@ public class ConvertUtil {
         if (dayOfWeek != null) {
             dayOfWeekDTO = convertDayOfWeekToDto(dayOfWeek);
         }
+        SlotDto slotDto = new SlotDto();
+        if(slot!= null){
+            slotDto = convertSlotToSlotDto(slot);
+        }
 
-        SlotDto slotDto = convertSlotToSlotDto(slot);
 
 
         return new TimeInWeekDTO(dayOfWeekDTO, null, slotDto);
@@ -129,13 +148,16 @@ public class ConvertUtil {
 
                 userDto.setUserImages(imageDtoList);
             }
-            if (user.getWallet() != null) {
-                userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
-            }
-            if (user.getMentorProfile() != null) {
-                userDto.getMentorProfile().setUser(null);
-                userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
-            }
+            userDto.setUserImages(imageDtoList);
+        }
+
+
+        if (user.getWallet() != null) {
+            userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
+        }
+        if (user.getMentorProfile() != null) {
+            userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
+            userDto.getMentorProfile().setUser(null);
         }
 
         return userDto;
@@ -335,6 +357,11 @@ public class ConvertUtil {
         TransactionDto transactionDto = ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);
         transactionDto.setStatusName(transaction.getStatus().getLabel());
         transactionDto.setTypeName(transaction.getType().getLabel());
+        if (Objects.equals(transaction.getStatus(), ETransactionStatus.SUCCESS)) {
+            transactionDto.setIconUrl(successIcon);
+        } else if (Objects.equals(transaction.getStatus(), ETransactionStatus.FAIL)) {
+            transactionDto.setIconUrl(failIcon);
+        }
         return transactionDto;
     }
 

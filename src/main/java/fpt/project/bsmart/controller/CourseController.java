@@ -6,9 +6,8 @@ import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.CourseDto;
 
 
-import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
-import fpt.project.bsmart.entity.request.CreateSubCourseRequest;
+import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
@@ -16,6 +15,8 @@ import fpt.project.bsmart.entity.response.SubCourseDetailResponse;
 import fpt.project.bsmart.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -39,29 +40,6 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getCoursesBySubject(id)));
     }
 
-    @Operation(summary = "mentor tao khoá học")
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @PostMapping
-    public ResponseEntity<ApiResponse<Long>> mentorCreateCourse(@Valid @RequestBody CreateSubCourseRequest createSubCourseRequest) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createSubCourseRequest)));
-    }
-
-    @Operation(summary = "mentor xem tất cả course của mình")
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @GetMapping("/mentor")
-    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> mentorGetCourse(ECourseStatus status ,  Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetCourse( status  , pageable)));
-    }
-
-
-    @Operation(summary = "Member xem khóa học đã đăng ký")
-    @PreAuthorize("hasAnyAuthority('STUDENT')")
-    @GetMapping("/member")
-    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourse(ECourseStatus status ,Pageable pageable){
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourse(status,pageable)));
-    }
-
-
     @Operation(summary = "lấy tất cả các course đổ lên trang khoa học")
     @GetMapping
     public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(@Nullable CourseSearchRequest query, Pageable pageable) {
@@ -70,7 +48,7 @@ public class CourseController {
 
     @Operation(summary = "lấy tất cả các subcourse theo course đô lên trang khoa học")
     @GetMapping("{id}/sub-courses")
-    public ResponseEntity<ApiResponse<ApiPage<SubCourseDetailResponse>>> getAllSubCourseOfCourse(@PathVariable Long id , Pageable pageable) {
+    public ResponseEntity<ApiResponse<ApiPage<SubCourseDetailResponse>>> getAllSubCourseOfCourse(@PathVariable Long id, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getAllSubCourseOfCourse(id, pageable)));
     }
 
@@ -79,8 +57,38 @@ public class CourseController {
     public ResponseEntity<ApiResponse<CourseSubCourseDetailResponse>> getDetailCourseForCoursePage(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getDetailCourseForCoursePage(id)));
     }
+    // ################################## Mentor ##########################################
+
+    @Operation(summary = "mentor tao khoá học")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PostMapping
+    public ResponseEntity<ApiResponse<Long>> mentorCreateCourse(@Valid @RequestBody CreateCourseRequest createCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createCourseRequest)));
+    }
+
+    @Operation(summary = "mentor xem tất cả course của mình")
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @GetMapping("/mentor")
+    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> mentorGetCourse(ECourseStatus status, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetCourse(status, pageable)));
+    }
+    // ################################## Member ##########################################
+
+    @Operation(summary = "Member xem khóa học đã đăng ký")
+    @PreAuthorize("hasAnyRole('STUDENT')")
+    @GetMapping("/member")
+    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourse(ECourseStatus status, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourse(status, pageable)));
+    }
+
+    @Operation(summary = "Khóa học gợi ý cho member va guest")
+    @GetMapping("/suggest")
+    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourseSuggest( @PageableDefault(sort = "created", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourseSuggest( pageable)));
+    }
+
 //    @Operation(summary = "mentor upload hình cho khoá học")
-//    @PreAuthorize("hasAuthority('TEACHER')")
+//    @PreAuthorize("hasAnyRole('TEACHER')")
 //    @PostMapping("/image")
 //    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageCourse(@ModelAttribute ImageRequest ImageRequest) {
 //        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageCourse(ImageRequest)));
@@ -88,7 +96,7 @@ public class CourseController {
 
 
 //    @Operation(summary = "mentor thêm ảnh đại diện cho course")
-//    @PreAuthorize("hasAuthority('TEACHER')")
+//    @PreAuthorize("hasAnyRole('TEACHER')")
 //    @PostMapping("{id}/image")
 //    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageForCourse(@PathVariable Long id  , @ModelAttribute FileDto request) {
 //        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageForCourse(id , request)));

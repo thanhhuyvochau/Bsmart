@@ -42,13 +42,13 @@ public class ClassServiceImpl implements IClassService {
         SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm khóa học cần tạo lịch!"));
         Course course = subCourse.getCourse();
-        Integer numberOfSlot = course.getNumberOfSlot();
+//        Integer numberOfSlot = course.getNumberOfSlot();
         Instant startDate = request.getNowIsStartDate() ? Instant.now() : request.getStartDate();
         Class clazz = new Class();
         clazz.setStartDate(startDate);
         clazz.setSubCourse(subCourse);
-        List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(subCourse.getTimeInWeeks(), numberOfSlot, startDate, clazz);
-        clazz.getTimeTables().addAll(timeTables);
+//        List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(subCourse.getTimeInWeeks(), numberOfSlot, startDate, clazz);
+//        clazz.getTimeTables().addAll(timeTables);
         classRepository.save(clazz);
         return true;
     }

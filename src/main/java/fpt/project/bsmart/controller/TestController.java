@@ -36,7 +36,7 @@ public class TestController {
     }
 
     @GetMapping("/user")
-    @PreAuthorize("hasAuthority('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER')")
     public String userAccess() {
         return "User TEACHER.";
     }
