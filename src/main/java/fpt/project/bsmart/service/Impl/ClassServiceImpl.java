@@ -4,8 +4,8 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.SubCourse;
 import fpt.project.bsmart.entity.TimeTable;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.request.category.CreateClassRequest;
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
+import fpt.project.bsmart.entity.request.category.CreateClassRequest;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.repository.SubCourseRepository;
@@ -55,6 +55,9 @@ public class ClassServiceImpl implements IClassService {
     @Override
     public ClassProgressTimeDto getClassProgression(Long clazzId) {
         Class clazz = classRepository.findById(clazzId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy lớp với id:" + clazzId));
-        return Optional.ofNullable(ClassUtil.getPercentageOfClassTime(clazz)).orElseThrow(()->ApiException.create(HttpStatus.CONFLICT).withMessage("Đã có lỗi xảy ra vui lòng thử lại"));
+        if (clazz.getStartDate().isBefore(Instant.now())) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Lớp học chưa tới thời gian bắt đầu!");
+        }
+        return Optional.ofNullable(ClassUtil.getPercentageOfClassTime(clazz)).orElseThrow(() -> ApiException.create(HttpStatus.CONFLICT).withMessage("Đã có lỗi xảy ra vui lòng thử lại"));
     }
 }
