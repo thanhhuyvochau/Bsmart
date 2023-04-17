@@ -4,6 +4,8 @@ package fpt.project.bsmart.entity.response;
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
+import fpt.project.bsmart.entity.dto.ImageDto;
+import fpt.project.bsmart.entity.dto.UserDto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -25,6 +27,9 @@ public class SubCourseCartResponse {
     private ETypeLearn typeLearn;
 
     private boolean isChosen = false;
+    private UserDto mentor;
+    private ImageDto image;
+
 
     public Long getId() {
         return id;
@@ -88,5 +93,21 @@ public class SubCourseCartResponse {
 
     public void setIsChosen(boolean chosen) {
         isChosen = chosen;
+    }
+
+    public UserDto getMentor() {
+        return mentor;
+    }
+
+    public void setMentor(UserDto mentor) {
+        this.mentor = mentor;
+    }
+
+    public ImageDto getImage() {
+        return image;
+    }
+
+    public void setImage(ImageDto image) {
+        this.image = image;
     }
 }

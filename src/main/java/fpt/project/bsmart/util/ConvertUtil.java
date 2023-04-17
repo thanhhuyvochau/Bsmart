@@ -412,6 +412,12 @@ public class ConvertUtil {
             if (subCourseCartResponse.getId().equals(chooseSubCourse.getId())) {
                 subCourseCartResponse.setIsChosen(true);
             }
+            if (subCourse.getMentor() != null) {
+                subCourseCartResponse.setMentor(convertUsertoUserDto(subCourse.getMentor()));
+            }
+            if (subCourse.getImage() != null) {
+                subCourseCartResponse.setImage(convertImageToImageDto(subCourse.getImage()));
+            }
             courseCartResponse.getSubCourses().add(subCourseCartResponse);
         }
         return courseCartResponse;
@@ -422,12 +428,6 @@ public class ConvertUtil {
         if (course.getSubject() != null) {
             courseCartResponse.setSubject(convertSubjectToSubjectDto(course.getSubject()));
         }
-//        if (course.getMentor() != null) {
-//            courseCartResponse.setMentor(convertUsertoUserDto(course.getMentor()));
-//        }
-//        if (course.getImage() != null) {
-//            courseCartResponse.setImage(convertImageToImageDto(course.getImage()));
-//        }
         return courseCartResponse;
     }
 }
