@@ -23,7 +23,7 @@ public class CourseCartResponse {
 
     private SubjectDto subject;
 
-    private UserDto mentor;
+
 
     private ImageDto image;
 
@@ -69,14 +69,6 @@ public class CourseCartResponse {
 
     public void setSubject(SubjectDto subject) {
         this.subject = subject;
-    }
-
-    public UserDto getMentor() {
-        return mentor;
-    }
-
-    public void setMentor(UserDto mentor) {
-        this.mentor = mentor;
     }
 
     public ImageDto getImage() {
