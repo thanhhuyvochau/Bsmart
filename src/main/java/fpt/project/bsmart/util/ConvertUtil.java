@@ -119,8 +119,11 @@ public class ConvertUtil {
         if (dayOfWeek != null) {
             dayOfWeekDTO = convertDayOfWeekToDto(dayOfWeek);
         }
+        SlotDto slotDto = new SlotDto();
+        if(slot!= null){
+            slotDto = convertSlotToSlotDto(slot);
+        }
 
-        SlotDto slotDto = convertSlotToSlotDto(slot);
 
 
         return new TimeInWeekDTO(dayOfWeekDTO, null, slotDto);
