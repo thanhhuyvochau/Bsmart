@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -118,8 +119,6 @@ public class CourseServiceImpl implements ICourseService {
             subCourse.setNumberOfSlot(createSubCourseRequest.getNumberOfSlot());
 
 
-
-
             subCourse.setTypeLearn(createSubCourseRequest.getType());
             subCourse.setNumberOfSlot(createSubCourseRequest.getNumberOfSlot());
             subCourse.setMinStudent(createSubCourseRequest.getMinStudent());
@@ -136,22 +135,33 @@ public class CourseServiceImpl implements ICourseService {
             subCourse.setImage(image);
             subCourse.setCourse(course);
 
-            List<Long> slotIds = createSubCourseRequest.getTimeInWeekRequests().stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
-            List<Long> dowIds = createSubCourseRequest.getTimeInWeekRequests().stream().map(TimeInWeekRequest::getDayOfWeekId).collect(Collectors.toList());
 
-            Map<Long, Slot> slotMap = slotRepository.findAllById(slotIds).stream().collect(Collectors.toMap(Slot::getId, Function.identity()));
-            Map<Long, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAllById(dowIds).stream().collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
+            List<TimeInWeekRequest> timeInWeekRequests = createSubCourseRequest.getTimeInWeekRequests();
+            TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
+            if (duplicateElement == null) {
+                List<Long> slotIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
+                List<Long> dowIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getDayOfWeekId).collect(Collectors.toList());
+                Map<Long, Slot> slotMap = slotRepository.findAllById(slotIds).stream().collect(Collectors.toMap(Slot::getId, Function.identity()));
+                Map<Long, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAllById(dowIds).stream().collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
+                for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
+                    TimeInWeek timeInWeek = new TimeInWeek();
+                    DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
+                            .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy ngày trong tuần đã chọn vui lòng thử lại!"));
+                    timeInWeek.setDayOfWeek(dayOfWeek);
 
+                    Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
+                            .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy slot đã chọn vui lòng thử lại!"));
+                    timeInWeek.setSlot(slot);
 
-            for (TimeInWeekRequest timeInWeekRequest : createSubCourseRequest.getTimeInWeekRequests()) {
-                TimeInWeek timeInWeek = new TimeInWeek();
-                timeInWeek.setDayOfWeek(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()));
-                timeInWeek.setSlot(slotMap.get(timeInWeekRequest.getSlotId()));
-                timeInWeek.setSubCourse(subCourse);
-                subCourse.addTimeInWeek(timeInWeek);
+                    timeInWeek.setSubCourse(subCourse);
+                    subCourse.addTimeInWeek(timeInWeek);
+                }
+                courseList.add(subCourse);
+            } else {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Đã bị trùng lịch và slot, vui lòng kiểm tra lại!");
             }
 
-            courseList.add(subCourse);
+
         });
 
 

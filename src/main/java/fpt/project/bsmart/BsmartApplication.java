@@ -15,13 +15,11 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.EventListener;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -64,8 +62,6 @@ public class BsmartApplication {
             Role role = roleMap.get(value);
             Role newRole = new Role();
             newRole.setCode(value);
-
-
             if (role == null) {
                 roles.add(newRole);
             } else if (!Objects.equals(newRole, role)) {
@@ -96,4 +92,10 @@ public class BsmartApplication {
         }
     }
 
+
 }
+
+
+
+
+
