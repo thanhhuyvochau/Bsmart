@@ -43,16 +43,16 @@ public class CourseSpecificationBuilder {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
-            Join<Course, SubCourse> courseSubCourseJoin = root.join(Course_.SUB_COURSES, JoinType.INNER);
+//            Join<Course, SubCourse> courseSubCourseJoin = root.join(Course_.SUB_COURSES, JoinType.INNER);
 
-            return criteriaBuilder.and(courseSubCourseJoin.get(SubCourse_.STATUS) .in(status));
+            return criteriaBuilder.equal(root.get(Course_.STATUS),status);
         });
         return this;
     }
 
 
     public CourseSpecificationBuilder queryBySubjectId(List<Long> subjectId) {
-        if (subjectId == null) {
+        if (subjectId == null || subjectId.isEmpty()) {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
@@ -63,7 +63,7 @@ public class CourseSpecificationBuilder {
     }
 
     public CourseSpecificationBuilder queryByCategoryId(List<Long> categoryId) {
-        if (categoryId == null) {
+        if (categoryId == null || categoryId.isEmpty()) {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
@@ -76,7 +76,7 @@ public class CourseSpecificationBuilder {
     }
 
     public CourseSpecificationBuilder queryBySubCourseType(List<ETypeLearn> types ) {
-        if (types == null) {
+        if (types == null || types.isEmpty()) {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {

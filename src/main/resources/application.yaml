@@ -114,3 +114,4 @@ keycloak:
 icon:
   success: http://103.173.155.221:9000/bsmart/checked.png
   fail: http://103.173.155.221:9000/bsmart/fail.png
+
