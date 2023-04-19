@@ -3,6 +3,7 @@ package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.constant.EQuestionType;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.*;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -426,5 +428,27 @@ public class ConvertUtil {
 //            courseCartResponse.setImage(convertImageToImageDto(course.getImage()));
 //        }
         return courseCartResponse;
+    }
+
+    public static QuestionDto convertQuestionToQuestionDto(FeedbackQuestion question){
+        QuestionDto questionDto = ObjectUtil.copyProperties(question, new QuestionDto(), QuestionDto.class);
+        if(questionDto.getQuestionType() == EQuestionType.MULTIPLE_CHOICE){
+            questionDto.setPossibleAnswer(QuestionUtil.convertAnswerAndScoreStringToPossibleAnswer(question.getPossibleAnswer(),question.getPossibleScore()));
+        }else{
+            questionDto.setPossibleAnswer(null);
+        }
+        return questionDto;
+    }
+
+    public static FeedbackTemplateDto convertTemplateToTemplateDto(FeedbackTemplate feedbackTemplate){
+        FeedbackTemplateDto feedbackTemplateDto = ObjectUtil.copyProperties(feedbackTemplate, new FeedbackTemplateDto(), FeedbackTemplateDto.class);
+        if(feedbackTemplate.getQuestions() != null){
+            List<QuestionDto> questions = new ArrayList<>();
+            for(FeedbackQuestion feedbackQuestion : feedbackTemplate.getQuestions()){
+                questions.add(convertQuestionToQuestionDto(feedbackQuestion));
+            }
+            feedbackTemplateDto.setQuestions(questions);
+        }
+        return feedbackTemplateDto;
     }
 }
