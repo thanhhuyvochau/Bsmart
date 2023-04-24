@@ -2,6 +2,8 @@ package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "time_table")
@@ -23,6 +25,8 @@ public class TimeTable {
     @ManyToOne
     @JoinColumn(name = "clazz_id")
     private Class clazz;
+    @OneToMany(mappedBy = "timeTable", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Attendance> attendanceList = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -78,5 +82,13 @@ public class TimeTable {
 
     public void setClazz(Class clazz) {
         this.clazz = clazz;
+    }
+
+    public List<Attendance> getAttendanceList() {
+        return attendanceList;
+    }
+
+    public void setAttendanceList(List<Attendance> attendanceList) {
+        this.attendanceList = attendanceList;
     }
 }
