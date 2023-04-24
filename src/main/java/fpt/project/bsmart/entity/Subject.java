@@ -24,6 +24,8 @@ public class Subject extends BaseEntity {
 
     @OneToMany(mappedBy = "skill")
     private List<MentorSkill> mentorSkills = new ArrayList<>();
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Question> questions = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -63,5 +65,21 @@ public class Subject extends BaseEntity {
 
     public void setCourses(List<Course> courses) {
         this.courses = courses;
+    }
+
+    public List<MentorSkill> getMentorSkills() {
+        return mentorSkills;
+    }
+
+    public void setMentorSkills(List<MentorSkill> mentorSkills) {
+        this.mentorSkills = mentorSkills;
+    }
+
+    public List<Question> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
     }
 }

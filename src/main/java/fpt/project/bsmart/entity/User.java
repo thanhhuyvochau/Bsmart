@@ -49,7 +49,7 @@ public class User extends BaseEntity {
     private String instagramLink;
 
     @Column(name = "intro_point")
-    private Double point ;
+    private Double point;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<Image> userImages = new ArrayList<>();
@@ -67,6 +67,8 @@ public class User extends BaseEntity {
     private List<ReferralCode> referralCodes = new ArrayList<>();
     @Column(name = "keycloak_user_id")
     private String keycloakUserId;
+    @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Question> questions = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -242,5 +244,13 @@ public class User extends BaseEntity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<Question> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
     }
 }
