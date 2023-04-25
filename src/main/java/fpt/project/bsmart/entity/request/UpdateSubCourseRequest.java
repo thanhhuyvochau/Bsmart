@@ -8,30 +8,70 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateSubCourseRequest {
+public class UpdateSubCourseRequest {
+
+    private String courseCode;
+    private String courseName;
+    private Long categoryId;
+    private Long subjectId;
+    private String courseDescription;
 
     private ECourseLevel level;
 
     private Long imageId;
-
 
     private ETypeLearn type;
 
     private BigDecimal price;
 
     private Integer minStudent ;
-
     private Integer maxStudent ;
-
     private Instant startDateExpected  ;
-
     private Instant endDateExpected  ;
-
-
     private String subCourseTile ;
     private Integer  numberOfSlot ;
 
     private List<TimeInWeekRequest> timeInWeekRequests = new ArrayList<>();
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public Long getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(Long subjectId) {
+        this.subjectId = subjectId;
+    }
+
+    public String getCourseDescription() {
+        return courseDescription;
+    }
+
+    public void setCourseDescription(String courseDescription) {
+        this.courseDescription = courseDescription;
+    }
 
     public ECourseLevel getLevel() {
         return level;
@@ -48,8 +88,6 @@ public class CreateSubCourseRequest {
     public void setImageId(Long imageId) {
         this.imageId = imageId;
     }
-
-
 
     public ETypeLearn getType() {
         return type;
@@ -110,8 +148,6 @@ public class CreateSubCourseRequest {
     public Integer getNumberOfSlot() {
         return numberOfSlot;
     }
-
-
 
     public void setNumberOfSlot(Integer numberOfSlot) {
         this.numberOfSlot = numberOfSlot;

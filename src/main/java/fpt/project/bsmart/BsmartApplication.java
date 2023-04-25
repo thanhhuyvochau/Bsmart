@@ -1,10 +1,12 @@
 package fpt.project.bsmart;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import fpt.project.bsmart.entity.ActivityType;
 import fpt.project.bsmart.entity.DayOfWeek;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.repository.ActivityTypeRepository;
 import fpt.project.bsmart.repository.DayOfWeekRepository;
 import fpt.project.bsmart.repository.RoleRepository;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -39,18 +41,17 @@ public class BsmartApplication {
 
     private final RoleRepository roleRepository;
     private final DayOfWeekRepository dayOfWeekRepository;
+    private final ActivityTypeRepository activityTypeRepository;
 
-    public BsmartApplication(RoleRepository roleRepository, DayOfWeekRepository dayOfWeekRepository) {
+    public BsmartApplication(RoleRepository roleRepository, DayOfWeekRepository dayOfWeekRepository, ActivityTypeRepository activityTypeRepository) {
         this.roleRepository = roleRepository;
         this.dayOfWeekRepository = dayOfWeekRepository;
+        this.activityTypeRepository = activityTypeRepository;
     }
 
 
-    public static void main(String[] args) throws ParseException {
-
+    public static void main(String[] args) {
         SpringApplication.run(BsmartApplication.class, args);
-
-
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -90,6 +91,18 @@ public class BsmartApplication {
         if (!dayOfWeeks.isEmpty()) {
             dayOfWeekRepository.saveAll(dayOfWeeks);
         }
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public  void intiActivityType() {
+
+        List<ActivityType> newActivityType = Arrays.asList(
+                new ActivityType("QUIZ", "quiz"),
+                new ActivityType("ASSIGNMENT", "assignment")
+        );
+        newActivityType.stream()
+                .filter(activityType -> activityTypeRepository.findByCode(activityType.getCode()) == null)
+                .forEach(activityTypeRepository::save);
     }
 
 
