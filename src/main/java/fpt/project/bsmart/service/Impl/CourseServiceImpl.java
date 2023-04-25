@@ -288,6 +288,72 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
+    public Boolean mentorUpdateCourse(Long subCourseId,UpdateSubCourseRequest updateCourseRequest ) {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+
+        SubCourse subCourse = subCourseRepository.findById(subCourseId).
+                orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
+        if (!subCourse.getStatus().equals(EDITREQUEST) || !subCourse.getStatus().equals(REQUESTING)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Người dùng không phải là giáo viên"));
+        }
+        Course course = subCourse.getCourse();
+        course.setCode(updateCourseRequest.getCourseCode());
+        course.setName(updateCourseRequest.getCourseName());
+        course.setDescription(updateCourseRequest.getCourseDescription());
+
+        Category category = categoryRepository.findById(updateCourseRequest.getCategoryId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + updateCourseRequest.getCategoryId()));
+        List<Subject> subjects = category.getSubjects();
+        subjects.forEach(subject -> {
+            if (subject.getId().equals(updateCourseRequest.getSubjectId())) {
+                course.setSubject(subject);
+            }
+        });
+
+        subCourse.setLevel(updateCourseRequest.getLevel());
+        Image image = imageRepository.findById(updateCourseRequest.getImageId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + updateCourseRequest.getImageId()));
+        subCourse.setImage(image);
+        subCourse.setTypeLearn(updateCourseRequest.getType());
+        subCourse.setNumberOfSlot(updateCourseRequest.getNumberOfSlot());
+        subCourse.setMinStudent(updateCourseRequest.getMinStudent());
+        subCourse.setMaxStudent(updateCourseRequest.getMaxStudent());
+        subCourse.setStartDateExpected(updateCourseRequest.getStartDateExpected());
+        subCourse.setEndDateExpected(updateCourseRequest.getEndDateExpected());
+        subCourse.setTitle(updateCourseRequest.getSubCourseTile());
+        subCourse.setPrice(updateCourseRequest.getPrice());
+        subCourse.setLevel(updateCourseRequest.getLevel());
+        subCourse.setMentor(currentUserAccountLogin);
+        List<TimeInWeekRequest> timeInWeekRequests = updateCourseRequest.getTimeInWeekRequests();
+        TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
+        if (duplicateElement == null) {
+            List<Long> slotIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
+            List<Long> dowIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getDayOfWeekId).collect(Collectors.toList());
+            Map<Long, Slot> slotMap = slotRepository.findAllById(slotIds).stream().collect(Collectors.toMap(Slot::getId, Function.identity()));
+            Map<Long, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAllById(dowIds).stream().collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
+            for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
+                TimeInWeek timeInWeek = new TimeInWeek();
+                DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy ngày trong tuần đã chọn vui lòng thử lại!"));
+                timeInWeek.setDayOfWeek(dayOfWeek);
+
+                Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy slot đã chọn vui lòng thử lại!"));
+                timeInWeek.setSlot(slot);
+
+                timeInWeek.setSubCourse(subCourse);
+                subCourse.addTimeInWeek(timeInWeek);
+            }
+
+        } else {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Đã bị trùng lịch và slot, vui lòng kiểm tra lại!");
+        }
+        subCourseRepository.save(subCourse) ;
+        return true ;
+    }
+
+    @Override
     public Boolean mentorUploadImageCourse(ImageRequest imageRequest) {
         ImageUtil.uploadImage(imageRequest);
         return true;

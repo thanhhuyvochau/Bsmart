@@ -8,6 +8,7 @@ import fpt.project.bsmart.entity.dto.CourseDto;
 
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
+import fpt.project.bsmart.entity.request.UpdateSubCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
@@ -64,6 +65,13 @@ public class CourseController {
     @PostMapping
     public ResponseEntity<ApiResponse<Long>> mentorCreateCourse(@Valid @RequestBody CreateCourseRequest createCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createCourseRequest)));
+    }
+
+    @Operation(summary = "mentor sửa khoá học ")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/subCourseId")
+    public ResponseEntity<ApiResponse<Boolean>> mentorUpdateCourse(  @PathVariable Long subCourseId ,@Valid @RequestBody UpdateSubCourseRequest updateCourseRequest ) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUpdateCourse(subCourseId , updateCourseRequest)));
     }
 
     @Operation(summary = "mentor xem tất cả course của mình")

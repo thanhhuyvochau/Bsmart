@@ -9,6 +9,7 @@ import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.request.ImageRequest;
+import fpt.project.bsmart.entity.request.UpdateSubCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
@@ -37,6 +38,8 @@ public interface ICourseService {
     ApiPage<CourseSubCourseResponse>  memberGetCourse(ECourseStatus status,Pageable pageable);
 
     ApiPage<CourseSubCourseResponse> memberGetCourseSuggest( Pageable pageable);
+
+    Boolean mentorUpdateCourse(Long subCourseId,  UpdateSubCourseRequest updateCourseRequest );
 
 //    Boolean mentorUploadImageForCourse(Long id, FileDto request);
 }

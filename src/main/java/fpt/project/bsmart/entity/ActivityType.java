@@ -1,5 +1,7 @@
 package fpt.project.bsmart.entity;
 
+import org.springframework.data.annotation.PersistenceConstructor;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,14 @@ public class ActivityType extends BaseEntity {
     private String code;
     @Column(name = "name")
     private String name;
+
+    public ActivityType(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
+    public ActivityType() {
+    }
 
     public Long getId() {
         return id;
