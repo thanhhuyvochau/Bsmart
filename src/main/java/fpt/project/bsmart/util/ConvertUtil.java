@@ -120,10 +120,9 @@ public class ConvertUtil {
             dayOfWeekDTO = convertDayOfWeekToDto(dayOfWeek);
         }
         SlotDto slotDto = new SlotDto();
-        if(slot!= null){
+        if (slot != null) {
             slotDto = convertSlotToSlotDto(slot);
         }
-
 
 
         return new TimeInWeekDTO(dayOfWeekDTO, null, slotDto);
@@ -432,5 +431,16 @@ public class ConvertUtil {
             courseCartResponse.setSubject(convertSubjectToSubjectDto(course.getSubject()));
         }
         return courseCartResponse;
+    }
+
+    private static QuestionDto convertQuestionToQuestionDto(Question question) {
+        QuestionDto questionDto = ObjectUtil.copyProperties(question, new QuestionDto(), QuestionDto.class, true);
+        questionDto.setMentorName(questionDto.getMentorName());
+        questionDto.setAnswers(question.getAnswers().stream().map(ConvertUtil::convertAnswerToAnswerDto).collect(Collectors.toList()));
+        return questionDto;
+    }
+
+    private static AnswerDto convertAnswerToAnswerDto(Answer answer) {
+        return ObjectUtil.copyProperties(answer, new AnswerDto(), AnswerDto.class, true);
     }
 }
