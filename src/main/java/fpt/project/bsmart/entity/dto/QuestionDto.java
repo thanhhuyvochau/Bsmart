@@ -1,36 +1,22 @@
-package fpt.project.bsmart.entity;
+package fpt.project.bsmart.entity.dto;
 
+import fpt.project.bsmart.entity.Answer;
+import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.QuestionType;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "question")
-public class Question extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+public class QuestionDto extends BaseEntity {
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "mentor_id")
-    private User mentor;
-    @ManyToOne
-    @JoinColumn(name = "subject_id")
-    private Subject subject;
-    @Column(name = "question")
+    private String mentorName;
     private String question;
-    @Column(name = "question_type")
-    @Enumerated(EnumType.STRING)
     private QuestionType questionType;
-    @Column(name = "number_used")
     private Integer numberUsed = 0;
-    @Column(name = "is_shared")
     private Boolean isShared = false;
-    @Column(name = "is_deleted")
     private Boolean isDeleted = false;
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Answer> answers = new ArrayList<>();
+    private List<AnswerDto> answers = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -40,20 +26,12 @@ public class Question extends BaseEntity {
         this.id = id;
     }
 
-    public User getMentor() {
-        return mentor;
+    public String getMentorName() {
+        return mentorName;
     }
 
-    public void setMentor(User mentor) {
-        this.mentor = mentor;
-    }
-
-    public Subject getSubject() {
-        return subject;
-    }
-
-    public void setSubject(Subject subject) {
-        this.subject = subject;
+    public void setMentorName(String mentorName) {
+        this.mentorName = mentorName;
     }
 
     public String getQuestion() {
@@ -96,11 +74,11 @@ public class Question extends BaseEntity {
         isDeleted = deleted;
     }
 
-    public List<Answer> getAnswers() {
+    public List<AnswerDto> getAnswers() {
         return answers;
     }
 
-    public void setAnswers(List<Answer> answers) {
+    public void setAnswers(List<AnswerDto> answers) {
         this.answers = answers;
     }
 }
