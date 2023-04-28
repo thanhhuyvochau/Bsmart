@@ -433,14 +433,14 @@ public class ConvertUtil {
         return courseCartResponse;
     }
 
-    private static QuestionDto convertQuestionToQuestionDto(Question question) {
+    public static QuestionDto convertQuestionToQuestionDto(Question question) {
         QuestionDto questionDto = ObjectUtil.copyProperties(question, new QuestionDto(), QuestionDto.class, true);
         questionDto.setMentorName(questionDto.getMentorName());
         questionDto.setAnswers(question.getAnswers().stream().map(ConvertUtil::convertAnswerToAnswerDto).collect(Collectors.toList()));
         return questionDto;
     }
 
-    private static AnswerDto convertAnswerToAnswerDto(Answer answer) {
+    public static AnswerDto convertAnswerToAnswerDto(Answer answer) {
         return ObjectUtil.copyProperties(answer, new AnswerDto(), AnswerDto.class, true);
     }
 }
