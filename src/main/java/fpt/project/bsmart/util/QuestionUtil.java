@@ -29,12 +29,15 @@ public class QuestionUtil {
             while ((line = reader.readLine()) != null) {
                 if (line.trim().isEmpty()) continue;
                 if (Character.isLetter(line.charAt(0)) && line.charAt(1) == '.') {
+
                     int index = line.indexOf(".");
                     String answerContent = line.substring(index + 1).trim();
                     Answer answer = new Answer();
                     answer.setAnswer(answerContent);
                     answer.setKey(String.valueOf(line.charAt(0)));
-                    questions.get(questions.size() - 1).getAnswers().add(answer);
+                    Question question = questions.get(questions.size() - 1);
+                    answer.setQuestion(question);
+                    question.getAnswers().add(answer);
                 } else if (line.startsWith("ANSWER:")) {
                     String answerKey = line.substring(line.indexOf(":") + 1).trim();
                     Optional<Question> questionOptional = Optional.ofNullable(questions.get(questions.size() - 1));
