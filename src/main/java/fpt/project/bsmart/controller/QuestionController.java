@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.QuestionDto;
 import fpt.project.bsmart.entity.request.AddQuestionRequest;
+import fpt.project.bsmart.entity.request.EditQuestionRequest;
 import fpt.project.bsmart.entity.request.QuestionFilter;
 import fpt.project.bsmart.service.IQuestionService;
 import org.springframework.data.domain.Pageable;
@@ -41,5 +42,17 @@ public class QuestionController {
     @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
     public ResponseEntity<ApiResponse<ApiPage<QuestionDto>>> getQuestions(@RequestBody @Valid QuestionFilter filter, Pageable pageable) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(questionService.getQuestions(filter, pageable)));
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
+    public ResponseEntity<ApiResponse<QuestionDto>> getQuestions(@PathVariable("id") Long id) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(questionService.getQuestion(id)));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
+    public ResponseEntity<ApiResponse<Boolean>> updateQuestion(@PathVariable("id") Long id, @RequestBody @Valid EditQuestionRequest editQuestionRequest) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(questionService.editQuestionToQuestionBank(id, editQuestionRequest)));
     }
 }
