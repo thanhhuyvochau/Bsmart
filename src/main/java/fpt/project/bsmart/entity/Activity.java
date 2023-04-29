@@ -18,11 +18,11 @@ public class Activity extends BaseEntity {
     private Boolean isVisible;
     @OneToOne(mappedBy = "activity")
     private Quiz quiz;
-    @OneToOne(mappedBy = "activity")
+    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
     private Assignment assignment;
     @ManyToOne
-    @JoinColumn(name = "section_id")
-    private Section section;
+    @JoinColumn(name = "class_section_id")
+    private ClassSection classSection;
 
     public Long getId() {
         return id;
@@ -72,11 +72,11 @@ public class Activity extends BaseEntity {
         this.assignment = assignment;
     }
 
-    public Section getSection() {
-        return section;
+    public ClassSection getClassSection() {
+        return classSection;
     }
 
-    public void setSection(Section section) {
-        this.section = section;
+    public void setClassSection(ClassSection classSection) {
+        this.classSection = classSection;
     }
 }

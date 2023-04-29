@@ -4,6 +4,8 @@ import fpt.project.bsmart.entity.constant.EAssignmentStatus;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "assignment")
@@ -11,8 +13,6 @@ public class Assignment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "name")
-    private String name;
     @Column(name = "description")
     private String description;
     @Column(name = "startDate")
@@ -24,13 +24,15 @@ public class Assignment extends BaseEntity {
     @Column(name = "max_file_submit")
     private Integer maxFileSubmit = 1;
     @Column(name = "max_file_size")
-    private Integer maxFileSize;
+    private Integer maxFileSize = 5; // Dd
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private EAssignmentStatus status;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "activity_id")
     private Activity activity;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "assignment")
+    private List<AssignmentFile> assignmentFiles = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -38,14 +40,6 @@ public class Assignment extends BaseEntity {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getDescription() {
@@ -110,5 +104,13 @@ public class Assignment extends BaseEntity {
 
     public void setActivity(Activity activity) {
         this.activity = activity;
+    }
+
+    public List<AssignmentFile> getAssignmentFiles() {
+        return assignmentFiles;
+    }
+
+    public void setAssignmentFiles(List<AssignmentFile> assignmentFiles) {
+        this.assignmentFiles = assignmentFiles;
     }
 }

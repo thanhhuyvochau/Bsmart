@@ -18,9 +18,6 @@ public class Section {
     @OneToMany(orphanRemoval = true, mappedBy = "section", cascade = CascadeType.ALL)
     private List<Module> modules = new ArrayList<>();
 
-    @OneToMany(orphanRemoval = true, mappedBy = "section", cascade = CascadeType.ALL)
-    private List<Activity> activities = new ArrayList<>();
-
     public Long getId() {
         return id;
     }
@@ -51,13 +48,5 @@ public class Section {
 
     public void setModules(List<Module> modules) {
         this.modules = modules;
-    }
-
-    public List<Activity> getActivities() {
-        return activities;
-    }
-
-    public void setActivities(List<Activity> activities) {
-        this.activities = activities;
     }
 }
