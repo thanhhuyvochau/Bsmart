@@ -1,8 +1,14 @@
 package fpt.project.bsmart.util;
 
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.TimeTable;
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
+import fpt.project.bsmart.entity.dto.StudentClassDto;
+import fpt.project.bsmart.repository.OrderDetailRepository;
+import fpt.project.bsmart.repository.OrderRepository;
+import fpt.project.bsmart.repository.SubCourseRepository;
+import fpt.project.bsmart.repository.UserRepository;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -11,8 +17,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-
+//@Component
 public class ClassUtil {
+
+
     public static ClassProgressTimeDto getPercentageOfClassTime(Class clazz) {
         List<TimeTable> timeTables = clazz.getTimeTables();
         Instant now = Instant.now().plus(10, ChronoUnit.DAYS);
@@ -31,4 +39,7 @@ public class ClassUtil {
         }
         return null;
     }
+
+
+
 }

@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "class")
@@ -80,5 +81,13 @@ public class Class {
 
     public void setStudentClasses(List<StudentClass> studentClasses) {
         this.studentClasses = studentClasses;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Class)) return false;
+        Class other = (Class) o;
+        return Objects.equals(this.id, other.id);
     }
 }

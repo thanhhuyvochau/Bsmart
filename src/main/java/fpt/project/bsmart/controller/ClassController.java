@@ -24,9 +24,9 @@ public class ClassController {
         this.iClassService = iClassService;
     }
 
-    @Operation(summary = "mentor tao lớp học")
+    @Operation(summary = "admin duyệt mở lớp cho mentor => tự generate tkb - attendance ")
     @PostMapping
-    public ResponseEntity<ApiResponse<Boolean>> mentorCreateClass(@Valid @RequestBody CreateClassRequest request) {
+    public ResponseEntity<ApiResponse<Boolean>> adminApproveClass(@Valid @RequestBody CreateClassRequest request) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.createClass(request)));
     }
 

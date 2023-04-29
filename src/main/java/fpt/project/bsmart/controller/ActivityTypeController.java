@@ -24,8 +24,6 @@ public class ActivityTypeController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ActivityTypeDto>>> getAllActivityTypes() {
-
-
         return ResponseEntity.ok(ApiResponse.success(activityTypeService.getAllActivityTypes()));
     }
 }

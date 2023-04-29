@@ -7,10 +7,7 @@ import fpt.project.bsmart.entity.response.AttendanceResponse;
 import fpt.project.bsmart.service.AttendanceService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,9 +22,17 @@ public class AttendanceController {
     }
 
 
-    @Operation(summary = "lấy lịch điểm danh theo một class")
-    @GetMapping("/class/{classId}")
-    public ResponseEntity<ApiResponse<List<AttendanceResponse>>> getAllAttendance(@PathVariable long classId ) {
-        return ResponseEntity.ok(ApiResponse.success(attendanceService.getAllAttendance(classId)));
+
+
+    @Operation(summary = "HS lấy lịch điểm danh theo một class / nhiều lớp ")
+    @GetMapping("/student-View" )
+    public ResponseEntity<ApiResponse<List<AttendanceResponse>>> studentGetAllAttendance(@RequestParam(name = "classId", defaultValue = "false") Long classId ) {
+        return ResponseEntity.ok(ApiResponse.success(attendanceService.studentGetAllAttendance(classId)));
+    }
+
+    @Operation(summary = "GV lấy lịch điểm danh theo một class / nhiều lớp ")
+    @GetMapping("/teacher-View" )
+    public ResponseEntity<ApiResponse<List<AttendanceResponse>>> teacherGetAllAttendance(@RequestParam(name = "classId", defaultValue = "false") Long classId ) {
+        return ResponseEntity.ok(ApiResponse.success(attendanceService.teacherGetAllAttendance(classId)));
     }
 }
