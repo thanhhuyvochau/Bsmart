@@ -15,8 +15,6 @@ public class Quiz extends BaseEntity {
     private Long id;
     @Column(name = "code")
     private String code;
-    @Column(name = "name")
-    private String name;
     @Column(name = "start_date")
     private Instant startDate;
     @Column(name = "end_date")
@@ -56,14 +54,6 @@ public class Quiz extends BaseEntity {
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public Instant getStartDate() {

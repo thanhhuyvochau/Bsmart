@@ -2,9 +2,9 @@ package fpt.project.bsmart.entity;
 
 
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import org.checkerframework.checker.units.qual.C;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -13,25 +13,23 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(name = "name")
     private String name;
     @Column(name = "code")
     private String code;
-
     @Column(name = "description")
     private String description;
-
     @ManyToOne
     @JoinColumn(name = "subject_id")
     private Subject subject;
-
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SubCourse> subCourses;
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private ECourseStatus status;
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Section> sections = new ArrayList<>();
 
 
     public Long getId() {
@@ -76,9 +74,6 @@ public class Course {
     }
 
 
-
-
-
     public List<SubCourse> getSubCourses() {
         return subCourses;
     }
@@ -95,5 +90,11 @@ public class Course {
         this.status = status;
     }
 
+    public List<Section> getSections() {
+        return sections;
+    }
 
+    public void setSections(List<Section> sections) {
+        this.sections = sections;
+    }
 }

@@ -6,8 +6,7 @@ import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.repository.ImageRepository;
 import fpt.project.bsmart.service.ImageService;
-import fpt.project.bsmart.util.Constants;
-import fpt.project.bsmart.util.ImageUrlUtil;
+import fpt.project.bsmart.util.UrlUtil;
 import fpt.project.bsmart.util.MessageUtil;
 import fpt.project.bsmart.util.ObjectUtil;
 import fpt.project.bsmart.util.adapter.MinioAdapter;
@@ -49,7 +48,7 @@ public class ImageServiceImpl implements ImageService {
             ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file.getContentType(), file.getInputStream(), file.getSize());
             Image image = new Image();
             image.setName(objectWriteResponse.object());
-            image.setUrl(ImageUrlUtil.buildUrl(minioUrl, objectWriteResponse));
+            image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
             Image persistedImage = imageRepository.save(image);
             image.setType(imageRequest.getType());
             return ObjectUtil.copyProperties(persistedImage, new ImageDto(), ImageDto.class);

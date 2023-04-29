@@ -37,7 +37,7 @@ public class ImageUtil {
             ObjectWriteResponse objectWriteResponse = staticMinioAdapter.uploadFile(name, file.getContentType(), file.getInputStream(), file.getSize());
             Image image = new Image();
             image.setName(objectWriteResponse.object());
-            image.setUrl(ImageUrlUtil.buildUrl(minioUrl, objectWriteResponse));
+            image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
             Image persistedImage = staticImageRepository.save(image);
             image.setType(imageRequest.getType());
             return ObjectUtil.copyProperties(persistedImage, new ImageDto(), ImageDto.class);

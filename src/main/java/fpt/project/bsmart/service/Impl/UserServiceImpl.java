@@ -151,7 +151,7 @@ public class UserServiceImpl implements IUserService {
         ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, uploadImageRequest.getFile().getContentType(),
                 uploadImageRequest.getFile().getInputStream(), uploadImageRequest.getFile().getSize());
         image.setName(name);
-        image.setUrl(ImageUrlUtil.buildUrl(minioUrl, objectWriteResponse));
+        image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
         image.setUser(user);
         image.setStatus(true);
         if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
@@ -179,7 +179,7 @@ public class UserServiceImpl implements IUserService {
             image.setName(name);
             image.setStatus(true);
             image.setType(EImageType.DEGREE);
-            image.setUrl(ImageUrlUtil.buildUrl(minioUrl, objectWriteResponse));
+            image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
             image.setUser(user);
             Image save = imageRepository.save(image);
             imageIds.add(save.getId());
