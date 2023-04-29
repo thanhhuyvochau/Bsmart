@@ -1,10 +1,10 @@
 package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.request.AddActivityRequest;
 import fpt.project.bsmart.entity.request.AddAssignmentRequest;
 import fpt.project.bsmart.service.IActivityService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +21,8 @@ public class ActivityController {
         this.activityService = activityService;
     }
 
-    @PostMapping
+    @PostMapping("/assignment")
+    @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
     public ResponseEntity<ApiResponse<Boolean>> addAssignmentActivity(@ModelAttribute AddAssignmentRequest request) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request)));
     }

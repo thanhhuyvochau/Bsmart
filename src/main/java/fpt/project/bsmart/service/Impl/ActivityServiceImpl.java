@@ -93,6 +93,7 @@ public class ActivityServiceImpl implements IActivityService {
         assignment.setMaxFileSize(request.getMaxFileSize());
         assignment.setStatus(now.equals(request.getStartDate()) ? EAssignmentStatus.OPENING : EAssignmentStatus.PENDING);
         assignment.setActivity(activity);
+        // Lấy file đính kiềm của assignment
         MultipartFile[] attachFiles = request.getAttachFiles();
         for (MultipartFile attachFile : attachFiles) {
             String name = attachFile.getOriginalFilename() + "_" + Instant.now().toString();
