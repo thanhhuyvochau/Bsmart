@@ -1,13 +1,14 @@
 package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.SubCourse;
-import fpt.project.bsmart.entity.TimeTable;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.EOrderStatus;
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.request.category.CreateClassRequest;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.CourseRepository;
+import fpt.project.bsmart.repository.OrderDetailRepository;
 import fpt.project.bsmart.repository.SubCourseRepository;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.util.ClassUtil;
@@ -19,20 +20,24 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class ClassServiceImpl implements IClassService {
     private final MessageUtil messageUtil;
     private final CourseRepository courseRepository;
+    private final OrderDetailRepository orderDetailRepository;
 
     private final ClassRepository classRepository;
     private final SubCourseRepository subCourseRepository;
 
-    public ClassServiceImpl(MessageUtil messageUtil, CourseRepository courseRepository, ClassRepository classRepository, SubCourseRepository subCourseRepository) {
+    public ClassServiceImpl(MessageUtil messageUtil, CourseRepository courseRepository, OrderDetailRepository orderDetailRepository, ClassRepository classRepository, SubCourseRepository subCourseRepository) {
         this.messageUtil = messageUtil;
         this.courseRepository = courseRepository;
+        this.orderDetailRepository = orderDetailRepository;
         this.classRepository = classRepository;
         this.subCourseRepository = subCourseRepository;
     }
@@ -48,6 +53,20 @@ public class ClassServiceImpl implements IClassService {
         clazz.setSubCourse(subCourse);
         List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(subCourse.getTimeInWeeks(), numberOfSlot, startDate, clazz);
         clazz.getTimeTables().addAll(timeTables);
+
+
+        // Thêm học sinh thanh toán thành công vào lớp
+        List<OrderDetail> successOrderDetails = orderDetailRepository.findAllBySubCourse(subCourse).stream()
+                .filter(orderDetail -> Objects.equals(orderDetail.getOrder().getStatus(), EOrderStatus.SUCCESS))
+                .collect(Collectors.toList());
+        List<User> successRegisterUsers = successOrderDetails.stream().map(orderDetail -> orderDetail.getOrder().getUser()).collect(Collectors.toList());
+        for (User successRegisterUser : successRegisterUsers) {
+            StudentClass studentClass = new StudentClass();
+            studentClass.setStudent(successRegisterUser);
+            studentClass.setClazz(clazz);
+            clazz.getStudentClasses().add(studentClass);
+        }
+
         classRepository.save(clazz);
         return true;
     }
