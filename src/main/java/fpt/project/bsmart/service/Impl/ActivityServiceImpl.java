@@ -57,15 +57,11 @@ public class ActivityServiceImpl implements IActivityService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Không tìm thấy type của hoạt động, vui lòng thử lại"));
 
-        Activity activity = new Activity();
-        activity.setClassSection(classSection);
-        activity.setName(addActivityRequest.getName());
-        activity.setVisible(addActivityRequest.getIsVisible());
-        activity.setType(activityType);
+        Activity activity = new Activity(addActivityRequest.getName(), activityType, addActivityRequest.getIsVisible(), classSection);
         String code = activityType.getCode();
         switch (code) {
             case "QUIZ":
-                break;
+                break; // Xử lý tương tự cho quiz activity ở đây
             case "ASSIGNMENT":
                 Assignment assignment = addAssignment((AddAssignmentRequest) addActivityRequest, activity);
                 activity.setAssignment(assignment);
@@ -74,16 +70,18 @@ public class ActivityServiceImpl implements IActivityService {
             default:
                 throw ApiException.create(HttpStatus.NO_CONTENT).withMessage("Loại hoạt động không hợp lệ!");
         }
-        return null;
+        return false;
     }
 
     private Assignment addAssignment(AddAssignmentRequest request, Activity activity) throws IOException {
         Instant now = Instant.now();
-        if (request.getStartDate().isBefore(now) || request.getEndDate().isBefore(now)) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Ngày mở hoặc đóng không thể trong quá khứ");
-        } else if (request.getStartDate().isAfter(request.getEndDate())) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Ngày bắt đầu không thể sau ngày kết thúc");
+        Instant startDate = request.getStartDate();
+        Instant endDate = request.getEndDate();
+
+        if (startDate.isBefore(now) || endDate.isBefore(now) || startDate.isAfter(endDate)) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Ngày không hợp lệ");
         }
+
         Assignment assignment = new Assignment();
         assignment.setDescription(request.getDescription());
         assignment.setStartDate(request.getStartDate());
@@ -93,18 +91,23 @@ public class ActivityServiceImpl implements IActivityService {
         assignment.setMaxFileSize(request.getMaxFileSize());
         assignment.setStatus(now.equals(request.getStartDate()) ? EAssignmentStatus.OPENING : EAssignmentStatus.PENDING);
         assignment.setActivity(activity);
-        // Lấy file đính kiềm của assignment
+        // Lấy file đính kèm của assignment
         MultipartFile[] attachFiles = request.getAttachFiles();
         for (MultipartFile attachFile : attachFiles) {
-            String name = attachFile.getOriginalFilename() + "_" + Instant.now().toString();
-            ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, attachFile.getContentType(), attachFile.getInputStream(), attachFile.getSize());
-            AssignmentFile assignmentFile = new AssignmentFile();
-            assignmentFile.setFileType(FileType.ATTACH);
-            assignmentFile.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
-            assignmentFile.setUser(SecurityUtil.getCurrentUser());
-            assignmentFile.setAssignment(assignment);
-            assignment.getAssignmentFiles().add(assignmentFile);
+            assignment.getAssignmentFiles().add(createAssignmentFile(attachFile, assignment));
         }
         return assignment;
+    }
+
+    private AssignmentFile createAssignmentFile(MultipartFile attachFile, Assignment assignment) throws IOException {
+        String name = attachFile.getOriginalFilename() + "_" + Instant.now().toString();
+        ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, attachFile.getContentType(), attachFile.getInputStream(), attachFile.getSize());
+
+        AssignmentFile assignmentFile = new AssignmentFile();
+        assignmentFile.setFileType(FileType.ATTACH);
+        assignmentFile.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
+        assignmentFile.setUser(SecurityUtil.getCurrentUser());
+        assignmentFile.setAssignment(assignment);
+        return assignmentFile;
     }
 }
