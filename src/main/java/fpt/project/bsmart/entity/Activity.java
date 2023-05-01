@@ -24,6 +24,16 @@ public class Activity extends BaseEntity {
     @JoinColumn(name = "class_section_id")
     private ClassSection classSection;
 
+    public Activity(String name, ActivityType type, Boolean isVisible, ClassSection classSection) {
+        this.name = name;
+        this.type = type;
+        this.isVisible = isVisible;
+        this.classSection = classSection;
+    }
+
+    public Activity() {
+    }
+
     public Long getId() {
         return id;
     }
@@ -52,7 +62,7 @@ public class Activity extends BaseEntity {
         return isVisible;
     }
 
-    public void setVisible(Boolean visible) {
+    public void setIsVisible(Boolean visible) {
         isVisible = visible;
     }
 

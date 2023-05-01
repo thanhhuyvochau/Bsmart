@@ -16,8 +16,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class SecurityUtil {
@@ -81,9 +81,13 @@ public class SecurityUtil {
         return Optional.ofNullable(username);
     }
 
-    public static Boolean isHasRole(User user, EUserRole roleCode) {
-        if (user == null) return false;
-        List<Role> roles = user.getRoles();
-        return roles.stream().anyMatch(role -> Objects.equals(role.getCode(), roleCode));
+    public static Boolean isHasAnyRole(User user, EUserRole... checkedRoleCodes) {
+        List<EUserRole> userRoleCodes = user.getRoles().stream().map(Role::getCode).collect(Collectors.toList());
+        for (EUserRole checkedRoleCode : checkedRoleCodes) {
+            if (userRoleCodes.contains(checkedRoleCode)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

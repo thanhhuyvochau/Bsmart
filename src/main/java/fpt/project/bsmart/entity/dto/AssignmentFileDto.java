@@ -1,34 +1,18 @@
-package fpt.project.bsmart.entity;
+package fpt.project.bsmart.entity.dto;
 
 import fpt.project.bsmart.entity.constant.FileType;
 
-import javax.persistence.*;
 import java.time.Instant;
 
-@Entity
-@Table(name = "activity_file")
-public class AssignmentFile extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(name = "url")
-    private String url;
-    @Column(name = "upload_time")
-    private Instant uploadTime;
-    @Column(name = "file_type")
-    private FileType fileType;
-    @Column(name = "point")
-    private Float point;
-    @Column(name = "note")
-    private String note;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-    @ManyToOne
-    @JoinColumn(name = "assignment_id")
-    private Assignment assignment;
 
-    @Column(name = "name")
+public class AssignmentFileDto {
+    private Long id;
+    private String url;
+    private Instant uploadTime;
+    private FileType fileType;
+    private Float point;
+    private String note;
+    private UserDto user;
     private String name;
 
     public Long getId() {
@@ -79,20 +63,12 @@ public class AssignmentFile extends BaseEntity {
         this.note = note;
     }
 
-    public User getUser() {
+    public UserDto getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserDto user) {
         this.user = user;
-    }
-
-    public Assignment getAssignment() {
-        return assignment;
-    }
-
-    public void setAssignment(Assignment assignment) {
-        this.assignment = assignment;
     }
 
     public String getName() {

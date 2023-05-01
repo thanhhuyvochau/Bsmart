@@ -1,6 +1,6 @@
 package fpt.project.bsmart.entity.request;
 
-public class AddActivityRequest {
+public class ActivityRequest {
     private String name;
     private Long activityTypeId;
     private Boolean isVisible;

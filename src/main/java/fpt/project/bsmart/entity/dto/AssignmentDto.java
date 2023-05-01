@@ -1,11 +1,15 @@
-package fpt.project.bsmart.entity.request;
+package fpt.project.bsmart.entity.dto;
 
-
-import org.springframework.web.multipart.MultipartFile;
+import fpt.project.bsmart.entity.BaseEntity;
+import fpt.project.bsmart.entity.constant.EAssignmentStatus;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
-public class AddAssignmentRequest extends AddActivityRequest {
+
+public class AssignmentDto extends BaseEntity {
+    private Long id;
 
     private String description;
 
@@ -17,9 +21,19 @@ public class AddAssignmentRequest extends AddActivityRequest {
 
     private Integer maxFileSubmit = 1;
 
-    private Integer maxFileSize = 5; // đơn vị MB
+    private Integer maxFileSize = 5; // Dd
 
-    private MultipartFile[] attachFiles;
+    private EAssignmentStatus status;
+
+    private List<AssignmentFileDto> assignmentFiles = new ArrayList<>();
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getDescription() {
         return description;
@@ -69,11 +83,19 @@ public class AddAssignmentRequest extends AddActivityRequest {
         this.maxFileSize = maxFileSize;
     }
 
-    public MultipartFile[] getAttachFiles() {
-        return attachFiles;
+    public EAssignmentStatus getStatus() {
+        return status;
     }
 
-    public void setAttachFiles(MultipartFile[] attachFiles) {
-        this.attachFiles = attachFiles;
+    public void setStatus(EAssignmentStatus status) {
+        this.status = status;
+    }
+
+    public List<AssignmentFileDto> getAssignmentFiles() {
+        return assignmentFiles;
+    }
+
+    public void setAssignmentFiles(List<AssignmentFileDto> assignmentFiles) {
+        this.assignmentFiles = assignmentFiles;
     }
 }
