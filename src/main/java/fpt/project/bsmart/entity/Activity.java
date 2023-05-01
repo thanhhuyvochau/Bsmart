@@ -62,7 +62,7 @@ public class Activity extends BaseEntity {
         return isVisible;
     }
 
-    public void setVisible(Boolean visible) {
+    public void setIsVisible(Boolean visible) {
         isVisible = visible;
     }
 

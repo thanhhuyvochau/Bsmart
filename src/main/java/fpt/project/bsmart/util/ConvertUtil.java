@@ -3,11 +3,13 @@ package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.response.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -442,5 +444,41 @@ public class ConvertUtil {
 
     public static AnswerDto convertAnswerToAnswerDto(Answer answer) {
         return ObjectUtil.copyProperties(answer, new AnswerDto(), AnswerDto.class, true);
+    }
+
+    public static ActivityDto convertActivityToDto(Activity activity) {
+        ActivityType type = activity.getType();
+        switch (type.getCode()) {
+            case "ASSIGNMENT":
+                ActivityDto<AssignmentDto> activityDto = ObjectUtil.copyProperties(activity, new ActivityDto<>(), ActivityDto.class, true);
+                activityDto.setType(ConvertUtil.convertActivityTypeToDto(activity.getType()));
+                AssignmentDto assignmentDto = convertAssignmentToDto(activity.getAssignment());
+                activityDto.setActivityDetail(assignmentDto);
+                return activityDto;
+            case "QUIZ":
+                return null; // convert quiz activity ở đây tương tự như trên
+            default:
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy loại hoạt động!");
+        }
+    }
+
+    private static AssignmentDto convertAssignmentToDto(Assignment assignment) {
+        AssignmentDto assignmentDto = ObjectUtil.copyProperties(assignment, new AssignmentDto(), AssignmentDto.class, true);
+        for (AssignmentFile assignmentFile : assignment.getAssignmentFiles()) {
+            assignmentDto.getAssignmentFiles().add(ConvertUtil.convertAssignmentFileToDto(assignmentFile));
+        }
+        return assignmentDto;
+    }
+
+    public static AssignmentFileDto convertAssignmentFileToDto(AssignmentFile assignmentFile) {
+        AssignmentFileDto assignmentFileDto = ObjectUtil.copyProperties(assignmentFile, new AssignmentFileDto(), AssignmentFileDto.class, true);
+        assignmentFileDto.setUser(ConvertUtil.convertUsertoUserDto(assignmentFile.getUser()));
+        return assignmentFileDto;
+    }
+
+    public static ActivityTypeDto convertActivityTypeToDto(ActivityType activityType) {
+        ActivityTypeDto activityTypeResponse = new ActivityTypeDto();
+        ObjectUtil.copyProperties(activityType, activityTypeResponse);
+        return activityTypeResponse;
     }
 }
