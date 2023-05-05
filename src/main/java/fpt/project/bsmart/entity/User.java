@@ -65,6 +65,8 @@ public class User extends BaseEntity {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<ReferralCode> referralCodes = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "student")
+    private List<StudentClass> studentClasses = new ArrayList<>();
     @Column(name = "keycloak_user_id")
     private String keycloakUserId;
 

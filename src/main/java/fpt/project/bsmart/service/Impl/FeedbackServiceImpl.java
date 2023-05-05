@@ -1,6 +1,7 @@
 package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EFeedbackType;
 import fpt.project.bsmart.entity.constant.EQuestionType;
@@ -8,6 +9,7 @@ import fpt.project.bsmart.entity.dto.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.request.feedback.AddFeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.feedback.AddQuestionRequest;
 import fpt.project.bsmart.entity.request.feedback.SubCourseFeedbackRequest;
+import fpt.project.bsmart.entity.response.UserFeedbackResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IFeedbackService;
 import fpt.project.bsmart.util.*;
@@ -16,20 +18,27 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static fpt.project.bsmart.util.ClassUtil.*;
 
 @Service
 public class FeedbackServiceImpl implements IFeedbackService {
     private final MessageUtil messageUtil;
+    private final ClassRepository classRepository;
     private final FeedbackQuestionRepository feedbackQuestionRepository;
-    private final RoleRepository roleRepository;
     private final FeedbackTemplateRepository feedbackTemplateRepository;
+    private final FeedbackAnswerRepository feedbackAnswerRepository;
+    private final RoleRepository roleRepository;
     private final SubCourseFeedbackRepository subCourseFeedbackRepository;
 
     private final SubCourseRepository subCourseRepository;
 
-    public FeedbackServiceImpl(MessageUtil messageUtil, FeedbackQuestionRepository feedbackQuestionRepository, RoleRepository roleRepository, FeedbackTemplateRepository feedbackTemplateRepository, SubCourseFeedbackRepository subCourseFeedbackRepository, SubCourseRepository subCourseRepository) {
+    public FeedbackServiceImpl(MessageUtil messageUtil, ClassRepository classRepository, FeedbackQuestionRepository feedbackQuestionRepository, FeedbackAnswerRepository feedbackAnswerRepository, RoleRepository roleRepository, FeedbackTemplateRepository feedbackTemplateRepository, SubCourseFeedbackRepository subCourseFeedbackRepository, SubCourseRepository subCourseRepository) {
         this.messageUtil = messageUtil;
+        this.classRepository = classRepository;
         this.feedbackQuestionRepository = feedbackQuestionRepository;
+        this.feedbackAnswerRepository = feedbackAnswerRepository;
         this.roleRepository = roleRepository;
         this.feedbackTemplateRepository = feedbackTemplateRepository;
         this.subCourseFeedbackRepository = subCourseFeedbackRepository;
@@ -86,18 +95,18 @@ public class FeedbackServiceImpl implements IFeedbackService {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
 
-        if (addFeedbackTemplateRequest.getQuestionList().isEmpty()
-                || addFeedbackTemplateRequest.getQuestionList().size() < QuestionUtil.MIN_QUESTION_IN_TEMPLATE
-                || addFeedbackTemplateRequest.getQuestionList().size() > QuestionUtil.MAX_QUESTION_IN_TEMPLATE) {
+        int numberOfQuestionInRequestTemplate = addFeedbackTemplateRequest.getQuestionList().size();
+        if (numberOfQuestionInRequestTemplate < QuestionUtil.MIN_QUESTION_IN_TEMPLATE
+                || numberOfQuestionInRequestTemplate > QuestionUtil.MAX_QUESTION_IN_TEMPLATE) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("") + addFeedbackTemplateRequest.getQuestionList().size());
+                    .withMessage(messageUtil.getLocalMessage("") + numberOfQuestionInRequestTemplate);
         }
 
         Role permission = roleRepository.findRoleByCode(addFeedbackTemplateRequest.getPermission())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(""));
-        Long count = feedbackQuestionRepository.countByIdIn(addFeedbackTemplateRequest.getQuestionList());
+        Long numberOfQuestion = feedbackQuestionRepository.countByIdIn(addFeedbackTemplateRequest.getQuestionList());
 
-        if (count != addFeedbackTemplateRequest.getQuestionList().size()) {
+        if (numberOfQuestion != numberOfQuestionInRequestTemplate) {
             for (Long id : addFeedbackTemplateRequest.getQuestionList()) {
                 if (!feedbackQuestionRepository.existsById(id)) {
                     throw ApiException.create(HttpStatus.NOT_FOUND)
@@ -108,10 +117,10 @@ public class FeedbackServiceImpl implements IFeedbackService {
 
         List<FeedbackQuestion> feedbackQuestionList = feedbackQuestionRepository.findAllById(addFeedbackTemplateRequest.getQuestionList());
         if(!addFeedbackTemplateRequest.getFeedbackType().equals(EFeedbackType.REPORT)){
-            long multipleQuestionCount = feedbackQuestionList.stream()
-                    .filter(x -> x.getQuestionType().equals(EQuestionType.MULTIPLE_CHOICE))
-                    .count();
-            if(multipleQuestionCount == 0){
+            boolean isMultipleChoiceQuestionExist = feedbackQuestionList.stream()
+                    .anyMatch(x -> x.getQuestionType().equals(EQuestionType.MULTIPLE_CHOICE));
+
+            if(!isMultipleChoiceQuestionExist){
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
             }
         }
@@ -136,19 +145,42 @@ public class FeedbackServiceImpl implements IFeedbackService {
     @Override
     public Long addNewSubCourseFeedback(SubCourseFeedbackRequest subCourseFeedbackRequest) {
         User user = SecurityUtil.getCurrentUser();
-        if(subCourseFeedbackRequest.getFeedbackType().equals(EFeedbackType.REPORT)){
+
+        Class clazz = classRepository.findById(subCourseFeedbackRequest.getClassID())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage("") + subCourseFeedbackRequest.getClassID()));
+        boolean isStudentInClass = clazz.getStudentClasses().stream()
+                .anyMatch(x -> x.getStudent().equals(user));
+        if(!isStudentInClass){
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
-        SubCourse subCourse = subCourseRepository.findById(subCourseFeedbackRequest.getSubCourseId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("")));
-        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findById(subCourseFeedbackRequest.getFeedbackAnswer().getTemplateId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("")));
         //check tiến độ
-        //call API check tiến độ
-        //
+        double classProgressPercentage = ClassUtil.getPercentageOfClassTime(clazz).getPercentage();
+        //in range
+        if(subCourseFeedbackRequest.getFeedbackType().equals(EFeedbackType.SUB_COURSE_FIRST_HALF)){
+            if(classProgressPercentage < CLASS_PERCENTAGE_FOR_FIRST_FEEDBACK - PERCENTAGE_RANGE
+                    || classProgressPercentage > CLASS_PERCENTAGE_FOR_FIRST_FEEDBACK + PERCENTAGE_RANGE){
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + classProgressPercentage);
+            }
+        }else if(subCourseFeedbackRequest.getFeedbackType().equals(EFeedbackType.SUB_COURSE_SECOND_HALF)){
+            if(classProgressPercentage < CLASS_PERCENTAGE_FOR_SECOND_FEEDBACK - PERCENTAGE_RANGE
+                    || classProgressPercentage > CLASS_PERCENTAGE_FOR_SECOND_FEEDBACK + PERCENTAGE_RANGE){
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + classProgressPercentage);
+            }
+        }else{
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + subCourseFeedbackRequest.getFeedbackType());
+        }
+        boolean isAlreadyFeedback = subCourseFeedbackRepository
+                .findBySubCourseAndFeedbackTypeAndFeedbackAnswer_FeedbackUser(clazz.getSubCourse(), subCourseFeedbackRequest.getFeedbackType(), user)
+                .isPresent();
+        if(isAlreadyFeedback){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+        }
+        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findById(subCourseFeedbackRequest.getFeedbackAnswer().getTemplateId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage("") + subCourseFeedbackRequest.getFeedbackAnswer().getTemplateId()));
         String feedbackAnswerString = "";
-        Long totalScore = 0L;
-        int multipleQuestionCount = 0;
+        long totalScore = 0L;
         for (int i = 0; i < feedbackTemplate.getQuestions().size(); i++){
             String answer = subCourseFeedbackRequest.getFeedbackAnswer().getAnswer().get(i);
             if(feedbackTemplate.getQuestions().get(i).getQuestionType().equals(EQuestionType.MULTIPLE_CHOICE)){
@@ -163,9 +195,8 @@ public class FeedbackServiceImpl implements IFeedbackService {
                 }
                 List<Long> possibleScore = QuestionUtil.convertScoreStringToScoreList(feedbackTemplate.getQuestions().get(i).getPossibleScore());
                 totalScore += possibleScore.get(answerIndex);
-                multipleQuestionCount++;
             }
-            QuestionUtil.addNewAnswerToAnswerString(feedbackAnswerString, answer);
+            feedbackAnswerString = QuestionUtil.addNewAnswerToAnswerString(feedbackAnswerString, answer);
         }
 
         FeedbackAnswer feedbackAnswer = new FeedbackAnswer();
@@ -173,13 +204,33 @@ public class FeedbackServiceImpl implements IFeedbackService {
         feedbackAnswer.setFeedbackTemplate(feedbackTemplate);
         feedbackAnswer.setAnswer(feedbackAnswerString);
 
+        long multipleQuestionCount = feedbackTemplate.getQuestions().stream()
+                .filter(x -> x.getQuestionType().equals(EQuestionType.MULTIPLE_CHOICE))
+                .count();
+
         SubCourseFeedback subCourseFeedback = new SubCourseFeedback();
-        subCourseFeedback.setSubCourse(subCourse);
+        subCourseFeedback.setSubCourse(clazz.getSubCourse());
         subCourseFeedback.setFeedbackAnswer(feedbackAnswer);
-        subCourseFeedback.setScore(multipleQuestionCount == 0 ? null : (double) (totalScore/multipleQuestionCount));
-        subCourseFeedback.setOpinion(subCourseFeedback.getOpinion());
+        subCourseFeedback.setScore(multipleQuestionCount == 0 ? null : (double) totalScore / multipleQuestionCount);
         subCourseFeedback.setFeedbackType(subCourseFeedback.getFeedbackType());
-        return null;
+        if(StringUtil.isNotNullOrEmpty(subCourseFeedback.getOpinion())){
+            subCourseFeedback.setOpinion(subCourseFeedback.getOpinion());
+        }
+        return subCourseFeedbackRepository.save(subCourseFeedback).getId();
+    }
+
+    @Override
+    public List<UserFeedbackResponse> getFeedbackByClass(Long id) {
+        Class clazz = classRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("")));
+        List<User> users = clazz.getStudentClasses().stream()
+                .map(StudentClass::getStudent)
+                .collect(Collectors.toList());
+        List<FeedbackAnswer> feedbackAnswerList = feedbackAnswerRepository.getAllByFeedbackUserIn(users);
+        List<UserFeedbackResponse> userFeedbackResponses = feedbackAnswerList.stream()
+                .map(ConvertUtil::convertFeedbackAnswerToUserFeedbackResponse)
+                .collect(Collectors.toList());
+        return userFeedbackResponses;
     }
 
 }

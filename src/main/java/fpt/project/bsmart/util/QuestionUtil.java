@@ -50,6 +50,9 @@ public class QuestionUtil {
         if(newAnswer == null){
             newAnswer = "";
         }
+        if(answerString.isEmpty()){
+            return newAnswer;
+        }
         return answerString.join(DELIMITER, newAnswer);
     }
     public static String convertScoresToScoreString(List<Long> scores){

@@ -3,12 +3,14 @@ package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EQuestionType;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.response.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -456,5 +458,47 @@ public class ConvertUtil {
             feedbackTemplateDto.setQuestions(questions);
         }
         return feedbackTemplateDto;
+    }
+
+    public static UserFeedbackResponse convertFeedbackAnswerToUserFeedbackResponse(FeedbackAnswer feedbackAnswer){
+        UserFeedbackResponse userFeedbackResponse = new UserFeedbackResponse();
+        List<String> answerList = QuestionUtil.convertAnswerStringToAnswerList(feedbackAnswer.getAnswer());
+        userFeedbackResponse.setFeedbackAnswerId(feedbackAnswer.getId());
+        if(feedbackAnswer.getFeedbackTemplate() != null){
+            HashMap<String, String> feedbackAnswers = new HashMap<>();
+            List<FeedbackQuestion> questionList = feedbackAnswer.getFeedbackTemplate().getQuestions();
+            for(int i = 0; i < questionList.size(); i++){
+                String question = questionList.get(i).getQuestion();
+                String answer = answerList.get(i);
+                if(questionList.get(i).getQuestionType().equals(EQuestionType.FILL_THE_ANSWER)){
+                    feedbackAnswers.put(question, answer);
+                }else{
+                    int answerIndex;
+                    try{
+                       answerIndex = Integer.parseInt(answer);
+                    }catch (NumberFormatException e){
+                        throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("");
+                    }
+                    List<String> possibleAnswers = QuestionUtil.convertAnswerStringToAnswerList(questionList.get(i).getPossibleAnswer());
+                    String chosenAnswer = possibleAnswers.get(answerIndex);
+                    feedbackAnswers.put(question, chosenAnswer);
+                }
+            }
+        }
+        if(feedbackAnswer.getFeedbackUser() != null){
+            userFeedbackResponse.setUserName(feedbackAnswer.getFeedbackUser().getFullName());
+        }
+        return userFeedbackResponse;
+    }
+
+    public static ClassResponse convertClassToClassResponse(Class clazz){
+        ClassResponse classResponse = ObjectUtil.copyProperties(clazz, new ClassResponse(), ClassResponse.class);
+        if(clazz.getSubCourse() != null){
+            classResponse.setSubCourseName(clazz.getSubCourse().getTitle());
+        }
+        if(clazz.getSubCourse().getMentor() != null){
+            classResponse.setMentorName(clazz.getSubCourse().getMentor().getFullName());
+        }
+        return classResponse;
     }
 }

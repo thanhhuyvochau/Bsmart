@@ -3,17 +3,17 @@ package fpt.project.bsmart.entity.request.feedback;
 import fpt.project.bsmart.entity.constant.EFeedbackType;
 
 public class SubCourseFeedbackRequest {
-    private Long subCourseId;
+    private Long classID;
     private FeedbackAnswerRequest feedbackAnswer;
     private String opinion;
     private EFeedbackType feedbackType;
 
-    public Long getSubCourseId() {
-        return subCourseId;
+    public Long getClassID() {
+        return classID;
     }
 
-    public void setSubCourseId(Long subCourseId) {
-        this.subCourseId = subCourseId;
+    public void setClassID(Long classID) {
+        this.classID = classID;
     }
 
     public FeedbackAnswerRequest getFeedbackAnswer() {
