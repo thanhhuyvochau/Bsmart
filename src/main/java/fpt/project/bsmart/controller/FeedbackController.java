@@ -23,7 +23,7 @@ public class FeedbackController {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.addNewQuestion(addQuestionRequest)));
     }
 
-    @PostMapping("/sub-courses")
+    //@PostMapping("/sub-courses")
     public ResponseEntity<ApiResponse<Long>> addNewSubCourseFeedback(@RequestBody SubCourseFeedbackRequest subCourseFeedbackRequest){
         return ResponseEntity.ok(ApiResponse.success(feedbackService.addNewSubCourseFeedback(subCourseFeedbackRequest)));
     }
