@@ -58,12 +58,12 @@ public class FeedbackServiceImpl implements IFeedbackService {
 
         if (addQuestionRequest.getNewQuestion().getQuestionType() == EQuestionType.MULTIPLE_CHOICE) {
             if (addQuestionRequest.getNewQuestion().getPossibleAnswer().isEmpty()
-                    || addQuestionRequest.getNewQuestion().getPossibleAnswer().size() < QuestionUtil.MIN_ANSWER_IN_QUESTION
-                    || addQuestionRequest.getNewQuestion().getPossibleAnswer().size() > QuestionUtil.MAX_ANSWER_IN_QUESTION) {
+                    || addQuestionRequest.getNewQuestion().getPossibleAnswer().size() < FeedbackQuestionUtil.MIN_ANSWER_IN_QUESTION
+                    || addQuestionRequest.getNewQuestion().getPossibleAnswer().size() > FeedbackQuestionUtil.MAX_ANSWER_IN_QUESTION) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
             }
             for (Long score : addQuestionRequest.getNewQuestion().getPossibleAnswer().values()) {
-                if (score < QuestionUtil.MIN_QUESTION_SCORE || score > QuestionUtil.MAX_QUESTION_SCORE) {
+                if (score < FeedbackQuestionUtil.MIN_QUESTION_SCORE || score > FeedbackQuestionUtil.MAX_QUESTION_SCORE) {
                     throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
                 }
             }
@@ -74,8 +74,8 @@ public class FeedbackServiceImpl implements IFeedbackService {
         question.setQuestionType(addQuestionRequest.getNewQuestion().getQuestionType());
 
         if (addQuestionRequest.getNewQuestion().getQuestionType() == EQuestionType.MULTIPLE_CHOICE) {
-            question.setPossibleAnswer(QuestionUtil.convertAnswersToAnswerString(new ArrayList<>(addQuestionRequest.getNewQuestion().getPossibleAnswer().keySet())));
-            question.setPossibleScore(QuestionUtil.convertScoresToScoreString(new ArrayList<>(addQuestionRequest.getNewQuestion().getPossibleAnswer().values())));
+            question.setPossibleAnswer(FeedbackQuestionUtil.convertAnswersToAnswerString(new ArrayList<>(addQuestionRequest.getNewQuestion().getPossibleAnswer().keySet())));
+            question.setPossibleScore(FeedbackQuestionUtil.convertScoresToScoreString(new ArrayList<>(addQuestionRequest.getNewQuestion().getPossibleAnswer().values())));
         }
 
         return feedbackQuestionRepository.save(question).getId();
@@ -96,8 +96,8 @@ public class FeedbackServiceImpl implements IFeedbackService {
         }
 
         int numberOfQuestionInRequestTemplate = addFeedbackTemplateRequest.getQuestionList().size();
-        if (numberOfQuestionInRequestTemplate < QuestionUtil.MIN_QUESTION_IN_TEMPLATE
-                || numberOfQuestionInRequestTemplate > QuestionUtil.MAX_QUESTION_IN_TEMPLATE) {
+        if (numberOfQuestionInRequestTemplate < FeedbackQuestionUtil.MIN_QUESTION_IN_TEMPLATE
+                || numberOfQuestionInRequestTemplate > FeedbackQuestionUtil.MAX_QUESTION_IN_TEMPLATE) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("") + numberOfQuestionInRequestTemplate);
         }
@@ -199,10 +199,10 @@ public class FeedbackServiceImpl implements IFeedbackService {
                 }catch (NumberFormatException e){
                     throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
                 }
-                List<Long> possibleScore = QuestionUtil.convertScoreStringToScoreList(feedbackTemplate.getQuestions().get(i).getPossibleScore());
+                List<Long> possibleScore = FeedbackQuestionUtil.convertScoreStringToScoreList(feedbackTemplate.getQuestions().get(i).getPossibleScore());
                 totalScore += possibleScore.get(answerIndex);
             }
-            feedbackAnswerString = QuestionUtil.addNewAnswerToAnswerString(feedbackAnswerString, answer);
+            feedbackAnswerString = FeedbackQuestionUtil.addNewAnswerToAnswerString(feedbackAnswerString, answer);
         }
 
         FeedbackAnswer feedbackAnswer = new FeedbackAnswer();

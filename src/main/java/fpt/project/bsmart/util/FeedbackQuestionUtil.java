@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-public class QuestionUtil {
+public class FeedbackQuestionUtil {
     private static final String DELIMITER = "|";
     private static final String DELIMITER_REGEX = "\\|";
     public static final Long MIN_QUESTION_SCORE = 0L;

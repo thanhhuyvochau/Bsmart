@@ -441,7 +441,7 @@ public class ConvertUtil {
     public static FeedbackQuestionDto convertFeedbackQuestionToFeedbackQuestionDto(FeedbackQuestion question){
         FeedbackQuestionDto feedbackQuestionDto = ObjectUtil.copyProperties(question, new FeedbackQuestionDto(), FeedbackQuestionDto.class);
         if(feedbackQuestionDto.getQuestionType() == EQuestionType.MULTIPLE_CHOICE){
-            feedbackQuestionDto.setPossibleAnswer(QuestionUtil.convertAnswerAndScoreStringToPossibleAnswer(question.getPossibleAnswer(),question.getPossibleScore()));
+            feedbackQuestionDto.setPossibleAnswer(FeedbackQuestionUtil.convertAnswerAndScoreStringToPossibleAnswer(question.getPossibleAnswer(),question.getPossibleScore()));
         }else{
             feedbackQuestionDto.setPossibleAnswer(null);
         }
@@ -462,7 +462,7 @@ public class ConvertUtil {
 
     public static UserFeedbackResponse convertFeedbackAnswerToUserFeedbackResponse(FeedbackAnswer feedbackAnswer){
         UserFeedbackResponse userFeedbackResponse = new UserFeedbackResponse();
-        List<String> answerList = QuestionUtil.convertAnswerStringToAnswerList(feedbackAnswer.getAnswer());
+        List<String> answerList = FeedbackQuestionUtil.convertAnswerStringToAnswerList(feedbackAnswer.getAnswer());
         userFeedbackResponse.setFeedbackAnswerId(feedbackAnswer.getId());
         if(feedbackAnswer.getFeedbackTemplate() != null){
             HashMap<String, String> feedbackAnswers = new HashMap<>();
@@ -479,7 +479,7 @@ public class ConvertUtil {
                     }catch (NumberFormatException e){
                         throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("");
                     }
-                    List<String> possibleAnswers = QuestionUtil.convertAnswerStringToAnswerList(questionList.get(i).getPossibleAnswer());
+                    List<String> possibleAnswers = FeedbackQuestionUtil.convertAnswerStringToAnswerList(questionList.get(i).getPossibleAnswer());
                     String chosenAnswer = possibleAnswers.get(answerIndex);
                     feedbackAnswers.put(question, chosenAnswer);
                 }
