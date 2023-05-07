@@ -35,7 +35,7 @@ public class ClassController {
         return ResponseEntity.ok(ApiResponse.success(iClassService.createClass(request)));
     }
 
-    @Operation(summary = "Lấy danh sách lớp đã tới thời điểm/ đã có feedback")
+    //@Operation(summary = "Lấy danh sách lớp đã tới thời điểm/ đã có feedback")
     @GetMapping("/feedback")
     public ResponseEntity<ApiResponse<ApiPage<ClassResponse>>> getClassFeedbacks(@Nullable ClassFeedbackRequest classFeedbackRequest, Pageable pageable){
         return ResponseEntity.ok(ApiResponse.success(iClassService.getClassFeedbacks(classFeedbackRequest, pageable)));
