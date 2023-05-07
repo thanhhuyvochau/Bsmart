@@ -142,6 +142,10 @@ public class FeedbackServiceImpl implements IFeedbackService {
         return ConvertUtil.convertTemplateToTemplateDto(feedbackTemplate);
     }
 
+    private boolean isValueInRange(double value, double range, double approximate){
+        return value >= range - approximate && value <= range + approximate;
+    }
+
     @Override
     public Long addNewSubCourseFeedback(SubCourseFeedbackRequest subCourseFeedbackRequest) {
         User user = SecurityUtil.getCurrentUser();
@@ -154,28 +158,30 @@ public class FeedbackServiceImpl implements IFeedbackService {
         if(!isStudentInClass){
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
-        //check tiến độ
-        double classProgressPercentage = ClassUtil.getPercentageOfClassTime(clazz).getPercentage();
-        //in range
-        if(subCourseFeedbackRequest.getFeedbackType().equals(EFeedbackType.SUB_COURSE_FIRST_HALF)){
-            if(classProgressPercentage < CLASS_PERCENTAGE_FOR_FIRST_FEEDBACK - PERCENTAGE_RANGE
-                    || classProgressPercentage > CLASS_PERCENTAGE_FOR_FIRST_FEEDBACK + PERCENTAGE_RANGE){
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + classProgressPercentage);
-            }
-        }else if(subCourseFeedbackRequest.getFeedbackType().equals(EFeedbackType.SUB_COURSE_SECOND_HALF)){
-            if(classProgressPercentage < CLASS_PERCENTAGE_FOR_SECOND_FEEDBACK - PERCENTAGE_RANGE
-                    || classProgressPercentage > CLASS_PERCENTAGE_FOR_SECOND_FEEDBACK + PERCENTAGE_RANGE){
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + classProgressPercentage);
-            }
-        }else{
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + subCourseFeedbackRequest.getFeedbackType());
-        }
         boolean isAlreadyFeedback = subCourseFeedbackRepository
                 .findBySubCourseAndFeedbackTypeAndFeedbackAnswer_FeedbackUser(clazz.getSubCourse(), subCourseFeedbackRequest.getFeedbackType(), user)
                 .isPresent();
         if(isAlreadyFeedback){
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
+        //check tiến độ
+        double classProgressPercentage = ClassUtil.getPercentageOfClassTime(clazz).getPercentage();
+        //in range
+        switch (subCourseFeedbackRequest.getFeedbackType()){
+            case SUB_COURSE_FIRST_HALF:
+                if(!isValueInRange(classProgressPercentage, CLASS_PERCENTAGE_FOR_FIRST_FEEDBACK, PERCENTAGE_RANGE)){
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + classProgressPercentage);
+                }
+                break;
+            case SUB_COURSE_SECOND_HALF:
+                if(!isValueInRange(classProgressPercentage, CLASS_PERCENTAGE_FOR_SECOND_FEEDBACK, PERCENTAGE_RANGE)){
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + classProgressPercentage);
+                }
+                break;
+            default:
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + subCourseFeedbackRequest.getFeedbackType());
+        }
+
         FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findById(subCourseFeedbackRequest.getFeedbackAnswer().getTemplateId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage("") + subCourseFeedbackRequest.getFeedbackAnswer().getTemplateId()));
