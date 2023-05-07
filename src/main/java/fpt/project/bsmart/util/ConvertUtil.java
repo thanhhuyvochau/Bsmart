@@ -437,21 +437,21 @@ public class ConvertUtil {
         return courseCartResponse;
     }
 
-    public static FeedbackQuestionDto convertFeedbackQuestionToFeedbackQuestionDto(FeedbackQuestion question){
+    public static FeedbackQuestionDto convertFeedbackQuestionToFeedbackQuestionDto(FeedbackQuestion question) {
         FeedbackQuestionDto feedbackQuestionDto = ObjectUtil.copyProperties(question, new FeedbackQuestionDto(), FeedbackQuestionDto.class);
-        if(feedbackQuestionDto.getQuestionType() == EQuestionType.MULTIPLE_CHOICE){
-            feedbackQuestionDto.setPossibleAnswer(FeedbackQuestionUtil.convertAnswerAndScoreStringToPossibleAnswer(question.getPossibleAnswer(),question.getPossibleScore()));
-        }else{
+        if (feedbackQuestionDto.getQuestionType() == EQuestionType.MULTIPLE_CHOICE) {
+            feedbackQuestionDto.setPossibleAnswer(FeedbackQuestionUtil.convertAnswerAndScoreStringToPossibleAnswer(question.getPossibleAnswer(), question.getPossibleScore()));
+        } else {
             feedbackQuestionDto.setPossibleAnswer(null);
         }
         return feedbackQuestionDto;
     }
 
-    public static FeedbackTemplateDto convertTemplateToTemplateDto(FeedbackTemplate feedbackTemplate){
+    public static FeedbackTemplateDto convertTemplateToTemplateDto(FeedbackTemplate feedbackTemplate) {
         FeedbackTemplateDto feedbackTemplateDto = ObjectUtil.copyProperties(feedbackTemplate, new FeedbackTemplateDto(), FeedbackTemplateDto.class);
-        if(feedbackTemplate.getQuestions() != null){
+        if (feedbackTemplate.getQuestions() != null) {
             List<FeedbackQuestionDto> questions = new ArrayList<>();
-            for(FeedbackQuestion feedbackQuestion : feedbackTemplate.getQuestions()){
+            for (FeedbackQuestion feedbackQuestion : feedbackTemplate.getQuestions()) {
                 questions.add(convertFeedbackQuestionToFeedbackQuestionDto(feedbackQuestion));
             }
             feedbackTemplateDto.setQuestions(questions);
@@ -459,23 +459,23 @@ public class ConvertUtil {
         return feedbackTemplateDto;
     }
 
-    public static UserFeedbackResponse convertFeedbackAnswerToUserFeedbackResponse(FeedbackAnswer feedbackAnswer){
+    public static UserFeedbackResponse convertFeedbackAnswerToUserFeedbackResponse(FeedbackAnswer feedbackAnswer) {
         UserFeedbackResponse userFeedbackResponse = new UserFeedbackResponse();
         List<String> answerList = FeedbackQuestionUtil.convertAnswerStringToAnswerList(feedbackAnswer.getAnswer());
         userFeedbackResponse.setFeedbackAnswerId(feedbackAnswer.getId());
-        if(feedbackAnswer.getFeedbackTemplate() != null){
+        if (feedbackAnswer.getFeedbackTemplate() != null) {
             HashMap<String, String> feedbackAnswers = new HashMap<>();
             List<FeedbackQuestion> questionList = feedbackAnswer.getFeedbackTemplate().getQuestions();
-            for(int i = 0; i < questionList.size(); i++){
+            for (int i = 0; i < questionList.size(); i++) {
                 String question = questionList.get(i).getQuestion();
                 String answer = answerList.get(i);
-                if(questionList.get(i).getQuestionType().equals(EQuestionType.FILL_THE_ANSWER)){
+                if (questionList.get(i).getQuestionType().equals(EQuestionType.FILL_THE_ANSWER)) {
                     feedbackAnswers.put(question, answer);
-                }else{
+                } else {
                     int answerIndex;
-                    try{
-                       answerIndex = Integer.parseInt(answer);
-                    }catch (NumberFormatException e){
+                    try {
+                        answerIndex = Integer.parseInt(answer);
+                    } catch (NumberFormatException e) {
                         throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("");
                     }
                     List<String> possibleAnswers = FeedbackQuestionUtil.convertAnswerStringToAnswerList(questionList.get(i).getPossibleAnswer());
@@ -484,21 +484,23 @@ public class ConvertUtil {
                 }
             }
         }
-        if(feedbackAnswer.getFeedbackUser() != null){
+        if (feedbackAnswer.getFeedbackUser() != null) {
             userFeedbackResponse.setUserName(feedbackAnswer.getFeedbackUser().getFullName());
         }
         return userFeedbackResponse;
     }
 
-    public static ClassResponse convertClassToClassResponse(Class clazz){
+    public static ClassResponse convertClassToClassResponse(Class clazz) {
         ClassResponse classResponse = ObjectUtil.copyProperties(clazz, new ClassResponse(), ClassResponse.class);
-        if(clazz.getSubCourse() != null){
+        if (clazz.getSubCourse() != null) {
             classResponse.setSubCourseName(clazz.getSubCourse().getTitle());
         }
-        if(clazz.getSubCourse().getMentor() != null){
+        if (clazz.getSubCourse().getMentor() != null) {
             classResponse.setMentorName(clazz.getSubCourse().getMentor().getFullName());
         }
         return classResponse;
+    }
+
     public static QuestionDto convertQuestionToQuestionDto(Question question) {
         QuestionDto questionDto = ObjectUtil.copyProperties(question, new QuestionDto(), QuestionDto.class, true);
         questionDto.setMentorName(questionDto.getMentorName());
