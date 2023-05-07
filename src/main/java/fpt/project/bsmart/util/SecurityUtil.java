@@ -1,9 +1,11 @@
 package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.Cart;
+import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.Wallet;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.repository.CartRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.repository.WalletRepository;
@@ -13,7 +15,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class SecurityUtil {
@@ -75,5 +79,15 @@ public class SecurityUtil {
         Jwt principal = (Jwt) authentication.getPrincipal();
         String username = principal.getClaimAsString("preferred_username");
         return Optional.ofNullable(username);
+    }
+
+    public static Boolean isHasAnyRole(User user, EUserRole... checkedRoleCodes) {
+        List<EUserRole> userRoleCodes = user.getRoles().stream().map(Role::getCode).collect(Collectors.toList());
+        for (EUserRole checkedRoleCode : checkedRoleCodes) {
+            if (userRoleCodes.contains(checkedRoleCode)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

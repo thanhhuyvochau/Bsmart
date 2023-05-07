@@ -7,7 +7,6 @@ import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +17,7 @@ public class ClassUtil {
     public static double PERCENTAGE_RANGE = 0.1f;
     public static ClassProgressTimeDto getPercentageOfClassTime(Class clazz) {
         List<TimeTable> timeTables = clazz.getTimeTables();
-        Instant now = Instant.now().plus(10, ChronoUnit.DAYS);
+        Instant now = Instant.now();
         Optional<TimeTable> nearestTimeTable = timeTables.stream().filter(timeTable -> timeTable.getDate().compareTo(now) <= 0).max(new Comparator<TimeTable>() {
             @Override
             public int compare(TimeTable o1, TimeTable o2) {

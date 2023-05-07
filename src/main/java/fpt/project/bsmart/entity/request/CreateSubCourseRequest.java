@@ -14,7 +14,6 @@ public class CreateSubCourseRequest {
 
     private Long imageId;
 
-    private Long subjectId;
 
     private ETypeLearn type;
 
@@ -50,13 +49,7 @@ public class CreateSubCourseRequest {
         this.imageId = imageId;
     }
 
-    public Long getSubjectId() {
-        return subjectId;
-    }
 
-    public void setSubjectId(Long subjectId) {
-        this.subjectId = subjectId;
-    }
 
     public ETypeLearn getType() {
         return type;

@@ -19,6 +19,9 @@ public class Constants {
         public static final String SKILL_NOT_FOUND_BY_ID = "SKILL_NOT_FOUND_BY_ID";
         public static final String MENTOR_PROFILE_NOT_FOUND_BY_USER = "MENTOR_PROFILE_NOT_FOUND_BY_USER";
 
+        public static final String SUB_COURSE_STATUS_NOT_ALLOW = "SUB_COURSE_STATUS_NOT_ALLOW";
+
+
         public static class Invalid{
 
             public static final String USERNAME_PASSWORD_INCORRECT = "USERNAME_PASSWORD_INCORRECT";

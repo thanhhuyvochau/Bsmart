@@ -124,10 +124,9 @@ public class ConvertUtil {
             dayOfWeekDTO = convertDayOfWeekToDto(dayOfWeek);
         }
         SlotDto slotDto = new SlotDto();
-        if(slot!= null){
+        if (slot != null) {
             slotDto = convertSlotToSlotDto(slot);
         }
-
 
 
         return new TimeInWeekDTO(dayOfWeekDTO, null, slotDto);
@@ -500,5 +499,50 @@ public class ConvertUtil {
             classResponse.setMentorName(clazz.getSubCourse().getMentor().getFullName());
         }
         return classResponse;
+    public static QuestionDto convertQuestionToQuestionDto(Question question) {
+        QuestionDto questionDto = ObjectUtil.copyProperties(question, new QuestionDto(), QuestionDto.class, true);
+        questionDto.setMentorName(questionDto.getMentorName());
+        questionDto.setAnswers(question.getAnswers().stream().map(ConvertUtil::convertAnswerToAnswerDto).collect(Collectors.toList()));
+        return questionDto;
+    }
+
+    public static AnswerDto convertAnswerToAnswerDto(Answer answer) {
+        return ObjectUtil.copyProperties(answer, new AnswerDto(), AnswerDto.class, true);
+    }
+
+    public static ActivityDto convertActivityToDto(Activity activity) {
+        ActivityType type = activity.getType();
+        switch (type.getCode()) {
+            case "ASSIGNMENT":
+                ActivityDto<AssignmentDto> activityDto = ObjectUtil.copyProperties(activity, new ActivityDto<>(), ActivityDto.class, true);
+                activityDto.setType(ConvertUtil.convertActivityTypeToDto(activity.getType()));
+                AssignmentDto assignmentDto = convertAssignmentToDto(activity.getAssignment());
+                activityDto.setActivityDetail(assignmentDto);
+                return activityDto;
+            case "QUIZ":
+                return null; // convert quiz activity ở đây tương tự như trên
+            default:
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy loại hoạt động!");
+        }
+    }
+
+    private static AssignmentDto convertAssignmentToDto(Assignment assignment) {
+        AssignmentDto assignmentDto = ObjectUtil.copyProperties(assignment, new AssignmentDto(), AssignmentDto.class, true);
+        for (AssignmentFile assignmentFile : assignment.getAssignmentFiles()) {
+            assignmentDto.getAssignmentFiles().add(ConvertUtil.convertAssignmentFileToDto(assignmentFile));
+        }
+        return assignmentDto;
+    }
+
+    public static AssignmentFileDto convertAssignmentFileToDto(AssignmentFile assignmentFile) {
+        AssignmentFileDto assignmentFileDto = ObjectUtil.copyProperties(assignmentFile, new AssignmentFileDto(), AssignmentFileDto.class, true);
+        assignmentFileDto.setUser(ConvertUtil.convertUsertoUserDto(assignmentFile.getUser()));
+        return assignmentFileDto;
+    }
+
+    public static ActivityTypeDto convertActivityTypeToDto(ActivityType activityType) {
+        ActivityTypeDto activityTypeResponse = new ActivityTypeDto();
+        ObjectUtil.copyProperties(activityType, activityTypeResponse);
+        return activityTypeResponse;
     }
 }

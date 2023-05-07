@@ -24,7 +24,9 @@ public class Class {
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimeTable> timeTables = new ArrayList<>();
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<StudentClass> studentClasses = new ArrayList<>();
+    @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClassSection> classSections = new ArrayList<>();
+
     public Long getId() {
         return id;
     }
@@ -73,11 +75,11 @@ public class Class {
         this.timeTables = timeTables;
     }
 
-    public List<StudentClass> getStudentClasses() {
-        return studentClasses;
+    public List<ClassSection> getClassSections() {
+        return classSections;
     }
 
-    public void setStudentClasses(List<StudentClass> studentClasses) {
-        this.studentClasses = studentClasses;
+    public void setClassSections(List<ClassSection> classSections) {
+        this.classSections = classSections;
     }
 }
