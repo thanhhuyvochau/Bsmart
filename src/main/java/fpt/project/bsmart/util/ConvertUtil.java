@@ -438,22 +438,22 @@ public class ConvertUtil {
         return courseCartResponse;
     }
 
-    public static QuestionDto convertQuestionToQuestionDto(FeedbackQuestion question){
-        QuestionDto questionDto = ObjectUtil.copyProperties(question, new QuestionDto(), QuestionDto.class);
-        if(questionDto.getQuestionType() == EQuestionType.MULTIPLE_CHOICE){
-            questionDto.setPossibleAnswer(QuestionUtil.convertAnswerAndScoreStringToPossibleAnswer(question.getPossibleAnswer(),question.getPossibleScore()));
+    public static FeedbackQuestionDto convertFeedbackQuestionToFeedbackQuestionDto(FeedbackQuestion question){
+        FeedbackQuestionDto feedbackQuestionDto = ObjectUtil.copyProperties(question, new FeedbackQuestionDto(), FeedbackQuestionDto.class);
+        if(feedbackQuestionDto.getQuestionType() == EQuestionType.MULTIPLE_CHOICE){
+            feedbackQuestionDto.setPossibleAnswer(QuestionUtil.convertAnswerAndScoreStringToPossibleAnswer(question.getPossibleAnswer(),question.getPossibleScore()));
         }else{
-            questionDto.setPossibleAnswer(null);
+            feedbackQuestionDto.setPossibleAnswer(null);
         }
-        return questionDto;
+        return feedbackQuestionDto;
     }
 
     public static FeedbackTemplateDto convertTemplateToTemplateDto(FeedbackTemplate feedbackTemplate){
         FeedbackTemplateDto feedbackTemplateDto = ObjectUtil.copyProperties(feedbackTemplate, new FeedbackTemplateDto(), FeedbackTemplateDto.class);
         if(feedbackTemplate.getQuestions() != null){
-            List<QuestionDto> questions = new ArrayList<>();
+            List<FeedbackQuestionDto> questions = new ArrayList<>();
             for(FeedbackQuestion feedbackQuestion : feedbackTemplate.getQuestions()){
-                questions.add(convertQuestionToQuestionDto(feedbackQuestion));
+                questions.add(convertFeedbackQuestionToFeedbackQuestionDto(feedbackQuestion));
             }
             feedbackTemplateDto.setQuestions(questions);
         }

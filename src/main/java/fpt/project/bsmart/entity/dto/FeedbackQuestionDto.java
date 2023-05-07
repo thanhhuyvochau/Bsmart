@@ -4,7 +4,7 @@ import fpt.project.bsmart.entity.constant.EQuestionType;
 
 import java.util.HashMap;
 
-public class QuestionDto {
+public class FeedbackQuestionDto {
     private Long id;
     private String question;
     private HashMap<String, Long> possibleAnswer;

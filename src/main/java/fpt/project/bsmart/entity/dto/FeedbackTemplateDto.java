@@ -6,7 +6,7 @@ import java.util.List;
 public class FeedbackTemplateDto {
     private Long id;
     private String templateName;
-    private List<QuestionDto> questions = new ArrayList<>();
+    private List<FeedbackQuestionDto> questions = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -24,11 +24,11 @@ public class FeedbackTemplateDto {
         this.templateName = templateName;
     }
 
-    public List<QuestionDto> getQuestions() {
+    public List<FeedbackQuestionDto> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(List<QuestionDto> questions) {
+    public void setQuestions(List<FeedbackQuestionDto> questions) {
         this.questions = questions;
     }
 }
