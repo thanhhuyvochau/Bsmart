@@ -1,28 +1,18 @@
 package fpt.project.bsmart.controller;
 
 
-import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
-import fpt.project.bsmart.entity.request.JwtResponse;
-import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
+import fpt.project.bsmart.entity.request.User.ChangePasswordRequest;
 import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
-import fpt.project.bsmart.entity.request.UserRequest;
-import fpt.project.bsmart.entity.response.UserResponse;
 import fpt.project.bsmart.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
-import fpt.project.bsmart.service.IUserService;
-import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -67,11 +57,10 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(iUserService.editUserSocialProfile(socialProfileEditRequest)));
     }
 
-    @Operation(summary = "Chỉnh sửa thông tin tài khoản")
-    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
-    @PutMapping("/account")
-    public ResponseEntity<ApiResponse<Long>> editAccountProfile(@RequestBody AccountProfileEditRequest accountProfileEditRequest){
-        return ResponseEntity.ok(ApiResponse.success(iUserService.editUserAccountProfile(accountProfileEditRequest)));
+    @Operation(summary = "Thay đổi mật khẩu")
+    @PutMapping("/password")
+    public ResponseEntity<ApiResponse<Long>> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.changePassword(changePasswordRequest)));
     }
 
     @Operation(summary = "Member chỉnh sửa thông tin cá nhân")
