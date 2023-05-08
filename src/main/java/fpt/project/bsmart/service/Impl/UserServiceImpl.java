@@ -11,7 +11,7 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
-import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
+import fpt.project.bsmart.entity.request.User.ChangePasswordRequest;
 import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
@@ -215,35 +215,37 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Long editUserAccountProfile(AccountProfileEditRequest accountProfileEditRequest) {
+    public Long changePassword(ChangePasswordRequest changePasswordRequest) {
         User user = getCurrentLoginUser();
-
-        if (accountProfileEditRequest.getOldPassword().isEmpty() ||
-                accountProfileEditRequest.getNewPassword().isEmpty()) {
-
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(EMPTY_PASSWORD));
-        }
-
-        if (!PasswordUtil.validationPassword(accountProfileEditRequest.getNewPassword())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
-
-        }
-        String encodedNewPassword = encoder.encode(accountProfileEditRequest.getNewPassword());
-
-        if (!PasswordUtil.IsOldPassword(accountProfileEditRequest.getOldPassword(), user.getPassword())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(OLD_PASSWORD_MISMATCH));
-
-        } else {
-            if (accountProfileEditRequest.getOldPassword().equals(accountProfileEditRequest.getNewPassword())) {
+        if (user != null) {
+            if (changePasswordRequest.getOldPassword().isEmpty() ||
+                    changePasswordRequest.getNewPassword().isEmpty()) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage(NEW_PASSWORD_DUPLICATE));
+                        .withMessage(messageUtil.getLocalMessage(EMPTY_PASSWORD));
             }
+
+            if (!PasswordUtil.validationPassword(changePasswordRequest.getNewPassword())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
+            }
+            if (!PasswordUtil.IsOldPassword(changePasswordRequest.getOldPassword(), user.getPassword())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage(messageUtil.getLocalMessage(OLD_PASSWORD_MISMATCH));
+
+            } else {
+                if (changePasswordRequest.getOldPassword().equals(changePasswordRequest.getNewPassword())) {
+                    throw ApiException.create(HttpStatus.BAD_REQUEST)
+                            .withMessage(messageUtil.getLocalMessage(NEW_PASSWORD_DUPLICATE));
+                }
+            }
+            String encodedNewPassword = encoder.encode(changePasswordRequest.getNewPassword());
+            user.setPassword(encodedNewPassword);
+            user = userRepository.save(user);
+            return user.getId();
+        } else {
+            throw ApiException.create(HttpStatus.UNAUTHORIZED)
+                    .withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID));
         }
-        User savedUser = userRepository.save(user);
-        return savedUser.getId();
     }
 
     @Override

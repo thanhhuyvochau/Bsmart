@@ -78,9 +78,8 @@ public class SecurityUtil {
         if (authentication == null || authentication.getPrincipal().equals("anonymousUser")) {
             return Optional.empty();
         }
-        Jwt principal = (Jwt) authentication.getPrincipal();
-        String username = principal.getClaimAsString("preferred_username");
-        return Optional.ofNullable(username);
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        return Optional.ofNullable(userDetails.getEmail());
     }
 
     public static Boolean isHasAnyRole(User user, EUserRole... checkedRoleCodes) {
