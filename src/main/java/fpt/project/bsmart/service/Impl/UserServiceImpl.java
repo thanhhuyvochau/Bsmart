@@ -22,8 +22,6 @@ import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.adapter.MinioAdapter;
-import fpt.project.bsmart.util.keycloak.KeycloakRoleUtil;
-import fpt.project.bsmart.util.keycloak.KeycloakUserUtil;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -61,11 +59,9 @@ public class UserServiceImpl implements IUserService {
     private final MentorProfileRepository mentorProfileRepository;
 
     private final MinioAdapter minioAdapter;
-    private final KeycloakUserUtil keycloakUserUtil;
-    private final KeycloakRoleUtil keycloakRoleUtil;
 
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, KeycloakUserUtil keycloakUserUtil, KeycloakRoleUtil keycloakRoleUtil) {
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
@@ -73,8 +69,6 @@ public class UserServiceImpl implements IUserService {
         this.imageRepository = imageRepository;
         this.mentorProfileRepository = mentorProfileRepository;
         this.minioAdapter = minioAdapter;
-        this.keycloakUserUtil = keycloakUserUtil;
-        this.keycloakRoleUtil = keycloakRoleUtil;
     }
 
     private static void accept(Image image) {
@@ -249,7 +243,6 @@ public class UserServiceImpl implements IUserService {
             }
         }
         User savedUser = userRepository.save(user);
-        keycloakUserUtil.update(savedUser, accountProfileEditRequest.getNewPassword());
         return savedUser.getId();
     }
 
@@ -350,13 +343,7 @@ public class UserServiceImpl implements IUserService {
             mentorProfileRepository.save(mentorProfile);
         }
         User savedUser = userRepository.save(user);
-        Boolean saveAccountSuccess = keycloakUserUtil.create(user, createAccountRequest.getPassword());
-        Boolean assignRoleSuccess = keycloakRoleUtil.assignRoleToUser(createAccountRequest.getRole().getKeycloakRole(), user);
-        if (saveAccountSuccess && assignRoleSuccess) {
-            return savedUser.getId();
-        } else {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Tạo tài khoản thất bại, vui lòng thử lại!");
-        }
+        return savedUser.getId();
     }
 }
 

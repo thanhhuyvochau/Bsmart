@@ -1,5 +1,6 @@
 package fpt.project.bsmart.util;
 
+import fpt.project.bsmart.config.security.service.UserDetailsImpl;
 import fpt.project.bsmart.entity.Cart;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
@@ -11,7 +12,9 @@ import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.repository.WalletRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
@@ -34,19 +37,18 @@ public class SecurityUtil {
     }
 
     public static User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        try {
-            Jwt principal = (Jwt) authentication.getPrincipal();
-            String username = principal.getClaimAsString("preferred_username");
-            User currentUser = Optional.ofNullable(staticUserRepository.findByEmail(username))
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Student not found by username"));
-            if (currentUser.getKeycloakUserId() == null) {
-                currentUser.setKeycloakUserId(principal.getClaimAsString("id"));
-            }
-            return currentUser;
-        } catch (Exception e) {
-            return null;
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Object principal = securityContext.getAuthentication().getPrincipal();
+        UserDetails userDetails1 = null;
+        User user = null;
+        if (principal instanceof UserDetailsImpl) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) principal;
+            String email = userDetails.getEmail();
+            user = staticUserRepository.findByEmail(email)
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(messageUtil.getLocalMessage("Tài khoản đăng nhập hiện tại không tìm thấy") + email));
         }
+        return user;
     }
 
     public static Wallet getCurrentUserWallet() {
