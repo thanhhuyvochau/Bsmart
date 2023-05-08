@@ -4,6 +4,7 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.EQuestionType;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.*;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -433,6 +435,70 @@ public class ConvertUtil {
             courseCartResponse.setSubject(convertSubjectToSubjectDto(course.getSubject()));
         }
         return courseCartResponse;
+    }
+
+    public static FeedbackQuestionDto convertFeedbackQuestionToFeedbackQuestionDto(FeedbackQuestion question) {
+        FeedbackQuestionDto feedbackQuestionDto = ObjectUtil.copyProperties(question, new FeedbackQuestionDto(), FeedbackQuestionDto.class);
+        if (feedbackQuestionDto.getQuestionType() == EQuestionType.MULTIPLE_CHOICE) {
+            feedbackQuestionDto.setPossibleAnswer(FeedbackQuestionUtil.convertAnswerAndScoreStringToPossibleAnswer(question.getPossibleAnswer(), question.getPossibleScore()));
+        } else {
+            feedbackQuestionDto.setPossibleAnswer(null);
+        }
+        return feedbackQuestionDto;
+    }
+
+    public static FeedbackTemplateDto convertTemplateToTemplateDto(FeedbackTemplate feedbackTemplate) {
+        FeedbackTemplateDto feedbackTemplateDto = ObjectUtil.copyProperties(feedbackTemplate, new FeedbackTemplateDto(), FeedbackTemplateDto.class);
+        if (feedbackTemplate.getQuestions() != null) {
+            List<FeedbackQuestionDto> questions = new ArrayList<>();
+            for (FeedbackQuestion feedbackQuestion : feedbackTemplate.getQuestions()) {
+                questions.add(convertFeedbackQuestionToFeedbackQuestionDto(feedbackQuestion));
+            }
+            feedbackTemplateDto.setQuestions(questions);
+        }
+        return feedbackTemplateDto;
+    }
+
+    public static UserFeedbackResponse convertFeedbackAnswerToUserFeedbackResponse(FeedbackAnswer feedbackAnswer) {
+        UserFeedbackResponse userFeedbackResponse = new UserFeedbackResponse();
+        List<String> answerList = FeedbackQuestionUtil.convertAnswerStringToAnswerList(feedbackAnswer.getAnswer());
+        userFeedbackResponse.setFeedbackAnswerId(feedbackAnswer.getId());
+        if (feedbackAnswer.getFeedbackTemplate() != null) {
+            HashMap<String, String> feedbackAnswers = new HashMap<>();
+            List<FeedbackQuestion> questionList = feedbackAnswer.getFeedbackTemplate().getQuestions();
+            for (int i = 0; i < questionList.size(); i++) {
+                String question = questionList.get(i).getQuestion();
+                String answer = answerList.get(i);
+                if (questionList.get(i).getQuestionType().equals(EQuestionType.FILL_THE_ANSWER)) {
+                    feedbackAnswers.put(question, answer);
+                } else {
+                    int answerIndex;
+                    try {
+                        answerIndex = Integer.parseInt(answer);
+                    } catch (NumberFormatException e) {
+                        throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("");
+                    }
+                    List<String> possibleAnswers = FeedbackQuestionUtil.convertAnswerStringToAnswerList(questionList.get(i).getPossibleAnswer());
+                    String chosenAnswer = possibleAnswers.get(answerIndex);
+                    feedbackAnswers.put(question, chosenAnswer);
+                }
+            }
+        }
+        if (feedbackAnswer.getFeedbackUser() != null) {
+            userFeedbackResponse.setUserName(feedbackAnswer.getFeedbackUser().getFullName());
+        }
+        return userFeedbackResponse;
+    }
+
+    public static ClassResponse convertClassToClassResponse(Class clazz) {
+        ClassResponse classResponse = ObjectUtil.copyProperties(clazz, new ClassResponse(), ClassResponse.class);
+        if (clazz.getSubCourse() != null) {
+            classResponse.setSubCourseName(clazz.getSubCourse().getTitle());
+        }
+        if (clazz.getSubCourse().getMentor() != null) {
+            classResponse.setMentorName(clazz.getSubCourse().getMentor().getFullName());
+        }
+        return classResponse;
     }
 
     public static QuestionDto convertQuestionToQuestionDto(Question question) {

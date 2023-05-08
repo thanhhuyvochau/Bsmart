@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class ClassUtil {
+    public static double CLASS_PERCENTAGE_FOR_FIRST_FEEDBACK = 0.5f;
+    public static double CLASS_PERCENTAGE_FOR_SECOND_FEEDBACK = 0.8f;
+    public static double PERCENTAGE_RANGE = 0.1f;
     public static ClassProgressTimeDto getPercentageOfClassTime(Class clazz) {
         List<TimeTable> timeTables = clazz.getTimeTables();
         Instant now = Instant.now();
