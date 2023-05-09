@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.MentorProfile;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.EAccountStatus;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.UserDto;
@@ -181,6 +182,8 @@ public class UserServiceImpl implements IUserService {
         return imageIds;
     }
 
+
+
     @Override
     public UserDto getUserById(Long id) {
         UserDto userDto = ConvertUtil.convertUsertoUserDto(findUserById(id));
@@ -341,12 +344,14 @@ public class UserServiceImpl implements IUserService {
             user.setStatus(false);
             MentorProfile mentorProfile = new MentorProfile();
             mentorProfile.setUser(user);
-            mentorProfile.setStatus(false);
+            mentorProfile.setStatus(EAccountStatus.REQUESTING);
             mentorProfileRepository.save(mentorProfile);
         }
         User savedUser = userRepository.save(user);
         return savedUser.getId();
     }
+
+
 }
 
 

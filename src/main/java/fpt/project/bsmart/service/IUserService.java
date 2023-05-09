@@ -33,4 +33,6 @@ public interface IUserService {
     Long  editMentorPersonalProfile(MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest);
 
     List<Long> uploadDegree(MultipartFile[] files) throws IOException;
+
+
 }
