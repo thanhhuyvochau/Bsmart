@@ -1,5 +1,8 @@
 package fpt.project.bsmart.entity;
 
+import fpt.project.bsmart.entity.constant.EAccountStatus;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +21,11 @@ public class MentorProfile extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+
     @Column(name = "status")
-    private Boolean status = false;
+    @Enumerated(EnumType.STRING)
+    private EAccountStatus status;
+
 
     @OneToMany(mappedBy = "mentorProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MentorSkill> skills = new ArrayList<>();
@@ -56,11 +62,11 @@ public class MentorProfile extends BaseEntity {
         this.user = user;
     }
 
-    public Boolean getStatus() {
+    public EAccountStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Boolean status) {
+    public void setStatus(EAccountStatus status) {
         this.status = status;
     }
 

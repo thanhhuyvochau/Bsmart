@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 
+import fpt.project.bsmart.entity.constant.EAccountStatus;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.request.MentorSearchRequest;
@@ -106,7 +107,7 @@ public class MentorProfileImpl implements IMentorProfileService {
     @Override
     public Long approveMentorProfile(Long id) {
         MentorProfile mentorProfile = findById(id);
-        mentorProfile.setStatus(true);
+        mentorProfile.setStatus(EAccountStatus.STARTING);
         return mentorProfileRepository.save(mentorProfile).getId();
     }
 

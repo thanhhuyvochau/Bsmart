@@ -4,6 +4,7 @@ package fpt.project.bsmart.service.Impl;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.constant.EAccountStatus;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.CourseDto;
@@ -78,9 +79,16 @@ public class CourseServiceImpl implements ICourseService {
     @Override
     public Long mentorCreateCourse(CreateCourseRequest createCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
+        if (mentorProfile== null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Tài khoản không hợp lệ để tạo khóa học"));
+        }
 
-
-
+        if(!mentorProfile.getStatus().equals(EAccountStatus.STARTING)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Tài khoản đang dùng chưa phải là giáo viên chính thức hoăc tài khoản chưa hợp lệ!!"));
+        }
         Course course = new Course();
 
         Category category = categoryRepository.findById(createCourseRequest.getCategoryId())
@@ -165,7 +173,6 @@ public class CourseServiceImpl implements ICourseService {
         });
 
 
-
         course.setSubCourses(courseList);
 
 
@@ -207,7 +214,7 @@ public class CourseServiceImpl implements ICourseService {
                 .queryByCategoryId(query.getCategoryId());
 
 
-        Page<Course> coursesPage = courseRepository.findAll(builder.build(),pageable);
+        Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
         List<Course> coursesList = coursesPage.stream().distinct().collect(Collectors.toList());
         List<CourseResponse> courseResponseList = new ArrayList<>();
 //        User userLogin = SecurityUtil.getCurrentUser();
@@ -274,7 +281,7 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public ApiPage<CourseSubCourseResponse> memberGetCourseSuggest( Pageable pageable) {
+    public ApiPage<CourseSubCourseResponse> memberGetCourseSuggest(Pageable pageable) {
         User userLogin = SecurityUtil.getCurrentUser();
         Page<SubCourse> subCoursesList;
         if (userLogin == null) {
@@ -288,11 +295,29 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public Boolean mentorUpdateCourse(Long subCourseId,UpdateSubCourseRequest updateCourseRequest ) {
+    public Boolean mentorUpdateCourse(Long subCourseId, UpdateSubCourseRequest updateCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+
+        MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
+        if (mentorProfile== null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Tài khoản không hợp lệ để tạo khóa học"));
+        }
+
+        if(!mentorProfile.getStatus().equals(EAccountStatus.STARTING)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Tài khoản đang dùng chưa phải là giáo viên chính thức hoăc tài khoản chưa hợp lệ!!"));
+        }
+
 
         SubCourse subCourse = subCourseRepository.findById(subCourseId).
                 orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
+
+        if( !subCourse.getMentor().getMentorProfile().equals(mentorProfile)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Bạn không phải là giáo viên của lớp này! Không thể thay đổi thông tin!!"));
+        }
+
         if (!subCourse.getStatus().equals(EDITREQUEST) || !subCourse.getStatus().equals(REQUESTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Người dùng không phải là giáo viên"));
@@ -349,8 +374,8 @@ public class CourseServiceImpl implements ICourseService {
         } else {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Đã bị trùng lịch và slot, vui lòng kiểm tra lại!");
         }
-        subCourseRepository.save(subCourse) ;
-        return true ;
+        subCourseRepository.save(subCourse);
+        return true;
     }
 
     @Override
