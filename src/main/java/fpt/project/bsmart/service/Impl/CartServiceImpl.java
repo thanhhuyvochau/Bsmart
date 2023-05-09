@@ -15,9 +15,7 @@ import fpt.project.bsmart.repository.CartRepository;
 import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.repository.SubCourseRepository;
 import fpt.project.bsmart.service.ICartService;
-import fpt.project.bsmart.util.CartUtil;
-import fpt.project.bsmart.util.ConvertUtil;
-import fpt.project.bsmart.util.SecurityUtil;
+import fpt.project.bsmart.util.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -32,12 +30,14 @@ public class CartServiceImpl implements ICartService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final MessageUtil messageUtil;
 
-    public CartServiceImpl(CourseRepository courseRepository, SubCourseRepository subCourseRepository, CartRepository cartRepository, CartItemRepository cartItemRepository) {
+    public CartServiceImpl(CourseRepository courseRepository, SubCourseRepository subCourseRepository, CartRepository cartRepository, CartItemRepository cartItemRepository, MessageUtil messageUtil) {
         this.courseRepository = courseRepository;
         this.subCourseRepository = subCourseRepository;
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
+        this.messageUtil = messageUtil;
     }
 
     @Override
@@ -50,19 +50,19 @@ public class CartServiceImpl implements ICartService {
     public Integer addCourseToCart(AddCartItemRequest request) {
         Cart cart = SecurityUtil.getCurrentUserCart();
         SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy khóa học hoặc khóa học không còn hợp lệ!"));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
 
         Course course = subCourse.getCourse();
         ECourseStatus status = course.getStatus();
         if (!Objects.equals(status, ECourseStatus.NOTSTART)) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy khóa học hoặc khóa học không còn hợp lệ!");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId());
         }
         boolean anyMatch = cart.getCartItems().stream().anyMatch(cartItem -> {
             SubCourse existingSubCourse = cartItem.getSubCourse();
             return Objects.equals(existingSubCourse.getId(), subCourse.getId());
         });
         if (anyMatch) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Khóa học đã tồn tại trong giỏ hàng và không thể thêm nữa");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.DUPLICATE_SUB_COURSE_IN_CART_ITEM));
         }
         CartItem cartItem = new CartItem();
         cartItem.setPrice(subCourse.getPrice());
@@ -75,7 +75,8 @@ public class CartServiceImpl implements ICartService {
     @Override
     public Integer removeCourseToCart(DeleteCartItemRequest request) {
         Cart cart = SecurityUtil.getCurrentUserCart();
-        CartItem cartItem = cartItemRepository.findById(request.getCartItemId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm item cần chình sửa, vui lòng thử lại!"));
+        CartItem cartItem = cartItemRepository.findById(request.getCartItemId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.CART_ITEM_NOT_FOUND_BY_ID) + request.getCartItemId()));
         cart.removeCartItem(cartItem);
         return cart.getCartItems().size();
     }
@@ -84,8 +85,8 @@ public class CartServiceImpl implements ICartService {
     public Integer updateCourseInCart(UpdateCartItemRequest request) {
         Cart cart = SecurityUtil.getCurrentUserCart();
         SubCourse newSubCourse = subCourseRepository.findById(request.getSubCourseId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy khóa học hoặc khóa học không còn hợp lệ!"));
-        CartItem cartItem = cartItemRepository.findById(request.getCartItemId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm item cần chình sửa, vui lòng thử lại!"));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
+        CartItem cartItem = cartItemRepository.findById(request.getCartItemId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.CART_ITEM_NOT_FOUND_BY_ID) + request.getCartItemId()));
         SubCourse oldSubCourse = cartItem.getSubCourse();
 
         if (!Objects.equals(newSubCourse.getId(), oldSubCourse.getId()) && Objects.equals(newSubCourse.getCourse().getId(), oldSubCourse.getCourse().getId())) {
