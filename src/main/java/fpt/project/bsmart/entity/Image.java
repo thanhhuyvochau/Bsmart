@@ -28,6 +28,9 @@ public class Image extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+    @ManyToOne
+    @JoinColumn(name = "report_id")
+    private ReportFeedback reportFeedback;
 
     public Long getId() {
         return id;
