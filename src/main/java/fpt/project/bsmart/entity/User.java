@@ -71,8 +71,8 @@ public class User extends BaseEntity {
     private String keycloakUserId;
     @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<StudentClass> studentClasses = new ArrayList<>();
+//    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<StudentClass> studentClasses = new ArrayList<>();
 
     public Long getId() {
         return id;

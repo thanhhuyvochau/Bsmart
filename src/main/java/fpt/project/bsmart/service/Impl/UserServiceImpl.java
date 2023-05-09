@@ -6,12 +6,13 @@ import fpt.project.bsmart.entity.MentorProfile;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.EAccountStatus;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
-import fpt.project.bsmart.entity.request.User.AccountProfileEditRequest;
+import fpt.project.bsmart.entity.request.User.ChangePasswordRequest;
 import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
@@ -22,8 +23,6 @@ import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.adapter.MinioAdapter;
-import fpt.project.bsmart.util.keycloak.KeycloakRoleUtil;
-import fpt.project.bsmart.util.keycloak.KeycloakUserUtil;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -61,11 +60,9 @@ public class UserServiceImpl implements IUserService {
     private final MentorProfileRepository mentorProfileRepository;
 
     private final MinioAdapter minioAdapter;
-    private final KeycloakUserUtil keycloakUserUtil;
-    private final KeycloakRoleUtil keycloakRoleUtil;
 
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, KeycloakUserUtil keycloakUserUtil, KeycloakRoleUtil keycloakRoleUtil) {
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
@@ -73,8 +70,6 @@ public class UserServiceImpl implements IUserService {
         this.imageRepository = imageRepository;
         this.mentorProfileRepository = mentorProfileRepository;
         this.minioAdapter = minioAdapter;
-        this.keycloakUserUtil = keycloakUserUtil;
-        this.keycloakRoleUtil = keycloakRoleUtil;
     }
 
     private static void accept(Image image) {
@@ -187,6 +182,8 @@ public class UserServiceImpl implements IUserService {
         return imageIds;
     }
 
+
+
     @Override
     public UserDto getUserById(Long id) {
         UserDto userDto = ConvertUtil.convertUsertoUserDto(findUserById(id));
@@ -221,36 +218,37 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Long editUserAccountProfile(AccountProfileEditRequest accountProfileEditRequest) {
+    public Long changePassword(ChangePasswordRequest changePasswordRequest) {
         User user = getCurrentLoginUser();
-
-        if (accountProfileEditRequest.getOldPassword().isEmpty() ||
-                accountProfileEditRequest.getNewPassword().isEmpty()) {
-
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(EMPTY_PASSWORD));
-        }
-
-        if (!PasswordUtil.validationPassword(accountProfileEditRequest.getNewPassword())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
-
-        }
-        String encodedNewPassword = encoder.encode(accountProfileEditRequest.getNewPassword());
-
-        if (!PasswordUtil.IsOldPassword(accountProfileEditRequest.getOldPassword(), user.getPassword())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(OLD_PASSWORD_MISMATCH));
-
-        } else {
-            if (accountProfileEditRequest.getOldPassword().equals(accountProfileEditRequest.getNewPassword())) {
+        if (user != null) {
+            if (changePasswordRequest.getOldPassword().isEmpty() ||
+                    changePasswordRequest.getNewPassword().isEmpty()) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage(NEW_PASSWORD_DUPLICATE));
+                        .withMessage(messageUtil.getLocalMessage(EMPTY_PASSWORD));
             }
+
+            if (!PasswordUtil.validationPassword(changePasswordRequest.getNewPassword())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
+            }
+            if (!PasswordUtil.IsOldPassword(changePasswordRequest.getOldPassword(), user.getPassword())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage(messageUtil.getLocalMessage(OLD_PASSWORD_MISMATCH));
+
+            } else {
+                if (changePasswordRequest.getOldPassword().equals(changePasswordRequest.getNewPassword())) {
+                    throw ApiException.create(HttpStatus.BAD_REQUEST)
+                            .withMessage(messageUtil.getLocalMessage(NEW_PASSWORD_DUPLICATE));
+                }
+            }
+            String encodedNewPassword = encoder.encode(changePasswordRequest.getNewPassword());
+            user.setPassword(encodedNewPassword);
+            user = userRepository.save(user);
+            return user.getId();
+        } else {
+            throw ApiException.create(HttpStatus.UNAUTHORIZED)
+                    .withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID));
         }
-        User savedUser = userRepository.save(user);
-        keycloakUserUtil.update(savedUser, accountProfileEditRequest.getNewPassword());
-        return savedUser.getId();
     }
 
     @Override
@@ -346,18 +344,14 @@ public class UserServiceImpl implements IUserService {
             user.setStatus(false);
             MentorProfile mentorProfile = new MentorProfile();
             mentorProfile.setUser(user);
-            mentorProfile.setStatus(false);
+            mentorProfile.setStatus(EAccountStatus.REQUESTING);
             mentorProfileRepository.save(mentorProfile);
         }
         User savedUser = userRepository.save(user);
-        Boolean saveAccountSuccess = keycloakUserUtil.create(user, createAccountRequest.getPassword());
-        Boolean assignRoleSuccess = keycloakRoleUtil.assignRoleToUser(createAccountRequest.getRole().getKeycloakRole(), user);
-        if (saveAccountSuccess && assignRoleSuccess) {
-            return savedUser.getId();
-        } else {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Tạo tài khoản thất bại, vui lòng thử lại!");
-        }
+        return savedUser.getId();
     }
+
+
 }
 
 

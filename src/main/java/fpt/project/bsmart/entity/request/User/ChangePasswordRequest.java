@@ -1,7 +1,14 @@
 package fpt.project.bsmart.entity.request.User;
 
-public class AccountProfileEditRequest {
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+public class ChangePasswordRequest {
+    @NotNull
+    @NotEmpty
     private String oldPassword;
+    @NotNull
+    @NotEmpty
     private String newPassword;
 
     public String getOldPassword() {
