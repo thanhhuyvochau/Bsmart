@@ -13,9 +13,7 @@ import fpt.project.bsmart.repository.ActivityRepository;
 import fpt.project.bsmart.repository.ActivityTypeRepository;
 import fpt.project.bsmart.repository.ClassSectionRepository;
 import fpt.project.bsmart.service.IActivityService;
-import fpt.project.bsmart.util.ConvertUtil;
-import fpt.project.bsmart.util.SecurityUtil;
-import fpt.project.bsmart.util.UrlUtil;
+import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.adapter.MinioAdapter;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,27 +39,29 @@ public class ActivityServiceImpl implements IActivityService {
     private final ActivityRepository activityRepository;
     private final ClassSectionRepository classSectionRepository;
     private final MinioAdapter minioAdapter;
+    private final MessageUtil messageUtil;
 
-    public ActivityServiceImpl(ActivityTypeRepository activityTypeRepository, ActivityRepository activityRepository, ClassSectionRepository classSectionRepository, MinioAdapter minioAdapter) {
+    public ActivityServiceImpl(ActivityTypeRepository activityTypeRepository, ActivityRepository activityRepository, ClassSectionRepository classSectionRepository, MinioAdapter minioAdapter, MessageUtil messageUtil) {
         this.activityTypeRepository = activityTypeRepository;
         this.activityRepository = activityRepository;
         this.classSectionRepository = classSectionRepository;
         this.minioAdapter = minioAdapter;
+        this.messageUtil = messageUtil;
     }
 
     @Override
     public Boolean editActivity(ActivityRequest activityRequest) throws IOException {
         User currentUser = SecurityUtil.getCurrentUser();
         ClassSection classSection = classSectionRepository.findById(activityRequest.getClassSectionId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                .withMessage("Không tìm thấy section của lớp cần thêm, vui lòng thử lại"));
+                .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SECTION_NOT_FOUND_BY_ID) + activityRequest.getClassSectionId()));
         Class clazz = classSection.getClazz();
         User mentor = clazz.getSubCourse().getMentor();
         if (!SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER) && !Objects.equals(currentUser.getId(), mentor.getId())) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Bạn không có quyền thao tác với lớp học này!");
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
         ActivityType activityType = activityTypeRepository.findById(activityRequest.getActivityTypeId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage("Không tìm thấy type của hoạt động, vui lòng thử lại"));
+                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_TYPE_NOT_FOUND_BY_ID) + activityRequest.getActivityTypeId()));
 
         Activity activity = new Activity(activityRequest.getName(), activityType, activityRequest.getIsVisible(), classSection);
         String code = activityType.getCode();
@@ -74,7 +74,7 @@ public class ActivityServiceImpl implements IActivityService {
                 activityRepository.save(activity);
                 return true;
             default:
-                throw ApiException.create(HttpStatus.NO_CONTENT).withMessage("Loại hoạt động không hợp lệ!");
+                throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE) + code);
         }
         return false;
     }
@@ -85,7 +85,7 @@ public class ActivityServiceImpl implements IActivityService {
         Instant endDate = request.getEndDate();
 
         if (startDate.isBefore(now) || endDate.isBefore(now) || startDate.isAfter(endDate)) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Ngày không hợp lệ");
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_DAY));
         }
 
         Assignment assignment = new Assignment();
@@ -121,11 +121,12 @@ public class ActivityServiceImpl implements IActivityService {
 
     @Override
     public Boolean deleteActivity(Long id) {
-        Activity activity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy hoạt động với id:" + id));
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
         User subCourseMentor = activity.getClassSection().getClazz().getSubCourse().getMentor();
         User currentUser = SecurityUtil.getCurrentUser();
         if (!Objects.equals(subCourseMentor.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Bạn không có quyền chỉnh sửa  hoạt động của lớp học này!");
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
         activityRepository.delete(activity);
         return true;
@@ -133,11 +134,12 @@ public class ActivityServiceImpl implements IActivityService {
 
     @Override
     public Boolean changeActivityVisible(Long id) {
-        Activity activity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy hoạt động với id:" + id));
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
         User subCourseMentor = activity.getClassSection().getClazz().getSubCourse().getMentor();
         User currentUser = SecurityUtil.getCurrentUser();
         if (!Objects.equals(subCourseMentor.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Bạn không có quyền chỉnh sửa  hoạt động của lớp học này!");
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
         activity.setIsVisible(!activity.getIsVisible());
         return true;
@@ -147,17 +149,17 @@ public class ActivityServiceImpl implements IActivityService {
     public Boolean editActivity(Long id, ActivityRequest activityRequest) throws IOException {
         User currentUser = SecurityUtil.getCurrentUser();
         ClassSection classSection = classSectionRepository.findById(activityRequest.getClassSectionId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                .withMessage("Không tìm thấy section của lớp cần thêm, vui lòng thử lại"));
+                .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SECTION_NOT_FOUND_BY_ID) + activityRequest.getClassSectionId()));
         Class clazz = classSection.getClazz();
         User mentor = clazz.getSubCourse().getMentor();
         if (!SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER) && !Objects.equals(currentUser.getId(), mentor.getId())) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Bạn không có quyền thao tác với lớp học này!");
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
         ActivityType activityType = activityTypeRepository.findById(activityRequest.getActivityTypeId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage("Không tìm thấy type của hoạt động, vui lòng thử lại"));
+                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_TYPE_NOT_FOUND_BY_ID) + activityRequest.getActivityTypeId()));
 
-        Activity activity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy hoạt động với id:" + id));
+        Activity activity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
         String code = activityType.getCode();
         switch (code) {
             case "QUIZ":
@@ -168,7 +170,7 @@ public class ActivityServiceImpl implements IActivityService {
                 activityRepository.save(activity);
                 return true;
             default:
-                throw ApiException.create(HttpStatus.NO_CONTENT).withMessage("Loại hoạt động không hợp lệ!");
+                throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE));
         }
         return false;
     }
@@ -179,7 +181,7 @@ public class ActivityServiceImpl implements IActivityService {
         Instant endDate = request.getEndDate();
 
         if (startDate.isBefore(now) || endDate.isBefore(now) || startDate.isAfter(endDate)) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Ngày không hợp lệ");
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_DAY));
         }
         Assignment assignment = activity.getAssignment();
         assignment.setDescription(request.getDescription());
@@ -201,7 +203,7 @@ public class ActivityServiceImpl implements IActivityService {
                     existedAssignmentFiles.remove(existedAssignment);
                     existedAssignmentFiles.add(newAssignmentFile);
                 } else {
-                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Không thể upload do trùng tên file, vui lòng đổi tên hoặc chọn ghi đè! ");
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(Constants.ErrorMessage.CAN_NOT_UPLOAD_ASSIGNMENT);
                 }
             } else {
                 existedAssignmentFiles.add(newAssignmentFile);
@@ -212,7 +214,8 @@ public class ActivityServiceImpl implements IActivityService {
 
     @Override
     public ActivityDto getDetailActivity(Long id) {
-        Activity activity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy hoạt động với id:" + id));
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
         Class clazz = activity.getClassSection().getClazz();
         User currentUser = SecurityUtil.getCurrentUser();
 
@@ -229,7 +232,7 @@ public class ActivityServiceImpl implements IActivityService {
         if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.STUDENT) && isStudentOfClass) {
             return activityDto;
         } else {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Bạn không thể xem hoạt động của lớp này");
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
     }
 }

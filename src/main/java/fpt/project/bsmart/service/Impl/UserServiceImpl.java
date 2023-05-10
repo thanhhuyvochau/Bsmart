@@ -258,7 +258,7 @@ public class UserServiceImpl implements IUserService {
         if (personalProfileEditRequest.getBirthday() != null) {
             if (!DayUtil.isValidBirthday(personalProfileEditRequest.getBirthday())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
+                        .withMessage(messageUtil.getLocalMessage(INVALID_DAY));
             }
             user.setBirthday(personalProfileEditRequest.getBirthday());
         }
@@ -291,7 +291,7 @@ public class UserServiceImpl implements IUserService {
         if (mentorPersonalProfileEditRequest.getBirthday() != null) {
             if (!DayUtil.isValidBirthday(mentorPersonalProfileEditRequest.getBirthday())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
+                        .withMessage(messageUtil.getLocalMessage(INVALID_DAY));
             }
             user.setBirthday(mentorPersonalProfileEditRequest.getBirthday());
         }

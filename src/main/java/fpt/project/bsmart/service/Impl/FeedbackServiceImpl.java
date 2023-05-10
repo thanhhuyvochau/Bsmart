@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,25 +48,36 @@ public class FeedbackServiceImpl implements IFeedbackService {
 
     @Override
     public Long addNewQuestion(AddQuestionRequest addQuestionRequest) {
-        if (addQuestionRequest == null) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
-        }
 
         if (addQuestionRequest.getNewQuestion().getQuestion() == null
                 || addQuestionRequest.getNewQuestion().getQuestion().trim().isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_FEEDBACK_QUESTION));
         }
-
+        HashMap<String, Long> possibleAnswers = addQuestionRequest.getNewQuestion().getPossibleAnswer();
         if (addQuestionRequest.getNewQuestion().getQuestionType() == EQuestionType.MULTIPLE_CHOICE) {
-            if (addQuestionRequest.getNewQuestion().getPossibleAnswer().isEmpty()
-                    || addQuestionRequest.getNewQuestion().getPossibleAnswer().size() < FeedbackQuestionUtil.MIN_ANSWER_IN_QUESTION
-                    || addQuestionRequest.getNewQuestion().getPossibleAnswer().size() > FeedbackQuestionUtil.MAX_ANSWER_IN_QUESTION) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            if (possibleAnswers.isEmpty()
+                    || possibleAnswers.size() < FeedbackQuestionUtil.MIN_ANSWER_IN_QUESTION
+                    || possibleAnswers.size() > FeedbackQuestionUtil.MAX_ANSWER_IN_QUESTION) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_NUMBER_OF_ANSWER_IN_FEEDBACK_QUESTION) + possibleAnswers.size());
             }
-            for (Long score : addQuestionRequest.getNewQuestion().getPossibleAnswer().values()) {
+
+            for (Long score : possibleAnswers.values()) {
                 if (score < FeedbackQuestionUtil.MIN_QUESTION_SCORE || score > FeedbackQuestionUtil.MAX_QUESTION_SCORE) {
-                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_SCORE_IN_FEEDBACK_QUESTION) + score));
                 }
+            }
+
+            boolean isDuplicateScore = possibleAnswers.values().stream()
+                    .distinct()
+                    .count() != possibleAnswers.size();
+            if(isDuplicateScore){
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.DUPLICATE_SCORE_IN_FEEDBACK_QUESTION)));
+            }
+
+            boolean isContainMaxScore = possibleAnswers.values().stream()
+                    .anyMatch(x -> x.equals(FeedbackQuestionUtil.MAX_QUESTION_SCORE));
+            if(!isContainMaxScore){
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MISSING_MAX_SCORE)));
             }
         }
 
@@ -74,8 +86,8 @@ public class FeedbackServiceImpl implements IFeedbackService {
         question.setQuestionType(addQuestionRequest.getNewQuestion().getQuestionType());
 
         if (addQuestionRequest.getNewQuestion().getQuestionType() == EQuestionType.MULTIPLE_CHOICE) {
-            question.setPossibleAnswer(FeedbackQuestionUtil.convertAnswersToAnswerString(new ArrayList<>(addQuestionRequest.getNewQuestion().getPossibleAnswer().keySet())));
-            question.setPossibleScore(FeedbackQuestionUtil.convertScoresToScoreString(new ArrayList<>(addQuestionRequest.getNewQuestion().getPossibleAnswer().values())));
+            question.setPossibleAnswer(FeedbackQuestionUtil.convertAnswersToAnswerString(new ArrayList<>(possibleAnswers.keySet())));
+            question.setPossibleScore(FeedbackQuestionUtil.convertScoresToScoreString(new ArrayList<>(possibleAnswers.values())));
         }
 
         return feedbackQuestionRepository.save(question).getId();
@@ -83,34 +95,31 @@ public class FeedbackServiceImpl implements IFeedbackService {
 
     @Override
     public Long addNewFeedbackTemplate(AddFeedbackTemplateRequest addFeedbackTemplateRequest) {
-        if (addFeedbackTemplateRequest == null) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
-        }
 
         if (addFeedbackTemplateRequest.getTemplateName() == null || addFeedbackTemplateRequest.getTemplateName().trim().isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_FEEDBACK_TEMPLATE_NAME));
         }
 
         if (addFeedbackTemplateRequest.getQuestionList() == null) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_QUESTION_LIST));
         }
 
         int numberOfQuestionInRequestTemplate = addFeedbackTemplateRequest.getQuestionList().size();
         if (numberOfQuestionInRequestTemplate < FeedbackQuestionUtil.MIN_QUESTION_IN_TEMPLATE
                 || numberOfQuestionInRequestTemplate > FeedbackQuestionUtil.MAX_QUESTION_IN_TEMPLATE) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("") + numberOfQuestionInRequestTemplate);
+                    .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_QUESTION_LIST_SIZE) + numberOfQuestionInRequestTemplate);
         }
 
         Role permission = roleRepository.findRoleByCode(addFeedbackTemplateRequest.getPermission())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(""));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(Constants.ErrorMessage.ROLE_NOT_FOUND_BY_ID));
         Long numberOfQuestion = feedbackQuestionRepository.countByIdIn(addFeedbackTemplateRequest.getQuestionList());
 
         if (numberOfQuestion != numberOfQuestionInRequestTemplate) {
             for (Long id : addFeedbackTemplateRequest.getQuestionList()) {
                 if (!feedbackQuestionRepository.existsById(id)) {
                     throw ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage(messageUtil.getLocalMessage("") + id);
+                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FEEDBACK_QUESTION_NOT_FOUND_BY_ID) + id);
                 }
             }
         }
@@ -121,7 +130,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
                     .anyMatch(x -> x.getQuestionType().equals(EQuestionType.MULTIPLE_CHOICE));
 
             if(!isMultipleChoiceQuestionExist){
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MISSING_MULTI_CHOICE_FEEDBACK_QUESTION));
             }
         }
         FeedbackTemplate feedbackTemplate = new FeedbackTemplate();
@@ -135,10 +144,10 @@ public class FeedbackServiceImpl implements IFeedbackService {
     @Override
     public FeedbackTemplateDto getFeedbackTemplateById(Long id) {
         if(id == null){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_FEEDBACK_TEMPLATE_ID));
         }
         FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("") + id));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FEEDBACK_TEMPLATE_NOT_FOUND_BY_ID) + id));
         return ConvertUtil.convertTemplateToTemplateDto(feedbackTemplate);
     }
 
@@ -152,17 +161,17 @@ public class FeedbackServiceImpl implements IFeedbackService {
 
         Class clazz = classRepository.findById(subCourseFeedbackRequest.getClassID())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage(messageUtil.getLocalMessage("") + subCourseFeedbackRequest.getClassID()));
+                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.CLASS_NOT_FOUND_BY_ID) + subCourseFeedbackRequest.getClassID()));
         boolean isStudentInClass = clazz.getStudentClasses().stream()
                 .anyMatch(x -> x.getStudent().equals(user));
         if(!isStudentInClass){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.STUDENT_NOT_BELONG_TO_CLASS));
         }
         boolean isAlreadyFeedback = subCourseFeedbackRepository
                 .findBySubCourseAndFeedbackTypeAndFeedbackAnswer_FeedbackUser(clazz.getSubCourse(), subCourseFeedbackRequest.getFeedbackType(), user)
                 .isPresent();
         if(isAlreadyFeedback){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.STUDENT_ALREADY_FEEDBACK));
         }
         //check tiến độ
         double classProgressPercentage = ClassUtil.getPercentageOfClassTime(clazz).getPercentage();
@@ -170,34 +179,34 @@ public class FeedbackServiceImpl implements IFeedbackService {
         switch (subCourseFeedbackRequest.getFeedbackType()){
             case SUB_COURSE_FIRST_HALF:
                 if(!isValueInRange(classProgressPercentage, CLASS_PERCENTAGE_FOR_FIRST_FEEDBACK, PERCENTAGE_RANGE)){
-                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + classProgressPercentage);
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_FEEDBACK_TIME) + classProgressPercentage);
                 }
                 break;
             case SUB_COURSE_SECOND_HALF:
                 if(!isValueInRange(classProgressPercentage, CLASS_PERCENTAGE_FOR_SECOND_FEEDBACK, PERCENTAGE_RANGE)){
-                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + classProgressPercentage);
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_FEEDBACK_TIME) + classProgressPercentage);
                 }
                 break;
             default:
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + subCourseFeedbackRequest.getFeedbackType());
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_FEEDBACK_TYPE) + subCourseFeedbackRequest.getFeedbackType());
         }
 
         FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findById(subCourseFeedbackRequest.getFeedbackAnswer().getTemplateId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage(messageUtil.getLocalMessage("") + subCourseFeedbackRequest.getFeedbackAnswer().getTemplateId()));
+                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FEEDBACK_TEMPLATE_NOT_FOUND_BY_ID) + subCourseFeedbackRequest.getFeedbackAnswer().getTemplateId()));
         String feedbackAnswerString = "";
         long totalScore = 0L;
         for (int i = 0; i < feedbackTemplate.getQuestions().size(); i++){
             String answer = subCourseFeedbackRequest.getFeedbackAnswer().getAnswer().get(i);
             if(feedbackTemplate.getQuestions().get(i).getQuestionType().equals(EQuestionType.MULTIPLE_CHOICE)){
                 if(StringUtil.isNullOrEmpty(answer)){
-                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_FEEDBACK_ANSWER));
                 }
                 int answerIndex;
                 try{
                     answerIndex = Integer.parseInt(answer);
                 }catch (NumberFormatException e){
-                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ANSWER_FORMAT_EXCEPTION));
                 }
                 List<Long> possibleScore = FeedbackQuestionUtil.convertScoreStringToScoreList(feedbackTemplate.getQuestions().get(i).getPossibleScore());
                 totalScore += possibleScore.get(answerIndex);
