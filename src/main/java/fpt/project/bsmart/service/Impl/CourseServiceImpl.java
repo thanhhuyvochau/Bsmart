@@ -80,6 +80,12 @@ public class CourseServiceImpl implements ICourseService {
     public Long mentorCreateCourse(CreateCourseRequest createCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
         MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
+        List<Role> roles = currentUserAccountLogin.getRoles();
+        List<Boolean> checkRoleTeacher = roles.stream().map(role -> role.getCode().equals(EUserRole.TEACHER)).collect(Collectors.toList());
+        if (checkRoleTeacher.isEmpty()) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage("Người dùng không phải là giáo viên"));
+        }
         if (mentorProfile== null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Tài khoản không hợp lệ để tạo khóa học"));
@@ -174,16 +180,6 @@ public class CourseServiceImpl implements ICourseService {
 
 
         course.setSubCourses(courseList);
-
-
-        List<Role> roles = currentUserAccountLogin.getRoles();
-        List<Boolean> checkRoleTeacher = roles.stream().map(role -> role.getCode().equals(EUserRole.TEACHER)).collect(Collectors.toList());
-        if (checkRoleTeacher.isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Người dùng không phải là giáo viên"));
-        }
-
-
         Course save = courseRepository.save(course);
         return save.getId();
     }

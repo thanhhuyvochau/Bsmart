@@ -61,7 +61,6 @@ public class CourseController {
     // ################################## Mentor ##########################################
 
     @Operation(summary = "mentor tao khoá học")
-    @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping
     public ResponseEntity<ApiResponse<Long>> mentorCreateCourse(@Valid @RequestBody CreateCourseRequest createCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createCourseRequest)));
