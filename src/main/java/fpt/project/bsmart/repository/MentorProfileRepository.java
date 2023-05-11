@@ -15,6 +15,6 @@ import java.util.Optional;
 public interface MentorProfileRepository extends JpaRepository<MentorProfile, Long> {
     public Optional<MentorProfile> getMentorProfileByUser(User user);
     Page<MentorProfile> findAll(Specification<MentorProfile> mentorProfileSpecification,Pageable pageable);
-    @Query("SELECT e from MentorProfile e WHERE e.status = true and e.user.status = false ")
+    @Query("SELECT e from MentorProfile e WHERE (e.status = 'REQUESTING' or e.status = 'EDITREQUEST') and e.user.status = false ")
     public List<MentorProfile> getPendingMentorProfileList();
 }

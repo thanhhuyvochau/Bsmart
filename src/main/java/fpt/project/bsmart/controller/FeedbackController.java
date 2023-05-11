@@ -2,6 +2,7 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.request.UpdateSubCourseFeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.feedback.AddFeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.feedback.AddQuestionRequest;
 import fpt.project.bsmart.entity.request.feedback.SubCourseFeedbackRequest;
@@ -35,6 +36,12 @@ public class FeedbackController {
     @GetMapping("/template/{id}")
     public ResponseEntity<ApiResponse<FeedbackTemplateDto>> getFeedbackTemplateById(@PathVariable Long id){
         return ResponseEntity.ok(ApiResponse.success(feedbackService.getFeedbackTemplateById(id)));
+    }
+
+    @Operation(summary = "Update template feedback cho sub course")
+    @PostMapping("sub-courses/feedback-templates")
+    public ResponseEntity<ApiResponse<Long>> updateFeedbackTemplateToSubCourse(@RequestBody UpdateSubCourseFeedbackTemplateRequest updateSubCourseFeedbackTemplateRequest){
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.updateFeedbackTemplateToSubCourse(updateSubCourseFeedbackTemplateRequest)));
     }
 
     @Operation(summary = "Thêm 1 template feedback")

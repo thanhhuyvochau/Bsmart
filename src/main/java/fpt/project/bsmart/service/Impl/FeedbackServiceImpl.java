@@ -5,7 +5,9 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EFeedbackType;
 import fpt.project.bsmart.entity.constant.EQuestionType;
+import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.request.UpdateSubCourseFeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.feedback.AddFeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.feedback.AddQuestionRequest;
 import fpt.project.bsmart.entity.request.feedback.SubCourseFeedbackRequest;
@@ -141,18 +143,43 @@ public class FeedbackServiceImpl implements IFeedbackService {
         return feedbackTemplateRepository.save(feedbackTemplate).getId();
     }
 
+    private FeedbackTemplate findTemplateById(Long id){
+        return feedbackTemplateRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FEEDBACK_TEMPLATE_NOT_FOUND_BY_ID) + id));
+    }
     @Override
     public FeedbackTemplateDto getFeedbackTemplateById(Long id) {
         if(id == null){
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_FEEDBACK_TEMPLATE_ID));
         }
-        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FEEDBACK_TEMPLATE_NOT_FOUND_BY_ID) + id));
+        FeedbackTemplate feedbackTemplate = findTemplateById(id);
         return ConvertUtil.convertTemplateToTemplateDto(feedbackTemplate);
     }
 
+    public Long updateFeedbackTemplateToSubCourse(UpdateSubCourseFeedbackTemplateRequest request){
+        if(request.getFeedbackTemplateId() == null){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+        }
+
+        if (request.getSubCourseId() == null){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+        }
+        /*
+        User user = SecurityUtil.getCurrentUser();
+        boolean isAdmin = SecurityUtil.isHasAnyRole(user, EUserRole.ADMIN);
+        if(!isAdmin){
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
+        }
+        */
+        FeedbackTemplate feedbackTemplate = findTemplateById(request.getFeedbackTemplateId());
+        SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
+        subCourse.setFeedbackTemplate(feedbackTemplate);
+        return subCourseRepository.save(subCourse).getId();
+    }
+
     private boolean isValueInRange(double value, double range, double approximate){
-        return value >= range - approximate && value <= range + approximate;
+        return value >= range - approximate;
     }
 
     @Override
