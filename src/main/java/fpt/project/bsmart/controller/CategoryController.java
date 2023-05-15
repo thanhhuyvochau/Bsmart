@@ -2,7 +2,6 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.CategoryDto;
-import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.request.category.CategoryRequest;
 import fpt.project.bsmart.service.ICategoryService;
 import io.swagger.v3.oas.annotations.Operation;

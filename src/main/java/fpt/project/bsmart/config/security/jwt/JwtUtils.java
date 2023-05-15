@@ -2,18 +2,16 @@ package fpt.project.bsmart.config.security.jwt;
 
 import fpt.project.bsmart.config.security.service.UserDetailsImpl;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.util.Constants;
 import io.jsonwebtoken.*;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.function.Function;
-
-import org.springframework.security.core.Authentication;
 
 @Component
 public class JwtUtils {

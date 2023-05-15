@@ -1,7 +1,6 @@
 package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.request.SubjectRequest;
 import fpt.project.bsmart.service.ISubjectService;

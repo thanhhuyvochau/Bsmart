@@ -1,9 +1,7 @@
 package fpt.project.bsmart.service;
 
 
-
 import fpt.project.bsmart.entity.common.ApiPage;
-
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;

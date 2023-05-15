@@ -1,7 +1,5 @@
 package fpt.project.bsmart.entity.response;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
 public class MentorProfileResponse {
     private Long id;
     private String name;

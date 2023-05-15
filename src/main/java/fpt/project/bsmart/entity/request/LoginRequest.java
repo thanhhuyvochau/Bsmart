@@ -1,7 +1,5 @@
 package fpt.project.bsmart.entity.request;
 
-import fpt.project.bsmart.entity.constant.EUserRole;
-
 public class LoginRequest {
     private String email;
     private String password;

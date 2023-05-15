@@ -1,7 +1,6 @@
 package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
-import java.time.Instant;
 
 @Entity
 @Table(name = "activity")

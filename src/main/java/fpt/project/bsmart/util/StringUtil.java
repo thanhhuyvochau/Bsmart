@@ -1,7 +1,5 @@
 package fpt.project.bsmart.util;
 
-import org.springframework.security.core.parameters.P;
-
 import java.util.regex.Pattern;
 
 public class StringUtil {

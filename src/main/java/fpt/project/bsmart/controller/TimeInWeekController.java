@@ -1,7 +1,6 @@
 package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 import fpt.project.bsmart.entity.request.SubCourseTimeRequest;
 import fpt.project.bsmart.service.ITimeInWeekService;
 import org.springframework.http.ResponseEntity;
