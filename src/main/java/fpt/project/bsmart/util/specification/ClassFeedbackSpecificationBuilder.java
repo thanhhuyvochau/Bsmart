@@ -1,7 +1,7 @@
 package fpt.project.bsmart.util.specification;
 
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.util.SpecificationUtil;
 import fpt.project.bsmart.util.StringUtil;
 import org.springframework.data.jpa.domain.Specification;

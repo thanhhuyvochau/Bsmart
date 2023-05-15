@@ -1,8 +1,5 @@
 package fpt.project.bsmart.entity.dto;
 
-import fpt.project.bsmart.entity.Module;
-
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 

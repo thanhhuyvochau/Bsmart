@@ -3,8 +3,6 @@ package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Entity

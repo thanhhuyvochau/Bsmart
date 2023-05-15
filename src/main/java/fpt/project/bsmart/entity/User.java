@@ -9,7 +9,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "user")
-
 public class User extends BaseEntity {
     private static final long serialVersionUID = 1L;
     @Id
@@ -73,6 +72,8 @@ public class User extends BaseEntity {
     private List<Question> questions = new ArrayList<>();
 //    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<StudentClass> studentClasses = new ArrayList<>();
+    @Column(name = "is_verified")
+    private boolean isVerified = false;
 
     public Long getId() {
         return id;
@@ -264,5 +265,13 @@ public class User extends BaseEntity {
 
     public void setStudentClasses(List<StudentClass> studentClasses) {
         this.studentClasses = studentClasses;
+    }
+
+    public boolean getIsVerified() {
+        return isVerified;
+    }
+
+    public void setIsVerified(boolean verified) {
+        isVerified = verified;
     }
 }

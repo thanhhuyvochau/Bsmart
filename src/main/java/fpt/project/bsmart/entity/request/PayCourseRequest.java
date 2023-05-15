@@ -1,7 +1,6 @@
 package fpt.project.bsmart.entity.request;
 
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class PayCourseRequest implements Serializable {

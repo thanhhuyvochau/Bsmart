@@ -1,7 +1,6 @@
 package fpt.project.bsmart.entity.response;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 public class AttendanceResponse {
     private Long id;
