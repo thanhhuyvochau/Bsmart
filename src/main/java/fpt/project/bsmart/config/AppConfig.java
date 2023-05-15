@@ -15,4 +15,8 @@ public class AppConfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    @Bean
+    public String activateTemplate() {
+        return ResourceReader.readFileToString("activate.txt");
+    }
 }
