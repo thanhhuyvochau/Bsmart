@@ -1,6 +1,7 @@
 package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.config.security.jwt.JwtUtils;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.entity.request.LoginRequest;
@@ -10,6 +11,7 @@ import fpt.project.bsmart.service.IAuthService;
 import fpt.project.bsmart.util.SecurityUtil;
 import fpt.project.bsmart.util.email.EmailUtil;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -54,4 +56,11 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Boolean>> sendMockMail() {
         return ResponseEntity.ok(ApiResponse.success(emailUtil.sendMockVerifyEmailTo(SecurityUtil.getCurrentUser())));
     }
+
+//    @GetMapping("/testAuthorize")
+//    @PreAuthorize("hasAnyRole('STUDENT','MANAGER','ADMIN')")
+//    public ResponseEntity<ApiResponse<String>> test() {
+//        User currentUser = SecurityUtil.getCurrentUser();
+//        return ResponseEntity.ok(ApiResponse.success("Ok"));
+//    }
 }
