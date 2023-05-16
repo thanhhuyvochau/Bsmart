@@ -72,7 +72,7 @@ public class CourseController {
     }
 
     @Operation(summary = "mentor xem tất cả course của mình")
-    @PreAuthorize("hasAuthority('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/mentor")
     public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> mentorGetCourse(ECourseStatus status, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetCourse(status, pageable)));
