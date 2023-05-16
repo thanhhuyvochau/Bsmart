@@ -119,7 +119,7 @@ public class CourseServiceImpl implements ICourseService {
         course.setCode(createCourseRequest.getCode());
         course.setDescription(createCourseRequest.getDescription());
 
-        course.setStatus(NOTSTART);
+        course.setStatus(REQUESTING);
 
         List<CreateSubCourseRequest> subCourseRequests = createCourseRequest.getSubCourseRequests();
         List<SubCourse> courseList = new ArrayList<>();
