@@ -2,9 +2,6 @@ package fpt.project.bsmart.entity.dto;
 
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-
 
 public class SimpleClassDto {
     private Long id;

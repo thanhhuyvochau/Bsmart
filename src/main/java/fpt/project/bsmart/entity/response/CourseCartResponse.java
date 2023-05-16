@@ -5,7 +5,6 @@ import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
-import fpt.project.bsmart.entity.dto.UserDto;
 
 import java.util.ArrayList;
 import java.util.List;

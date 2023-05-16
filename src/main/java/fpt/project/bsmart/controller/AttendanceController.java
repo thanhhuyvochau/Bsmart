@@ -1,7 +1,5 @@
 package fpt.project.bsmart.controller;
 
-import fpt.project.bsmart.entity.Attendance;
-import fpt.project.bsmart.entity.BankDto;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.response.AttendanceResponse;
 import fpt.project.bsmart.service.AttendanceService;

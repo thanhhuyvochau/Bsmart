@@ -2,11 +2,11 @@ package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
+import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.ChangePasswordRequest;
 import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
-import fpt.project.bsmart.entity.request.UploadImageRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

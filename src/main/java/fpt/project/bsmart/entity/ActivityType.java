@@ -1,10 +1,6 @@
 package fpt.project.bsmart.entity;
 
-import org.springframework.data.annotation.PersistenceConstructor;
-
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "activity_type")

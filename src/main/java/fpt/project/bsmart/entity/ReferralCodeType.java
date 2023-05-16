@@ -4,7 +4,6 @@ package fpt.project.bsmart.entity;
 import fpt.project.bsmart.entity.constant.EReferralType;
 
 import javax.persistence.*;
-import java.time.Instant;
 
 
 @Entity

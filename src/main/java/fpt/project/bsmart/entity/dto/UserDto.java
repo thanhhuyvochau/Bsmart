@@ -1,9 +1,6 @@
 package fpt.project.bsmart.entity.dto;
 
 
-import fpt.project.bsmart.entity.Role;
-import fpt.project.bsmart.entity.Wallet;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

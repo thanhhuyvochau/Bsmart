@@ -1,6 +1,5 @@
 package fpt.project.bsmart.entity.dto;
 
-import fpt.project.bsmart.entity.Answer;
 import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.QuestionType;
 

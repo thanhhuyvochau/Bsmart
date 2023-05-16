@@ -13,6 +13,17 @@ spring:
     basename: i18n/messages_vi
     encoding: UTF-8
     use-code-as-default-message: false
+  mail:
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: 'true'
+          auth: 'true'
+    host: smtp.gmail.com
+    username: thanhhuyne113@gmail.com
+    password: aktumoajjptyhfjn
+    port: '587'
 moodle:
   url:
     base: http://moodle-vuondau.amazingtech.vn/webservice/restful/server.php/
@@ -114,4 +125,9 @@ keycloak:
 icon:
   success: http://103.173.155.221:9000/bsmart/checked.png
   fail: http://103.173.155.221:9000/bsmart/fail.png
+
+activate:
+  template:
+
+
 

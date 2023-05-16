@@ -4,9 +4,6 @@ package fpt.project.bsmart.entity.dto;
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 public class CourseDto {
 
