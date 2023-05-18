@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.repository.VerificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -25,6 +26,9 @@ public class EmailUtil {
     private final JavaMailSender mailSender;
     private final VerificationRepository verificationRepository;
 
+    @Value("${host.url}")
+    private String hostURL;
+
     public EmailUtil(JavaMailSender mailSender, VerificationRepository verificationRepository) {
         this.mailSender = mailSender;
         this.verificationRepository = verificationRepository;
@@ -35,7 +39,7 @@ public class EmailUtil {
             String subject = "Verify BSmart Account";
             String from = "noreply@bsmart.gmail";
             String verifyCode = String.valueOf(UUID.randomUUID());
-            String activeLink = String.format("http://localhost:8080/api/auth/verify?code=%s", verifyCode);
+            String activeLink = String.format(hostURL+"api/auth/verify?code=%s", verifyCode);
             Verification.Builder builder = Verification.Builder.getBuilder();
             Verification verification = builder.withCode(verifyCode).withUser(user).build().getObject();
             sendHtmlEmail(String.format(activateTemplate, activeLink), user.getEmail(), from, subject);
@@ -50,7 +54,7 @@ public class EmailUtil {
         String subject = "Verify BSmart Account For Test";
         String from = "noreply@bsmart.gmail";
         String verifyCode = String.valueOf(UUID.randomUUID());
-        String activeLink = String.format("http://localhost:8080/verify?code=%s", verifyCode);
+        String activeLink = String.format(hostURL+"verify?code=%s", verifyCode);
         Verification.Builder builder = Verification.Builder.getBuilder();
         sendHtmlEmail(String.format(activateTemplate, activeLink), user.getEmail(), from, subject);
         return true;
