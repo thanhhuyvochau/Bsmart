@@ -10,11 +10,11 @@ public class Verification extends BaseEntity {
     private Long id;
     @Column(name = "code")
     private String code;
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "user_id")
     private User user;
-    @Column(name = "is_deleted")
-    private boolean isDeleted = false;
+    @Column(name = "is_used")
+    private boolean isUsed = false;
 
     public Long getId() {
         return id;
@@ -40,12 +40,12 @@ public class Verification extends BaseEntity {
         this.user = user;
     }
 
-    public boolean getIsDeleted() {
-        return isDeleted;
+    public boolean getIsUsed() {
+        return isUsed;
     }
 
-    public void setIsDeleted(boolean deleted) {
-        isDeleted = deleted;
+    public void setIsUsed(boolean used) {
+        isUsed = used;
     }
 
     public static class Builder {

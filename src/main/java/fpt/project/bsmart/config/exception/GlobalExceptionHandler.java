@@ -17,11 +17,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.failed("Access Denied"));
     }
 
-    @ExceptionHandler({Exception.class, RuntimeException.class})
+    @ExceptionHandler({Exception.class, RuntimeException.class, NullPointerException.class})
     @ResponseBody
     public ResponseEntity<ApiResponse> handleCommonException(Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failed(e.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failed("Đã có lỗi ngoại lệ của hệ thống xảy ra, vui lòng liên hệ admin để được hỗ trợ"));
     }
 
     @ExceptionHandler(ApiException.class)

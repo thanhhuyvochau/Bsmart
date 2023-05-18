@@ -1,19 +1,15 @@
 package fpt.project.bsmart.controller;
 
-import fpt.project.bsmart.config.security.jwt.JwtUtils;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.entity.request.LoginRequest;
-import fpt.project.bsmart.repository.RoleRepository;
-import fpt.project.bsmart.repository.UserRepository;
+import fpt.project.bsmart.entity.response.VerifyResponse;
 import fpt.project.bsmart.service.IAuthService;
+import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.SecurityUtil;
-import fpt.project.bsmart.util.email.EmailUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -22,29 +18,12 @@ import javax.validation.Valid;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-
-    private final JwtUtils jwtUtils;
-    private final UserRepository userRepository;
-
-
-    private final RoleRepository roleRepository;
-
-
-    private final PasswordEncoder encoder;
-
-
     private final IAuthService iAuthService;
-    private final EmailUtil emailUtil;
+    private final IUserService userService;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtils jwtUtils, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, IAuthService iAuthService, EmailUtil emailUtil) {
-        this.authenticationManager = authenticationManager;
-        this.jwtUtils = jwtUtils;
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.encoder = encoder;
+    public AuthController(IAuthService iAuthService, IUserService userService) {
         this.iAuthService = iAuthService;
-        this.emailUtil = emailUtil;
+        this.userService = userService;
     }
 
     @PostMapping("/login")
@@ -52,15 +31,14 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(iAuthService.userLogin(loginRequest)));
     }
 
-    @GetMapping("/send-mock-verify")
-    public ResponseEntity<ApiResponse<Boolean>> sendMockMail() {
-        return ResponseEntity.ok(ApiResponse.success(emailUtil.sendMockVerifyEmailTo(SecurityUtil.getCurrentUser())));
+    @GetMapping("/verify")
+    public ResponseEntity<ApiResponse<VerifyResponse>> verifyAccount(@RequestParam("code") String code) {
+        return ResponseEntity.ok(ApiResponse.success(userService.verifyAccount(code)));
     }
 
-//    @GetMapping("/testAuthorize")
-//    @PreAuthorize("hasAnyRole('STUDENT','MANAGER','ADMIN')")
-//    public ResponseEntity<ApiResponse<String>> test() {
-//        User currentUser = SecurityUtil.getCurrentUser();
-//        return ResponseEntity.ok(ApiResponse.success("Ok"));
-//    }
+    @GetMapping("/resend-verify")
+    public ResponseEntity<ApiResponse<Boolean>> resendVerifyEmail() {
+        return ResponseEntity.ok(ApiResponse.success(userService.resendVerifyEmail()));
+    }
 }
+
