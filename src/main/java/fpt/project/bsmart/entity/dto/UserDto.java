@@ -40,6 +40,7 @@ public class UserDto {
     private WalletDto wallet;
 
     private MentorProfileDTO mentorProfile;
+    private boolean isVerified = false;
 
     public Long getId() {
         return id;
@@ -116,7 +117,6 @@ public class UserDto {
     }
 
 
-
     public String getTwitterLink() {
         return twitterLink;
     }
@@ -163,5 +163,13 @@ public class UserDto {
 
     public void setMentorProfile(MentorProfileDTO mentorProfile) {
         this.mentorProfile = mentorProfile;
+    }
+
+    public boolean getIsVerified() {
+        return isVerified;
+    }
+
+    public void setIsVerified(boolean verified) {
+        isVerified = verified;
     }
 }
