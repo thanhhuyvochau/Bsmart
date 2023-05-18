@@ -30,20 +30,24 @@ public class EmailUtil {
         this.verificationRepository = verificationRepository;
     }
 
-    public boolean sendVerifyEmailTo(User user) {
-        String subject = "Verify BSmart Account";
-        String from = "noreply@bsmart.gmail";
-        String verifyCode = String.valueOf(UUID.randomUUID());
-        String activeLink = String.format("localhost:8080/verify?code=%s", verifyCode);
-        Verification.Builder builder = Verification.Builder.getBuilder();
-        Verification verification = builder.withCode(verifyCode).withUser(user).build().getObject();
-        sendHtmlEmail(String.format(activateTemplate, activeLink), user.getEmail(), from, subject);
-        verificationRepository.save(verification);
-        return true;
+    public void sendVerifyEmailTo(User user) {
+        try {
+            String subject = "Verify BSmart Account";
+            String from = "noreply@bsmart.gmail";
+            String verifyCode = String.valueOf(UUID.randomUUID());
+            String activeLink = String.format("http://localhost:8080/api/auth/verify?code=%s", verifyCode);
+            Verification.Builder builder = Verification.Builder.getBuilder();
+            Verification verification = builder.withCode(verifyCode).withUser(user).build().getObject();
+            sendHtmlEmail(String.format(activateTemplate, activeLink), user.getEmail(), from, subject);
+            verificationRepository.save(verification);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("Gửi mail xác thực thất bại!");
+        }
     }
 
     public boolean sendMockVerifyEmailTo(User user) {
-        String subject = "Verify BSmart Account";
+        String subject = "Verify BSmart Account For Test";
         String from = "noreply@bsmart.gmail";
         String verifyCode = String.valueOf(UUID.randomUUID());
         String activeLink = String.format("http://localhost:8080/verify?code=%s", verifyCode);

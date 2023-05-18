@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.request.User.ChangePasswordRequest;
 import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
+import fpt.project.bsmart.entity.response.VerifyResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.util.List;
 
 public interface IUserService {
     UserDto getUserById(Long id);
+
     UserDto getLoginUser();
 
     Long removeSocialLink(String link);
@@ -30,9 +32,11 @@ public interface IUserService {
     //    Long saveUser(CreateAccountRequest createAccountRequest);
     Long registerAccount(CreateAccountRequest createAccountRequest);
 
-    Long  editMentorPersonalProfile(MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest);
+    Long editMentorPersonalProfile(MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest);
 
     List<Long> uploadDegree(MultipartFile[] files) throws IOException;
 
+    VerifyResponse verifyAccount(String code);
 
+    Boolean resendVerifyEmail();
 }
