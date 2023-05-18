@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 
+import javax.persistence.Column;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,11 @@ public class CourseCartResponse {
 
     private Long id;
 
+
+
+    private String name;
+
+    private String code;
     private ECourseStatus status;
 
     private ECourseLevel level;
@@ -21,8 +27,6 @@ public class CourseCartResponse {
     private Double referenceDiscount = 0.0;
 
     private SubjectDto subject;
-
-
 
     private ImageDto image;
 
@@ -36,6 +40,22 @@ public class CourseCartResponse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public ECourseStatus getStatus() {
