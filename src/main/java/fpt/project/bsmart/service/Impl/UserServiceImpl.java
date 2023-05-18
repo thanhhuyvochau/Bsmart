@@ -167,6 +167,8 @@ public class UserServiceImpl implements IUserService {
     @Override
     public List<Long> uploadDegree(MultipartFile[] files) throws IOException {
         User user = getCurrentLoginUser();
+        user.getUserImages().clear();
+        userRepository.save(user) ;
         List<Long> imageIds = new ArrayList<>();
         for (MultipartFile file : files) {
             Image image = new Image();

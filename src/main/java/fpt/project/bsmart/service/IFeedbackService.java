@@ -9,9 +9,15 @@ import fpt.project.bsmart.entity.response.UserFeedbackResponse;
 import java.util.List;
 
 public interface IFeedbackService {
+
+
     Long addNewQuestion(AddQuestionRequest addQuestionRequest);
     Long addNewFeedbackTemplate(AddFeedbackTemplateRequest addFeedbackTemplateRequest);
     FeedbackTemplateDto getFeedbackTemplateById(Long id);
     Long addNewSubCourseFeedback(SubCourseFeedbackRequest subCourseFeedbackRequest);
     List<UserFeedbackResponse> getFeedbackByClass(Long id);
+
+
 }
+
+

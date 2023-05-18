@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class ActivityServiceImpl implements IActivityService {
+public class ActivityServiceImpl implements IActivityService , Cloneable {
     @Value("${minio.endpoint}")
     String minioUrl;
     private final ActivityTypeRepository activityTypeRepository;
@@ -51,6 +51,7 @@ public class ActivityServiceImpl implements IActivityService {
 
     @Override
     public Boolean editActivity(ActivityRequest activityRequest) throws IOException {
+
         User currentUser = SecurityUtil.getCurrentUser();
         ClassSection classSection = classSectionRepository.findById(activityRequest.getClassSectionId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                 .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SECTION_NOT_FOUND_BY_ID) + activityRequest.getClassSectionId()));

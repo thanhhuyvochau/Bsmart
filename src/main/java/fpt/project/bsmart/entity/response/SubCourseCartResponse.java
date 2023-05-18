@@ -15,6 +15,8 @@ public class SubCourseCartResponse {
 
     private Long id;
     private ECourseLevel level;
+
+    private String title ;
     private ECourseStatus status;
 
     private Instant startDateExpected;
@@ -41,6 +43,14 @@ public class SubCourseCartResponse {
 
     public ECourseLevel getLevel() {
         return level;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public void setLevel(ECourseLevel level) {
