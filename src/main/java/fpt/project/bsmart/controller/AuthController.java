@@ -1,18 +1,19 @@
 package fpt.project.bsmart.controller;
 
-import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.common.EVerifyStatus;
 import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.entity.request.LoginRequest;
 import fpt.project.bsmart.entity.response.VerifyResponse;
 import fpt.project.bsmart.service.IAuthService;
 import fpt.project.bsmart.service.IUserService;
-import fpt.project.bsmart.util.SecurityUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -33,7 +34,11 @@ public class AuthController {
 
     @GetMapping("/verify")
     public ResponseEntity<ApiResponse<VerifyResponse>> verifyAccount(@RequestParam("code") String code) {
-        return ResponseEntity.ok(ApiResponse.success(userService.verifyAccount(code)));
+        VerifyResponse response = userService.verifyAccount(code);
+        if (!Objects.equals(response.getStatus(), EVerifyStatus.SUCCESS.name())) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(response.getMessage());
+        }
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/resend-verify")
