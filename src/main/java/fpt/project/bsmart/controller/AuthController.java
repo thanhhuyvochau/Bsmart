@@ -36,7 +36,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<VerifyResponse>> verifyAccount(@RequestParam("code") String code) {
         VerifyResponse response = userService.verifyAccount(code);
         if (!Objects.equals(response.getStatus(), EVerifyStatus.SUCCESS.name())) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage(response.getMessage());
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(response.getMessage());
         }
         return ResponseEntity.ok(ApiResponse.success(response));
     }
