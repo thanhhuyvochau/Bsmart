@@ -1,8 +1,8 @@
 package fpt.project.bsmart.config.security.config;
 
 
-import fpt.project.bsmart.config.security.jwt.UnAuthorizedUserAuthenticationEntryPoint;
 import fpt.project.bsmart.config.security.jwt.AuthTokenFilter;
+import fpt.project.bsmart.config.security.jwt.UnAuthorizedUserAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

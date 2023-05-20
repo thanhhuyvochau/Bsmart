@@ -3,9 +3,7 @@ package fpt.project.bsmart.entity.response;
 
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.ImageDto;
-import fpt.project.bsmart.entity.dto.UserDto;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public class CourseResponse {

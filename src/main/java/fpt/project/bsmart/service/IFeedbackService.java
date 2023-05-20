@@ -18,4 +18,8 @@ public interface IFeedbackService {
     Long updateFeedbackTemplateToSubCourse(UpdateSubCourseFeedbackTemplateRequest updateSubCourseFeedbackTemplateRequest);
     Long addNewSubCourseFeedback(SubCourseFeedbackRequest subCourseFeedbackRequest);
     List<UserFeedbackResponse> getFeedbackByClass(Long id);
+
+
 }
+
+

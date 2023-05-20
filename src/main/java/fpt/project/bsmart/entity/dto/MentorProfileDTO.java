@@ -6,7 +6,6 @@ public class MentorProfileDTO {
     private Long id;
     private String introduce;
     private String workingExperience;
-    private UserDto user;
 
     private List<MentorSkillDto> mentorSkills;
 
@@ -32,14 +31,6 @@ public class MentorProfileDTO {
 
     public void setWorkingExperience(String workingExperience) {
         this.workingExperience = workingExperience;
-    }
-
-    public UserDto getUser() {
-        return user;
-    }
-
-    public void setUser(UserDto user) {
-        this.user = user;
     }
 
     public List<MentorSkillDto> getMentorSkills() {

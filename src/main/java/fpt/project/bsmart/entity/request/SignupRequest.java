@@ -2,8 +2,6 @@ package fpt.project.bsmart.entity.request;
 
 import fpt.project.bsmart.entity.constant.EUserRole;
 
-import java.util.List;
-
 public class SignupRequest {
     private String email ;
     private String password ;

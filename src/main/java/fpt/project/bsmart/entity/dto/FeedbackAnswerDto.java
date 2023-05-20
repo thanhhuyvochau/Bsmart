@@ -1,6 +1,5 @@
 package fpt.project.bsmart.entity.dto;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class FeedbackAnswerDto {

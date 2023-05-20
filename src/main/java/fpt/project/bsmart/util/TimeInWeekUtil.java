@@ -23,7 +23,7 @@ public class TimeInWeekUtil {
         Instant date = startDate;
         int i = numberOfSlot;
         while (i > 0) {
-            EDayOfWeekCode dayOfWeekCode = DayUtil.getDayOfWeek(date);
+            EDayOfWeekCode dayOfWeekCode = TimeUtil.getDayOfWeek(date);
             if (dayOfWeekCode == null) {
                 throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không thể nhận diện thứ trong tuần, lỗi hệ thống vui lòng liên hệ Admin!");
             }

@@ -1,11 +1,5 @@
 package fpt.project.bsmart.entity.dto;
 
-import fpt.project.bsmart.entity.Question;
-
-import javax.persistence.*;
-
-
-
 public class AnswerDto {
     private Long id;
     

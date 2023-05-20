@@ -1,7 +1,6 @@
 package fpt.project.bsmart.entity;
 
 import fpt.project.bsmart.entity.constant.EAccountStatus;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
 
 import javax.persistence.*;
 import java.util.ArrayList;

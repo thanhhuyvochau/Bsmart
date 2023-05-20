@@ -6,10 +6,11 @@ import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.util.SpecificationUtil;
 import org.springframework.data.jpa.domain.Specification;
 
-
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Path;
 import java.util.ArrayList;
-
 import java.util.List;
 import java.util.Objects;
 

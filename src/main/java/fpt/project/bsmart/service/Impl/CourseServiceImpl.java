@@ -86,12 +86,12 @@ public class CourseServiceImpl implements ICourseService {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Người dùng không phải là giáo viên"));
         }
-        if (mentorProfile== null) {
+        if (mentorProfile == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Tài khoản không hợp lệ để tạo khóa học"));
         }
 
-        if(!mentorProfile.getStatus().equals(EAccountStatus.STARTING)){
+        if (!mentorProfile.getStatus().equals(EAccountStatus.STARTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Tài khoản đang dùng chưa phải là giáo viên chính thức hoăc tài khoản chưa hợp lệ!!"));
         }
@@ -119,7 +119,7 @@ public class CourseServiceImpl implements ICourseService {
         course.setCode(createCourseRequest.getCode());
         course.setDescription(createCourseRequest.getDescription());
 
-        course.setStatus(NOTSTART);
+        course.setStatus(REQUESTING);
 
         List<CreateSubCourseRequest> subCourseRequests = createCourseRequest.getSubCourseRequests();
         List<SubCourse> courseList = new ArrayList<>();
@@ -239,7 +239,7 @@ public class CourseServiceImpl implements ICourseService {
 
         User userLogin = SecurityUtil.getCurrentUser();
 
-        Page<SubCourse> subCoursesList = subCourseRepository.findByCourse(course, pageable);
+        Page<SubCourse> subCoursesList = subCourseRepository.findByCourseAndStatus(course, NOTSTART, pageable);
         return PageUtil.convert(subCoursesList.map(subCourse -> {
             return ConvertUtil.convertSubCourseToSubCourseDetailResponse(userLogin, subCourse);
         }));
@@ -295,12 +295,12 @@ public class CourseServiceImpl implements ICourseService {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
 
         MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
-        if (mentorProfile== null) {
+        if (mentorProfile == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Tài khoản không hợp lệ để tạo khóa học"));
         }
 
-        if(!mentorProfile.getStatus().equals(EAccountStatus.STARTING)){
+        if (!mentorProfile.getStatus().equals(EAccountStatus.STARTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Tài khoản đang dùng chưa phải là giáo viên chính thức hoăc tài khoản chưa hợp lệ!!"));
         }
@@ -309,7 +309,7 @@ public class CourseServiceImpl implements ICourseService {
         SubCourse subCourse = subCourseRepository.findById(subCourseId).
                 orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
 
-        if( !subCourse.getMentor().getMentorProfile().equals(mentorProfile)){
+        if (!subCourse.getMentor().getMentorProfile().equals(mentorProfile)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Bạn không phải là giáo viên của lớp này! Không thể thay đổi thông tin!!"));
         }

@@ -41,7 +41,7 @@ public class Quiz extends BaseEntity {
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuizSubmittion> quizSubmittions = new ArrayList<>();
     @Column(name = "is_unlimited_attempt")
-    private boolean isUnLimitedAttempt = false;
+    private boolean isUnlimitedAttempt = false;
     @Column(name = "attempt_number")
     private int attemptNumber = 1;
     public Long getId() {
@@ -156,12 +156,12 @@ public class Quiz extends BaseEntity {
         this.quizSubmittions = quizSubmittions;
     }
 
-    public boolean isUnLimitedAttempt() {
-        return isUnLimitedAttempt;
+    public boolean getIsUnlimitedAttempt() {
+        return isUnlimitedAttempt;
     }
 
-    public void setUnLimitedAttempt(boolean unLimitedAttempt) {
-        isUnLimitedAttempt = unLimitedAttempt;
+    public void setIsUnlimitedAttempt(boolean unlimitedAttempt) {
+        isUnlimitedAttempt = unlimitedAttempt;
     }
 
     public int getAttemptNumber() {

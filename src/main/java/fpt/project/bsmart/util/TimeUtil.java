@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class DayUtil {
+public class TimeUtil {
 
     public static Boolean checkDay(String one, String two) throws ParseException {
 
@@ -123,4 +124,10 @@ public class DayUtil {
         return null;
     }
 
+    public static boolean isLessThanConfigHour(Instant instant, int hour) {
+        Instant currentInstant = Instant.now();
+        Duration difference = Duration.between(instant.truncatedTo(ChronoUnit.HOURS), currentInstant.truncatedTo(ChronoUnit.HOURS));
+        long differenceInHour = difference.toHours();
+        return differenceInHour < hour;
+    }
 }

@@ -1,14 +1,8 @@
 package fpt.project.bsmart.entity.response;
 
 
-import fpt.project.bsmart.entity.constant.ECourseLevel;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.CategoryDto;
-import fpt.project.bsmart.entity.dto.ClassDto;
-import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
-
-import java.util.List;
 
 
 public class CourseSubCourseDetailResponse {

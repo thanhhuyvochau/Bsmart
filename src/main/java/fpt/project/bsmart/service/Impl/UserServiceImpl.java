@@ -1,11 +1,9 @@
 package fpt.project.bsmart.service.Impl;
 
 
-import fpt.project.bsmart.entity.Image;
-import fpt.project.bsmart.entity.MentorProfile;
-import fpt.project.bsmart.entity.Role;
-import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.common.EVerifyStatus;
 import fpt.project.bsmart.entity.constant.EAccountStatus;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EUserRole;
@@ -16,13 +14,12 @@ import fpt.project.bsmart.entity.request.User.ChangePasswordRequest;
 import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
-import fpt.project.bsmart.repository.ImageRepository;
-import fpt.project.bsmart.repository.MentorProfileRepository;
-import fpt.project.bsmart.repository.RoleRepository;
-import fpt.project.bsmart.repository.UserRepository;
+import fpt.project.bsmart.entity.response.VerifyResponse;
+import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.adapter.MinioAdapter;
+import fpt.project.bsmart.util.email.EmailUtil;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -60,9 +57,12 @@ public class UserServiceImpl implements IUserService {
     private final MentorProfileRepository mentorProfileRepository;
 
     private final MinioAdapter minioAdapter;
+    private final EmailUtil emailUtil;
+
+    private final VerificationRepository verificationRepository;
 
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter) {
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
@@ -70,6 +70,8 @@ public class UserServiceImpl implements IUserService {
         this.imageRepository = imageRepository;
         this.mentorProfileRepository = mentorProfileRepository;
         this.minioAdapter = minioAdapter;
+        this.emailUtil = emailUtil;
+        this.verificationRepository = verificationRepository;
     }
 
     private static void accept(Image image) {
@@ -165,6 +167,8 @@ public class UserServiceImpl implements IUserService {
     @Override
     public List<Long> uploadDegree(MultipartFile[] files) throws IOException {
         User user = getCurrentLoginUser();
+        user.getUserImages().clear();
+        userRepository.save(user) ;
         List<Long> imageIds = new ArrayList<>();
         for (MultipartFile file : files) {
             Image image = new Image();
@@ -181,7 +185,6 @@ public class UserServiceImpl implements IUserService {
         }
         return imageIds;
     }
-
 
 
     @Override
@@ -256,7 +259,7 @@ public class UserServiceImpl implements IUserService {
         User user = getCurrentLoginUser();
 
         if (personalProfileEditRequest.getBirthday() != null) {
-            if (!DayUtil.isValidBirthday(personalProfileEditRequest.getBirthday())) {
+            if (!TimeUtil.isValidBirthday(personalProfileEditRequest.getBirthday())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST)
                         .withMessage(messageUtil.getLocalMessage(INVALID_DAY));
             }
@@ -289,7 +292,7 @@ public class UserServiceImpl implements IUserService {
     public Long editMentorPersonalProfile(MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest) {
         User user = getCurrentLoginUser();
         if (mentorPersonalProfileEditRequest.getBirthday() != null) {
-            if (!DayUtil.isValidBirthday(mentorPersonalProfileEditRequest.getBirthday())) {
+            if (!TimeUtil.isValidBirthday(mentorPersonalProfileEditRequest.getBirthday())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST)
                         .withMessage(messageUtil.getLocalMessage(INVALID_DAY));
             }
@@ -338,6 +341,7 @@ public class UserServiceImpl implements IUserService {
         user.setPassword(encoder.encode(createAccountRequest.getPassword()));
         user.getRoles().add(role);
         user.setBirthday(createAccountRequest.getBirthDay());
+        user.setIsVerified(false);
         if (role.getCode().equals(EUserRole.STUDENT)) {
             user.setStatus(true);
         } else if (role.getCode().equals(EUserRole.TEACHER)) {
@@ -348,10 +352,45 @@ public class UserServiceImpl implements IUserService {
             mentorProfileRepository.save(mentorProfile);
         }
         User savedUser = userRepository.save(user);
+        // Send verify mail
+        emailUtil.sendVerifyEmailTo(savedUser);
         return savedUser.getId();
     }
 
+    @Override
+    public VerifyResponse verifyAccount(String code) {
+        Verification verification = verificationRepository.findByCode(code)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Không tìm thấy code của mail xác thực:" + code));
+        User user = verification.getUser();
+        Instant createdDate = verification.getCreated();
+        EVerifyStatus status = null;
+        if (verification.getIsUsed()) { // Verification phải chưa được sử dụng
+            status = EVerifyStatus.USED;
+        } else if (!TimeUtil.isLessThanConfigHour(createdDate, 24)) {  // Thời gian xác thực tối đa là 1 ngày
+            status = EVerifyStatus.EXPIRED;
+        } else {
+            user.setIsVerified(true);
+            verification.setIsUsed(true);
+            status = EVerifyStatus.SUCCESS;
+        }
+        return VerifyResponse.Builder.getBuilder()
+                .withMessage(status.getMessage())
+                .withStatus(status.name())
+                .build()
+                .getObject();
+    }
 
+    @Override
+    public Boolean resendVerifyEmail() {
+        User currentUser = SecurityUtil.getCurrentUser();
+        if (currentUser.getIsVerified()) {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Tài khoản đã được xác thực");
+        } else {
+            emailUtil.sendVerifyEmailTo(currentUser);
+        }
+        return true;
+    }
 }
 
 

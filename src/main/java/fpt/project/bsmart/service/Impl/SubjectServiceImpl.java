@@ -1,10 +1,8 @@
 package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.entity.Category;
-import fpt.project.bsmart.entity.Course;
 import fpt.project.bsmart.entity.Subject;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.request.SubjectRequest;
 import fpt.project.bsmart.repository.CategoryRepository;
@@ -19,7 +17,6 @@ import java.util.List;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_BY_ID;
-import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDTO;
 import static fpt.project.bsmart.util.ConvertUtil.convertSubjectToSubjectDto;
 
 

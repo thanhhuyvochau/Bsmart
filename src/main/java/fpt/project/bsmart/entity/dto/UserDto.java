@@ -1,9 +1,6 @@
 package fpt.project.bsmart.entity.dto;
 
 
-import fpt.project.bsmart.entity.Role;
-import fpt.project.bsmart.entity.Wallet;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +40,7 @@ public class UserDto {
     private WalletDto wallet;
 
     private MentorProfileDTO mentorProfile;
+    private boolean isVerified = false;
 
     public Long getId() {
         return id;
@@ -119,7 +117,6 @@ public class UserDto {
     }
 
 
-
     public String getTwitterLink() {
         return twitterLink;
     }
@@ -166,5 +163,13 @@ public class UserDto {
 
     public void setMentorProfile(MentorProfileDTO mentorProfile) {
         this.mentorProfile = mentorProfile;
+    }
+
+    public boolean getIsVerified() {
+        return isVerified;
+    }
+
+    public void setIsVerified(boolean verified) {
+        isVerified = verified;
     }
 }

@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class ActivityServiceImpl implements IActivityService {
+public class ActivityServiceImpl implements IActivityService , Cloneable {
     @Value("${minio.endpoint}")
     String minioUrl;
     private final ActivityTypeRepository activityTypeRepository;

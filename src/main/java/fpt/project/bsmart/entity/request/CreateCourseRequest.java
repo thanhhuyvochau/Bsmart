@@ -1,11 +1,5 @@
 package fpt.project.bsmart.entity.request;
 
-import fpt.project.bsmart.entity.constant.ECourseLevel;
-import fpt.project.bsmart.entity.constant.ETypeLearn;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 public class CreateCourseRequest {
