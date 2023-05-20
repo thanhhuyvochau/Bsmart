@@ -1,33 +1,19 @@
-package fpt.project.bsmart.entity;
+package fpt.project.bsmart.entity.dto;
 
+import fpt.project.bsmart.entity.QuizSubmitQuestion;
 import fpt.project.bsmart.entity.constant.QuizSubmittionStatus;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "quiz_submittiion")
-public class QuizSubmittion extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class QuizSubmittionDto {
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "quiz_id")
-    private Quiz quiz;
-    @Column(name = "correct_number")
+    private Long quizId;
     private Integer correctNumber = 0;
-    @Column(name = "incorrect_number")
     private Integer incorrectNumber = 0;
-    @Column(name = "point")
     private Float point;
-    @Column(name = "status")
     private QuizSubmittionStatus status;
-    @OneToMany
-    private List<QuizSubmitQuestion> submitQuestions = new ArrayList<>();
-    @OneToOne
-    @JoinColumn(name = "submitted_by")
-    private User submittedBy;
+    private List<QuizSubmitQuestionDto> questions = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -37,12 +23,12 @@ public class QuizSubmittion extends BaseEntity {
         this.id = id;
     }
 
-    public Quiz getQuiz() {
-        return quiz;
+    public Long getQuizId() {
+        return quizId;
     }
 
-    public void setQuiz(Quiz quiz) {
-        this.quiz = quiz;
+    public void setQuizId(Long quizId) {
+        this.quizId = quizId;
     }
 
     public Integer getCorrectNumber() {
@@ -77,19 +63,11 @@ public class QuizSubmittion extends BaseEntity {
         this.status = status;
     }
 
-    public List<QuizSubmitQuestion> getSubmitQuestions() {
-        return submitQuestions;
+    public List<QuizSubmitQuestionDto> getQuestions() {
+        return questions;
     }
 
-    public void setSubmitQuestions(List<QuizSubmitQuestion> submitQuestions) {
-        this.submitQuestions = submitQuestions;
-    }
-
-    public User getSubmittedBy() {
-        return submittedBy;
-    }
-
-    public void setSubmittedBy(User submittedBy) {
-        this.submittedBy = submittedBy;
+    public void setQuestions(List<QuizSubmitQuestionDto> questions) {
+        this.questions = questions;
     }
 }

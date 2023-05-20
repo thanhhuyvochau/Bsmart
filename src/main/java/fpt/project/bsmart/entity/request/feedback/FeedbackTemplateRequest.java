@@ -5,7 +5,7 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 
 import java.util.List;
 
-public class AddFeedbackTemplateRequest {
+public class FeedbackTemplateRequest {
     private String templateName;
     private List<Long> questionList;
     private EFeedbackType feedbackType;
