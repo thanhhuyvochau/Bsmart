@@ -358,7 +358,7 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
         if(!quiz.getStatus().equals(QuizStatus.OPENING)){
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
-        if(!quiz.isUnLimitedAttempt()){
+        if(!quiz.getIsUnlimitedAttempt()){
             int submitTimes = quiz.getQuizSubmittions().stream()
                     .filter(x -> x.getSubmittedBy().equals(user))
                     .collect(Collectors.toList()).size();
