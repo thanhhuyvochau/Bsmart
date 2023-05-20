@@ -24,7 +24,7 @@ monitoring and reporting.
 ### Development server information
 
 ```
-http://103.173.155.221:8080/swagger-ui/index.html#/
+http://103.173.155.221:8080/swagger-ui/index.html#/ 
 ssh: ssh root@103.173.155.221 -p 9020
 password: s_IFvbN797b^lH
 ```
