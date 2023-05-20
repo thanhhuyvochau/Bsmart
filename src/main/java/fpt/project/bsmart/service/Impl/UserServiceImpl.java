@@ -31,6 +31,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -165,25 +166,43 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public List<Long> uploadDegree(MultipartFile[] files) throws IOException {
+    public Boolean uploadDegree( List<Long> degreeIdsToDelete  ,MultipartFile[] files) throws IOException {
         User user = getCurrentLoginUser();
-        user.getUserImages().clear();
-        userRepository.save(user) ;
-        List<Long> imageIds = new ArrayList<>();
-        for (MultipartFile file : files) {
-            Image image = new Image();
-            String name = file.getOriginalFilename() + "-" + Instant.now().toString();
-            ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file.getContentType(),
-                    file.getInputStream(), file.getSize());
-            image.setName(name);
-            image.setStatus(true);
-            image.setType(EImageType.DEGREE);
-            image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
-            image.setUser(user);
-            Image save = imageRepository.save(image);
-            imageIds.add(save.getId());
+        List<Image> userImages = user.getUserImages();
+        List<Image> allOldDegree = userImages.stream().filter(image -> image.getType().equals(EImageType.DEGREE)).collect(Collectors.toList());
+
+        // id degree trong db ne
+        List<Long> allOldDegreeId = allOldDegree.stream().map(Image::getId).collect(Collectors.toList());
+        boolean containsAll = new HashSet<>(allOldDegreeId).containsAll(degreeIdsToDelete);
+        List<Image> degreeToDelete = new ArrayList<>( );
+        if (containsAll){
+            degreeToDelete = imageRepository.findAllById(degreeIdsToDelete);
         }
-        return imageIds;
+        else {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(" Bạn đang xóa bằng cấp không tồn tại");
+        }
+//        allOldDegree.removeAll(degreeToDelete);
+
+        user.getUserImages().removeAll(degreeToDelete) ;
+        userRepository.save(user) ;
+        if (files== null){
+
+            for (MultipartFile file : files) {
+                Image image = new Image();
+                String name = file.getOriginalFilename() + "-" + Instant.now().toString();
+                ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file.getContentType(),
+                        file.getInputStream(), file.getSize());
+                image.setName(name);
+                image.setStatus(true);
+                image.setType(EImageType.DEGREE);
+                image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
+                image.setUser(user);
+                Image save = imageRepository.save(image);
+//                imageIds.add(save.getId());
+            }
+        }
+
+  return true ;
     }
 
 

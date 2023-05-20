@@ -34,7 +34,7 @@ public interface IUserService {
 
     Long editMentorPersonalProfile(MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest);
 
-    List<Long> uploadDegree(MultipartFile[] files) throws IOException;
+    Boolean  uploadDegree( List<Long> degreeIdsToDelete,MultipartFile[] files) throws IOException;
 
     VerifyResponse verifyAccount(String code);
 
