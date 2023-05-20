@@ -7,7 +7,9 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EQuestionType;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
+import fpt.project.bsmart.entity.constant.QuestionType;
 import fpt.project.bsmart.entity.dto.*;
+import fpt.project.bsmart.entity.request.QuizQuestionRequest;
 import fpt.project.bsmart.entity.response.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class ConvertUtil {
-
+    private static MessageUtil messageUtil;
     private static String successIcon;
 
     private static String failIcon;
@@ -539,5 +541,73 @@ public class ConvertUtil {
         ActivityTypeDto activityTypeResponse = new ActivityTypeDto();
         ObjectUtil.copyProperties(activityType, activityTypeResponse);
         return activityTypeResponse;
+    }
+
+    public static QuizDto convertQuizToQuizDto(Quiz quiz){
+        QuizDto quizDto = ObjectUtil.copyProperties(quiz, new QuizDto(), QuizDto.class);
+        if(quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()){
+            List<QuizQuestionDto> questionDtos = new ArrayList<>();
+            for(QuizQuestion question : quiz.getQuizQuestions()){
+                questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question));
+            }
+            quizDto.setQuizQuestions(questionDtos);
+        }
+        return quizDto;
+    }
+
+    public static QuizSubmittionDto convertQuizSubmittionToQuizSubmittionDto(QuizSubmittion quizSubmittion){
+        QuizSubmittionDto quizSubmittionDto = new QuizSubmittionDto();
+        quizSubmittionDto.setId(quizSubmittion.getId());
+        quizSubmittionDto.setQuizId(quizSubmittion.getQuiz().getId());
+        quizSubmittionDto.setPoint(quizSubmittion.getPoint());
+        quizSubmittionDto.setStatus(quizSubmittion.getStatus());
+        List<QuizSubmitQuestionDto> questionDtos = quizSubmittion.getSubmitQuestions().stream()
+                .map(ConvertUtil::convertQuizSubmitQuestionToQuizSubmitQuestionDto)
+                .collect(Collectors.toList());
+        quizSubmittionDto.setQuestions(questionDtos);
+        quizSubmittionDto.setCorrectNumber(quizSubmittion.getCorrectNumber());
+        quizSubmittionDto.setIncorrectNumber(quizSubmittion.getIncorrectNumber());
+        return quizSubmittionDto;
+    }
+
+    public static QuizSubmitQuestionDto convertQuizSubmitQuestionToQuizSubmitQuestionDto(QuizSubmitQuestion quizSubmitQuestion){
+        QuizSubmitQuestionDto questionDto = new QuizSubmitQuestionDto();
+        questionDto.setId(quizSubmitQuestion.getId());
+        questionDto.setQuestion(quizSubmitQuestion.getQuizQuestion().getQuestion());
+        questionDto.setType(quizSubmitQuestion.getQuizQuestion().getType());
+        questionDto.setAnswers(ConvertUtil.convertQuizSubmitAnswersToQuizSubmitAnswerDto(quizSubmitQuestion.getQuizSubmitAnswers(), quizSubmitQuestion.getQuizQuestion().getAnswers()));
+        return questionDto;
+    }
+
+    public static List<QuizSubmitAnswerDto> convertQuizSubmitAnswersToQuizSubmitAnswerDto(List<QuizSubmitAnswer> quizSubmitAnswers, List<QuizAnswer> quizAnswers){
+        List<QuizSubmitAnswerDto> quizSubmitAnswerDtos = new ArrayList<>();
+        for (QuizAnswer answer : quizAnswers){
+            QuizSubmitAnswerDto answerDto = new QuizSubmitAnswerDto();
+            answerDto.setId(answer.getId());
+            answerDto.setAnswer(answer.getAnswer());
+            answerDto.setRight(answerDto.getRight());
+            if(!quizSubmitAnswers.isEmpty()){
+                boolean isChosen = quizSubmitAnswers.stream()
+                        .anyMatch(x -> x.getQuizAnswer().equals(answer));
+                answerDto.setChosen(isChosen);
+            }
+        }
+        return quizSubmitAnswerDtos;
+    }
+
+    public static QuizQuestionDto convertQuizQuestionToQuizQuestionDto(QuizQuestion quizQuestion){
+        QuizQuestionDto question = ObjectUtil.copyProperties(quizQuestion, new QuizQuestionDto(), QuizQuestionDto.class);
+        if(quizQuestion.getAnswers() != null || !question.getAnswers().isEmpty()){
+            List<QuizAnswerDto> answers = new ArrayList<>();
+            for (QuizAnswer answer : quizQuestion.getAnswers()) {
+                answers.add(ConvertUtil.convertQuizAnswerToQuizAnswerDto(answer));
+            }
+            question.setAnswers(answers);
+        }
+        return question;
+    }
+
+    public static QuizAnswerDto convertQuizAnswerToQuizAnswerDto(QuizAnswer quizAnswer){
+        return ObjectUtil.copyProperties(quizAnswer, new QuizAnswerDto(), QuizAnswerDto.class);
     }
 }

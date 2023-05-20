@@ -56,7 +56,9 @@ public class SubCourse  extends  BaseEntity{
     @JoinColumn(name = "course_id")
     private Course course;
 
-
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "feedback_template_id", referencedColumnName = "id")
+    private FeedbackTemplate feedbackTemplate;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id", referencedColumnName = "id")
     private Image image;
@@ -151,6 +153,14 @@ public class SubCourse  extends  BaseEntity{
 
     public void setCourse(Course course) {
         this.course = course;
+    }
+
+    public FeedbackTemplate getFeedbackTemplate() {
+        return feedbackTemplate;
+    }
+
+    public void setFeedbackTemplate(FeedbackTemplate feedbackTemplate) {
+        this.feedbackTemplate = feedbackTemplate;
     }
 
     public Instant getEndDateExpected() {
