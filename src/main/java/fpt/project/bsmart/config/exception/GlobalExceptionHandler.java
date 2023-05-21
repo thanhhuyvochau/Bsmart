@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.failed("Access Denied"));
     }
 
-    @ExceptionHandler({Exception.class, RuntimeException.class, NullPointerException.class})
+    @ExceptionHandler({Exception.class, RuntimeException.class})
     @ResponseBody
     public ResponseEntity<ApiResponse> handleCommonException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failed("Đã có lỗi ngoại lệ của hệ thống xảy ra, vui lòng liên hệ admin để được hỗ trợ"));

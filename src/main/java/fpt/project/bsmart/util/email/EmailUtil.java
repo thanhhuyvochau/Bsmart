@@ -39,7 +39,7 @@ public class EmailUtil {
             String subject = "Verify BSmart Account";
             String from = "noreply@bsmart.gmail";
             String verifyCode = String.valueOf(UUID.randomUUID());
-            String activeLink = String.format(hostURL+"api/auth/verify?code=%s", verifyCode);
+            String activeLink = hostURL + verifyCode;
             Verification.Builder builder = Verification.Builder.getBuilder();
             Verification verification = builder.withCode(verifyCode).withUser(user).build().getObject();
             sendHtmlEmail(String.format(activateTemplate, activeLink), user.getEmail(), from, subject);
@@ -54,7 +54,7 @@ public class EmailUtil {
         String subject = "Verify BSmart Account For Test";
         String from = "noreply@bsmart.gmail";
         String verifyCode = String.valueOf(UUID.randomUUID());
-        String activeLink = String.format(hostURL+"verify?code=%s", verifyCode);
+        String activeLink = String.format(hostURL + "verify?code=%s", verifyCode);
         Verification.Builder builder = Verification.Builder.getBuilder();
         sendHtmlEmail(String.format(activateTemplate, activeLink), user.getEmail(), from, subject);
         return true;
