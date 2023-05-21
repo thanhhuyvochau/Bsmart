@@ -52,8 +52,6 @@ beholder:
     jwtExpirationMs:
       86400000
 
-host:
-  url: http://103.173.155.221:8080/
 
 
 
