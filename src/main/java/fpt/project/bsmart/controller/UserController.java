@@ -88,8 +88,8 @@ public class UserController {
     @Operation(summary = "upload nhiều bằng cấp ")
     @PreAuthorize("hasAnyRole('TEACHER' , 'STUDENT')")
     @PostMapping("/upload-degree")
-    public ResponseEntity<ApiResponse<List<Long>>> uploadDegree( @RequestParam("files") MultipartFile[] files) throws IOException {
-        return ResponseEntity.ok(ApiResponse.success(iUserService.uploadDegree( files)));
+    public ResponseEntity<ApiResponse<Boolean>> uploadDegree( @RequestParam List<Long> degreeIdsToDelete ,  @RequestParam("files") MultipartFile[] files) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(iUserService.uploadDegree( degreeIdsToDelete, files)));
     }
 
 

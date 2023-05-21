@@ -22,7 +22,7 @@ public class ActivityController {
     @PostMapping("/assignment")
     @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
     public ResponseEntity<ApiResponse<Boolean>> addAssignmentActivity(@ModelAttribute AssignmentRequest request) throws IOException {
-        return ResponseEntity.ok(ApiResponse.success(activityService.editActivity(request)));
+        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request)));
     }
 
     @PutMapping("/visible/{id}")

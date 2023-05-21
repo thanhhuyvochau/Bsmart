@@ -6,7 +6,7 @@ import fpt.project.bsmart.entity.constant.EQuestionType;
 
 import java.util.HashMap;
 
-public class AddQuestionRequest {
+public class AddFeedbackQuestionRequest {
     private Question newQuestion;
 
     public Question getNewQuestion() {

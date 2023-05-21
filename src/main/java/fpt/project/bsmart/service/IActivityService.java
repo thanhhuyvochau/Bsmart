@@ -6,7 +6,7 @@ import fpt.project.bsmart.entity.request.ActivityRequest;
 import java.io.IOException;
 
 public interface IActivityService {
-    Boolean editActivity(ActivityRequest activityRequest) throws IOException;
+    Boolean addActivity(ActivityRequest activityRequest) throws IOException;
 
     Boolean deleteActivity(Long id);
 
