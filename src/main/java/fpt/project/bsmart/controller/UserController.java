@@ -16,7 +16,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Nullable;
 import javax.validation.Valid;
+import javax.validation.constraints.Null;
 import java.io.IOException;
 import java.util.List;
 
@@ -88,7 +90,7 @@ public class UserController {
     @Operation(summary = "upload nhiều bằng cấp ")
     @PreAuthorize("hasAnyRole('TEACHER' , 'STUDENT')")
     @PostMapping("/upload-degree")
-    public ResponseEntity<ApiResponse<Boolean>> uploadDegree( @RequestParam List<Long> degreeIdsToDelete ,  @RequestParam("files") MultipartFile[] files) throws IOException {
+    public ResponseEntity<ApiResponse<Boolean>> uploadDegree( @Nullable  @RequestParam List<Long> degreeIdsToDelete , @Nullable  @RequestParam("files") MultipartFile[] files) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(iUserService.uploadDegree( degreeIdsToDelete, files)));
     }
 

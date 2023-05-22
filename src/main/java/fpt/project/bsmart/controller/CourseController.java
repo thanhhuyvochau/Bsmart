@@ -64,7 +64,9 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createCourseRequest)));
     }
 
-    @Operation(summary = "mentor sửa khoá học ")
+
+
+    @Operation(summary = "mentor sửa khoá học con ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PutMapping("/subCourseId")
     public ResponseEntity<ApiResponse<Boolean>> mentorUpdateCourse(  @PathVariable Long subCourseId ,@Valid @RequestBody UpdateSubCourseRequest updateCourseRequest ) {
