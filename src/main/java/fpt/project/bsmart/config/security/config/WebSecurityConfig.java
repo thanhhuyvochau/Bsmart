@@ -35,11 +35,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private UnAuthorizedUserAuthenticationEntryPoint authenticationEntryPoint;
     @Autowired
-    private AuthTokenFilter secFilter;
+    private AuthTokenFilter
+            secFilter;
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService)
                 .passwordEncoder(bCryptEncoder);
+
     }
     @Override
     protected void configure(HttpSecurity http) throws Exception {
