@@ -279,7 +279,7 @@ public class ConvertUtil {
         response.setCourseDescription(course.getDescription());
         response.setTypeLearn(subCourse.getTypeLearn());
         response.setSubCourseTitle(subCourse.getTitle());
-
+        response.setLevel(subCourse.getLevel());
         response.setMinStudent(subCourse.getMinStudent());
         response.setMaxStudent(subCourse.getMaxStudent());
         response.setPrice(subCourse.getPrice());

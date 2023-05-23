@@ -10,28 +10,37 @@ import java.util.List;
 
 public class UpdateSubCourseRequest {
 
+
     private String courseCode;
     private String courseName;
+    private String courseDescription;
     private Long categoryId;
     private Long subjectId;
-    private String courseDescription;
 
-    private ECourseLevel level;
+    private String subCourseTitle;
 
-    private Long imageId;
+    private BigDecimal price;
+    private Instant startDateExpected;
+    private Instant endDateExpected;
+
+    private Integer minStudent;
+    private Integer maxStudent;
+
+    private Integer numberOfSlot;
+
+
+
 
     private ETypeLearn type;
 
-    private BigDecimal price;
+    private ECourseLevel level;
 
-    private Integer minStudent ;
-    private Integer maxStudent ;
-    private Instant startDateExpected  ;
-    private Instant endDateExpected  ;
-    private String subCourseTile ;
-    private Integer  numberOfSlot ;
+
 
     private List<TimeInWeekRequest> timeInWeekRequests = new ArrayList<>();
+
+
+
 
     public String getCourseCode() {
         return courseCode;
@@ -49,76 +58,28 @@ public class UpdateSubCourseRequest {
         this.courseName = courseName;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
+    public String getSubCourseTitle() {
+        return subCourseTitle;
     }
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public Long getSubjectId() {
-        return subjectId;
-    }
-
-    public void setSubjectId(Long subjectId) {
-        this.subjectId = subjectId;
-    }
-
-    public String getCourseDescription() {
-        return courseDescription;
-    }
-
-    public void setCourseDescription(String courseDescription) {
-        this.courseDescription = courseDescription;
-    }
-
-    public ECourseLevel getLevel() {
-        return level;
-    }
-
-    public void setLevel(ECourseLevel level) {
-        this.level = level;
-    }
-
-    public Long getImageId() {
-        return imageId;
-    }
-
-    public void setImageId(Long imageId) {
-        this.imageId = imageId;
-    }
-
-    public ETypeLearn getType() {
-        return type;
-    }
-
-    public void setType(ETypeLearn type) {
-        this.type = type;
+    public void setSubCourseTitle(String subCourseTitle) {
+        this.subCourseTitle = subCourseTitle;
     }
 
     public BigDecimal getPrice() {
         return price;
     }
 
+    public Integer getNumberOfSlot() {
+        return numberOfSlot;
+    }
+
+    public void setNumberOfSlot(Integer numberOfSlot) {
+        this.numberOfSlot = numberOfSlot;
+    }
+
     public void setPrice(BigDecimal price) {
         this.price = price;
-    }
-
-    public Integer getMinStudent() {
-        return minStudent;
-    }
-
-    public void setMinStudent(Integer minStudent) {
-        this.minStudent = minStudent;
-    }
-
-    public Integer getMaxStudent() {
-        return maxStudent;
-    }
-
-    public void setMaxStudent(Integer maxStudent) {
-        this.maxStudent = maxStudent;
     }
 
     public Instant getStartDateExpected() {
@@ -137,20 +98,60 @@ public class UpdateSubCourseRequest {
         this.endDateExpected = endDateExpected;
     }
 
-    public String getSubCourseTile() {
-        return subCourseTile;
+    public Integer getMinStudent() {
+        return minStudent;
     }
 
-    public void setSubCourseTile(String subCourseTile) {
-        this.subCourseTile = subCourseTile;
+    public void setMinStudent(Integer minStudent) {
+        this.minStudent = minStudent;
     }
 
-    public Integer getNumberOfSlot() {
-        return numberOfSlot;
+    public Integer getMaxStudent() {
+        return maxStudent;
     }
 
-    public void setNumberOfSlot(Integer numberOfSlot) {
-        this.numberOfSlot = numberOfSlot;
+    public void setMaxStudent(Integer maxStudent) {
+        this.maxStudent = maxStudent;
+    }
+
+    public String getCourseDescription() {
+        return courseDescription;
+    }
+
+    public void setCourseDescription(String courseDescription) {
+        this.courseDescription = courseDescription;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public Long getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(Long subjectId) {
+        this.subjectId = subjectId;
+    }
+
+    public ETypeLearn getType() {
+        return type;
+    }
+
+    public void setType(ETypeLearn type) {
+        this.type = type;
+    }
+
+    public ECourseLevel getLevel() {
+        return level;
+    }
+
+    public void setLevel(ECourseLevel level) {
+        this.level = level;
     }
 
     public List<TimeInWeekRequest> getTimeInWeekRequests() {

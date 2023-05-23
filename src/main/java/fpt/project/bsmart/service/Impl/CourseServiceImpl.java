@@ -292,6 +292,7 @@ public class CourseServiceImpl implements ICourseService {
 
     @Override
     public Boolean mentorUpdateCourse(Long subCourseId, UpdateSubCourseRequest updateCourseRequest) {
+
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
 
         MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
@@ -316,7 +317,7 @@ public class CourseServiceImpl implements ICourseService {
 
         if (!subCourse.getStatus().equals(EDITREQUEST) || !subCourse.getStatus().equals(REQUESTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Người dùng không phải là giáo viên"));
+                    .withMessage(messageUtil.getLocalMessage("Trạng thái khóa học này không cho phép sửa thông tin!!"));
         }
         Course course = subCourse.getCourse();
         course.setCode(updateCourseRequest.getCourseCode());
@@ -332,19 +333,23 @@ public class CourseServiceImpl implements ICourseService {
             }
         });
 
+
+
+//        Image image = imageRepository.findById(updateCourseRequest.getImageId())
+//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + updateCourseRequest.getImageId()));
+//        subCourse.setImage(image);
+
+        subCourse.setTitle(updateCourseRequest.getSubCourseTitle());
         subCourse.setLevel(updateCourseRequest.getLevel());
-        Image image = imageRepository.findById(updateCourseRequest.getImageId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + updateCourseRequest.getImageId()));
-        subCourse.setImage(image);
-        subCourse.setTypeLearn(updateCourseRequest.getType());
-        subCourse.setNumberOfSlot(updateCourseRequest.getNumberOfSlot());
-        subCourse.setMinStudent(updateCourseRequest.getMinStudent());
-        subCourse.setMaxStudent(updateCourseRequest.getMaxStudent());
+        subCourse.setPrice(updateCourseRequest.getPrice());
         subCourse.setStartDateExpected(updateCourseRequest.getStartDateExpected());
         subCourse.setEndDateExpected(updateCourseRequest.getEndDateExpected());
-        subCourse.setTitle(updateCourseRequest.getSubCourseTile());
-        subCourse.setPrice(updateCourseRequest.getPrice());
+        subCourse.setMinStudent(updateCourseRequest.getMinStudent());
+        subCourse.setMaxStudent(updateCourseRequest.getMaxStudent());
+        subCourse.setTypeLearn(updateCourseRequest.getType());
         subCourse.setLevel(updateCourseRequest.getLevel());
+
+
         subCourse.setMentor(currentUserAccountLogin);
         List<TimeInWeekRequest> timeInWeekRequests = updateCourseRequest.getTimeInWeekRequests();
         TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);

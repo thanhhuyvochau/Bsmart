@@ -1,6 +1,7 @@
 package fpt.project.bsmart.entity.response;
 
 
+import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
@@ -42,6 +43,8 @@ public class CourseSubCourseResponse {
     private String categoryName;
 
     private String subjectName;
+
+    private ECourseLevel level;
 
 
     private String mentorName;
@@ -98,6 +101,14 @@ public class CourseSubCourseResponse {
 
     public void setSubCourseTitle(String subCourseTitle) {
         this.subCourseTitle = subCourseTitle;
+    }
+
+    public ECourseLevel getLevel() {
+        return level;
+    }
+
+    public void setLevel(ECourseLevel level) {
+        this.level = level;
     }
 
     public String getCourseName() {

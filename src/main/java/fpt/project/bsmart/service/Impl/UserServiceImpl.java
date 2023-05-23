@@ -30,9 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.EMPTY_PASSWORD;
@@ -166,43 +164,53 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Boolean uploadDegree( List<Long> degreeIdsToDelete  ,MultipartFile[] files) throws IOException {
+    public Boolean uploadDegree(List<Long> degreeIdsToDelete, MultipartFile[] file) throws IOException {
         User user = getCurrentLoginUser();
         List<Image> userImages = user.getUserImages();
         List<Image> allOldDegree = userImages.stream().filter(image -> image.getType().equals(EImageType.DEGREE)).collect(Collectors.toList());
 
         // id degree trong db ne
         List<Long> allOldDegreeId = allOldDegree.stream().map(Image::getId).collect(Collectors.toList());
-        boolean containsAll = new HashSet<>(allOldDegreeId).containsAll(degreeIdsToDelete);
-        List<Image> degreeToDelete = new ArrayList<>( );
-        if (containsAll){
-            degreeToDelete = imageRepository.findAllById(degreeIdsToDelete);
-        }
-        else {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(" Bạn đang xóa bằng cấp không tồn tại");
-        }
-//        allOldDegree.removeAll(degreeToDelete);
 
-        user.getUserImages().removeAll(degreeToDelete) ;
-        userRepository.save(user) ;
-        if (files== null){
+        List<Long> idsToDelete = degreeIdsToDelete != null ? degreeIdsToDelete : Collections.emptyList();
 
-            for (MultipartFile file : files) {
+
+        List<Image> degreeToDelete = new ArrayList<>();
+
+        for (Long aLong : idsToDelete) {
+            if (allOldDegreeId.contains(aLong)) {
+                Optional<Image> byId = imageRepository.findById(aLong);
+                byId.ifPresent(degreeToDelete::add);
+            }
+
+
+        }
+
+
+        user.getUserImages().removeAll(degreeToDelete);
+        userRepository.save(user);
+
+        MultipartFile[] files = file != null ? file : new MultipartFile[0];
+
+        for (MultipartFile file1 : files) {
+            if (!Objects.equals(file1.getOriginalFilename(), "")){
                 Image image = new Image();
-                String name = file.getOriginalFilename() + "-" + Instant.now().toString();
-                ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file.getContentType(),
-                        file.getInputStream(), file.getSize());
+                String name = file1.getOriginalFilename() + "-" + Instant.now().toString();
+                ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file1.getContentType(),
+                        file1.getInputStream(), file1.getSize());
                 image.setName(name);
                 image.setStatus(true);
                 image.setType(EImageType.DEGREE);
                 image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
                 image.setUser(user);
                 Image save = imageRepository.save(image);
-//                imageIds.add(save.getId());
             }
+
+//                imageIds.add(save.getId());
         }
 
-  return true ;
+
+        return true;
     }
 
 
