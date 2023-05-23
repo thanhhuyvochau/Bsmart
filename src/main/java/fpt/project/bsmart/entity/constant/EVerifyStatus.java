@@ -1,4 +1,4 @@
-package fpt.project.bsmart.entity.common;
+package fpt.project.bsmart.entity.constant;
 
 import org.springframework.http.HttpStatus;
 

@@ -3,9 +3,11 @@ server:
 spring:
   security:
     oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://103.173.155.221:8088/auth/realms/Bsmart
+      client:
+        registration:
+          google:
+            clientId: 874513160878-adut1nl0uallr5jfbr9hm3fapu7oqkgc.apps.googleusercontent.com
+            clientSecret: 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
   config:
     import: optional:file:.env[.properties]
   messages:
@@ -55,6 +57,8 @@ moodle:
 app:
   firebase-configuration-file: /store/vuondau-450bf-firebase-adminsdk-al83z-5d94e1225d.json
   secret-key: J@!gt*K
+  oauth2:
+    authorizedRedirectUris: http://localhost:8081/oauth2/redirect,myandroidapp://oauth2/redirect,myiosapp://oauth2/redirect
 
 # Return URL after payment
 payment-redirect: http://localhost:10000/processing
