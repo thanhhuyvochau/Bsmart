@@ -2,7 +2,7 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.common.EVerifyStatus;
+import fpt.project.bsmart.entity.constant.EVerifyStatus;
 import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.entity.request.LoginRequest;
 import fpt.project.bsmart.entity.response.VerifyResponse;

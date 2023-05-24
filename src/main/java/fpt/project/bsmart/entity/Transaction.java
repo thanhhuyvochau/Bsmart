@@ -1,5 +1,6 @@
 package fpt.project.bsmart.entity;
 
+import fpt.project.bsmart.entity.constant.EPaymentType;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETransactionType;
 
@@ -44,6 +45,9 @@ public class Transaction extends BaseEntity {
 
     @Column(name = "bank_account_owner")
     private String bankAccountOwner;
+    @Column(name = "payment_type")
+    @Enumerated(EnumType.STRING)
+    private EPaymentType paymentType = EPaymentType.OTHER;
 
     public Long getId() {
         return id;
@@ -133,12 +137,12 @@ public class Transaction extends BaseEntity {
         transaction.setReceivedBankAccount(receivedBankAccount);
         transaction.setBankAccountOwner(bankAccountOwner);
         transaction.setBank(bank);
-        transaction.setWallet(wallet);
         transaction.setStatus(ETransactionStatus.SUCCESS);
         if (type.equals(ETransactionType.DEPOSIT)) {
             transaction.setAfterBalance(wallet.getBalance().add(amount));
         } else if (type.equals(ETransactionType.WITHDRAW)) {
             transaction.setAfterBalance(wallet.getBalance().subtract(amount));
+            transaction.setWallet(wallet);
         }
         return transaction;
     }
@@ -173,5 +177,13 @@ public class Transaction extends BaseEntity {
 
     public void setBankAccountOwner(String bankAccountOwner) {
         this.bankAccountOwner = bankAccountOwner;
+    }
+
+    public EPaymentType getPaymentType() {
+        return paymentType;
+    }
+
+    public void setPaymentType(EPaymentType paymentType) {
+        this.paymentType = paymentType;
     }
 }
