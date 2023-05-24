@@ -12,4 +12,5 @@ public interface IClassService {
     Boolean createClass(CreateClassRequest request);
     ApiPage<ClassResponse> getClassFeedbacks(ClassFeedbackRequest classFeedbackRequest,Pageable pageable);
     ClassProgressTimeDto getClassProgression(Long clazzId);
+
 }
