@@ -47,7 +47,7 @@ public class Transaction extends BaseEntity {
     private String bankAccountOwner;
     @Column(name = "payment_type")
     @Enumerated(EnumType.STRING)
-    private EPaymentType paymentType;
+    private EPaymentType paymentType = EPaymentType.OTHER;
 
     public Long getId() {
         return id;
