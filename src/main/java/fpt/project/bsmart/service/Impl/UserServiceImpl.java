@@ -1,12 +1,13 @@
 package fpt.project.bsmart.service.Impl;
 
 
+import fpt.project.bsmart.config.security.oauth2.dto.LocalUser;
+import fpt.project.bsmart.config.security.oauth2.dto.SignUpRequest;
+import fpt.project.bsmart.config.security.oauth2.user.OAuth2UserInfo;
+import fpt.project.bsmart.config.security.oauth2.user.OAuth2UserInfoFactory;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.common.EVerifyStatus;
-import fpt.project.bsmart.entity.constant.EAccountStatus;
-import fpt.project.bsmart.entity.constant.EImageType;
-import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
@@ -24,7 +25,10 @@ import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
@@ -193,7 +197,7 @@ public class UserServiceImpl implements IUserService {
         MultipartFile[] files = file != null ? file : new MultipartFile[0];
 
         for (MultipartFile file1 : files) {
-            if (!Objects.equals(file1.getOriginalFilename(), "")){
+            if (!Objects.equals(file1.getOriginalFilename(), "")) {
                 Image image = new Image();
                 String name = file1.getOriginalFilename() + "-" + Instant.now().toString();
                 ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file1.getContentType(),
@@ -417,6 +421,73 @@ public class UserServiceImpl implements IUserService {
             emailUtil.sendVerifyEmailTo(currentUser);
         }
         return true;
+    }
+
+    @Override
+    public LocalUser processUserRegistration(String registrationId, Map<String, Object> attributes, OidcIdToken idToken, OidcUserInfo userInfo) {
+        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, attributes);
+        if (StringUtils.isEmpty(oAuth2UserInfo.getName())) {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Name not found from OAuth2 provider");
+        } else if (StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Email not found from OAuth2 provider");
+        }
+        SignUpRequest userDetails = toUserRegistrationObject(registrationId, oAuth2UserInfo);
+        User user = getUserByUsername(oAuth2UserInfo.getEmail());
+        if (user != null) {
+            if (!user.getProvider().equals(registrationId) && !user.getProvider().equals(SocialProvider.LOCAL.getProviderType())) {
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(
+                        "Looks like you're signed up with " + user.getProvider() + " account. Please use your " + user.getProvider() + " account to login.");
+            }
+            user = updateExistingUser(user, oAuth2UserInfo);
+        } else {
+            user = registerNewUser(userDetails);
+        }
+
+        return LocalUser.create(user, attributes, idToken, userInfo);
+    }
+
+    private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
+        existingUser.setEmail(oAuth2UserInfo.getName());
+        return userRepository.save(existingUser);
+    }
+
+    private SignUpRequest toUserRegistrationObject(String registrationId, OAuth2UserInfo oAuth2UserInfo) {
+        return SignUpRequest.getBuilder().addProviderUserID(oAuth2UserInfo.getId()).addDisplayName(oAuth2UserInfo.getName()).addEmail(oAuth2UserInfo.getEmail())
+                .addSocialProvider(GeneralUtils.toSocialProvider(registrationId)).addPassword("changeit").build();
+    }
+
+
+    @Override
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + username));
+    }
+
+    @Override
+    public User registerNewUser(final SignUpRequest signUpRequest) {
+        if (signUpRequest.getUserID() != null && userRepository.existsById(signUpRequest.getUserID())) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("User with User id " + signUpRequest.getUserID() + " already exist");
+        } else if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("User with email id " + signUpRequest.getEmail() + " already exist");
+        }
+        User user = buildUser(signUpRequest);
+        user = userRepository.save(user);
+        userRepository.flush();
+        return user;
+    }
+
+    private User buildUser(final SignUpRequest formDTO) {
+        User user = new User();
+        user.setUsername(formDTO.getDisplayName());
+        user.setEmail(formDTO.getEmail());
+        user.setPassword(encoder.encode(formDTO.getPassword()));
+        final List<Role> roles = new ArrayList<>();
+        roles.add(roleRepository.findRoleByCode(EUserRole.STUDENT).get());
+        user.setRoles(roles);
+        user.setProvider(formDTO.getSocialProvider().getProviderType());
+        user.setStatus(true);
+//        user.setProviderUserId(formDTO.getProviderUserId());
+        return user;
     }
 }
 
