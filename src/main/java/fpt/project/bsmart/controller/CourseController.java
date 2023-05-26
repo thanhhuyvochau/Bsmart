@@ -58,12 +58,18 @@ public class CourseController {
     }
     // ################################## Mentor ##########################################
 
+    @Operation(summary = "lấy tất cả khoá học có sẵn để mentor tạo  khoá hoc (course sẵn phải phải là trang thái )")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("/type-public")
+    public ResponseEntity<ApiResponse<List<CourseDto>>> getCoursePublic() {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCoursePublic()));
+    }
+
     @Operation(summary = "mentor tao khoá học")
     @PostMapping
     public ResponseEntity<ApiResponse<Long>> mentorCreateCourse(@Valid @RequestBody CreateCourseRequest createCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createCourseRequest)));
     }
-
 
 
     @Operation(summary = "mentor xoá khoa học trang thái REQUESTING (chưa yêu cầu phê duyêt)")
@@ -73,13 +79,11 @@ public class CourseController {
     }
 
 
-
-
     @Operation(summary = "mentor sửa khoá học con ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PutMapping("/subCourseId")
-    public ResponseEntity<ApiResponse<Boolean>> mentorUpdateCourse(  @PathVariable Long subCourseId ,@Valid @RequestBody UpdateSubCourseRequest updateCourseRequest ) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUpdateCourse(subCourseId , updateCourseRequest)));
+    public ResponseEntity<ApiResponse<Boolean>> mentorUpdateCourse(@PathVariable Long subCourseId, @Valid @RequestBody UpdateSubCourseRequest updateCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUpdateCourse(subCourseId, updateCourseRequest)));
     }
 
     @Operation(summary = "mentor xem tất cả course của mình")
@@ -88,6 +92,15 @@ public class CourseController {
     public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> mentorGetCourse(ECourseStatus status, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetCourse(status, pageable)));
     }
+
+
+    @Operation(summary = "mentor gửi yêu cầu phê duệt khoá hoc ")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/subCourseId/request-approval")
+    public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalCourse(@PathVariable Long subCourseId) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorRequestApprovalCourse(subCourseId)));
+    }
+
     // ################################## Member ##########################################
 
     @Operation(summary = "Member xem khóa học đã đăng ký")
@@ -99,8 +112,8 @@ public class CourseController {
 
     @Operation(summary = "Khóa học gợi ý cho member va guest")
     @GetMapping("/suggest")
-    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourseSuggest( @PageableDefault(sort = "created", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourseSuggest( pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourseSuggest(@PageableDefault(sort = "created", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourseSuggest(pageable)));
     }
 
 //    @Operation(summary = "mentor upload hình cho khoá học")

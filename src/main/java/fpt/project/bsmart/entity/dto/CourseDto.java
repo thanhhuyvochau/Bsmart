@@ -9,22 +9,49 @@ public class CourseDto {
 
     private Long id;
 
+    private String code ;
+    private String name ;
+    private String description ;
 
-    private ECourseStatus status;
+//    private ECourseStatus status;
 
-    private ECourseLevel level;
+//    private ECourseLevel level;
 
-    private Double referenceDiscount = 0.0;
+//    private Double referenceDiscount = 0.0;
 
     private SubjectDto subject;
 
-    private Long mentorId;
+//    private Long mentorId;
+//
+//    private UserDto mentor;
 
-    private UserDto mentor;
+
+//    private ImageDto image;
 
 
-    private ImageDto image;
+    public String getCode() {
+        return code;
+    }
 
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public Long getId() {
         return id;
@@ -36,29 +63,15 @@ public class CourseDto {
 
 
 
-    public ECourseStatus getStatus() {
-        return status;
-    }
+//    public ECourseStatus getStatus() {
+//        return status;
+//    }
+//
+//    public void setStatus(ECourseStatus status) {
+//        this.status = status;
+//    }
 
-    public void setStatus(ECourseStatus status) {
-        this.status = status;
-    }
 
-    public ECourseLevel getLevel() {
-        return level;
-    }
-
-    public void setLevel(ECourseLevel level) {
-        this.level = level;
-    }
-
-    public Double getReferenceDiscount() {
-        return referenceDiscount;
-    }
-
-    public void setReferenceDiscount(Double referenceDiscount) {
-        this.referenceDiscount = referenceDiscount;
-    }
 
     public SubjectDto getSubject() {
         return subject;
@@ -68,29 +81,15 @@ public class CourseDto {
         this.subject = subject;
     }
 
-    public Long getMentorId() {
-        return mentorId;
-    }
 
-    public void setMentorId(Long mentorId) {
-        this.mentorId = mentorId;
-    }
 
-    public UserDto getMentor() {
-        return mentor;
-    }
-
-    public void setMentor(UserDto mentor) {
-        this.mentor = mentor;
-    }
-
-    public ImageDto getImage() {
-        return image;
-    }
-
-    public void setImage(ImageDto image) {
-        this.image = image;
-    }
+//    public ImageDto getImage() {
+//        return image;
+//    }
+//
+//    public void setImage(ImageDto image) {
+//        this.image = image;
+//    }
 
 
 }

@@ -41,5 +41,9 @@ public interface ICourseService {
 
     Boolean mentorDeleteCourse(Long subCourseId);
 
+    List<CourseDto> getCoursePublic();
+
+    boolean mentorRequestApprovalCourse(Long subCourseId);
+
 //    Boolean mentorUploadImageForCourse(Long id, FileDto request);
 }

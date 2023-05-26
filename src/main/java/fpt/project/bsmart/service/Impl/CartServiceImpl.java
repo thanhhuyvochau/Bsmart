@@ -53,8 +53,8 @@ public class CartServiceImpl implements ICartService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
 
         Course course = subCourse.getCourse();
-        ECourseStatus status = course.getStatus();
-        if (!Objects.equals(status, ECourseStatus.NOTSTART)) {
+//        ECourseStatus status = course.getStatus();
+        if (!Objects.equals(subCourse.getStatus(), ECourseStatus.NOTSTART)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId());
         }
         boolean anyMatch = cart.getCartItems().stream().anyMatch(cartItem -> {

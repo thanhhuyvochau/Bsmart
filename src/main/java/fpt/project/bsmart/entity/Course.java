@@ -2,6 +2,7 @@ package fpt.project.bsmart.entity;
 
 
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseType;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -24,13 +25,16 @@ public class Course {
     private Subject subject;
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SubCourse> subCourses;
-    @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private ECourseStatus status;
+//    @Column(name = "status")
+//    @Enumerated(EnumType.STRING)
+//    private ECourseStatus status;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Section> sections = new ArrayList<>();
 
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private ECourseType type;
 
     public Long getId() {
         return id;
@@ -82,13 +86,13 @@ public class Course {
         this.subCourses = subCourses;
     }
 
-    public ECourseStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ECourseStatus status) {
-        this.status = status;
-    }
+//    public ECourseStatus getStatus() {
+//        return status;
+//    }
+//
+//    public void setStatus(ECourseStatus status) {
+//        this.status = status;
+//    }
 
     public List<Section> getSections() {
         return sections;
@@ -96,5 +100,13 @@ public class Course {
 
     public void setSections(List<Section> sections) {
         this.sections = sections;
+    }
+
+    public ECourseType getType() {
+        return type;
+    }
+
+    public void setType(ECourseType type) {
+        this.type = type;
     }
 }
