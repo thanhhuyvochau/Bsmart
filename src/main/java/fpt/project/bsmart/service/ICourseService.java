@@ -39,5 +39,7 @@ public interface ICourseService {
 
     Boolean mentorUpdateCourse(Long subCourseId,  UpdateSubCourseRequest updateCourseRequest );
 
+    Boolean mentorDeleteCourse(Long subCourseId);
+
 //    Boolean mentorUploadImageForCourse(Long id, FileDto request);
 }
