@@ -11,6 +11,8 @@ public class Constants {
 
     public static class ErrorMessage {
         public static final String SUBJECT_NOT_FOUND_BY_ID = "SUBJECT_NOT_FOUND_BY_ID";
+
+
         public static final String COURSE_NOT_FOUND_BY_ID = "COURSE_NOT_FOUND_BY_ID";
         public static final String CATEGORY_NOT_FOUND_BY_ID = "CATEGORY_NOT_FOUND_BY_ID";
         public static final String ROLE_NOT_FOUND_BY_ID = "ROLE_NOT_FOUND_BY_ID";
@@ -27,6 +29,16 @@ public class Constants {
         public static final String FEEDBACK_QUESTION_NOT_FOUND_BY_ID = "FEEDBACK_QUESTION_NOT_FOUND_BY_ID";
         public static final String FEEDBACK_TEMPLATE_NOT_FOUND_BY_ID = "FEEDBACK_TEMPLATE_NOT_FOUND_BY_ID";
         public static final String CLASS_NOT_FOUND_BY_ID = "CLASS_NOT_FOUND_BY_ID";
+
+        public static final String ACCOUNT_IS_NOT_MENTOR = "ACCOUNT_IS_NOT_MENTOR";
+
+
+        public static final String  COURSE_CODE_ALREADY_EXISTS= "COURSE_CODE_ALREADY_EXISTS";
+
+        public static final String  COURSE_STATUS_NOT_ALLOW= "COURSE_STATUS_NOT_ALLOW";
+
+        public static final String  COURSE_DOES_NOT_BELONG_TO_THE_TEACHER= "COURSE_DOES_NOT_BELONG_TO_THE_TEACHER";
+
         public static class Invalid{
 
             public static final String USERNAME_PASSWORD_INCORRECT = "USERNAME_PASSWORD_INCORRECT";

@@ -66,6 +66,15 @@ public class CourseController {
 
 
 
+    @Operation(summary = "mentor xoá khoa học trang thái REQUESTING (chưa yêu cầu phê duyêt)")
+    @DeleteMapping("/{subCourseId}")
+    public ResponseEntity<ApiResponse<Boolean>> mentorDeleteCourse(@PathVariable Long subCourseId) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorDeleteCourse(subCourseId)));
+    }
+
+
+
+
     @Operation(summary = "mentor sửa khoá học con ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PutMapping("/subCourseId")
