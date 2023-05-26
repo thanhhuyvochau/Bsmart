@@ -72,6 +72,7 @@ public class Constants {
         public static final String CAN_NOT_UPLOAD_ASSIGNMENT = "CAN_NOT_UPLOAD_ASSIGNMENT";
         public static final String STUDENT_NOT_BELONG_TO_CLASS = "STUDENT_NOT_BELONG_TO_CLASS";
         public static final String STUDENT_ALREADY_FEEDBACK = "STUDENT_ALREADY_FEEDBACK";
+        public static final String FEEDBACK_TEMPLATE_ATTACHED_TO_SUB_COURSE = "FEEDBACK_TEMPLATE_ATTACHED_TO_SUB_COURSE";
     }
 
     public static class DefaultData {

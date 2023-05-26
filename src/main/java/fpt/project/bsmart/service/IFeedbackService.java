@@ -19,6 +19,7 @@ public interface IFeedbackService {
     List<FeedbackTemplateDto> getAllFeedbackTemplate();
     FeedbackTemplateDto getFeedbackTemplateById(Long id);
     Long updateFeedbackTemplate(Long id, FeedbackTemplateRequest request);
+    Long deleteFeedbackTemplate(Long id);
     Long updateFeedbackTemplateToSubCourse(Long templateId, Long subCourseId);
     Long addNewSubCourseFeedback(SubCourseFeedbackRequest subCourseFeedbackRequest);
     List<UserFeedbackResponse> getFeedbackByClass(Long id);

@@ -47,7 +47,7 @@ public class FeedbackController {
     }
 
     @Operation(summary = "Xóa câu hỏi feedback")
-    @DeleteMapping("/question")
+    @DeleteMapping("/question/{id}")
     public ResponseEntity<ApiResponse<Long>> deleteFeedbackQuestion(@PathVariable Long id){
         return ResponseEntity.ok(ApiResponse.success(feedbackService.deleteFeedbackQuestion(id)));
     }
@@ -80,6 +80,12 @@ public class FeedbackController {
     @PutMapping("/template/{id}")
     public ResponseEntity<ApiResponse<Long>> updateFeedbackTemplate(@PathVariable Long id, @RequestBody FeedbackTemplateRequest feedbackTemplateRequest){
         return ResponseEntity.ok(ApiResponse.success(feedbackService.updateFeedbackTemplate(id, feedbackTemplateRequest)));
+    }
+
+    @Operation(summary = "Xóa template feedback")
+    @DeleteMapping("/template/{id}")
+    public ResponseEntity<ApiResponse<Long>> deleteFeedbackTemplate(@PathVariable Long id){
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.deleteFeedbackTemplate(id)));
     }
 
 

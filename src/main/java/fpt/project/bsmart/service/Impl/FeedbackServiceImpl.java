@@ -71,7 +71,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
 
         for (Long score : possibleAnswers.values()) {
             if (score < FeedbackQuestionUtil.MIN_QUESTION_SCORE || score > FeedbackQuestionUtil.MAX_QUESTION_SCORE) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_SCORE_IN_FEEDBACK_QUESTION) + score));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_SCORE_IN_FEEDBACK_QUESTION) + score);
             }
         }
 
@@ -79,13 +79,13 @@ public class FeedbackServiceImpl implements IFeedbackService {
                 .distinct()
                 .count() != possibleAnswers.size();
         if(isDuplicateScore){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.DUPLICATE_SCORE_IN_FEEDBACK_QUESTION)));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.DUPLICATE_SCORE_IN_FEEDBACK_QUESTION));
         }
 
         boolean isContainMaxScore = possibleAnswers.values().stream()
                 .anyMatch(x -> x.equals(FeedbackQuestionUtil.MAX_QUESTION_SCORE));
         if(!isContainMaxScore){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MISSING_MAX_SCORE)));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MISSING_MAX_SCORE));
         }
     }
     @Override
@@ -114,7 +114,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
 
     private FeedbackQuestion findFeedbackQuestionById(Long id){
         return feedbackQuestionRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                .withMessage(messageUtil.getLocalMessage("")));
+                .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FEEDBACK_QUESTION_NOT_FOUND_BY_ID) + id));
     }
 
     @Override
@@ -180,8 +180,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
 
     @Override
     public Long updateFeedbackTemplate(Long id, FeedbackTemplateRequest feedbackTemplateRequest){
-        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(""));
+        FeedbackTemplate feedbackTemplate = findTemplateById(id);
         if(!feedbackTemplate.getSubCourses().isEmpty()){
             //check xem đang trong giai đoạn feedback hay không
         }
@@ -201,6 +200,16 @@ public class FeedbackServiceImpl implements IFeedbackService {
         }
 
         return feedbackTemplateRepository.save(feedbackTemplate).getId();
+    }
+
+    @Override
+    public Long deleteFeedbackTemplate(Long id){
+        FeedbackTemplate feedbackTemplate = findTemplateById(id);
+        if(!feedbackTemplate.getSubCourses().isEmpty()){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FEEDBACK_TEMPLATE_ATTACHED_TO_SUB_COURSE));
+        }
+        feedbackTemplateRepository.delete(feedbackTemplate);
+        return id;
     }
 
     @Override
