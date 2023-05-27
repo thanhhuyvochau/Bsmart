@@ -3,6 +3,8 @@ package fpt.project.bsmart.entity;
 import fpt.project.bsmart.entity.constant.EQuestionType;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "feedback_question")
@@ -19,6 +21,8 @@ public class FeedbackQuestion {
     private String possibleAnswer;
     @Column(name = "possible_score")
     private String possibleScore;
+    @ManyToMany(mappedBy = "questions")
+    private List<FeedbackTemplate> feedbackTemplates = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -58,5 +62,13 @@ public class FeedbackQuestion {
 
     public void setPossibleScore(String possibleScore) {
         this.possibleScore = possibleScore;
+    }
+
+    public List<FeedbackTemplate> getFeedbackTemplates() {
+        return feedbackTemplates;
+    }
+
+    public void setFeedbackTemplates(List<FeedbackTemplate> feedbackTemplates) {
+        this.feedbackTemplates = feedbackTemplates;
     }
 }

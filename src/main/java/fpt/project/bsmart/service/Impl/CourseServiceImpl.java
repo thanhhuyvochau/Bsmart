@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.EAccountStatus;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseType;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.*;
@@ -82,19 +83,27 @@ public class CourseServiceImpl implements ICourseService {
         MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
         List<Role> roles = currentUserAccountLogin.getRoles();
         List<Boolean> checkRoleTeacher = roles.stream().map(role -> role.getCode().equals(EUserRole.TEACHER)).collect(Collectors.toList());
+
         if (checkRoleTeacher.isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Người dùng không phải là giáo viên"));
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
         if (mentorProfile == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Tài khoản không hợp lệ để tạo khóa học"));
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
+
 
         if (!mentorProfile.getStatus().equals(EAccountStatus.STARTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Tài khoản đang dùng chưa phải là giáo viên chính thức hoăc tài khoản chưa hợp lệ!!"));
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
+
+        if (courseRepository.existsByCode(createCourseRequest.getCode())) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(COURSE_CODE_ALREADY_EXISTS));
+        }
+
         Course course = new Course();
 
         Category category = categoryRepository.findById(createCourseRequest.getCategoryId())
@@ -119,7 +128,7 @@ public class CourseServiceImpl implements ICourseService {
         course.setCode(createCourseRequest.getCode());
         course.setDescription(createCourseRequest.getDescription());
 
-        course.setStatus(REQUESTING);
+//        course.setStatus(REQUESTING);
 
         List<CreateSubCourseRequest> subCourseRequests = createCourseRequest.getSubCourseRequests();
         List<SubCourse> courseList = new ArrayList<>();
@@ -312,7 +321,7 @@ public class CourseServiceImpl implements ICourseService {
 
         if (!subCourse.getMentor().getMentorProfile().equals(mentorProfile)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Bạn không phải là giáo viên của lớp này! Không thể thay đổi thông tin!!"));
+                    .withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
         }
 
         if (!subCourse.getStatus().equals(EDITREQUEST) || !subCourse.getStatus().equals(REQUESTING)) {
@@ -332,7 +341,6 @@ public class CourseServiceImpl implements ICourseService {
                 course.setSubject(subject);
             }
         });
-
 
 
 //        Image image = imageRepository.findById(updateCourseRequest.getImageId())
@@ -380,6 +388,70 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
+    public Boolean mentorDeleteCourse(Long subCourseId) {
+        User user = MentorUtil.checkIsMentor();
+        SubCourse subCourse = subCourseRepository.findById(subCourseId).
+                orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
+
+
+        MentorProfile mentorOfCourse = subCourse.getMentor().getMentorProfile();
+
+        if (!mentorOfCourse.equals(user.getMentorProfile())) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
+        }
+
+        // xoá ràng buộc image trước khi xoa subcourse
+        if (subCourse.getImage() != null) {
+            Long imageId = subCourse.getImage().getId();
+            subCourse.setImage(null);
+            imageRepository.deleteById(imageId);
+        }
+
+
+        // xoá ràng buộc course trước khi xoa subcourse
+        if (subCourse.getCourse() != null) {
+            subCourse.setCourse(null);
+        }
+
+        if (!subCourse.getStatus().equals(REQUESTING)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(COURSE_STATUS_NOT_ALLOW);
+        }
+
+        subCourseRepository.delete(subCourse);
+        return true;
+    }
+
+    @Override
+    public List<CourseDto> getCoursePublic() {
+        List<CourseDto> coursesResponse = new ArrayList<>();
+        List<Course> coursesTypePublic = courseRepository.findAllByType(ECourseType.PUBLIC);
+        coursesTypePublic.forEach(course -> {
+            coursesResponse.add(ConvertUtil.convertCourseToCourseDTO(course));
+        });
+        return coursesResponse;
+    }
+
+    @Override
+    public boolean mentorRequestApprovalCourse(Long subCourseId) {
+        User user = MentorUtil.checkIsMentor();
+        SubCourse subCourse = subCourseRepository.findById(subCourseId).
+                orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
+
+        Boolean isValidCourse = CourseUtil.checkCourseValid(subCourse, user);
+
+        if (isValidCourse) {
+            subCourse.setStatus(WAITING);
+            subCourseRepository.save(subCourse);
+            return true;
+        }
+        return false;
+
+
+    }
+
+
+    @Override
     public Boolean mentorUploadImageCourse(ImageRequest imageRequest) {
         ImageUtil.uploadImage(imageRequest);
         return true;
@@ -388,27 +460,8 @@ public class CourseServiceImpl implements ICourseService {
     @Override
     public Boolean memberRegisterCourse(Long id) {
         User userLogin = SecurityUtil.getCurrentUser();
-//        Course course = courseRepository.findByIdAndStatus(id, ECourseStatus.NOTSTART)
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-//        if (!course.getStatus().equals(ECourseStatus.NOTSTART)) {
-//            throw ApiException.create(HttpStatus.BAD_REQUEST)
-//                    .withMessage(messageUtil.getLocalMessage("Khoá học không tồn tại , vui lòng kiểm tra lại"));
-//        }
-
         return true;
     }
 
 
-//    @Override
-//    public Boolean mentorUploadImageForCourse(Long id, FileDto request) {
-//        Course course = courseRepository.findById(id)
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-//        FileDto fileDto = minioService.uploadFile(request);
-//        Image image = new Image();
-//        image.setUrl(fileDto.getUrl());
-//        image.setType(EImageType.AVATAR);
-//        course.setImage(image);
-//        courseRepository.save(course);
-//        return true;
-//    }
 }

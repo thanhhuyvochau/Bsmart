@@ -74,6 +74,8 @@ public class User extends BaseEntity {
 //    private List<StudentClass> studentClasses = new ArrayList<>();
     @Column(name = "is_verified")
     private boolean isVerified = false;
+    @Column(name = "provider")
+    private String provider;
 
     public Long getId() {
         return id;
@@ -273,5 +275,13 @@ public class User extends BaseEntity {
 
     public void setIsVerified(boolean verified) {
         isVerified = verified;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 }
