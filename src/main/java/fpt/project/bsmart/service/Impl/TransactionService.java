@@ -154,7 +154,7 @@ public class TransactionService implements ITransactionService {
 
         List<ReferralCode> referalCodeList = new ArrayList<>();
         ReferralCode referralCode = null;
-        if (request.getReferralCode() != null) {
+        if (request.getReferralCode() != null || request.getReferralCode().isEmpty()) {
             referralCode = referralCodeRepository.findByCodeAndStatusIsTrue(request.getReferralCode())
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("Mã giới thiệu không tìm thấy!!") + request.getReferralCode()));
 
@@ -180,13 +180,11 @@ public class TransactionService implements ITransactionService {
             referalCodeList.add(referralCode);
 
 
-
-
             orderDetail.setReferralCode(request.getReferralCode());
             orderDetail.getReferralCodes().addAll(referalCodeList);
             orderDetail.setReferralCodes(referalCodeList);
         }
-        orderRepository.save(order) ;
+        orderRepository.save(order);
         orderDetail.setOrder(order);
 
         orderDetailRepository.save(orderDetail);
@@ -199,9 +197,6 @@ public class TransactionService implements ITransactionService {
             Double point = user.getPoint();
             user.setPoint(point + 10D);
         }
-
-
-
         Transaction transaction = new Transaction();
         transaction.setAmount(price);
         transaction.setStatus(ETransactionStatus.SUCCESS);
@@ -211,10 +206,7 @@ public class TransactionService implements ITransactionService {
         transaction.setBeforeBalance(presentBalance);
         transaction.setAfterBalance(presentBalance.subtract(price));
         wallet.decreaseBalance(transaction.getAmount());
-
         transactionRepository.save(transaction);
-
-
         return true;
     }
 
