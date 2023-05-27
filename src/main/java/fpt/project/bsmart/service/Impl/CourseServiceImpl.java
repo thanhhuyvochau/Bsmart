@@ -33,7 +33,8 @@ import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
-import static fpt.project.bsmart.util.ConvertUtil.*;
+import static fpt.project.bsmart.util.ConvertUtil.convertCourseSubCourseToCourseSubCourseDetailResponse;
+import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDTO;
 
 
 @Service
@@ -220,14 +221,7 @@ public class CourseServiceImpl implements ICourseService {
 
 
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
-        List<Course> coursesList = coursesPage.stream().distinct().collect(Collectors.toList());
-        List<CourseResponse> courseResponseList = new ArrayList<>();
-//        User userLogin = SecurityUtil.getCurrentUser();
-        for (Course course : coursesList) {
-            courseResponseList.add(convertCourseCourseResponsePage(course));
-        }
-        Page<CourseResponse> page = new PageImpl<>(courseResponseList);
-        return PageUtil.convert(page);
+        return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
 
     }
 
