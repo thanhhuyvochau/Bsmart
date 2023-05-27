@@ -7,7 +7,6 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "referral_code")
-
 public class ReferralCode extends BaseEntity {
     private static final long serialVersionUID = 1L;
     @Id
