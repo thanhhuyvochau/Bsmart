@@ -48,9 +48,19 @@ public class BsmartApplication {
     }
 
 
+
+
+
+
+
+
+
     public static void main(String[] args) {
+
+
         SpringApplication.run(BsmartApplication.class, args);
     }
+
 
     @EventListener(ApplicationReadyEvent.class)
     public void intiDataRole() throws JsonProcessingException {
@@ -92,7 +102,7 @@ public class BsmartApplication {
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    public  void intiActivityType() {
+    public void intiActivityType() {
 
         List<ActivityType> newActivityType = Arrays.asList(
                 new ActivityType("QUIZ", "quiz"),

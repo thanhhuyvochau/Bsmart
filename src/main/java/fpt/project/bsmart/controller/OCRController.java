@@ -50,22 +50,22 @@ public class OCRController {
 
     }
 
-    @PostMapping("/ocr")
-    public String ocr1(@RequestParam("image") MultipartFile image) throws IOException, InterruptedException {
-        // Convert MultipartFile to BufferedImage
-        InputStream in = new ByteArrayInputStream(image.getBytes());
-        BufferedImage bufferedImage = ImageIO.read(in);
-
-        // Preprocess the image
-//        bufferedImage = ImagePreprocessor.preprocess(bufferedImage);
+//    @PostMapping("/ocr")
+//    public String ocr1(@RequestParam("image") MultipartFile image) throws IOException, InterruptedException {
+//        // Convert MultipartFile to BufferedImage
+//        InputStream in = new ByteArrayInputStream(image.getBytes());
+//        BufferedImage bufferedImage = ImageIO.read(in);
 //
-//        // OCR using Kraken
-//        String result = KrakenOcr.ocr(bufferedImage);
+//        // Preprocess the image
+////        bufferedImage = ImagePreprocessor.preprocess(bufferedImage);
+////
+////        // OCR using Kraken
+////        String result = KrakenOcr.ocr(bufferedImage);
+////
+////        return result ;
+//        return null;
 //
-//        return result ;
-        return null;
-
-    }
+//    }
 
 
 }

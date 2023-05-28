@@ -41,7 +41,7 @@ public class CourseUtil {
                     .withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
         }
 
-        if (!subCourse.getStatus().equals(EDITREQUEST) || !subCourse.getStatus().equals(REQUESTING)) {
+        if (subCourse.getStatus() != EDITREQUEST || subCourse.getStatus() != REQUESTING) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
         }
