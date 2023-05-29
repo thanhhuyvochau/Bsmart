@@ -57,6 +57,7 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
     @Override
     public Boolean addActivity(ActivityRequest activityRequest) throws IOException {
         User currentUser = SecurityUtil.getCurrentUser();
+
         ClassSection classSection = classSectionRepository.findById(activityRequest.getClassSectionId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                 .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SECTION_NOT_FOUND_BY_ID) + activityRequest.getClassSectionId()));
         Class clazz = classSection.getClazz();
@@ -86,6 +87,8 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
         }
         return false;
     }
+
+
 
     public Quiz addQuiz(AddQuizRequest addQuizRequest, Activity activity) {
         if(addQuizRequest.getCode().trim().isEmpty()){
