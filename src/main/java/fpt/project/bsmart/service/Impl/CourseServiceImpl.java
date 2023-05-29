@@ -28,11 +28,11 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.sun.xml.internal.ws.policy.sourcemodel.wspolicy.XmlToken.All;
+
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.ConvertUtil.*;
-import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDTO;
+
 
 
 @Service
