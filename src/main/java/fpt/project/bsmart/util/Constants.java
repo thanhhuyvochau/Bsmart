@@ -39,6 +39,13 @@ public class Constants {
 
         public static final String  COURSE_DOES_NOT_BELONG_TO_THE_TEACHER= "COURSE_DOES_NOT_BELONG_TO_THE_TEACHER";
 
+        public static final String  SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED= "SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED";
+
+        public static final String  DAY_OF_WEEK_COULD_NOT_BE_FOUND= "DAY_OF_WEEK_COULD_NOT_BE_FOUND";
+        public static final String  SLOT_COULD_NOT_BE_FOUND= "SLOT_COULD_NOT_BE_FOUND";
+        public static final String  PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE= "PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE";
+        public static final String  PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE= "PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE";
+        public static final String  PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE= "PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE";
         public static class Invalid{
 
             public static final String USERNAME_PASSWORD_INCORRECT = "USERNAME_PASSWORD_INCORRECT";

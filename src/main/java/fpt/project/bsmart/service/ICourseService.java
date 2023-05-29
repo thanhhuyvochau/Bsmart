@@ -18,7 +18,7 @@ import java.util.List;
 
 public interface ICourseService {
 
-    List<CourseDto> getCoursesBySubject(Long id);
+    List<CourseDto> getCoursesBySubject(Long subjectId);
     Long mentorCreateCourse(CreateCourseRequest createCourseRequest);
 
     ApiPage<CourseSubCourseResponse> mentorGetCourse(ECourseStatus status  , Pageable pageable);
