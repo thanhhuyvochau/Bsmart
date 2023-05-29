@@ -77,16 +77,23 @@ public class CourseServiceImpl implements ICourseService {
     public Long mentorCreateCourse(CreateCourseRequest createCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
 
+
+        // check mentor account is valid
         checkMentorProfile(currentUserAccountLogin);
 
         Course course = createCourseFromRequest(createCourseRequest);
 
         course.setStatus(REQUESTING);
+
+
         List<CreateSubCourseRequest> subCourseRequestsList = createCourseRequest.getSubCourseRequests();
         List<SubCourse> subCourses = new ArrayList<>();
         subCourseRequestsList.forEach(createSubCourseRequest -> {
+            // create subCourse for course
             SubCourse subCourseFromRequest = createSubCourseFromRequest(createSubCourseRequest, currentUserAccountLogin);
             List<TimeInWeekRequest> timeInWeekRequests = createSubCourseRequest.getTimeInWeekRequests();
+
+            // create time in week for subCourse
             List<TimeInWeek> timeInWeeksFromRequest = createTimeInWeeksFromRequest(timeInWeekRequests);
 
             subCourseFromRequest.setTimeInWeeks(timeInWeeksFromRequest);
@@ -113,7 +120,7 @@ public class CourseServiceImpl implements ICourseService {
         Long categoryId = createCourseRequest.getCategoryId();
         if (categoryId == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Vui lòng chọn lĩnh vực cho khoá học"));
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE));
         }
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
@@ -123,7 +130,7 @@ public class CourseServiceImpl implements ICourseService {
         Long subjectId = createCourseRequest.getSubjectId();
         if (subjectId == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Vui lòng chọn môn học cho khoá học"));
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE));
         }
         Optional<Subject> optionalSubject = category.getSubjects().stream().filter(s -> s.getId().equals(subjectId)).findFirst();
         Subject subject = optionalSubject.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
@@ -141,7 +148,7 @@ public class CourseServiceImpl implements ICourseService {
     private SubCourse createSubCourseFromRequest(CreateSubCourseRequest subCourseRequest, User currentUserAccountLogin) {
         if (subCourseRequest.getPrice() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Vui lòng nhập tiền cho khóa học"));
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE));
         }
         SubCourse subCourse = new SubCourse();
         subCourse.setNumberOfSlot(subCourseRequest.getNumberOfSlot());
@@ -170,7 +177,7 @@ public class CourseServiceImpl implements ICourseService {
         TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
         if (duplicateElement != null) {
             throw ApiException.create(HttpStatus.NOT_FOUND)
-                    .withMessage("Đã bị trùng lịch và slot, vui lòng kiểm tra lại!");
+                    .withMessage(SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED);
         }
 
         List<Long> slotIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
@@ -186,12 +193,12 @@ public class CourseServiceImpl implements ICourseService {
             TimeInWeek timeInWeek = new TimeInWeek();
             DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage("Không tìm thấy ngày trong tuần đã chọn vui lòng thử lại!"));
+                            .withMessage(DAY_OF_WEEK_COULD_NOT_BE_FOUND));
             timeInWeek.setDayOfWeek(dayOfWeek);
 
             Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage("Không tìm thấy slot đã chọn vui lòng thử lại!"));
+                            .withMessage(SLOT_COULD_NOT_BE_FOUND));
             timeInWeek.setSlot(slot);
 
             timeInWeeks.add(timeInWeek);
@@ -241,7 +248,6 @@ public class CourseServiceImpl implements ICourseService {
     public CourseSubCourseDetailResponse getDetailCourseForCoursePage(Long id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-
         return convertCourseSubCourseToCourseSubCourseDetailResponse(course);
     }
 
@@ -345,12 +351,12 @@ public class CourseServiceImpl implements ICourseService {
         MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
         if (mentorProfile == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Tài khoản không hợp lệ để tạo khóa học"));
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
 
         if (!mentorProfile.getStatus().equals(EAccountStatus.STARTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Tài khoản đang dùng chưa phải là giáo viên chính thức hoăc tài khoản chưa hợp lệ!!"));
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
 
 
@@ -364,7 +370,7 @@ public class CourseServiceImpl implements ICourseService {
 
         if (!subCourse.getStatus().equals(EDITREQUEST) || !subCourse.getStatus().equals(REQUESTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Trạng thái khóa học này không cho phép sửa thông tin!!"));
+                    .withMessage(messageUtil.getLocalMessage(SUB_COURSE_STATUS_NOT_ALLOW));
         }
         Course course = subCourse.getCourse();
         course.setCode(updateCourseRequest.getCourseCode());
@@ -403,11 +409,11 @@ public class CourseServiceImpl implements ICourseService {
             for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
                 TimeInWeek timeInWeek = new TimeInWeek();
                 DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
-                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy ngày trong tuần đã chọn vui lòng thử lại!"));
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(DAY_OF_WEEK_COULD_NOT_BE_FOUND));
                 timeInWeek.setDayOfWeek(dayOfWeek);
 
                 Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
-                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy slot đã chọn vui lòng thử lại!"));
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(SLOT_COULD_NOT_BE_FOUND));
                 timeInWeek.setSlot(slot);
 
                 timeInWeek.setSubCourse(subCourse);
@@ -415,7 +421,7 @@ public class CourseServiceImpl implements ICourseService {
             }
 
         } else {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Đã bị trùng lịch và slot, vui lòng kiểm tra lại!");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED);
         }
         subCourseRepository.save(subCourse);
         return true;
