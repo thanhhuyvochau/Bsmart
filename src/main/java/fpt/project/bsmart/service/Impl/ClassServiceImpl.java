@@ -98,6 +98,7 @@ public class ClassServiceImpl implements IClassService {
                 .collect(Collectors.toList());
         PageImpl<ClassResponse> classResponsePage = new PageImpl<>(classResponses);
         return PageUtil.convert(classResponsePage);
+
     }
 
     @Override

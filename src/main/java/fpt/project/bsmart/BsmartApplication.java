@@ -36,71 +36,8 @@ import java.util.stream.Collectors;
 )
 public class BsmartApplication {
 
-
-    private final RoleRepository roleRepository;
-    private final DayOfWeekRepository dayOfWeekRepository;
-    private final ActivityTypeRepository activityTypeRepository;
-
-    public BsmartApplication(RoleRepository roleRepository, DayOfWeekRepository dayOfWeekRepository, ActivityTypeRepository activityTypeRepository) {
-        this.roleRepository = roleRepository;
-        this.dayOfWeekRepository = dayOfWeekRepository;
-        this.activityTypeRepository = activityTypeRepository;
-    }
-
-
     public static void main(String[] args) {
         SpringApplication.run(BsmartApplication.class, args);
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    public void intiDataRole() throws JsonProcessingException {
-
-        List<Role> roles = roleRepository.findAll();
-        Map<EUserRole, Role> roleMap = roles.stream().collect(Collectors.toMap(Role::getCode, Function.identity()));
-        for (EUserRole value : EUserRole.values()) {
-            Role role = roleMap.get(value);
-            Role newRole = new Role();
-            newRole.setCode(value);
-            if (role == null) {
-                roles.add(newRole);
-            } else if (!Objects.equals(newRole, role)) {
-                role.setCode(value);
-
-            }
-        }
-        roleRepository.saveAll(roles);
-
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    public void intiDayOfWeek() throws JsonProcessingException {
-        List<DayOfWeek> dayOfWeeks = new ArrayList<>();
-        EDayOfWeekCode[] values = EDayOfWeekCode.values();
-        Map<EDayOfWeekCode, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAll().stream().collect(Collectors.toMap(DayOfWeek::getCode, Function.identity()));
-        for (EDayOfWeekCode value : values) {
-            DayOfWeek dayOfWeek = dayOfWeekMap.get(value);
-            if (dayOfWeek == null) {
-                dayOfWeek = new DayOfWeek();
-                dayOfWeek.setCode(value);
-                dayOfWeek.setName(value.getName());
-                dayOfWeeks.add(dayOfWeek);
-            }
-        }
-        if (!dayOfWeeks.isEmpty()) {
-            dayOfWeekRepository.saveAll(dayOfWeeks);
-        }
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    public  void intiActivityType() {
-
-        List<ActivityType> newActivityType = Arrays.asList(
-                new ActivityType("QUIZ", "quiz"),
-                new ActivityType("ASSIGNMENT", "assignment")
-        );
-        newActivityType.stream()
-                .filter(activityType -> activityTypeRepository.findByCode(activityType.getCode()) == null)
-                .forEach(activityTypeRepository::save);
     }
 
 

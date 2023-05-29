@@ -24,17 +24,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.ConvertUtil.convertCourseSubCourseToCourseSubCourseDetailResponse;
 import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDTO;
+
 
 
 @Service
@@ -66,151 +65,165 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public List<CourseDto> getCoursesBySubject(Long id) {
-        Subject subject = subjectRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + id));
-        List<CourseDto> courseDtoList = new ArrayList<>();
-        if (!subject.getCourses().isEmpty()) {
-            for (Course course : subject.getCourses()) {
-                courseDtoList.add(convertCourseToCourseDTO(course));
-            }
-        }
-        return courseDtoList;
+    public List<CourseDto> getCoursesBySubject(Long subjectId) {
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + subjectId));
+        return subject.getCourses().stream()
+                .map(ConvertUtil::convertCourseToCourseDTO)
+                .collect(Collectors.toList());
     }
+
 
     @Override
     public Long mentorCreateCourse(CreateCourseRequest createCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+
+
+        // check mentor account is valid
+        checkMentorProfile(currentUserAccountLogin);
+
+        Course course = createCourseFromRequest(createCourseRequest);
+
+        course.setStatus(REQUESTING);
+
+
+        List<CreateSubCourseRequest> subCourseRequestsList = createCourseRequest.getSubCourseRequests();
+        List<SubCourse> subCourses = new ArrayList<>();
+        subCourseRequestsList.forEach(createSubCourseRequest -> {
+            // create subCourse for course
+            SubCourse subCourseFromRequest = createSubCourseFromRequest(createSubCourseRequest, currentUserAccountLogin);
+            List<TimeInWeekRequest> timeInWeekRequests = createSubCourseRequest.getTimeInWeekRequests();
+
+            // create time in week for subCourse
+            List<TimeInWeek> timeInWeeksFromRequest = createTimeInWeeksFromRequest(timeInWeekRequests);
+
+            subCourseFromRequest.setTimeInWeeks(timeInWeeksFromRequest);
+            subCourses.add(subCourseFromRequest);
+        });
+
+        course.setSubCourses(subCourses);
+
+        return courseRepository.save(course).getId();
+    }
+
+    private void checkMentorProfile(User currentUserAccountLogin) {
         MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
         List<Role> roles = currentUserAccountLogin.getRoles();
-        List<Boolean> checkRoleTeacher = roles.stream().map(role -> role.getCode().equals(EUserRole.TEACHER)).collect(Collectors.toList());
+        boolean isRoleTeacher = roles.stream().anyMatch(role -> role.getCode().equals(EUserRole.TEACHER));
 
-        if (checkRoleTeacher.isEmpty()) {
+        if (!isRoleTeacher || mentorProfile == null || !mentorProfile.getStatus().equals(EAccountStatus.STARTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
-        if (mentorProfile == null) {
+    }
+
+    private Course createCourseFromRequest(CreateCourseRequest createCourseRequest) {
+        Long categoryId = createCourseRequest.getCategoryId();
+        if (categoryId == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE));
         }
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + categoryId));
 
 
-        if (!mentorProfile.getStatus().equals(EAccountStatus.STARTING)) {
+        Long subjectId = createCourseRequest.getSubjectId();
+        if (subjectId == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE));
         }
-
-        if (courseRepository.existsByCode(createCourseRequest.getCode())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(COURSE_CODE_ALREADY_EXISTS));
-        }
+        Optional<Subject> optionalSubject = category.getSubjects().stream().filter(s -> s.getId().equals(subjectId)).findFirst();
+        Subject subject = optionalSubject.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                .withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + subjectId));
 
         Course course = new Course();
-
-        Category category = categoryRepository.findById(createCourseRequest.getCategoryId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + createCourseRequest.getCategoryId()));
-        if (createCourseRequest.getCategoryId() == null) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Vui lòng chọn lĩnh vực cho khoá học"));
-        }
-
-        if (createCourseRequest.getSubjectId() == null) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Vui lòng chọn môn học cho khoá học"));
-        }
-
-        List<Subject> subjects = category.getSubjects();
-        subjects.forEach(subject -> {
-            if (subject.getId().equals(createCourseRequest.getSubjectId())) {
-                course.setSubject(subject);
-            }
-        });
         course.setName(createCourseRequest.getName());
         course.setCode(createCourseRequest.getCode());
         course.setDescription(createCourseRequest.getDescription());
+        course.setSubject(subject);
 
-//        course.setStatus(REQUESTING);
-
-        List<CreateSubCourseRequest> subCourseRequests = createCourseRequest.getSubCourseRequests();
-        List<SubCourse> courseList = new ArrayList<>();
-        subCourseRequests.forEach(createSubCourseRequest -> {
-
-            if (createSubCourseRequest.getPrice() == null) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage("Vui lòng nhập tiền cho khóa học"));
-            }
-            SubCourse subCourse = new SubCourse();
-            subCourse.setNumberOfSlot(createSubCourseRequest.getNumberOfSlot());
-
-
-            subCourse.setTypeLearn(createSubCourseRequest.getType());
-            subCourse.setNumberOfSlot(createSubCourseRequest.getNumberOfSlot());
-            subCourse.setMinStudent(createSubCourseRequest.getMinStudent());
-            subCourse.setMaxStudent(createSubCourseRequest.getMaxStudent());
-            subCourse.setStartDateExpected(createSubCourseRequest.getStartDateExpected());
-            subCourse.setEndDateExpected(createSubCourseRequest.getEndDateExpected());
-            subCourse.setStatus(REQUESTING);
-            subCourse.setTitle(createSubCourseRequest.getSubCourseTile());
-            subCourse.setPrice(createSubCourseRequest.getPrice());
-            subCourse.setLevel(createSubCourseRequest.getLevel());
-            subCourse.setMentor(currentUserAccountLogin);
-            Image image = imageRepository.findById(createSubCourseRequest.getImageId())
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + createSubCourseRequest.getImageId()));
-            subCourse.setImage(image);
-            subCourse.setCourse(course);
-
-
-            List<TimeInWeekRequest> timeInWeekRequests = createSubCourseRequest.getTimeInWeekRequests();
-            TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
-            if (duplicateElement == null) {
-                List<Long> slotIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
-                List<Long> dowIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getDayOfWeekId).collect(Collectors.toList());
-                Map<Long, Slot> slotMap = slotRepository.findAllById(slotIds).stream().collect(Collectors.toMap(Slot::getId, Function.identity()));
-                Map<Long, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAllById(dowIds).stream().collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
-                for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
-                    TimeInWeek timeInWeek = new TimeInWeek();
-                    DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
-                            .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy ngày trong tuần đã chọn vui lòng thử lại!"));
-                    timeInWeek.setDayOfWeek(dayOfWeek);
-
-                    Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
-                            .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy slot đã chọn vui lòng thử lại!"));
-                    timeInWeek.setSlot(slot);
-
-                    timeInWeek.setSubCourse(subCourse);
-                    subCourse.addTimeInWeek(timeInWeek);
-                }
-                courseList.add(subCourse);
-            } else {
-                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Đã bị trùng lịch và slot, vui lòng kiểm tra lại!");
-            }
-
-
-        });
-
-
-        course.setSubCourses(courseList);
-        Course save = courseRepository.save(course);
-        return save.getId();
+        return course;
     }
 
-    @Override
-    public ApiPage<CourseSubCourseResponse> mentorGetCourse(ECourseStatus status, Pageable pageable) {
-        User userLogin = SecurityUtil.getCurrentUser();
-        Page<SubCourse> allCourseMentor;
-        if (status.equals(ALL)) {
-            allCourseMentor = subCourseRepository.findByMentor(userLogin, pageable);
-        } else {
-
-            allCourseMentor = subCourseRepository.findByStatusAndMentor(status, userLogin, pageable);
+    private SubCourse createSubCourseFromRequest(CreateSubCourseRequest subCourseRequest, User currentUserAccountLogin) {
+        if (subCourseRequest.getPrice() == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE));
         }
-        return PageUtil.convert(allCourseMentor.map(ConvertUtil::convertSubCourseToCourseSubCourseResponse));
+        SubCourse subCourse = new SubCourse();
+        subCourse.setNumberOfSlot(subCourseRequest.getNumberOfSlot());
+        subCourse.setTypeLearn(subCourseRequest.getType());
+        subCourse.setNumberOfSlot(subCourseRequest.getNumberOfSlot());
+        subCourse.setMinStudent(subCourseRequest.getMinStudent());
+        subCourse.setMaxStudent(subCourseRequest.getMaxStudent());
+        subCourse.setStartDateExpected(subCourseRequest.getStartDateExpected());
+        subCourse.setEndDateExpected(subCourseRequest.getEndDateExpected());
+        subCourse.setStatus(REQUESTING);
+        subCourse.setTitle(subCourseRequest.getSubCourseTile());
+        subCourse.setPrice(subCourseRequest.getPrice());
+        subCourse.setLevel(subCourseRequest.getLevel());
+        subCourse.setMentor(currentUserAccountLogin);
+
+        Long imageId = subCourseRequest.getImageId();
+        Image image = imageRepository.findById(imageId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + imageId));
+        subCourse.setImage(image);
+
+        return subCourse;
+    }
+
+    private List<TimeInWeek> createTimeInWeeksFromRequest(List<TimeInWeekRequest> timeInWeekRequests) {
+        TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
+        if (duplicateElement != null) {
+            throw ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED);
+        }
+
+        List<Long> slotIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
+        List<Long> dowIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getDayOfWeekId).collect(Collectors.toList());
+
+        Map<Long, Slot> slotMap = slotRepository.findAllById(slotIds).stream()
+                .collect(Collectors.toMap(Slot::getId, Function.identity()));
+        Map<Long, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAllById(dowIds).stream()
+                .collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
+
+        List<TimeInWeek> timeInWeeks = new ArrayList<>();
+        for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
+            TimeInWeek timeInWeek = new TimeInWeek();
+            DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(DAY_OF_WEEK_COULD_NOT_BE_FOUND));
+            timeInWeek.setDayOfWeek(dayOfWeek);
+
+            Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(SLOT_COULD_NOT_BE_FOUND));
+            timeInWeek.setSlot(slot);
+
+            timeInWeeks.add(timeInWeek);
+        }
+        return timeInWeeks;
+    }
+
+
+    @Override
+    public ApiPage<CourseSubCourseResponse> mentorGetCourse(ECourseStatus courseStatus, Pageable pageable) {
+        User currentUser = SecurityUtil.getCurrentUser();
+        Page<SubCourse> subCoursesPage;
+
+        if (courseStatus.equals(ALL)) {
+            subCoursesPage = subCourseRepository.findByMentor(currentUser, pageable);
+        } else {
+            subCoursesPage = subCourseRepository.findByStatusAndMentor(courseStatus, currentUser, pageable);
+        }
+        return PageUtil.convert(subCoursesPage.map(ConvertUtil::subCourseToCourseSubCourseResponseConverter));
 
     }
 
     @Override
     public ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest query, Pageable pageable) {
-
 
         CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
                 .queryLike(query.getQ())
@@ -219,65 +232,90 @@ public class CourseServiceImpl implements ICourseService {
                 .queryBySubjectId(query.getSubjectId())
                 .queryByCategoryId(query.getCategoryId());
 
-
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
-
     }
+
 
     @Override
     public CourseSubCourseDetailResponse getDetailCourseForCoursePage(Long id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-
         return convertCourseSubCourseToCourseSubCourseDetailResponse(course);
     }
 
 
     @Override
-    public ApiPage<SubCourseDetailResponse> getAllSubCourseOfCourse(Long id, Pageable pageable) {
+    public ApiPage<SubCourseDetailResponse> getAllSubCourseOfCourse(Long courseId, Pageable pageable) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + courseId));
 
-        Course course = courseRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        User currentUser = SecurityUtil.getCurrentUser();
+        Page<SubCourse> subCoursePage = subCourseRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART, pageable);
 
-        User userLogin = SecurityUtil.getCurrentUser();
+        List<SubCourseDetailResponse> subCourseResponses = subCoursePage.getContent().stream()
+                .map(subCourse -> ConvertUtil.convertSubCourseToSubCourseDetailResponse(currentUser, subCourse))
+                .collect(Collectors.toList());
 
-        Page<SubCourse> subCoursesList = subCourseRepository.findByCourseAndStatus(course, NOTSTART, pageable);
-        return PageUtil.convert(subCoursesList.map(subCourse -> {
-            return ConvertUtil.convertSubCourseToSubCourseDetailResponse(userLogin, subCourse);
-        }));
+        return PageUtil.convert(new PageImpl<>(subCourseResponses, pageable, subCoursePage.getTotalElements()));
     }
 
     @Override
-
     public ApiPage<CourseSubCourseResponse> memberGetCourse(ECourseStatus status, Pageable pageable) {
-        User userLogin = SecurityUtil.getCurrentUser();
+        User currentUser = SecurityUtil.getCurrentUser();
+        List<Order> orders = currentUser.getOrder();
+        List<SubCourse> subCourses = new ArrayList<>();
+        if (status == ECourseStatus.ALL) {
+            return memberGetAllCourses(orders, pageable);
+        }
+        return memberGetCoursesByStatus(status, orders, pageable);
+    }
 
-//    public ApiPage<CourseSubCourseResponse> memberGetCourse(ECourseStatus status ,Pageable pageable) {
-//        User userLogin = SecurityUtil.getCurrentUser();
+    public ApiPage<CourseSubCourseResponse> memberGetAllCourses(List<Order> orders, Pageable pageable) {
 
-        List<Order> orders = userLogin.getOrder();
         List<SubCourse> subCourses = new ArrayList<>();
         orders.forEach(order -> {
-            List<OrderDetail> orderDetails = order.getOrderDetails();
-            orderDetails.forEach(orderDetail -> {
-                if (orderDetail.getSubCourse() != null) {
-                    if (status.equals(ALL)) {
-                        subCourses.add(orderDetail.getSubCourse());
-                    } else {
-                        SubCourse subCourse = orderDetail.getSubCourse();
-                        if (subCourse.getStatus().equals(status)) {
-                            subCourses.add(orderDetail.getSubCourse());
-                        }
-                    }
-                }
-            });
+            order.getOrderDetails().stream()
+                    .map(OrderDetail::getSubCourse)
+                    .filter(Objects::nonNull)
+                    .forEach(subCourses::add);
         });
-        Page<SubCourse> page = new PageImpl<>(subCourses);
 
-        return PageUtil.convert(page.map(ConvertUtil::convertSubCourseToCourseSubCourseResponse));
+        Page<SubCourse> subCoursePage = new PageImpl<>(subCourses, pageable, subCourses.size());
+        List<CourseSubCourseResponse> courseSubCourseResponses = subCoursePage.getContent().stream()
+                .map(ConvertUtil::subCourseToCourseSubCourseResponseConverter)
+                .collect(Collectors.toList());
 
+        return PageUtil.convert(new PageImpl<>(courseSubCourseResponses, pageable, subCoursePage.getTotalElements()));
     }
+
+    public ApiPage<CourseSubCourseResponse> memberGetCoursesByStatus(ECourseStatus status, List<Order> orders, Pageable pageable) {
+
+        List<SubCourse> subCourses = new ArrayList<>();
+
+        orders.forEach(order -> {
+            order.getOrderDetails().stream()
+                    .map(OrderDetail::getSubCourse)
+                    .filter(Objects::nonNull)
+                    .filter(subCourse -> subCourse.getStatus() == status)
+                    .forEach(subCourses::add);
+        });
+
+        Page<SubCourse> subCoursePage = new PageImpl<>(subCourses, pageable, subCourses.size());
+        List<CourseSubCourseResponse> courseSubCourseResponses = subCoursePage.getContent().stream()
+                .map(ConvertUtil::subCourseToCourseSubCourseResponseConverter)
+                .collect(Collectors.toList());
+        return PageUtil.convert(new PageImpl<>(courseSubCourseResponses, pageable, subCoursePage.getTotalElements()));
+    }
+
+
+    /**
+     * Phương thức này có bug vì người dùng đăng nhập hay không đăng nhập. Kết quả trả về sẽ không đúng.
+     *
+     * @return kết quả phải khác khi đăng nhập
+     * @bug
+     */
 
     @Override
     public ApiPage<CourseSubCourseResponse> memberGetCourseSuggest(Pageable pageable) {
@@ -289,9 +327,14 @@ public class CourseServiceImpl implements ICourseService {
             subCoursesList = subCourseRepository.findByStatus(NOTSTART, pageable);
         }
 
-        return PageUtil.convert(subCoursesList.map(ConvertUtil::convertSubCourseToCourseSubCourseResponse));
+        return PageUtil.convert(subCoursesList.map(ConvertUtil::subCourseToCourseSubCourseResponseConverter));
 
     }
+
+    /*
+     * TODO :lean code ở đây
+     *  @author Your Name
+     * */
 
     @Override
     public Boolean mentorUpdateCourse(Long subCourseId, UpdateSubCourseRequest updateCourseRequest) {
@@ -301,12 +344,12 @@ public class CourseServiceImpl implements ICourseService {
         MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
         if (mentorProfile == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Tài khoản không hợp lệ để tạo khóa học"));
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
 
         if (!mentorProfile.getStatus().equals(EAccountStatus.STARTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Tài khoản đang dùng chưa phải là giáo viên chính thức hoăc tài khoản chưa hợp lệ!!"));
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
 
 
@@ -320,7 +363,7 @@ public class CourseServiceImpl implements ICourseService {
 
         if (!subCourse.getStatus().equals(EDITREQUEST) || !subCourse.getStatus().equals(REQUESTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Trạng thái khóa học này không cho phép sửa thông tin!!"));
+                    .withMessage(messageUtil.getLocalMessage(SUB_COURSE_STATUS_NOT_ALLOW));
         }
         Course course = subCourse.getCourse();
         course.setCode(updateCourseRequest.getCourseCode());
@@ -336,10 +379,6 @@ public class CourseServiceImpl implements ICourseService {
             }
         });
 
-
-//        Image image = imageRepository.findById(updateCourseRequest.getImageId())
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + updateCourseRequest.getImageId()));
-//        subCourse.setImage(image);
 
         subCourse.setTitle(updateCourseRequest.getSubCourseTitle());
         subCourse.setLevel(updateCourseRequest.getLevel());
@@ -363,11 +402,11 @@ public class CourseServiceImpl implements ICourseService {
             for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
                 TimeInWeek timeInWeek = new TimeInWeek();
                 DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
-                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy ngày trong tuần đã chọn vui lòng thử lại!"));
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(DAY_OF_WEEK_COULD_NOT_BE_FOUND));
                 timeInWeek.setDayOfWeek(dayOfWeek);
 
                 Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
-                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy slot đã chọn vui lòng thử lại!"));
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(SLOT_COULD_NOT_BE_FOUND));
                 timeInWeek.setSlot(slot);
 
                 timeInWeek.setSubCourse(subCourse);
@@ -375,56 +414,41 @@ public class CourseServiceImpl implements ICourseService {
             }
 
         } else {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Đã bị trùng lịch và slot, vui lòng kiểm tra lại!");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED);
         }
         subCourseRepository.save(subCourse);
         return true;
     }
 
+
     @Override
     public Boolean mentorDeleteCourse(Long subCourseId) {
         User user = MentorUtil.checkIsMentor();
         SubCourse subCourse = subCourseRepository.findById(subCourseId).
-                orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
+                orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
 
-
-        MentorProfile mentorOfCourse = subCourse.getMentor().getMentorProfile();
-
-        if (!mentorOfCourse.equals(user.getMentorProfile())) {
+        if (!subCourse.getMentor().getMentorProfile().equals(user.getMentorProfile())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
         }
+        Optional.ofNullable(subCourse.getImage())
+                .map(Image::getId)
+                .ifPresent(imageRepository::deleteById);
 
-        // xoá ràng buộc image trước khi xoa subcourse
-        if (subCourse.getImage() != null) {
-            Long imageId = subCourse.getImage().getId();
-            subCourse.setImage(null);
-            imageRepository.deleteById(imageId);
-        }
-
-
-        // xoá ràng buộc course trước khi xoa subcourse
-        if (subCourse.getCourse() != null) {
-            subCourse.setCourse(null);
-        }
-
-        if (!subCourse.getStatus().equals(REQUESTING)) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(COURSE_STATUS_NOT_ALLOW);
-        }
-
+        subCourse.setCourse(null);
         subCourseRepository.delete(subCourse);
         return true;
     }
 
     @Override
     public List<CourseDto> getCoursePublic() {
-        List<CourseDto> coursesResponse = new ArrayList<>();
         List<Course> coursesTypePublic = courseRepository.findAllByType(ECourseType.PUBLIC);
-        coursesTypePublic.forEach(course -> {
-            coursesResponse.add(ConvertUtil.convertCourseToCourseDTO(course));
-        });
-        return coursesResponse;
+        return coursesTypePublic.stream()
+                .map(ConvertUtil::convertCourseToCourseDTO)
+                .collect(Collectors.toList());
     }
+
 
     @Override
     public boolean mentorRequestApprovalCourse(Long subCourseId) {
@@ -440,8 +464,6 @@ public class CourseServiceImpl implements ICourseService {
             return true;
         }
         return false;
-
-
     }
 
 
