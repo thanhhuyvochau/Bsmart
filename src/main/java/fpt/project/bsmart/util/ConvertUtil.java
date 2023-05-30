@@ -246,10 +246,12 @@ public class ConvertUtil {
             response.setCourseDescription(course.getDescription());
             Subject subject = course.getSubject();
             if (subject != null) {
-                response.setSubjectName(subject.getName());
+                SubjectDto subjectDto = convertSubjectToSubjectDto(subject);
+                response.setSubject(subjectDto);
                 Category category = subject.getCategory();
                 if (category != null) {
-                    response.setCategoryName(category.getName());
+                    CategoryDto categoryDto = convertCategoryToCategoryDto(category);
+                    response.setCategory(categoryDto);
                 }
             }
         }
