@@ -8,6 +8,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.EAccountStatus;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
+import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.request.MentorSearchRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
@@ -79,7 +80,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         Page<MentorProfile> mentorProfilePage = mentorProfileRepository.findAll(builder.build(), pageable);
         List<MentorProfile> mentorProfiles = mentorProfilePage.stream().collect(Collectors.toList());
         List<MentorProfileDTO> mentorProfileDTOS = new ArrayList<>();
-        for (MentorProfile mentorProfile : mentorProfiles){
+        for (MentorProfile mentorProfile : mentorProfiles) {
             mentorProfileDTOS.add(ConvertUtil.convertMentorProfileToMentorProfileDto(mentorProfile));
         }
         Page<MentorProfileDTO> page = new PageImpl<>(mentorProfileDTOS);
@@ -101,12 +102,18 @@ public class MentorProfileImpl implements IMentorProfileService {
     }
 
     @Override
-    public List<MentorProfileDTO> getPendingMentorProfileList() {
-        List<MentorProfileDTO> mentorProfileDTOList = new ArrayList<>();
-        for (MentorProfile mentorProfile : mentorProfileRepository.getPendingMentorProfileList()) {
-            mentorProfileDTOList.add(ConvertUtil.convertMentorProfileToMentorProfileDto(mentorProfile));
+    public ApiPage<UserDto> getPendingMentorProfileList(EAccountStatus accountStatus, Pageable pageable) {
+
+        List<MentorProfile> pendingMentorProfileList = mentorProfileRepository.findAllByStatus(accountStatus);
+        List<UserDto> userDtoList = new ArrayList<>();
+        for (MentorProfile mentorProfile : pendingMentorProfileList) {
+            User user = mentorProfile.getUser();
+            UserDto userDto = ConvertUtil.convertUsertoUserDto(user);
+            userDto.setWallet(null);
+            userDtoList.add(userDto);
         }
-        return mentorProfileDTOList;
+        return PageUtil.convert(new PageImpl<>(userDtoList, pageable, userDtoList.size()));
+
     }
 
     @Override
@@ -135,18 +142,18 @@ public class MentorProfileImpl implements IMentorProfileService {
             List<UpdateSkillRequest> mentorUpdateSkills = updateMentorProfileRequest.getMentorSkills();
             Set<Long> skillIds = new HashSet<>();
             for (UpdateSkillRequest mentorUpdateSkill : mentorUpdateSkills) {
-                if(mentorUpdateSkill.getYearOfExperiences() <= 0){
+                if (mentorUpdateSkill.getYearOfExperiences() <= 0) {
                     throw ApiException.create(HttpStatus.BAD_REQUEST)
                             .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.NEGATIVE_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
                 }
                 ZonedDateTime userBirthYear = mentorProfile.getUser().getBirthday().atZone(ZoneOffset.UTC);
                 int userAge = Year.now().getValue() - userBirthYear.getYear();
                 boolean validMaximumYearOfExperience = userAge - mentorUpdateSkill.getYearOfExperiences() > 1;
-                if(!validMaximumYearOfExperience){
+                if (!validMaximumYearOfExperience) {
                     throw ApiException.create(HttpStatus.BAD_REQUEST)
                             .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
                 }
-                if(mentorUpdateSkill.getSkillId() == null){
+                if (mentorUpdateSkill.getSkillId() == null) {
                     throw ApiException.create(HttpStatus.BAD_REQUEST)
                             .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_SKILL));
                 }
