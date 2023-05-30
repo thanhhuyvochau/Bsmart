@@ -19,6 +19,8 @@ public interface SubCourseRepository extends JpaRepository<SubCourse, Long> {
     Page<SubCourse> findByCourseAndStatus(Course course ,ECourseStatus status, Pageable pageable) ;
 
     Page<SubCourse> findByStatus(ECourseStatus status , Pageable pageable) ;
+
+    Page<SubCourse> findByStatusNot(ECourseStatus status ,Pageable pageable) ;
     Page<SubCourse> findByStatusAndMentor(ECourseStatus status, User user, Pageable pageable);
 
     Page<SubCourse> findByMentor( User user, Pageable pageable);
