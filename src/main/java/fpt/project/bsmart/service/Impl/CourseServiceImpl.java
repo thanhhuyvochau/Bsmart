@@ -473,6 +473,12 @@ public class CourseServiceImpl implements ICourseService {
         return false;
     }
 
+    @Override
+    public ApiPage<CourseSubCourseResponse> coursePendingToApprove(ECourseStatus status, Pageable pageable) {
+        Page<SubCourse> subCoursesPedingPage = subCourseRepository.findByStatus(status, pageable);
+        return PageUtil.convert(subCoursesPedingPage.map(ConvertUtil::subCourseToCourseSubCourseResponseConverter));
+    }
+
 
     @Override
     public Boolean mentorUploadImageCourse(ImageRequest imageRequest) {

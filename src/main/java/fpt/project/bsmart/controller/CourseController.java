@@ -135,5 +135,13 @@ public class CourseController {
 //        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageForCourse(id , request)));
 //    }
 
+    // ################################## Manager ##########################################
+
+    @Operation(summary = "Manager get tất cả yêu cầu mở khóa học của mentor")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @GetMapping("/pending")
+    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> coursePendingToApprove(ECourseStatus status, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(status, pageable)));
+    }
 
 }

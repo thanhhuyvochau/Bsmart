@@ -45,5 +45,7 @@ public interface ICourseService {
 
     boolean mentorRequestApprovalCourse(Long subCourseId);
 
+    ApiPage<CourseSubCourseResponse> coursePendingToApprove(ECourseStatus status, Pageable pageable);
+
 //    Boolean mentorUploadImageForCourse(Long id, FileDto request);
 }
