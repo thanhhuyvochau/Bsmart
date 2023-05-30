@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,7 +33,6 @@ import java.util.stream.Collectors;
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.ConvertUtil.*;
-
 
 
 @Service
@@ -475,8 +475,49 @@ public class CourseServiceImpl implements ICourseService {
 
     @Override
     public ApiPage<CourseSubCourseResponse> coursePendingToApprove(ECourseStatus status, Pageable pageable) {
-        Page<SubCourse> subCoursesPedingPage = subCourseRepository.findByStatus(status, pageable);
+        if (status.equals(REQUESTING)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(USER_NOT_HAVE_PERMISSION_TO_VIEW_THIS_COURSE));
+        }
+        Page<SubCourse> subCoursesPedingPage = null;
+        if (status.equals(ALL)) {
+            subCoursesPedingPage = subCourseRepository.findByStatusNot(REQUESTING ,  pageable);
+        } else {
+            subCoursesPedingPage = subCourseRepository.findByStatus(status, pageable);
+        }
         return PageUtil.convert(subCoursesPedingPage.map(ConvertUtil::subCourseToCourseSubCourseResponseConverter));
+    }
+
+    @Transactional
+    @Override
+    public Boolean managerApprovalCourseRequest(Long subCourseId, ManagerApprovalCourseRequest approvalCourseRequest) {
+
+        SubCourse subCourse = subCourseRepository.findById(subCourseId).
+                orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
+
+
+        validateApprovalCourseRequest(approvalCourseRequest.getStatus());
+
+        if (subCourse.getStatus() != WAITING) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
+        }
+
+        subCourse.setStatus(approvalCourseRequest.getStatus());
+        subCourseRepository.save(subCourse);
+
+        ActivityHistoryUtil.logHistoryForCourseApprove(subCourseId, approvalCourseRequest.getMessage());
+
+        return true;
+    }
+
+    private void validateApprovalCourseRequest(ECourseStatus statusRequest) {
+        List<ECourseStatus> ALLOWED_STATUSES = Arrays.asList(NOTSTART, EDITREQUEST, REJECTED);
+        if (!ALLOWED_STATUSES.contains(statusRequest)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
+
+        }
     }
 
 

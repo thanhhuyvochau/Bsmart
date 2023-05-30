@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
+import fpt.project.bsmart.entity.request.ManagerApprovalCourseRequest;
 import fpt.project.bsmart.entity.request.UpdateSubCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
@@ -120,20 +121,7 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourseSuggest(pageable)));
     }
 
-//    @Operation(summary = "mentor upload hình cho khoá học")
-//    @PreAuthorize("hasAnyRole('TEACHER')")
-//    @PostMapping("/image")
-//    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageCourse(@ModelAttribute ImageRequest ImageRequest) {
-//        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageCourse(ImageRequest)));
-//    }
 
-
-//    @Operation(summary = "mentor thêm ảnh đại diện cho course")
-//    @PreAuthorize("hasAnyRole('TEACHER')")
-//    @PostMapping("{id}/image")
-//    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageForCourse(@PathVariable Long id  , @ModelAttribute FileDto request) {
-//        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageForCourse(id , request)));
-//    }
 
     // ################################## Manager ##########################################
 
@@ -143,5 +131,14 @@ public class CourseController {
     public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> coursePendingToApprove(ECourseStatus status, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(status, pageable)));
     }
+
+    @Operation(summary = "Manager phê duyêt / từ chối / yêu cầu thay đổi khoá học của mentor  ")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PutMapping("/{subCourseId}/approval")
+    public ResponseEntity<ApiResponse<Boolean>> managerApprovalCourseRequest(@PathVariable Long subCourseId
+            , @RequestBody ManagerApprovalCourseRequest approvalCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.managerApprovalCourseRequest(subCourseId, approvalCourseRequest)));
+    }
+
 
 }

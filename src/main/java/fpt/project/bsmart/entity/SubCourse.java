@@ -75,6 +75,8 @@ public class SubCourse  extends  BaseEntity{
     @JoinColumn(name = "mentor_id")
     private User mentor;
 
+
+
     public Long getId() {
         return id;
     }
@@ -236,4 +238,6 @@ public class SubCourse  extends  BaseEntity{
     public void setNumberOfSlot(Integer numberOfSlot) {
         this.numberOfSlot = numberOfSlot;
     }
+
+
 }
