@@ -12,7 +12,6 @@ public class Constants {
     public static class ErrorMessage {
         public static final String SUBJECT_NOT_FOUND_BY_ID = "SUBJECT_NOT_FOUND_BY_ID";
 
-
         public static final String COURSE_NOT_FOUND_BY_ID = "COURSE_NOT_FOUND_BY_ID";
         public static final String CATEGORY_NOT_FOUND_BY_ID = "CATEGORY_NOT_FOUND_BY_ID";
         public static final String ROLE_NOT_FOUND_BY_ID = "ROLE_NOT_FOUND_BY_ID";

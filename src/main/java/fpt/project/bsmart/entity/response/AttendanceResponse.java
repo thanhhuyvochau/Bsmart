@@ -1,13 +1,10 @@
 package fpt.project.bsmart.entity.response;
 
-import java.time.Instant;
-
 public class AttendanceResponse {
     private Long id;
-    private int slotId;
-    private Instant date;
-    private Long classId;
-    private boolean  isAttendance;
+    private StudentClassResponse student;
+    private boolean isAttendance;
+    private String note;
 
     public Long getId() {
         return id;
@@ -17,28 +14,12 @@ public class AttendanceResponse {
         this.id = id;
     }
 
-    public int getSlotId() {
-        return slotId;
+    public StudentClassResponse getStudent() {
+        return student;
     }
 
-    public void setSlotId(int slotId) {
-        this.slotId = slotId;
-    }
-
-    public Instant getDate() {
-        return date;
-    }
-
-    public void setDate(Instant date) {
-        this.date = date;
-    }
-
-    public Long getClassId() {
-        return classId;
-    }
-
-    public void setClassId(Long classId) {
-        this.classId = classId;
+    public void setStudent(StudentClassResponse student) {
+        this.student = student;
     }
 
     public boolean isAttendance() {
@@ -47,5 +28,13 @@ public class AttendanceResponse {
 
     public void setAttendance(boolean attendance) {
         isAttendance = attendance;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }

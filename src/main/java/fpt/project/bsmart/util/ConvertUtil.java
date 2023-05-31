@@ -188,7 +188,6 @@ public class ConvertUtil {
         }
 
 
-
         return response;
     }
 
@@ -584,5 +583,14 @@ public class ConvertUtil {
 
     public static QuizAnswerDto convertQuizAnswerToQuizAnswerDto(QuizAnswer quizAnswer) {
         return ObjectUtil.copyProperties(quizAnswer, new QuizAnswerDto(), QuizAnswerDto.class);
+    }
+
+    public static StudentClassResponse convertStudentClassToResponse(StudentClass studentClass) {
+        User student = studentClass.getStudent();
+        StudentClassResponse studentClassResponse = new StudentClassResponse();
+        studentClassResponse.setEmail(student.getEmail());
+        studentClassResponse.setId(studentClass.getId());
+        studentClassResponse.setName(student.getFullName());
+        return studentClassResponse;
     }
 }
