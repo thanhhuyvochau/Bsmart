@@ -40,7 +40,7 @@ public interface ICourseService {
 
     List<CourseDto> getCoursePublic();
 
-    boolean mentorRequestApprovalCourse(Long subCourseId);
+    Boolean mentorRequestApprovalCourse(Long subCourseId);
 
     ApiPage<CourseSubCourseResponse> coursePendingToApprove(ECourseStatus status, Pageable pageable);
 

@@ -101,7 +101,7 @@ public class CourseController {
 
     @Operation(summary = "mentor gửi yêu cầu phê duệt khoá hoc ")
     @PreAuthorize("hasAnyRole('TEACHER')")
-    @PutMapping("/subCourseId/request-approval")
+    @PutMapping("/{subCourseId}/request-approval")
     public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalCourse(@PathVariable Long subCourseId) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorRequestApprovalCourse(subCourseId)));
     }

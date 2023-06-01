@@ -91,15 +91,20 @@ public class CourseServiceImpl implements ICourseService {
         subCourseRequestsList.forEach(createSubCourseRequest -> {
             // create subCourse for course
             SubCourse subCourseFromRequest = createSubCourseFromRequest(createSubCourseRequest, currentUserAccountLogin);
+
             List<TimeInWeekRequest> timeInWeekRequests = createSubCourseRequest.getTimeInWeekRequests();
 
             // create time in week for subCourse
             List<TimeInWeek> timeInWeeksFromRequest = createTimeInWeeksFromRequest(timeInWeekRequests);
 
+
             subCourseFromRequest.setTimeInWeeks(timeInWeeksFromRequest);
+            subCourseFromRequest.setCourse(course) ;
             subCourses.add(subCourseFromRequest);
+
         });
 
+//        course.getSubCourses().addAll(subCourses);
         course.setSubCourses(subCourses);
 
         return courseRepository.save(course).getId();
@@ -458,7 +463,7 @@ public class CourseServiceImpl implements ICourseService {
 
 
     @Override
-    public boolean mentorRequestApprovalCourse(Long subCourseId) {
+    public Boolean mentorRequestApprovalCourse(Long subCourseId) {
         User user = MentorUtil.checkIsMentor();
         SubCourse subCourse = subCourseRepository.findById(subCourseId).
                 orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
@@ -481,7 +486,7 @@ public class CourseServiceImpl implements ICourseService {
         }
         Page<SubCourse> subCoursesPedingPage = null;
         if (status.equals(ALL)) {
-            subCoursesPedingPage = subCourseRepository.findByStatusNot(REQUESTING ,  pageable);
+            subCoursesPedingPage = subCourseRepository.findByStatusNot(REQUESTING, pageable);
         } else {
             subCoursesPedingPage = subCourseRepository.findByStatus(status, pageable);
         }
