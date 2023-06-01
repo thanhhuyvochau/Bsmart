@@ -36,7 +36,9 @@ import java.util.stream.Collectors;
 )
 public class BsmartApplication {
 
+
     public static void main(String[] args) {
+
         SpringApplication.run(BsmartApplication.class, args);
     }
 

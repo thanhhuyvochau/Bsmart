@@ -45,6 +45,10 @@ public class Constants {
         public static final String  PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE= "PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE";
         public static final String  PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE= "PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE";
         public static final String  PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE= "PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE";
+
+        public static final String USER_NOT_HAVE_PERMISSION_TO_VIEW_THIS_COURSE = "USER_NOT_HAVE_PERMISSION_TO_VIEW_THIS_COURSE";
+
+        public static final String  INVALID_COURSE_APPROVAL_STATUS= "INVALID_COURSE_APPROVAL_STATUS";
         public static class Invalid{
 
             public static final String USERNAME_PASSWORD_INCORRECT = "USERNAME_PASSWORD_INCORRECT";

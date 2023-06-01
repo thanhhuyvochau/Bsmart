@@ -238,12 +238,26 @@ public class ConvertUtil {
         Course course = subCourse.getCourse();
 
         CourseSubCourseResponse response = new CourseSubCourseResponse();
+        if (course!= null) {
+            response.setCourseId(course.getId());
+            response.setCourseCode(course.getCode());
+            response.setCourseName(course.getName());
+            response.setCourseDescription(course.getDescription());
+            Subject subject = course.getSubject();
+            if (subject != null) {
+                SubjectDto subjectDto = convertSubjectToSubjectDto(subject);
+                response.setSubject(subjectDto);
+                Category category = subject.getCategory();
+                if (category != null) {
+                    CategoryDto categoryDto = convertCategoryToCategoryDto(category);
+                    response.setCategory(categoryDto);
+                }
+            }
+        }
         response.setSubCourseId(subCourse.getId());
-        response.setCourseId(course.getId());
-        response.setCourseCode(course.getCode());
-        response.setCourseName(course.getName());
+
         response.setStatus(subCourse.getStatus());
-        response.setCourseDescription(course.getDescription());
+
         response.setTypeLearn(subCourse.getTypeLearn());
         response.setSubCourseTitle(subCourse.getTitle());
         response.setLevel(subCourse.getLevel());
@@ -261,14 +275,7 @@ public class ConvertUtil {
             response.setImageUrl(subCourse.getImage().getUrl());
         }
 
-        Subject subject = course.getSubject();
-        if (subject != null) {
-            response.setSubjectName(subject.getName());
-            Category category = subject.getCategory();
-            if (category != null) {
-                response.setCategoryName(category.getName());
-            }
-        }
+
         if (subCourse.getMentor() != null) {
             response.setMentorName(subCourse.getMentor().getFullName());
         }
