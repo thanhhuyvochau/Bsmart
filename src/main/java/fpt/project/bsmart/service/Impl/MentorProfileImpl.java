@@ -52,7 +52,7 @@ public class MentorProfileImpl implements IMentorProfileService {
 
     private MentorProfile findById(Long id) {
         return mentorProfileRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(""));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy mentor profile với id:" + id));
     }
 
     @Override

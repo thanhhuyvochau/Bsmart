@@ -397,7 +397,7 @@ public class UserServiceImpl implements IUserService {
         EVerifyStatus status = null;
         if (verification.getIsUsed()) { // Verification phải chưa được sử dụng
             status = EVerifyStatus.USED;
-        } else if (!TimeUtil.isLessThanConfigHour(createdDate, 24)) {  // Thời gian xác thực tối đa là 1 ngày
+        } else if (!TimeUtil.isLessThanHourDurationOfNow(createdDate, 24)) {  // Thời gian xác thực tối đa là 1 ngày
             status = EVerifyStatus.EXPIRED;
         } else {
             user.setIsVerified(true);

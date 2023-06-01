@@ -16,6 +16,6 @@ public class ClassValidator {
 
     public static Optional<StudentClass> isExistedStudentClass(Class clazz, Long studentClassId) {
         List<StudentClass> studentClasses = clazz.getStudentClasses();
-        return studentClasses.stream().filter(studentClass -> Objects.equals(studentClass.getStudent().getId(), studentClassId)).findFirst();
+        return studentClasses.stream().filter(studentClass -> Objects.equals(studentClass.getId(), studentClassId)).findFirst();
     }
 }
