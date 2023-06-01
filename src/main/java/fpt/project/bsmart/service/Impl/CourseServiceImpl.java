@@ -99,13 +99,18 @@ public class CourseServiceImpl implements ICourseService {
 
 
             subCourseFromRequest.setTimeInWeeks(timeInWeeksFromRequest);
-            subCourseFromRequest.setCourse(course) ;
+            subCourseFromRequest.setCourse(course);
             subCourses.add(subCourseFromRequest);
 
         });
 
-//        course.getSubCourses().addAll(subCourses);
         course.setSubCourses(subCourses);
+
+        // ghi log
+        subCourses.forEach(subCourse -> {
+                    ActivityHistoryUtil.logHistoryForCourseApprove(subCourse.getId(), "mentor create course");
+                }
+        );
 
         return courseRepository.save(course).getId();
     }
