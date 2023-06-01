@@ -9,36 +9,22 @@ import net.sourceforge.tess4j.TesseractException;
 
 import net.sourceforge.tess4j.util.LoadLibs;
 import nu.pattern.OpenCV;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.opencv.core.Core;
+
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Base64;
+
 import java.util.List;
 
 @RestController
@@ -49,14 +35,12 @@ public class OCRController {
     Tesseract tesseract;
 
 
-
     @PostMapping("/ocr")
     public   List<String> ocr(@RequestParam("file") MultipartFile imageFile) throws IOException, TesseractException {
-        // Load OpenCV library
-//        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
         List<String> stringList = new ArrayList<>();
 
+        // Load OpenCV library
         OpenCV.loadShared();
 
         // Convert MultipartFile to File
