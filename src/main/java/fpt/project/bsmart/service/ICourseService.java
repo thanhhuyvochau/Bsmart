@@ -4,10 +4,7 @@ package fpt.project.bsmart.service;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.CourseDto;
-import fpt.project.bsmart.entity.request.CourseSearchRequest;
-import fpt.project.bsmart.entity.request.CreateCourseRequest;
-import fpt.project.bsmart.entity.request.ImageRequest;
-import fpt.project.bsmart.entity.request.UpdateSubCourseRequest;
+import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
@@ -44,6 +41,10 @@ public interface ICourseService {
     List<CourseDto> getCoursePublic();
 
     boolean mentorRequestApprovalCourse(Long subCourseId);
+
+    ApiPage<CourseSubCourseResponse> coursePendingToApprove(ECourseStatus status, Pageable pageable);
+
+    Boolean managerApprovalCourseRequest(Long subCourseId, ManagerApprovalCourseRequest approvalCourseRequest);
 
 //    Boolean mentorUploadImageForCourse(Long id, FileDto request);
 }
