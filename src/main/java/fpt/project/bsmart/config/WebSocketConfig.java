@@ -14,7 +14,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // Tham số của phương thức enableSimpleBroker() là tên endpoint để các client có thể subscribe và nhận message từ server.
         config.enableSimpleBroker("/topic");
         config.setApplicationDestinationPrefixes("/app");
     }
@@ -22,7 +21,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // giúp chúng ta định nghĩa những endpoint mà client sẽ sử dụng để gọi và kết nối tới WebSocket.
-        registry.addEndpoint("/hello");
+        registry.addEndpoint("/websocket");
 
     }
 }

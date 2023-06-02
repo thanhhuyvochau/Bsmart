@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 
+@Entity
+@Table(name = "Notification")
+
 public class Notification {
     @Id
-
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 

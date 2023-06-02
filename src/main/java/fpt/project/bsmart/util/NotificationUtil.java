@@ -3,14 +3,20 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Notification;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.repository.NotificationRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
+
 public class NotificationUtil {
+
+
     private final NotificationRepository notificationRepository;
 
+
+    @Autowired
     public NotificationUtil(NotificationRepository notificationRepository) {
         this.notificationRepository = notificationRepository;
     }
