@@ -20,7 +20,7 @@ public class NotificationController {
     @MessageMapping("/websocket")
     public void send(SimpMessageHeaderAccessor sha, @Payload String username) {
         String message = "Hello from " + sha.getUser().getName();
-
+        System.out.println(username);
         simpMessagingTemplate.convertAndSendToUser(username, "/queue/messages", message);
     }
 }
