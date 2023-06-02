@@ -28,22 +28,22 @@ public class CourseSubCourseResponse {
 
     private BigDecimal price;
 
-    private Instant startDateExpected ;
+    private Instant startDateExpected;
 
-    private Instant endDateExpected ;
+    private Instant endDateExpected;
 
-    private int minStudent ;
+    private int minStudent;
 
-    private  int maxStudent ;
+    private int maxStudent;
 
-    private int finalStudent ;
+    private int finalStudent;
 
     private String courseDescription;
 
 
-    private CategoryDto category ;
+    private CategoryDto category;
 
-    private SubjectDto subject ;
+    private SubjectDto subject;
 
 
     private ECourseLevel level;
@@ -53,8 +53,10 @@ public class CourseSubCourseResponse {
 
     private ETypeLearn typeLearn;
 
-
+    private Integer numberOfSlot;
     private List<TimeInWeekDTO> timeInWeek;
+
+
 
 
     public Long getSubCourseId() {
@@ -215,5 +217,13 @@ public class CourseSubCourseResponse {
 
     public void setMaxStudent(int maxStudent) {
         this.maxStudent = maxStudent;
+    }
+
+    public Integer getNumberOfSlot() {
+        return numberOfSlot;
+    }
+
+    public void setNumberOfSlot(Integer numberOfSlot) {
+        this.numberOfSlot = numberOfSlot;
     }
 }

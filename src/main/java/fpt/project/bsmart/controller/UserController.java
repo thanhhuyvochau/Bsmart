@@ -1,6 +1,7 @@
 package fpt.project.bsmart.controller;
 
 
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
@@ -10,8 +11,11 @@ import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.service.IUserService;
+import fpt.project.bsmart.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,13 +29,25 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-
+    @Autowired
+    private SimpMessagingTemplate template;
     private final IUserService iUserService;
 
     public UserController(IUserService iUserService) {
         this.iUserService = iUserService;
     }
 
+    @PostMapping
+    public ResponseEntity<String> register(@RequestBody User user) {
+        // xử lý đăng ký tài khoản ở đây
+        // ...
+
+        User currentUser = SecurityUtil.getCurrentUser();
+        // gửi thông báo cho người dùng qua WebSocket
+        template.convertAndSend("/topic/register", currentUser );
+
+        return ResponseEntity.ok("Đăng ký tài khoản thành công!");
+    }
 
 
     @Operation(summary = "Lấy thông tin user theo id")

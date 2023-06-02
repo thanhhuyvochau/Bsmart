@@ -238,7 +238,7 @@ public class ConvertUtil {
         Course course = subCourse.getCourse();
 
         CourseSubCourseResponse response = new CourseSubCourseResponse();
-        if (course!= null) {
+        if (course != null) {
             response.setCourseId(course.getId());
             response.setCourseCode(course.getCode());
             response.setCourseName(course.getName());
@@ -266,7 +266,7 @@ public class ConvertUtil {
         response.setPrice(subCourse.getPrice());
         response.setEndDateExpected(subCourse.getEndDateExpected());
         response.setStartDateExpected(subCourse.getStartDateExpected());
-
+        response.setNumberOfSlot(subCourse.getNumberOfSlot());
 
         List<OrderDetail> orderDetails = subCourse.getOrderDetails();
         response.setFinalStudent(orderDetails.size());
@@ -274,6 +274,7 @@ public class ConvertUtil {
         if (subCourse.getImage() != null) {
             response.setImageUrl(subCourse.getImage().getUrl());
         }
+
 
 
         if (subCourse.getMentor() != null) {
