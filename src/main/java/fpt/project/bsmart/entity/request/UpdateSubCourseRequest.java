@@ -29,17 +29,14 @@ public class UpdateSubCourseRequest {
     private Integer numberOfSlot;
 
 
-
+    private Long imageId;
 
     private ETypeLearn type;
 
     private ECourseLevel level;
 
 
-
     private List<TimeInWeekRequest> timeInWeekRequests = new ArrayList<>();
-
-
 
 
     public String getCourseCode() {
@@ -148,6 +145,14 @@ public class UpdateSubCourseRequest {
 
     public ECourseLevel getLevel() {
         return level;
+    }
+
+    public Long getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(Long imageId) {
+        this.imageId = imageId;
     }
 
     public void setLevel(ECourseLevel level) {

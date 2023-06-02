@@ -86,8 +86,8 @@ public class CourseController {
 
     @Operation(summary = "mentor sửa khoá học con ")
     @PreAuthorize("hasAnyRole('TEACHER')")
-    @PutMapping("/subCourseId")
-    public ResponseEntity<ApiResponse<Boolean>> mentorUpdateCourse(@PathVariable Long subCourseId, @Valid @RequestBody UpdateSubCourseRequest updateCourseRequest) {
+    @PutMapping("/{subCourseId}")
+    public ResponseEntity<ApiResponse<Boolean>> mentorUpdateCourse(@PathVariable Long subCourseId, @Nullable @RequestBody UpdateSubCourseRequest updateCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUpdateCourse(subCourseId, updateCourseRequest)));
     }
 
