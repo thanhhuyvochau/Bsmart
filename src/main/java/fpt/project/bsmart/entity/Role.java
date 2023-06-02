@@ -4,6 +4,8 @@ package fpt.project.bsmart.entity;
 import fpt.project.bsmart.entity.constant.EUserRole;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -17,9 +19,11 @@ public class Role extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private EUserRole code;
 
-//    @JsonIgnore
-//    @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
-//    List<User> users = new ArrayList<>();
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "role_permission",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id"))
+    private List<Permission> permissions = new ArrayList<>();
 
 
     public Long getId() {
@@ -39,5 +43,11 @@ public class Role extends BaseEntity {
         this.code = code;
     }
 
+    public List<Permission> getPermissions() {
+        return permissions;
+    }
 
+    public void setPermissions(List<Permission> permissions) {
+        this.permissions = permissions;
+    }
 }
