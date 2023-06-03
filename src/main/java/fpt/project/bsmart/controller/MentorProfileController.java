@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.constant.EAccountStatus;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.ImageRequest;
+import fpt.project.bsmart.entity.request.ManagerApprovalAccountRequest;
 import fpt.project.bsmart.entity.request.MentorSearchRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
@@ -53,11 +54,13 @@ public class MentorProfileController {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getPendingMentorProfileList(accountStatus , pageable)));
     }
 
-    @Operation(summary = "Duyệt hồ sơ giảng viên")
+
+
+    @Operation(summary = "Manager phê duyêt / từ chối / yêu cầu thay đổi  hồ sơ mentor")
     @PreAuthorize("hasAnyRole('MANAGER')")
-    @PutMapping("/{id}/approve")
-    public ResponseEntity<ApiResponse<Long>> approveMentorProfile(@PathVariable Long id){
-        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.approveMentorProfile(id)));
+    @PutMapping("/{id}/approval")
+    public ResponseEntity<ApiResponse<Long>> approveMentorProfile(@PathVariable Long id , @RequestBody ManagerApprovalAccountRequest managerApprovalAccountRequest){
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.approveMentorProfile(id, managerApprovalAccountRequest)));
     }
 
     @Operation(summary = "Cập nhật hồ sơ giảng viên")
