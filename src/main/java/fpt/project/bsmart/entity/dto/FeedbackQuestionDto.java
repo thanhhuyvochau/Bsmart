@@ -2,12 +2,13 @@ package fpt.project.bsmart.entity.dto;
 
 import fpt.project.bsmart.entity.constant.EQuestionType;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FeedbackQuestionDto {
     private Long id;
     private String question;
-    private HashMap<String, Long> possibleAnswer;
+    private List<FeedbackAnswerDto> answers = new ArrayList<>();
     private EQuestionType questionType;
 
     public Long getId() {
@@ -26,12 +27,12 @@ public class FeedbackQuestionDto {
         this.question = question;
     }
 
-    public HashMap<String, Long> getPossibleAnswer() {
-        return possibleAnswer;
+    public List<FeedbackAnswerDto> getAnswers() {
+        return answers;
     }
 
-    public void setPossibleAnswer(HashMap<String, Long> possibleAnswer) {
-        this.possibleAnswer = possibleAnswer;
+    public void setAnswers(List<FeedbackAnswerDto> answers) {
+        this.answers = answers;
     }
 
     public EQuestionType getQuestionType() {
@@ -41,4 +42,5 @@ public class FeedbackQuestionDto {
     public void setQuestionType(EQuestionType questionType) {
         this.questionType = questionType;
     }
+
 }

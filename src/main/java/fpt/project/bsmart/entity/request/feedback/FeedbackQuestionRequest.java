@@ -3,12 +3,13 @@ package fpt.project.bsmart.entity.request.feedback;
 
 import fpt.project.bsmart.entity.constant.EQuestionType;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FeedbackQuestionRequest {
     private String question;
-    private HashMap<String, Long> possibleAnswer;
     private EQuestionType questionType;
+    private List<FeedbackAnswerRequest> answers = new ArrayList<>();
 
     public String getQuestion() {
         return question;
@@ -18,12 +19,12 @@ public class FeedbackQuestionRequest {
         this.question = question;
     }
 
-    public HashMap<String, Long> getPossibleAnswer() {
-        return possibleAnswer;
+    public List<FeedbackAnswerRequest> getAnswers() {
+        return answers;
     }
 
-    public void setPossibleAnswer(HashMap<String, Long> possibleAnswer) {
-        this.possibleAnswer = possibleAnswer;
+    public void setAnswer(List<FeedbackAnswerRequest> answers) {
+        this.answers = answers;
     }
 
     public EQuestionType getQuestionType() {

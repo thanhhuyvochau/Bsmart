@@ -56,7 +56,7 @@ public class SubCourse  extends  BaseEntity{
     @JoinColumn(name = "course_id")
     private Course course;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "feedback_template_id")
     private FeedbackTemplate feedbackTemplate;
     @OneToOne(cascade = CascadeType.ALL)

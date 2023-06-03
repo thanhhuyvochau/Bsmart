@@ -25,7 +25,7 @@ public class FeedbackTemplate {
     @Column(name = "feedback_type")
     private EFeedbackType feedbackType;
 
-    @OneToMany(mappedBy = "feedbackTemplate", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "feedbackTemplate" ,cascade = CascadeType.ALL)
     private List<SubCourse> subCourses = new ArrayList<>();
 
     public Long getId() {

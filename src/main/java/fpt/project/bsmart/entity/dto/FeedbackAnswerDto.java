@@ -1,12 +1,9 @@
 package fpt.project.bsmart.entity.dto;
 
-import java.util.List;
-
 public class FeedbackAnswerDto {
     private Long id;
-    private FeedbackTemplateDto feedbackTemplate;
-    private List<String> answers;
-    private Long userId;
+    private String answer;
+    private Long score;
 
     public Long getId() {
         return id;
@@ -16,27 +13,19 @@ public class FeedbackAnswerDto {
         this.id = id;
     }
 
-    public FeedbackTemplateDto getFeedbackTemplate() {
-        return feedbackTemplate;
+    public String getAnswer() {
+        return answer;
     }
 
-    public void setFeedbackTemplate(FeedbackTemplateDto feedbackTemplate) {
-        this.feedbackTemplate = feedbackTemplate;
+    public void setAnswer(String answer) {
+        this.answer = answer;
     }
 
-    public List<String> getAnswers() {
-        return answers;
+    public Long getScore() {
+        return score;
     }
 
-    public void setAnswers(List<String> answers) {
-        this.answers = answers;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setScore(Long score) {
+        this.score = score;
     }
 }

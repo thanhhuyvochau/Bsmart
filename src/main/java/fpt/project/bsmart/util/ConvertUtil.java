@@ -7,9 +7,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EQuestionType;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
-import fpt.project.bsmart.entity.constant.QuestionType;
 import fpt.project.bsmart.entity.dto.*;
-import fpt.project.bsmart.entity.request.QuizQuestionRequest;
 import fpt.project.bsmart.entity.response.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -435,9 +433,10 @@ public class ConvertUtil {
     public static FeedbackQuestionDto convertFeedbackQuestionToFeedbackQuestionDto(FeedbackQuestion question) {
         FeedbackQuestionDto feedbackQuestionDto = ObjectUtil.copyProperties(question, new FeedbackQuestionDto(), FeedbackQuestionDto.class);
         if (feedbackQuestionDto.getQuestionType() == EQuestionType.MULTIPLE_CHOICE) {
-            feedbackQuestionDto.setPossibleAnswer(FeedbackQuestionUtil.convertAnswerAndScoreStringToPossibleAnswer(question.getPossibleAnswer(), question.getPossibleScore()));
-        } else {
-            feedbackQuestionDto.setPossibleAnswer(null);
+            ArrayList<FeedbackAnswerDto> answer = new ArrayList<>();
+            for(FeedbackAnswer feedbackAnswer : question.getAnswers()){
+                answer.add(ObjectUtil.copyProperties(feedbackAnswer, new FeedbackAnswerDto(), FeedbackAnswerDto.class));
+            }
         }
         return feedbackQuestionDto;
     }
@@ -454,36 +453,6 @@ public class ConvertUtil {
         return feedbackTemplateDto;
     }
 
-    public static UserFeedbackResponse convertFeedbackAnswerToUserFeedbackResponse(FeedbackAnswer feedbackAnswer) {
-        UserFeedbackResponse userFeedbackResponse = new UserFeedbackResponse();
-        List<String> answerList = FeedbackQuestionUtil.convertAnswerStringToAnswerList(feedbackAnswer.getAnswer());
-        userFeedbackResponse.setFeedbackAnswerId(feedbackAnswer.getId());
-        if (feedbackAnswer.getFeedbackTemplate() != null) {
-            HashMap<String, String> feedbackAnswers = new HashMap<>();
-            List<FeedbackQuestion> questionList = feedbackAnswer.getFeedbackTemplate().getQuestions();
-            for (int i = 0; i < questionList.size(); i++) {
-                String question = questionList.get(i).getQuestion();
-                String answer = answerList.get(i);
-                if (questionList.get(i).getQuestionType().equals(EQuestionType.FILL_THE_ANSWER)) {
-                    feedbackAnswers.put(question, answer);
-                } else {
-                    int answerIndex;
-                    try {
-                        answerIndex = Integer.parseInt(answer);
-                    } catch (NumberFormatException e) {
-                        throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("");
-                    }
-                    List<String> possibleAnswers = FeedbackQuestionUtil.convertAnswerStringToAnswerList(questionList.get(i).getPossibleAnswer());
-                    String chosenAnswer = possibleAnswers.get(answerIndex);
-                    feedbackAnswers.put(question, chosenAnswer);
-                }
-            }
-        }
-        if (feedbackAnswer.getFeedbackUser() != null) {
-            userFeedbackResponse.setUserName(feedbackAnswer.getFeedbackUser().getFullName());
-        }
-        return userFeedbackResponse;
-    }
 
     public static ClassResponse convertClassToClassResponse(Class clazz) {
         ClassResponse classResponse = ObjectUtil.copyProperties(clazz, new ClassResponse(), ClassResponse.class);

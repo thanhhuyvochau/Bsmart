@@ -1,24 +1,22 @@
 package fpt.project.bsmart.entity.request.feedback;
 
-import java.util.List;
-
 public class FeedbackAnswerRequest {
-    private Long TemplateId;
-    private List<String> answer;
+    private String answer;
+    private Long score;
 
-    public Long getTemplateId() {
-        return TemplateId;
-    }
-
-    public void setTemplateId(Long templateId) {
-        TemplateId = templateId;
-    }
-
-    public List<String> getAnswer() {
+    public String getAnswer() {
         return answer;
     }
 
-    public void setAnswer(List<String> answer) {
+    public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public Long getScore() {
+        return score;
+    }
+
+    public void setScore(Long score) {
+        this.score = score;
     }
 }

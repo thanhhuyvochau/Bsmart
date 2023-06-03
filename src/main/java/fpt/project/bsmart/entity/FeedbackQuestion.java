@@ -17,10 +17,9 @@ public class FeedbackQuestion {
     @Column(name = "question_type")
     @Enumerated(EnumType.STRING)
     private EQuestionType questionType;
-    @Column(name = "possible_answer")
-    private String possibleAnswer;
-    @Column(name = "possible_score")
-    private String possibleScore;
+
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FeedbackAnswer> answers = new ArrayList<>();
     @ManyToMany(mappedBy = "questions")
     private List<FeedbackTemplate> feedbackTemplates = new ArrayList<>();
 
@@ -48,20 +47,15 @@ public class FeedbackQuestion {
         this.questionType = questionType;
     }
 
-    public String getPossibleAnswer() {
-        return possibleAnswer;
+    public List<FeedbackAnswer> getAnswers() {
+        return answers;
     }
 
-    public void setPossibleAnswer(String possibleAnswer) {
-        this.possibleAnswer = possibleAnswer;
-    }
-
-    public String getPossibleScore() {
-        return possibleScore;
-    }
-
-    public void setPossibleScore(String possibleScore) {
-        this.possibleScore = possibleScore;
+    public void setAnswers(List<FeedbackAnswer> answers) {
+        this.answers.clear();
+        if(answers != null){
+            this.answers.addAll(answers);
+        }
     }
 
     public List<FeedbackTemplate> getFeedbackTemplates() {

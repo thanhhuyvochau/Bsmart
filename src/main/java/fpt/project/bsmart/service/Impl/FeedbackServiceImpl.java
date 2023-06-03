@@ -7,8 +7,8 @@ import fpt.project.bsmart.entity.constant.EFeedbackType;
 import fpt.project.bsmart.entity.constant.EQuestionType;
 import fpt.project.bsmart.entity.dto.FeedbackQuestionDto;
 import fpt.project.bsmart.entity.dto.FeedbackTemplateDto;
-import fpt.project.bsmart.entity.request.feedback.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.feedback.FeedbackQuestionRequest;
+import fpt.project.bsmart.entity.request.feedback.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.feedback.SubCourseFeedbackRequest;
 import fpt.project.bsmart.entity.response.UserFeedbackResponse;
 import fpt.project.bsmart.repository.*;
@@ -17,30 +17,28 @@ import fpt.project.bsmart.util.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static fpt.project.bsmart.util.ClassUtil.*;
 
 @Service
 public class FeedbackServiceImpl implements IFeedbackService {
     private final MessageUtil messageUtil;
+    private final FeedbackQuestionUtil feedbackQuestionUtil;
     private final ClassRepository classRepository;
     private final FeedbackQuestionRepository feedbackQuestionRepository;
     private final FeedbackTemplateRepository feedbackTemplateRepository;
-    private final FeedbackAnswerRepository feedbackAnswerRepository;
     private final RoleRepository roleRepository;
     private final SubCourseFeedbackRepository subCourseFeedbackRepository;
-
     private final SubCourseRepository subCourseRepository;
 
-    public FeedbackServiceImpl(MessageUtil messageUtil, ClassRepository classRepository, FeedbackQuestionRepository feedbackQuestionRepository, FeedbackAnswerRepository feedbackAnswerRepository, RoleRepository roleRepository, FeedbackTemplateRepository feedbackTemplateRepository, SubCourseFeedbackRepository subCourseFeedbackRepository, SubCourseRepository subCourseRepository) {
+    public FeedbackServiceImpl(MessageUtil messageUtil, FeedbackQuestionUtil feedbackQuestionUtil, ClassRepository classRepository, FeedbackQuestionRepository feedbackQuestionRepository, RoleRepository roleRepository, FeedbackTemplateRepository feedbackTemplateRepository, SubCourseFeedbackRepository subCourseFeedbackRepository, SubCourseRepository subCourseRepository) {
         this.messageUtil = messageUtil;
+        this.feedbackQuestionUtil = feedbackQuestionUtil;
         this.classRepository = classRepository;
         this.feedbackQuestionRepository = feedbackQuestionRepository;
-        this.feedbackAnswerRepository = feedbackAnswerRepository;
         this.roleRepository = roleRepository;
         this.feedbackTemplateRepository = feedbackTemplateRepository;
         this.subCourseFeedbackRepository = subCourseFeedbackRepository;
@@ -50,10 +48,14 @@ public class FeedbackServiceImpl implements IFeedbackService {
     @Override
     public List<FeedbackQuestionDto> getAllFeedbackQuestions(){
         List<FeedbackQuestion> feedbackQuestions = feedbackQuestionRepository.findAll();
-        List<FeedbackQuestionDto> feedbackQuestionDtos = feedbackQuestions.stream()
+        return feedbackQuestions.stream()
                 .map(ConvertUtil::convertFeedbackQuestionToFeedbackQuestionDto)
                 .collect(Collectors.toList());
-        return feedbackQuestionDtos;
+    }
+
+    private FeedbackQuestion findFeedbackQuestionById(Long id){
+        return feedbackQuestionRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FEEDBACK_QUESTION_NOT_FOUND_BY_ID) + id));
     }
 
     @Override
@@ -62,32 +64,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
         return ConvertUtil.convertFeedbackQuestionToFeedbackQuestionDto(feedbackQuestion);
     }
 
-    private void validatePossibleAnswer(HashMap<String, Long> possibleAnswers){
-        if (possibleAnswers.isEmpty()
-                || possibleAnswers.size() < FeedbackQuestionUtil.MIN_ANSWER_IN_QUESTION
-                || possibleAnswers.size() > FeedbackQuestionUtil.MAX_ANSWER_IN_QUESTION) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_NUMBER_OF_ANSWER_IN_FEEDBACK_QUESTION) + possibleAnswers.size());
-        }
 
-        for (Long score : possibleAnswers.values()) {
-            if (score < FeedbackQuestionUtil.MIN_QUESTION_SCORE || score > FeedbackQuestionUtil.MAX_QUESTION_SCORE) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_SCORE_IN_FEEDBACK_QUESTION) + score);
-            }
-        }
-
-        boolean isDuplicateScore = possibleAnswers.values().stream()
-                .distinct()
-                .count() != possibleAnswers.size();
-        if(isDuplicateScore){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.DUPLICATE_SCORE_IN_FEEDBACK_QUESTION));
-        }
-
-        boolean isContainMaxScore = possibleAnswers.values().stream()
-                .anyMatch(x -> x.equals(FeedbackQuestionUtil.MAX_QUESTION_SCORE));
-        if(!isContainMaxScore){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MISSING_MAX_SCORE));
-        }
-    }
     @Override
     public Long addNewQuestion(FeedbackQuestionRequest feedbackQuestionRequest) {
 
@@ -95,26 +72,17 @@ public class FeedbackServiceImpl implements IFeedbackService {
                 || feedbackQuestionRequest.getQuestion().trim().isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_FEEDBACK_QUESTION));
         }
-        HashMap<String, Long> possibleAnswers = feedbackQuestionRequest.getPossibleAnswer();
-        if (feedbackQuestionRequest.getQuestionType() == EQuestionType.MULTIPLE_CHOICE) {
-            validatePossibleAnswer(possibleAnswers);
-        }
 
         FeedbackQuestion question = new FeedbackQuestion();
         question.setQuestion(feedbackQuestionRequest.getQuestion());
         question.setQuestionType(feedbackQuestionRequest.getQuestionType());
 
         if (feedbackQuestionRequest.getQuestionType() == EQuestionType.MULTIPLE_CHOICE) {
-            question.setPossibleAnswer(FeedbackQuestionUtil.convertAnswersToAnswerString(new ArrayList<>(possibleAnswers.keySet())));
-            question.setPossibleScore(FeedbackQuestionUtil.convertScoresToScoreString(new ArrayList<>(possibleAnswers.values())));
+            feedbackQuestionUtil.validateFeedbackAnswer(feedbackQuestionRequest);
+            question.setAnswers(feedbackQuestionUtil.feedbackAnswerRequestMapper(question, feedbackQuestionRequest.getAnswers()));
         }
 
         return feedbackQuestionRepository.save(question).getId();
-    }
-
-    private FeedbackQuestion findFeedbackQuestionById(Long id){
-        return feedbackQuestionRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FEEDBACK_QUESTION_NOT_FOUND_BY_ID) + id));
     }
 
     @Override
@@ -128,12 +96,10 @@ public class FeedbackServiceImpl implements IFeedbackService {
         }
         feedbackQuestion.setQuestionType(request.getQuestionType());
         if (request.getQuestionType().equals(EQuestionType.MULTIPLE_CHOICE)){
-            validatePossibleAnswer(request.getPossibleAnswer());
-            feedbackQuestion.setPossibleAnswer(FeedbackQuestionUtil.convertAnswersToAnswerString(new ArrayList<>(request.getPossibleAnswer().keySet())));
-            feedbackQuestion.setPossibleScore(FeedbackQuestionUtil.convertScoresToScoreString(new ArrayList<>(request.getPossibleAnswer().values())));
+            feedbackQuestionUtil.validateFeedbackAnswer(request);
+            feedbackQuestion.setAnswers(feedbackQuestionUtil.feedbackAnswerRequestMapper(feedbackQuestion, request.getAnswers()));
         }else {
-            feedbackQuestion.setPossibleAnswer(null);
-            feedbackQuestion.setPossibleScore(null);
+            feedbackQuestion.setAnswers(null);
         }
         return feedbackQuestionRepository.save(feedbackQuestion).getId();
     }
@@ -283,7 +249,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
     @Override
     public Long addNewSubCourseFeedback(SubCourseFeedbackRequest subCourseFeedbackRequest) {
         User user = SecurityUtil.getCurrentUser();
-
+        /*
         Class clazz = classRepository.findById(subCourseFeedbackRequest.getClassID())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.CLASS_NOT_FOUND_BY_ID) + subCourseFeedbackRequest.getClassID()));
@@ -315,50 +281,60 @@ public class FeedbackServiceImpl implements IFeedbackService {
             default:
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_FEEDBACK_TYPE) + subCourseFeedbackRequest.getFeedbackType());
         }
-
-        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findById(subCourseFeedbackRequest.getFeedbackAnswer().getTemplateId())
+        */
+        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findById(subCourseFeedbackRequest.getSubmitSubCourseFeedback().getTemplateId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FEEDBACK_TEMPLATE_NOT_FOUND_BY_ID) + subCourseFeedbackRequest.getFeedbackAnswer().getTemplateId()));
-        String feedbackAnswerString = "";
+                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FEEDBACK_TEMPLATE_NOT_FOUND_BY_ID) + subCourseFeedbackRequest.getSubmitSubCourseFeedback().getTemplateId()));
+        SubCourseFeedback subCourseFeedback = new SubCourseFeedback();
+
         long totalScore = 0L;
-        for (int i = 0; i < feedbackTemplate.getQuestions().size(); i++){
-            String answer = subCourseFeedbackRequest.getFeedbackAnswer().getAnswer().get(i);
-            if(feedbackTemplate.getQuestions().get(i).getQuestionType().equals(EQuestionType.MULTIPLE_CHOICE)){
-                if(StringUtil.isNullOrEmpty(answer)){
-                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_FEEDBACK_ANSWER));
-                }
-                int answerIndex;
-                try{
-                    answerIndex = Integer.parseInt(answer);
-                }catch (NumberFormatException e){
-                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ANSWER_FORMAT_EXCEPTION));
-                }
-                List<Long> possibleScore = FeedbackQuestionUtil.convertScoreStringToScoreList(feedbackTemplate.getQuestions().get(i).getPossibleScore());
-                totalScore += possibleScore.get(answerIndex);
+        int multipleQuestionCount = 0;
+        List<SubCourseFeedbackRequest.FeedbackSubmitQuestion> feedbackSubmitQuestions = subCourseFeedbackRequest.getSubmitSubCourseFeedback().getSubmitQuestions();
+        List<Long> feedbackQuestionIds = feedbackTemplate.getQuestions().stream()
+                .map(FeedbackQuestion::getId)
+                .collect(Collectors.toList());
+        Map<Long, SubCourseFeedbackRequest.FeedbackSubmitQuestion> submitFeedbackQuestionMap = feedbackSubmitQuestions.stream()
+                .collect(Collectors.toMap(SubCourseFeedbackRequest.FeedbackSubmitQuestion::getQuestionId, Function.identity()));
+        Map<Long, FeedbackQuestion> questionMap = feedbackTemplate.getQuestions().stream()
+                .collect(Collectors.toMap(FeedbackQuestion::getId, Function.identity()));
+        for(Long id : feedbackQuestionIds){
+            FeedbackQuestion feedbackQuestion = questionMap.get(id);
+            SubCourseFeedbackRequest.FeedbackSubmitQuestion feedbackSubmitQuestion = submitFeedbackQuestionMap.get(id);
+            if(feedbackSubmitQuestion == null){
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(""));
             }
-            feedbackAnswerString = FeedbackQuestionUtil.addNewAnswerToAnswerString(feedbackAnswerString, answer);
+            FeedbackSubmitQuestion submitQuestion = new FeedbackSubmitQuestion();
+            submitQuestion.setSubCourseFeedback(subCourseFeedback);
+            submitQuestion.setQuestion(feedbackQuestion);
+            if(feedbackQuestion.getQuestionType().equals(EQuestionType.FILL_THE_ANSWER)){
+                if(StringUtil.isNotNullOrEmpty(feedbackSubmitQuestion.getSubmitAnswers().getSubmitFilledAnswer())){
+                    submitQuestion.setFilledAnswer(feedbackSubmitQuestion.getSubmitAnswers().getSubmitFilledAnswer());
+                }
+            }else {
+                FeedbackAnswer feedbackAnswer = feedbackQuestion.getAnswers().stream()
+                        .filter(x -> x.getId().equals(feedbackSubmitQuestion.getSubmitAnswers().getSubmitAnswerId()))
+                        .findFirst().orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("")));
+                FeedbackSubmitAnswer submitAnswer = new FeedbackSubmitAnswer();
+                submitAnswer.setSubmitQuestion(submitQuestion);
+                submitAnswer.setAnswer(feedbackAnswer);
+                submitAnswer.setSubmitAnswer(feedbackAnswer.getAnswer());
+                submitQuestion.setSubmitAnswer(submitAnswer);
+                totalScore += feedbackAnswer.getScore();
+                multipleQuestionCount++;
+            }
         }
 
-        FeedbackAnswer feedbackAnswer = new FeedbackAnswer();
-        feedbackAnswer.setFeedbackUser(user);
-        feedbackAnswer.setFeedbackTemplate(feedbackTemplate);
-        feedbackAnswer.setAnswer(feedbackAnswerString);
-
-        long multipleQuestionCount = feedbackTemplate.getQuestions().stream()
-                .filter(x -> x.getQuestionType().equals(EQuestionType.MULTIPLE_CHOICE))
-                .count();
-
-        SubCourseFeedback subCourseFeedback = new SubCourseFeedback();
-        subCourseFeedback.setSubCourse(clazz.getSubCourse());
-        subCourseFeedback.setFeedbackAnswer(feedbackAnswer);
         subCourseFeedback.setScore(multipleQuestionCount == 0 ? null : (double) totalScore / multipleQuestionCount);
         subCourseFeedback.setFeedbackType(subCourseFeedback.getFeedbackType());
+        subCourseFeedback.setSubmitBy(user);
+        subCourseFeedback.setSubmitDate(Instant.now());
         if(StringUtil.isNotNullOrEmpty(subCourseFeedback.getOpinion())){
             subCourseFeedback.setOpinion(subCourseFeedback.getOpinion());
         }
         return subCourseFeedbackRepository.save(subCourseFeedback).getId();
     }
 
+    /*
     @Override
     public List<UserFeedbackResponse> getFeedbackByClass(Long id) {
         Class clazz = classRepository.findById(id)
@@ -372,5 +348,5 @@ public class FeedbackServiceImpl implements IFeedbackService {
                 .collect(Collectors.toList());
         return userFeedbackResponses;
     }
-
+    */
 }

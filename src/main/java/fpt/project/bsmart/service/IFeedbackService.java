@@ -22,7 +22,7 @@ public interface IFeedbackService {
     Long deleteFeedbackTemplate(Long id);
     Long updateFeedbackTemplateToSubCourse(Long templateId, Long subCourseId);
     Long addNewSubCourseFeedback(SubCourseFeedbackRequest subCourseFeedbackRequest);
-    List<UserFeedbackResponse> getFeedbackByClass(Long id);
+    //List<UserFeedbackResponse> getFeedbackByClass(Long id);
 
 
 }

@@ -3,6 +3,8 @@ package fpt.project.bsmart.entity;
 import fpt.project.bsmart.entity.constant.EFeedbackType;
 
 import javax.persistence.*;
+import java.time.Instant;
+
 @Entity
 @Table(name = "sub_course_feedback")
 public class SubCourseFeedback {
@@ -12,9 +14,8 @@ public class SubCourseFeedback {
     @ManyToOne
     @JoinColumn(name = "sub_course_id")
     private SubCourse subCourse;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "feedback_answer")
-    private FeedbackAnswer feedbackAnswer;
+    @Column(name = "feedback_name")
+    private String feedbackName;
     @Column(name = "score")
     private Double score;
     @Column(name = "opinion")
@@ -22,6 +23,11 @@ public class SubCourseFeedback {
     @Column(name = "feedback_type")
     @Enumerated(EnumType.STRING)
     private EFeedbackType feedbackType;
+    @ManyToOne
+    @JoinColumn(name = "submit_by")
+    private User submitBy;
+    @Column(name = "submit_date")
+    private Instant submitDate;
 
     public Long getId() {
         return id;
@@ -39,12 +45,12 @@ public class SubCourseFeedback {
         this.subCourse = subCourse;
     }
 
-    public FeedbackAnswer getFeedbackAnswer() {
-        return feedbackAnswer;
+    public String getFeedbackName() {
+        return feedbackName;
     }
 
-    public void setFeedbackAnswer(FeedbackAnswer feedbackAnswer) {
-        this.feedbackAnswer = feedbackAnswer;
+    public void setFeedbackName(String feedbackName) {
+        this.feedbackName = feedbackName;
     }
 
     public Double getScore() {
@@ -69,5 +75,21 @@ public class SubCourseFeedback {
 
     public void setFeedbackType(EFeedbackType feedbackType) {
         this.feedbackType = feedbackType;
+    }
+
+    public User getSubmitBy() {
+        return submitBy;
+    }
+
+    public void setSubmitBy(User submitBy) {
+        this.submitBy = submitBy;
+    }
+
+    public Instant getSubmitDate() {
+        return submitDate;
+    }
+
+    public void setSubmitDate(Instant submitDate) {
+        this.submitDate = submitDate;
     }
 }

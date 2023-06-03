@@ -8,14 +8,15 @@ public class FeedbackAnswer extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "feedback_template_id")
-    private FeedbackTemplate feedbackTemplate;
     @Column(name = "answer")
     private String answer;
+
+    @Column(name = "score")
+    private Long score;
+
     @ManyToOne
-    @JoinColumn(name = "feedback_user")
-    private User feedbackUser;
+    @JoinColumn(name = "feedback_question_id")
+    private FeedbackQuestion question;
 
     public Long getId() {
         return id;
@@ -23,14 +24,6 @@ public class FeedbackAnswer extends BaseEntity{
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public FeedbackTemplate getFeedbackTemplate() {
-        return feedbackTemplate;
-    }
-
-    public void setFeedbackTemplate(FeedbackTemplate feedbackTemplate) {
-        this.feedbackTemplate = feedbackTemplate;
     }
 
     public String getAnswer() {
@@ -41,11 +34,19 @@ public class FeedbackAnswer extends BaseEntity{
         this.answer = answer;
     }
 
-    public User getFeedbackUser() {
-        return feedbackUser;
+    public Long getScore() {
+        return score;
     }
 
-    public void setFeedbackUser(User feedbackUser) {
-        this.feedbackUser = feedbackUser;
+    public void setScore(Long score) {
+        this.score = score;
+    }
+
+    public FeedbackQuestion getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(FeedbackQuestion question) {
+        this.question = question;
     }
 }
