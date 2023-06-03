@@ -7,12 +7,10 @@ import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.EAccountStatus;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
-import fpt.project.bsmart.entity.request.ImageRequest;
-import fpt.project.bsmart.entity.request.MentorSearchRequest;
-import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
-import fpt.project.bsmart.entity.request.UpdateSkillRequest;
+import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.MentorSkillRepository;
@@ -29,14 +27,12 @@ import org.springframework.stereotype.Service;
 import java.time.Year;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_ID_DUPLICATE;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_BY_ID;
+import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
+import static fpt.project.bsmart.entity.constant.ECourseStatus.REJECTED;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 @Service
 public class MentorProfileImpl implements IMentorProfileService {
@@ -117,11 +113,35 @@ public class MentorProfileImpl implements IMentorProfileService {
     }
 
     @Override
-    public Long approveMentorProfile(Long id) {
+    public Long approveMentorProfile(Long id,  ManagerApprovalAccountRequest managerApprovalAccountRequest) {
         MentorProfile mentorProfile = findById(id);
+
+        if (mentorProfile.getUser() == null){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
+        }
+
+        validateApprovalAccountRequest(managerApprovalAccountRequest.getStatus());
+
+        if (mentorProfile.getStatus() != EAccountStatus.WAITING) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
+        }
         mentorProfile.setStatus(EAccountStatus.STARTING);
+        ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser().getId(), managerApprovalAccountRequest.getMessage());
         return mentorProfileRepository.save(mentorProfile).getId();
+
+
     }
+    private void validateApprovalAccountRequest(EAccountStatus accountStatus) {
+        List<EAccountStatus> ALLOWED_STATUSES = Arrays.asList(EAccountStatus.STARTING, EAccountStatus.EDITREQUEST, EAccountStatus.REJECTED);
+
+        if (!ALLOWED_STATUSES.contains(accountStatus)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
+        }
+    }
+
 
     @Override
     public Long updateMentorProfile(UpdateMentorProfileRequest updateMentorProfileRequest) {

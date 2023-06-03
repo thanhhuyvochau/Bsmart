@@ -9,14 +9,13 @@ import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.response.*;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -236,7 +235,6 @@ public class ConvertUtil {
 
     public static CourseSubCourseResponse subCourseToCourseSubCourseResponseConverter(SubCourse subCourse) {
         Course course = subCourse.getCourse();
-
         CourseSubCourseResponse response = new CourseSubCourseResponse();
         if (course != null) {
             response.setCourseId(course.getId());
@@ -254,20 +252,18 @@ public class ConvertUtil {
                 }
             }
         }
-        response.setSubCourseId(subCourse.getId());
 
-        response.setStatus(subCourse.getStatus());
-
-        response.setTypeLearn(subCourse.getTypeLearn());
-        response.setSubCourseTitle(subCourse.getTitle());
-        response.setLevel(subCourse.getLevel());
-        response.setMinStudent(subCourse.getMinStudent());
-        response.setMaxStudent(subCourse.getMaxStudent());
-        response.setPrice(subCourse.getPrice());
-        response.setEndDateExpected(subCourse.getEndDateExpected());
-        response.setStartDateExpected(subCourse.getStartDateExpected());
-        response.setNumberOfSlot(subCourse.getNumberOfSlot());
-
+        response.setSubCourseId(ObjectUtils.defaultIfNull(subCourse.getId(), null));
+        response.setStatus(ObjectUtils.defaultIfNull(subCourse.getStatus(), null));
+        response.setTypeLearn(ObjectUtils.defaultIfNull(subCourse.getTypeLearn(), null));
+        response.setSubCourseTitle(ObjectUtils.defaultIfNull(subCourse.getTitle(), null));
+        response.setLevel(ObjectUtils.defaultIfNull(subCourse.getLevel(), null));
+        response.setMinStudent(ObjectUtils.defaultIfNull(subCourse.getMinStudent(), 0));
+        response.setMaxStudent(ObjectUtils.defaultIfNull(subCourse.getMaxStudent(), 0));
+        response.setPrice(ObjectUtils.defaultIfNull(subCourse.getPrice(),BigDecimal.ZERO));
+        response.setEndDateExpected(ObjectUtils.defaultIfNull(subCourse.getEndDateExpected(), null));
+        response.setStartDateExpected(ObjectUtils.defaultIfNull(subCourse.getStartDateExpected(), null));
+        response.setNumberOfSlot(ObjectUtils.defaultIfNull(subCourse.getNumberOfSlot(), null));
         List<OrderDetail> orderDetails = subCourse.getOrderDetails();
         response.setFinalStudent(orderDetails.size());
 

@@ -50,6 +50,8 @@ public class Constants {
         public static final String USER_NOT_HAVE_PERMISSION_TO_VIEW_THIS_COURSE = "USER_NOT_HAVE_PERMISSION_TO_VIEW_THIS_COURSE";
 
         public static final String  INVALID_COURSE_APPROVAL_STATUS= "INVALID_COURSE_APPROVAL_STATUS";
+
+        public static final String  ACCOUNT_STATUS_NOT_ALLOW= "ACCOUNT_STATUS_NOT_ALLOW";
         public static class Invalid{
 
             public static final String USERNAME_PASSWORD_INCORRECT = "USERNAME_PASSWORD_INCORRECT";
