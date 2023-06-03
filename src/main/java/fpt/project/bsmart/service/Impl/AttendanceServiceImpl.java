@@ -7,6 +7,8 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.request.AttendanceDetailRequest;
 import fpt.project.bsmart.entity.request.AttendanceRequest;
 import fpt.project.bsmart.entity.response.AttendanceResponse;
+import fpt.project.bsmart.entity.response.AttendanceStudentDetailResponse;
+import fpt.project.bsmart.entity.response.AttendanceStudentResponse;
 import fpt.project.bsmart.entity.response.StudentClassResponse;
 import fpt.project.bsmart.repository.AttendanceRepository;
 import fpt.project.bsmart.repository.ClassRepository;
@@ -24,10 +26,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -150,4 +151,49 @@ public class AttendanceServiceImpl implements AttendanceService {
         Page<AttendanceResponse> attendanceResponsePage = new PageImpl<>(attendanceResponses, pageable, attendanceResponses.size());
         return PageUtil.convert(attendanceResponsePage);
     }
+
+    @Override
+    public AttendanceStudentResponse getAttendanceByClassForStudent(Long classId) {
+        Class clazz = classRepository
+                .findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Không tìm thấy lớp với id:" + classId));
+        User currentUser = SecurityUtil.getCurrentUser();
+        if (!ClassValidator.isUserIsStudentOfClass(clazz, currentUser)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Bạn không phải là học sinh của lớp này");
+        }
+
+        List<TimeTable> timeTables = clazz.getTimeTables();
+        List<AttendanceStudentDetailResponse> attendanceStudentDetailResponses = new ArrayList<>();
+        int absentNum = 0;
+        for (TimeTable timeTable : timeTables) {
+            Optional<Attendance> attendanceByUser = getAttendanceByUser(currentUser, timeTable.getAttendanceList());
+
+            AttendanceStudentDetailResponse detailResponse = new AttendanceStudentDetailResponse();
+            detailResponse.setDate(timeTable.getDate());
+            detailResponse.setSlotNum(timeTable.getCurrentSlotNums());
+            if (attendanceByUser.isPresent()) {
+                Attendance attendance = attendanceByUser.get();
+                detailResponse.setNote(attendance.getNote());
+                detailResponse.setAttendance(attendance.getAttendance());
+                if (!attendance.getAttendance()) {
+                    absentNum++;
+                }
+            }
+            attendanceStudentDetailResponses.add(detailResponse);
+        }
+        AttendanceStudentResponse response = new AttendanceStudentResponse();
+        clazz.getSubCourse().getNumberOfSlot();
+        response.setAttendanceStudentDetails(attendanceStudentDetailResponses);
+        response.setAbsentPercentage(calculateAbsentPercentage(clazz.getSubCourse().getNumberOfSlot(), absentNum));
+        return response;
+    }
+
+    private static Optional<Attendance> getAttendanceByUser(User currentUser, List<Attendance> attendanceList) {
+        return attendanceList.stream().filter(att -> Objects.equals(att.getStudentClass().getStudent().getId(), currentUser.getId())).findFirst();
+    }
+
+    private static double calculateAbsentPercentage(Integer totalSlot, Integer absentNumber) {
+        return new BigDecimal((Double.valueOf(absentNumber) / Double.valueOf(totalSlot) * 100)).setScale(2, RoundingMode.HALF_UP).doubleValue();
+    }
+
 }
