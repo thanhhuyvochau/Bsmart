@@ -4,6 +4,8 @@ package fpt.project.bsmart.entity.response;
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
+import fpt.project.bsmart.entity.dto.CategoryDto;
+import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 
 import java.math.BigDecimal;
@@ -20,29 +22,29 @@ public class CourseSubCourseResponse {
     private String courseName;
     private String courseCode;
 
-
-
     private String subCourseTitle;
 
     private ECourseStatus status;
 
     private BigDecimal price;
 
-    private Instant startDateExpected ;
+    private Instant startDateExpected;
 
-    private Instant endDateExpected ;
+    private Instant endDateExpected;
 
-    private int minStudent ;
+    private int minStudent;
 
-    private  int maxStudent ;
+    private int maxStudent;
 
-    private int finalStudent ;
+    private int finalStudent;
 
     private String courseDescription;
 
-    private String categoryName;
 
-    private String subjectName;
+    private CategoryDto category;
+
+    private SubjectDto subject;
+
 
     private ECourseLevel level;
 
@@ -51,8 +53,10 @@ public class CourseSubCourseResponse {
 
     private ETypeLearn typeLearn;
 
-
+    private Integer numberOfSlot;
     private List<TimeInWeekDTO> timeInWeek;
+
+
 
 
     public Long getSubCourseId() {
@@ -79,20 +83,20 @@ public class CourseSubCourseResponse {
         this.imageUrl = imageUrl;
     }
 
-    public String getCategoryName() {
-        return categoryName;
+    public CategoryDto getCategory() {
+        return category;
     }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+    public void setCategory(CategoryDto category) {
+        this.category = category;
     }
 
-    public String getSubjectName() {
-        return subjectName;
+    public SubjectDto getSubject() {
+        return subject;
     }
 
-    public void setSubjectName(String subjectName) {
-        this.subjectName = subjectName;
+    public void setSubject(SubjectDto subject) {
+        this.subject = subject;
     }
 
     public String getSubCourseTitle() {
@@ -213,5 +217,13 @@ public class CourseSubCourseResponse {
 
     public void setMaxStudent(int maxStudent) {
         this.maxStudent = maxStudent;
+    }
+
+    public Integer getNumberOfSlot() {
+        return numberOfSlot;
+    }
+
+    public void setNumberOfSlot(Integer numberOfSlot) {
+        this.numberOfSlot = numberOfSlot;
     }
 }

@@ -11,17 +11,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    private final static String defaultErrorMessage = "Đã có lỗi ngoại lệ của hệ thống xảy ra, vui lòng liên hệ admin để được hỗ trợ";
+
     @ExceptionHandler({AccessDeniedException.class})
     @ResponseBody
     public ResponseEntity<ApiResponse> handleUnAuthorizedException(AccessDeniedException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.failed("Access Denied"));
     }
 
-    @ExceptionHandler({Exception.class, RuntimeException.class})
-    @ResponseBody
-    public ResponseEntity<ApiResponse> handleCommonException(Exception e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failed("Đã có lỗi ngoại lệ của hệ thống xảy ra, vui lòng liên hệ admin để được hỗ trợ"));
-    }
+//    @ExceptionHandler({Exception.class})
+//    @ResponseBody
+//    public ResponseEntity<ApiResponse> handleCommonException(Exception e) {
+//        e.printStackTrace();
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failed(e.getMessage() == null ? defaultErrorMessage : e.getMessage()));
+//    }
 
     @ExceptionHandler(ApiException.class)
     @ResponseBody

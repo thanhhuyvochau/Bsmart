@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
+import fpt.project.bsmart.entity.request.ManagerApprovalCourseRequest;
 import fpt.project.bsmart.entity.request.UpdateSubCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
@@ -34,14 +35,18 @@ public class CourseController {
         this.iCourseService = iCourseService;
     }
 
-    @GetMapping("/subject/{id}")
-    public ResponseEntity<ApiResponse<List<CourseDto>>> getCoursesBySubject(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCoursesBySubject(id)));
+    @Operation(summary = "lấy tất cả các course theo subject id")
+    @GetMapping("/subject/{subjectId}")
+    public ResponseEntity<ApiResponse<List<CourseDto>>> getCoursesBySubject(@PathVariable Long subjectId) {
+        List<CourseDto> courses = iCourseService.getCoursesBySubject(subjectId);
+        return ResponseEntity.ok(ApiResponse.success(courses));
+
     }
 
-    @Operation(summary = "lấy tất cả các course đổ lên trang khoa học")
+    @Operation(summary = "Get all courses for course page")
     @GetMapping
-    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(@Nullable CourseSearchRequest query, Pageable pageable) {
+    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(
+            @Nullable CourseSearchRequest query, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(query, pageable)));
     }
 
@@ -58,6 +63,13 @@ public class CourseController {
     }
     // ################################## Mentor ##########################################
 
+    @Operation(summary = "lấy tất cả khoá học có sẵn để mentor tạo  khoá hoc (course sẵn phải phải là trang thái )")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("/type-public")
+    public ResponseEntity<ApiResponse<List<CourseDto>>> getCoursePublic() {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCoursePublic()));
+    }
+
     @Operation(summary = "mentor tao khoá học")
     @PostMapping
     public ResponseEntity<ApiResponse<Long>> mentorCreateCourse(@Valid @RequestBody CreateCourseRequest createCourseRequest) {
@@ -65,12 +77,18 @@ public class CourseController {
     }
 
 
+    @Operation(summary = "mentor xoá khoa học trang thái REQUESTING (chưa yêu cầu phê duyêt)")
+    @DeleteMapping("/{subCourseId}")
+    public ResponseEntity<ApiResponse<Boolean>> mentorDeleteCourse(@PathVariable Long subCourseId) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorDeleteCourse(subCourseId)));
+    }
+
 
     @Operation(summary = "mentor sửa khoá học con ")
     @PreAuthorize("hasAnyRole('TEACHER')")
-    @PutMapping("/subCourseId")
-    public ResponseEntity<ApiResponse<Boolean>> mentorUpdateCourse(  @PathVariable Long subCourseId ,@Valid @RequestBody UpdateSubCourseRequest updateCourseRequest ) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUpdateCourse(subCourseId , updateCourseRequest)));
+    @PutMapping("/{subCourseId}")
+    public ResponseEntity<ApiResponse<Boolean>> mentorUpdateCourse(@PathVariable Long subCourseId, @Nullable @RequestBody UpdateSubCourseRequest updateCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUpdateCourse(subCourseId, updateCourseRequest)));
     }
 
     @Operation(summary = "mentor xem tất cả course của mình")
@@ -79,6 +97,15 @@ public class CourseController {
     public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> mentorGetCourse(ECourseStatus status, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetCourse(status, pageable)));
     }
+
+
+    @Operation(summary = "mentor gửi yêu cầu phê duệt khoá hoc ")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/{subCourseId}/request-approval")
+    public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalCourse(@PathVariable Long subCourseId) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorRequestApprovalCourse(subCourseId)));
+    }
+
     // ################################## Member ##########################################
 
     @Operation(summary = "Member xem khóa học đã đăng ký")
@@ -90,24 +117,28 @@ public class CourseController {
 
     @Operation(summary = "Khóa học gợi ý cho member va guest")
     @GetMapping("/suggest")
-    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourseSuggest( @PageableDefault(sort = "created", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourseSuggest( pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourseSuggest(@PageableDefault(sort = "created", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourseSuggest(pageable)));
     }
 
-//    @Operation(summary = "mentor upload hình cho khoá học")
-//    @PreAuthorize("hasAnyRole('TEACHER')")
-//    @PostMapping("/image")
-//    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageCourse(@ModelAttribute ImageRequest ImageRequest) {
-//        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageCourse(ImageRequest)));
-//    }
 
 
-//    @Operation(summary = "mentor thêm ảnh đại diện cho course")
-//    @PreAuthorize("hasAnyRole('TEACHER')")
-//    @PostMapping("{id}/image")
-//    public ResponseEntity<ApiResponse<Boolean>> mentorUploadImageForCourse(@PathVariable Long id  , @ModelAttribute FileDto request) {
-//        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUploadImageForCourse(id , request)));
-//    }
+    // ################################## Manager ##########################################
+
+    @Operation(summary = "Manager get tất cả yêu cầu mở khóa học của mentor")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @GetMapping("/pending")
+    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> coursePendingToApprove(ECourseStatus status, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(status, pageable)));
+    }
+
+    @Operation(summary = "Manager phê duyêt / từ chối / yêu cầu thay đổi khoá học của mentor  ")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PutMapping("/{subCourseId}/approval")
+    public ResponseEntity<ApiResponse<Boolean>> managerApprovalCourseRequest(@PathVariable Long subCourseId
+            , @RequestBody ManagerApprovalCourseRequest approvalCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.managerApprovalCourseRequest(subCourseId, approvalCourseRequest)));
+    }
 
 
 }

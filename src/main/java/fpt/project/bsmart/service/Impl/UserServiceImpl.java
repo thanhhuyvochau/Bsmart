@@ -64,8 +64,10 @@ public class UserServiceImpl implements IUserService {
 
     private final VerificationRepository verificationRepository;
 
+    private final NotificationUtil notificationUtil ;
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository) {
+
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationUtil notificationUtil) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
@@ -75,6 +77,7 @@ public class UserServiceImpl implements IUserService {
         this.minioAdapter = minioAdapter;
         this.emailUtil = emailUtil;
         this.verificationRepository = verificationRepository;
+        this.notificationUtil = notificationUtil;
     }
 
     private static void accept(Image image) {
@@ -222,7 +225,6 @@ public class UserServiceImpl implements IUserService {
     public UserDto getUserById(Long id) {
         UserDto userDto = ConvertUtil.convertUsertoUserDto(findUserById(id));
         userDto.setWallet(null);
-
         return userDto;
     }
 
@@ -385,6 +387,7 @@ public class UserServiceImpl implements IUserService {
         User savedUser = userRepository.save(user);
         // Send verify mail
         emailUtil.sendVerifyEmailTo(savedUser);
+        notificationUtil.sendNotification("thanh cong" , "thanh cong" , createAccountRequest.getEmail() , user);
         return savedUser.getId();
     }
 

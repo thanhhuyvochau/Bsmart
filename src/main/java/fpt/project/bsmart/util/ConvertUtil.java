@@ -9,14 +9,13 @@ import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.response.*;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -127,8 +126,6 @@ public class ConvertUtil {
         if (slot != null) {
             slotDto = convertSlotToSlotDto(slot);
         }
-
-
         return new TimeInWeekDTO(dayOfWeekDTO, null, slotDto);
     }
 
@@ -173,51 +170,21 @@ public class ConvertUtil {
 
     public static CourseDto convertCourseToCourseDTO(Course course) {
         CourseDto courseDto = ObjectUtil.copyProperties(course, new CourseDto(), CourseDto.class);
-
-
-//        courseDto.setStatus(course.getStatus());
         if (course.getSubject() != null) {
             courseDto.setSubject(convertSubjectToSubjectDto(course.getSubject()));
         }
-//        if (course.getMentor() != null) {
-//            courseDto.setMentorId((course.getMentor().getId()));
-//        }
-//        if (course.getImage() != null) {
-//            courseDto.setImage(convertImageToImageDto(course.getImage()));
-//        }
-//        if (!course.getSections().isEmpty()) {
-//            List<SectionDto> sectionDtoList = new ArrayList<>();
-//            for (Section section : course.getSections()) {
-//                sectionDtoList.add(convertSectionToSectionDto(section));
-//            }
-//            courseDto.setSections(sectionDtoList);
-//        }
-//        if (!course.getClasses().isEmpty()) {
-//            List<Long> classList = new ArrayList<>();
-//            for (Class _class : course.getClasses()) {
-//                classList.add(_class.getId());
-//            }
-//            courseDto.setClasses(classList);
-//        }
         return courseDto;
     }
 
     public static CourseDetailResponse convertCourseToCourseDetailResponse(Course course) {
         CourseDetailResponse response = ObjectUtil.copyProperties(course, new CourseDetailResponse(), CourseDetailResponse.class);
 
-//        response.setStatus(course.getStatus());
         if (course.getSubject() != null) {
             response.setSubject(convertSubjectToSubjectDto(course.getSubject()));
             if (course.getSubject().getCategory() != null) {
                 response.setCategoryDto(convertCategoryToCategoryDto(course.getSubject().getCategory()));
             }
         }
-//        if (course.getMentor() != null) {
-//            response.setMentorId((course.getMentor().getId()));
-//        }
-//        if (course.getImage() != null) {
-//            response.setImage(convertImageToImageDto(course.getImage()));
-//        }
 
 
         return response;
@@ -266,49 +233,59 @@ public class ConvertUtil {
         return response;
     }
 
-    public static CourseSubCourseResponse convertSubCourseToCourseSubCourseResponse(SubCourse subCourse) {
-        CourseSubCourseResponse response = new CourseSubCourseResponse();
+    public static CourseSubCourseResponse subCourseToCourseSubCourseResponseConverter(SubCourse subCourse) {
         Course course = subCourse.getCourse();
-        response.setSubCourseId(subCourse.getId());
-        response.setCourseId(course.getId());
-        response.setCourseCode(course.getCode());
-        response.setCourseName(course.getName());
-        response.setStatus(subCourse.getStatus());
-        response.setCourseDescription(course.getDescription());
-        response.setTypeLearn(subCourse.getTypeLearn());
-        response.setSubCourseTitle(subCourse.getTitle());
-        response.setLevel(subCourse.getLevel());
-        response.setMinStudent(subCourse.getMinStudent());
-        response.setMaxStudent(subCourse.getMaxStudent());
-        response.setPrice(subCourse.getPrice());
-        response.setEndDateExpected(subCourse.getEndDateExpected());
-        response.setStartDateExpected(subCourse.getStartDateExpected());
+        CourseSubCourseResponse response = new CourseSubCourseResponse();
+        if (course != null) {
+            response.setCourseId(course.getId());
+            response.setCourseCode(course.getCode());
+            response.setCourseName(course.getName());
+            response.setCourseDescription(course.getDescription());
+            Subject subject = course.getSubject();
+            if (subject != null) {
+                SubjectDto subjectDto = convertSubjectToSubjectDto(subject);
+                response.setSubject(subjectDto);
+                Category category = subject.getCategory();
+                if (category != null) {
+                    CategoryDto categoryDto = convertCategoryToCategoryDto(category);
+                    response.setCategory(categoryDto);
+                }
+            }
+        }
 
+        response.setSubCourseId(ObjectUtils.defaultIfNull(subCourse.getId(), null));
+        response.setStatus(ObjectUtils.defaultIfNull(subCourse.getStatus(), null));
+        response.setTypeLearn(ObjectUtils.defaultIfNull(subCourse.getTypeLearn(), null));
+        response.setSubCourseTitle(ObjectUtils.defaultIfNull(subCourse.getTitle(), null));
+        response.setLevel(ObjectUtils.defaultIfNull(subCourse.getLevel(), null));
+        response.setMinStudent(ObjectUtils.defaultIfNull(subCourse.getMinStudent(), 0));
+        response.setMaxStudent(ObjectUtils.defaultIfNull(subCourse.getMaxStudent(), 0));
+        response.setPrice(ObjectUtils.defaultIfNull(subCourse.getPrice(),BigDecimal.ZERO));
+        response.setEndDateExpected(ObjectUtils.defaultIfNull(subCourse.getEndDateExpected(), null));
+        response.setStartDateExpected(ObjectUtils.defaultIfNull(subCourse.getStartDateExpected(), null));
+        response.setNumberOfSlot(ObjectUtils.defaultIfNull(subCourse.getNumberOfSlot(), null));
         List<OrderDetail> orderDetails = subCourse.getOrderDetails();
         response.setFinalStudent(orderDetails.size());
+
         if (subCourse.getImage() != null) {
             response.setImageUrl(subCourse.getImage().getUrl());
         }
 
-        Subject subject = course.getSubject();
-        if (subject != null) {
-            response.setSubjectName(subject.getName());
-            Category category = subject.getCategory();
-            if (category != null) {
-                response.setCategoryName(category.getName());
-            }
-        }
+
+
         if (subCourse.getMentor() != null) {
             response.setMentorName(subCourse.getMentor().getFullName());
         }
-        List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>();
+
         List<TimeInWeek> timeInWeeks = subCourse.getTimeInWeeks();
         if (subCourse.getTimeInWeeks() != null) {
+            List<TimeInWeekDTO> timeInWeekDtoList = new ArrayList<>();
             for (TimeInWeek timeInWeek : timeInWeeks) {
-                timeInWeekDTOS.add(convertTimeInWeekToDto(timeInWeek));
+                timeInWeekDtoList.add(convertTimeInWeekToDto(timeInWeek));
             }
-            response.setTimeInWeek(timeInWeekDTOS);
+            response.setTimeInWeek(timeInWeekDtoList);
         }
+
 
         return response;
     }
@@ -321,7 +298,10 @@ public class ConvertUtil {
         courseResponse.setCourseName(course.getName());
         courseResponse.setCourseCode(course.getCode());
         courseResponse.setCourseDescription(course.getDescription());
-        courseResponse.setTotalSubCourse(course.getSubCourses().size());
+//        if (course.getSubCourses()!= null) {
+//            courseResponse.setTotalSubCourse(course.getSubCourses().size());
+//        }
+
         List<String> mentorName = new ArrayList<>();
         List<ETypeLearn> learns = new ArrayList<>();
         List<SubCourse> subCourses = course.getSubCourses();
@@ -512,11 +492,11 @@ public class ConvertUtil {
         return activityTypeResponse;
     }
 
-    public static QuizDto convertQuizToQuizDto(Quiz quiz){
+    public static QuizDto convertQuizToQuizDto(Quiz quiz) {
         QuizDto quizDto = ObjectUtil.copyProperties(quiz, new QuizDto(), QuizDto.class);
-        if(quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()){
+        if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
             List<QuizQuestionDto> questionDtos = new ArrayList<>();
-            for(QuizQuestion question : quiz.getQuizQuestions()){
+            for (QuizQuestion question : quiz.getQuizQuestions()) {
                 questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question));
             }
             quizDto.setQuizQuestions(questionDtos);
@@ -524,7 +504,7 @@ public class ConvertUtil {
         return quizDto;
     }
 
-    public static QuizSubmittionDto convertQuizSubmittionToQuizSubmittionDto(QuizSubmittion quizSubmittion){
+    public static QuizSubmittionDto convertQuizSubmittionToQuizSubmittionDto(QuizSubmittion quizSubmittion) {
         QuizSubmittionDto quizSubmittionDto = new QuizSubmittionDto();
         quizSubmittionDto.setId(quizSubmittion.getId());
         quizSubmittionDto.setQuizId(quizSubmittion.getQuiz().getId());
@@ -539,7 +519,7 @@ public class ConvertUtil {
         return quizSubmittionDto;
     }
 
-    public static QuizSubmitQuestionDto convertQuizSubmitQuestionToQuizSubmitQuestionDto(QuizSubmitQuestion quizSubmitQuestion){
+    public static QuizSubmitQuestionDto convertQuizSubmitQuestionToQuizSubmitQuestionDto(QuizSubmitQuestion quizSubmitQuestion) {
         QuizSubmitQuestionDto questionDto = new QuizSubmitQuestionDto();
         questionDto.setId(quizSubmitQuestion.getId());
         questionDto.setQuestion(quizSubmitQuestion.getQuizQuestion().getQuestion());
@@ -548,14 +528,14 @@ public class ConvertUtil {
         return questionDto;
     }
 
-    public static List<QuizSubmitAnswerDto> convertQuizSubmitAnswersToQuizSubmitAnswerDto(List<QuizSubmitAnswer> quizSubmitAnswers, List<QuizAnswer> quizAnswers){
+    public static List<QuizSubmitAnswerDto> convertQuizSubmitAnswersToQuizSubmitAnswerDto(List<QuizSubmitAnswer> quizSubmitAnswers, List<QuizAnswer> quizAnswers) {
         List<QuizSubmitAnswerDto> quizSubmitAnswerDtos = new ArrayList<>();
-        for (QuizAnswer answer : quizAnswers){
+        for (QuizAnswer answer : quizAnswers) {
             QuizSubmitAnswerDto answerDto = new QuizSubmitAnswerDto();
             answerDto.setId(answer.getId());
             answerDto.setAnswer(answer.getAnswer());
             answerDto.setRight(answerDto.getRight());
-            if(!quizSubmitAnswers.isEmpty()){
+            if (!quizSubmitAnswers.isEmpty()) {
                 boolean isChosen = quizSubmitAnswers.stream()
                         .anyMatch(x -> x.getQuizAnswer().equals(answer));
                 answerDto.setChosen(isChosen);
@@ -564,9 +544,9 @@ public class ConvertUtil {
         return quizSubmitAnswerDtos;
     }
 
-    public static QuizQuestionDto convertQuizQuestionToQuizQuestionDto(QuizQuestion quizQuestion){
+    public static QuizQuestionDto convertQuizQuestionToQuizQuestionDto(QuizQuestion quizQuestion) {
         QuizQuestionDto question = ObjectUtil.copyProperties(quizQuestion, new QuizQuestionDto(), QuizQuestionDto.class);
-        if(quizQuestion.getAnswers() != null || !question.getAnswers().isEmpty()){
+        if (quizQuestion.getAnswers() != null || !question.getAnswers().isEmpty()) {
             List<QuizAnswerDto> answers = new ArrayList<>();
             for (QuizAnswer answer : quizQuestion.getAnswers()) {
                 answers.add(ConvertUtil.convertQuizAnswerToQuizAnswerDto(answer));
@@ -576,7 +556,7 @@ public class ConvertUtil {
         return question;
     }
 
-    public static QuizAnswerDto convertQuizAnswerToQuizAnswerDto(QuizAnswer quizAnswer){
+    public static QuizAnswerDto convertQuizAnswerToQuizAnswerDto(QuizAnswer quizAnswer) {
         return ObjectUtil.copyProperties(quizAnswer, new QuizAnswerDto(), QuizAnswerDto.class);
     }
 }
