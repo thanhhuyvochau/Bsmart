@@ -27,4 +27,14 @@ public class ActivityHistoryUtil {
         activityHistory.setDetail(message);
         staticActivityHistoryRepository.save(activityHistory) ;
     }
+
+
+    public static void logHistoryForAccountApprove(Long userId , String message ) {
+        ActivityHistory activityHistory = new ActivityHistory() ;
+        activityHistory.setType(EActivityType.USER);
+        activityHistory.setActivityTime(LocalDateTime.now());
+        activityHistory.setActivityId(userId);
+        activityHistory.setDetail(message);
+        staticActivityHistoryRepository.save(activityHistory) ;
+    }
 }
