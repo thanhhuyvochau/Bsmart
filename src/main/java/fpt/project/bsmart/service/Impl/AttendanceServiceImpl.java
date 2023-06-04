@@ -73,7 +73,6 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     private List<Attendance> createNewAttendances(AttendanceRequest request, TimeTable timeTable) {
         List<Attendance> attendances = new ArrayList<>();
-        User currentUser = SecurityUtil.getCurrentUser();
         Class clazz = timeTable.getClazz();
         if (!AttendanceValidator.isEnableTimeForDoAttendance(timeTable.getDate())) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Ngày không hợp lệ không thể điểm danh");
