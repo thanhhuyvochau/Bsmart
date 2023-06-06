@@ -98,13 +98,13 @@ public class TimeUtil {
         Instant currentInstant = Instant.now();
         Duration difference = Duration.between(instant.truncatedTo(ChronoUnit.HOURS), currentInstant.truncatedTo(ChronoUnit.HOURS));
         long differenceInHour = difference.toHours();
-        return differenceInHour < duration && differenceInHour >= 0;
+        return Math.abs(differenceInHour) < duration;
     }
 
     public static boolean isLessThanDayDurationOfNow(Instant instant, int duration) {
         Instant currentInstant = Instant.now();
         Duration difference = Duration.between(instant.truncatedTo(ChronoUnit.DAYS), currentInstant.truncatedTo(ChronoUnit.DAYS));
         long differenceInDay = difference.toDays();
-        return differenceInDay <= duration && differenceInDay >= 0;
+        return Math.abs(differenceInDay) <= duration;
     }
 }
