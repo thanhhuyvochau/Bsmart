@@ -74,14 +74,17 @@ public class CourseServiceImpl implements ICourseService {
 
 
     @Override
-    public Long mentorCreateCourse(CreateCourseRequest createCourseRequest) {
+    public Long mentorCreateCourse(Long id, CreateCourseRequest createCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
-
-
+        Course course;
+        if (id != null) {
+            course = courseRepository.findById(id)
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        } else {
+            course = createCourseFromRequest(createCourseRequest);
+        }
         // check mentor account is valid
         checkMentorProfile(currentUserAccountLogin);
-
-        Course course = createCourseFromRequest(createCourseRequest);
 
         course.setStatus(REQUESTING);
 
@@ -108,7 +111,7 @@ public class CourseServiceImpl implements ICourseService {
 
         // ghi log
         subCourses.forEach(subCourse -> {
-                    ActivityHistoryUtil.logHistoryForCourseApprove(subCourse.getId(), "mentor create course");
+                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), subCourse.getId());
                 }
         );
 
@@ -460,9 +463,11 @@ public class CourseServiceImpl implements ICourseService {
     }
 
 
+    @Transactional
     @Override
     public Boolean mentorDeleteCourse(Long subCourseId) {
         User user = MentorUtil.checkIsMentor();
+
         SubCourse subCourse = subCourseRepository.findById(subCourseId).
                 orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
@@ -471,21 +476,43 @@ public class CourseServiceImpl implements ICourseService {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
         }
-        Optional.ofNullable(subCourse.getImage())
-                .map(Image::getId)
-                .ifPresent(imageRepository::deleteById);
 
-        subCourse.setCourse(null);
+        if (subCourse.getImage() != null) {
+            Image image = imageRepository.findById(subCourse.getImage().getId())
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + subCourse.getImage().getId()));
+
+            List<SubCourse> subCourseByImage = subCourseRepository.findAllByImage(image);
+            if (subCourseByImage.size() == 1) {
+                Optional.ofNullable(subCourse.getImage())
+                        .map(Image::getId)
+                        .ifPresent(imageRepository::deleteById);
+            } else {
+                subCourse.setImage(null);
+            }
+        }
+
+        if (subCourse.getCourse().getType().equals(ECourseType.PRIVATE)) {
+            courseRepository.delete(subCourse.getCourse());
+        } else {
+            subCourse.setCourse(null);
+        }
+
         subCourseRepository.delete(subCourse);
+
+        ActivityHistoryUtil.logHistoryForCourseDeleted(user.getId(), subCourseId);
         return true;
     }
 
     @Override
-    public List<CourseDto> getCoursePublic() {
+    public ApiPage<CourseDto> getCoursePublic(Pageable pageable) {
         List<Course> coursesTypePublic = courseRepository.findAllByType(ECourseType.PUBLIC);
-        return coursesTypePublic.stream()
+        List<CourseDto> courseDtosTypePublic = coursesTypePublic.stream()
                 .map(ConvertUtil::convertCourseToCourseDTO)
                 .collect(Collectors.toList());
+
+
+        return PageUtil.convert(new PageImpl<>(courseDtosTypePublic, pageable, courseDtosTypePublic.size()));
     }
 
 
@@ -538,10 +565,50 @@ public class CourseServiceImpl implements ICourseService {
         subCourse.setStatus(approvalCourseRequest.getStatus());
         subCourseRepository.save(subCourse);
 
-        ActivityHistoryUtil.logHistoryForCourseApprove(subCourseId, approvalCourseRequest.getMessage());
+
+        // log history
+        ActivityHistoryUtil.logHistoryForCourseApprove(subCourse.getMentor().getId(), subCourseId, approvalCourseRequest.getMessage());
 
         return true;
     }
+
+    @Override
+    public Boolean managerCreateCourse(CreateCoursePublicRequest createCourseRequest) {
+        Course courseFromRequest = createCoursePublicFromRequest(createCourseRequest);
+        courseFromRequest.setType(ECourseType.PUBLIC);
+        courseRepository.save(courseFromRequest);
+        return true;
+    }
+
+    private Course createCoursePublicFromRequest(CreateCoursePublicRequest coursePublicRequest) {
+        Long categoryId = coursePublicRequest.getCategoryId();
+        if (categoryId == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE));
+        }
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + categoryId));
+
+
+        Long subjectId = coursePublicRequest.getSubjectId();
+        if (subjectId == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE));
+        }
+        Optional<Subject> optionalSubject = category.getSubjects().stream().filter(s -> s.getId().equals(subjectId)).findFirst();
+        Subject subject = optionalSubject.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                .withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + subjectId));
+
+        Course course = new Course();
+        course.setName(coursePublicRequest.getName());
+        course.setCode(coursePublicRequest.getCode());
+        course.setDescription(coursePublicRequest.getDescription());
+        course.setSubject(subject);
+
+        return course;
+    }
+
 
     private void validateApprovalCourseRequest(ECourseStatus statusRequest) {
         List<ECourseStatus> ALLOWED_STATUSES = Arrays.asList(NOTSTART, EDITREQUEST, REJECTED);

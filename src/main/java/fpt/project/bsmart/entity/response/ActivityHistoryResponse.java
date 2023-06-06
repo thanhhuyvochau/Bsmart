@@ -1,31 +1,24 @@
-package fpt.project.bsmart.entity;
+package fpt.project.bsmart.entity.response;
 
 import fpt.project.bsmart.entity.constant.EActivityType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "activity_history")
-public class ActivityHistory extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+public class ActivityHistoryResponse {
+
     private Long id;
-    @Column(name = "type")
-    @Enumerated(EnumType.STRING)
+
     private EActivityType type;
 
-    @Column(name = "activity_time", nullable = false)
+
     private LocalDateTime activityTime;
 
-    @Column(name = "detail")
     private String detail;
 
-
-    @JoinColumn(name = "activity_id")
     private Long activityId;
 
-    @JoinColumn(name = "user_id")
     private Long userId;
 
     public Long getId() {
@@ -44,6 +37,14 @@ public class ActivityHistory extends BaseEntity {
         this.type = type;
     }
 
+    public LocalDateTime getActivityTime() {
+        return activityTime;
+    }
+
+    public void setActivityTime(LocalDateTime activityTime) {
+        this.activityTime = activityTime;
+    }
+
     public String getDetail() {
         return detail;
     }
@@ -58,14 +59,6 @@ public class ActivityHistory extends BaseEntity {
 
     public void setActivityId(Long activityId) {
         this.activityId = activityId;
-    }
-
-    public LocalDateTime getActivityTime() {
-        return activityTime;
-    }
-
-    public void setActivityTime(LocalDateTime activityTime) {
-        this.activityTime = activityTime;
     }
 
     public Long getUserId() {
