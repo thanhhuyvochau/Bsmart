@@ -588,4 +588,8 @@ public class ConvertUtil {
     public static QuizAnswerDto convertQuizAnswerToQuizAnswerDto(QuizAnswer quizAnswer) {
         return ObjectUtil.copyProperties(quizAnswer, new QuizAnswerDto(), QuizAnswerDto.class);
     }
+
+    public static ActivityHistoryResponse convertActivityHistoryToActivityHistoryResponse(ActivityHistory activityHistory) {
+        return ObjectUtil.copyProperties(activityHistory, new ActivityHistoryResponse(), ActivityHistoryResponse.class);
+    }
 }
