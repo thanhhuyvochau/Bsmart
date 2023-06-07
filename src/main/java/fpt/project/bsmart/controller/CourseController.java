@@ -3,11 +3,9 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseType;
 import fpt.project.bsmart.entity.dto.CourseDto;
-import fpt.project.bsmart.entity.request.CourseSearchRequest;
-import fpt.project.bsmart.entity.request.CreateCourseRequest;
-import fpt.project.bsmart.entity.request.ManagerApprovalCourseRequest;
-import fpt.project.bsmart.entity.request.UpdateSubCourseRequest;
+import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
@@ -64,16 +62,16 @@ public class CourseController {
     // ################################## Mentor ##########################################
 
     @Operation(summary = "lấy tất cả khoá học có sẵn để mentor tạo  khoá hoc (course sẵn phải phải là trang thái )")
-    @PreAuthorize("hasAnyRole('TEACHER')")
-    @GetMapping("/type-public")
-    public ResponseEntity<ApiResponse<List<CourseDto>>> getCoursePublic() {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCoursePublic()));
+    @PreAuthorize("hasAnyRole('TEACHER' , 'MANAGER')")
+    @GetMapping("/public")
+    public ResponseEntity<ApiResponse<ApiPage<CourseDto>>> getCoursePublic(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCoursePublic(pageable)));
     }
 
     @Operation(summary = "mentor tao khoá học")
-    @PostMapping
-    public ResponseEntity<ApiResponse<Long>> mentorCreateCourse(@Valid @RequestBody CreateCourseRequest createCourseRequest) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createCourseRequest)));
+    @PostMapping("/{id}")
+    public ResponseEntity<ApiResponse<Long>> mentorCreateCourse(@Nullable Long id , @Valid @RequestBody CreateCourseRequest createCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(id , createCourseRequest)));
     }
 
 
@@ -84,7 +82,7 @@ public class CourseController {
     }
 
 
-    @Operation(summary = "mentor sửa khoá học con ")
+    @Operation(summary = "mentor sửa khoá học  ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PutMapping("/{subCourseId}")
     public ResponseEntity<ApiResponse<Boolean>> mentorUpdateCourse(@PathVariable Long subCourseId, @Nullable @RequestBody UpdateSubCourseRequest updateCourseRequest) {
@@ -139,6 +137,14 @@ public class CourseController {
             , @RequestBody ManagerApprovalCourseRequest approvalCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.managerApprovalCourseRequest(subCourseId, approvalCourseRequest)));
     }
+
+    @Operation(summary = "Manager tạo khóa học chung cho các mentor (public)")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PostMapping("/public")
+    public ResponseEntity<ApiResponse<Boolean>> managerCreateCourse(@RequestBody CreateCoursePublicRequest createCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.managerCreateCourse(createCourseRequest)));
+    }
+
 
 
 }

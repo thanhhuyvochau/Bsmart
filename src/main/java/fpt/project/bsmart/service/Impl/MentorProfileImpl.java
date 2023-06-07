@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.Year;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -112,11 +113,12 @@ public class MentorProfileImpl implements IMentorProfileService {
 
     }
 
+    @Transactional
     @Override
-    public Long approveMentorProfile(Long id,  ManagerApprovalAccountRequest managerApprovalAccountRequest) {
+    public Long approveMentorProfile(Long id, ManagerApprovalAccountRequest managerApprovalAccountRequest) {
         MentorProfile mentorProfile = findById(id);
 
-        if (mentorProfile.getUser() == null){
+        if (mentorProfile.getUser() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
@@ -129,10 +131,12 @@ public class MentorProfileImpl implements IMentorProfileService {
         }
         mentorProfile.setStatus(EAccountStatus.STARTING);
         ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser().getId(), managerApprovalAccountRequest.getMessage());
+
+        ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser().getId(), managerApprovalAccountRequest.getMessage());
         return mentorProfileRepository.save(mentorProfile).getId();
 
-
     }
+
     private void validateApprovalAccountRequest(EAccountStatus accountStatus) {
         List<EAccountStatus> ALLOWED_STATUSES = Arrays.asList(EAccountStatus.STARTING, EAccountStatus.EDITREQUEST, EAccountStatus.REJECTED);
 

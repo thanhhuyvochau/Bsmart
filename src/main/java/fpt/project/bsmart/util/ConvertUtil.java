@@ -15,7 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -241,6 +244,7 @@ public class ConvertUtil {
             response.setCourseCode(course.getCode());
             response.setCourseName(course.getName());
             response.setCourseDescription(course.getDescription());
+            response.setCourseType(course.getType());
             Subject subject = course.getSubject();
             if (subject != null) {
                 SubjectDto subjectDto = convertSubjectToSubjectDto(subject);
@@ -260,7 +264,7 @@ public class ConvertUtil {
         response.setLevel(ObjectUtils.defaultIfNull(subCourse.getLevel(), null));
         response.setMinStudent(ObjectUtils.defaultIfNull(subCourse.getMinStudent(), 0));
         response.setMaxStudent(ObjectUtils.defaultIfNull(subCourse.getMaxStudent(), 0));
-        response.setPrice(ObjectUtils.defaultIfNull(subCourse.getPrice(),BigDecimal.ZERO));
+        response.setPrice(ObjectUtils.defaultIfNull(subCourse.getPrice(), BigDecimal.ZERO));
         response.setEndDateExpected(ObjectUtils.defaultIfNull(subCourse.getEndDateExpected(), null));
         response.setStartDateExpected(ObjectUtils.defaultIfNull(subCourse.getStartDateExpected(), null));
         response.setNumberOfSlot(ObjectUtils.defaultIfNull(subCourse.getNumberOfSlot(), null));
@@ -270,7 +274,6 @@ public class ConvertUtil {
         if (subCourse.getImage() != null) {
             response.setImageUrl(subCourse.getImage().getUrl());
         }
-
 
 
         if (subCourse.getMentor() != null) {
@@ -589,6 +592,7 @@ public class ConvertUtil {
         return ObjectUtil.copyProperties(quizAnswer, new QuizAnswerDto(), QuizAnswerDto.class);
     }
 
+
     public static StudentClassResponse convertStudentClassToResponse(StudentClass studentClass) {
         User student = studentClass.getStudent();
         StudentClassResponse studentClassResponse = new StudentClassResponse();
@@ -596,5 +600,9 @@ public class ConvertUtil {
         studentClassResponse.setId(studentClass.getId());
         studentClassResponse.setName(student.getFullName());
         return studentClassResponse;
+    }
+
+    public static ActivityHistoryResponse convertActivityHistoryToActivityHistoryResponse(ActivityHistory activityHistory) {
+        return ObjectUtil.copyProperties(activityHistory, new ActivityHistoryResponse(), ActivityHistoryResponse.class);
     }
 }

@@ -75,14 +75,17 @@ public class CourseServiceImpl implements ICourseService {
 
 
     @Override
-    public Long mentorCreateCourse(CreateCourseRequest createCourseRequest) {
+    public Long mentorCreateCourse(Long id, CreateCourseRequest createCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
-
-
+        Course course;
+        if (id != null) {
+            course = courseRepository.findById(id)
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        } else {
+            course = createCourseFromRequest(createCourseRequest);
+        }
         // check mentor account is valid
         checkMentorProfile(currentUserAccountLogin);
-
-        Course course = createCourseFromRequest(createCourseRequest);
 
         course.setStatus(REQUESTING);
 
@@ -109,7 +112,7 @@ public class CourseServiceImpl implements ICourseService {
 
         // ghi log
         subCourses.forEach(subCourse -> {
-                    ActivityHistoryUtil.logHistoryForCourseApprove(subCourse.getId(), "mentor create course");
+                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), subCourse.getId());
                 }
         );
 
@@ -378,84 +381,126 @@ public class CourseServiceImpl implements ICourseService {
                     .withMessage(messageUtil.getLocalMessage(SUB_COURSE_STATUS_NOT_ALLOW));
         }
 
+
         if (updateCourseRequest.getImageId() != null) {
             Optional.ofNullable(subCourse.getImage())
                     .map(Image::getId)
                     .ifPresent(imageRepository::deleteById);
         }
+
+
 //        subCourseRepository.save(subCourse);
 //        subCourse.setImage(null);
+        if (subCourse.getCourse().getType().equals(ECourseType.PRIVATE)) {
+            Course course = subCourse.getCourse();
+            if (updateCourseRequest.getCourseCode() != null) {
+                course.setCode(updateCourseRequest.getCourseCode());
+            }
+            if (updateCourseRequest.getCourseName() != null) {
+                course.setName(updateCourseRequest.getCourseName());
+            }
+            if (updateCourseRequest.getCourseDescription() != null) {
+                course.setName(updateCourseRequest.getCourseDescription());
+            }
 
-
-        Course course = subCourse.getCourse();
-        course.setCode(updateCourseRequest.getCourseCode());
-        course.setName(updateCourseRequest.getCourseName());
-        course.setDescription(updateCourseRequest.getCourseDescription());
-
-        if (updateCourseRequest.getCategoryId() != null) {
-            Category category = categoryRepository.findById(updateCourseRequest.getCategoryId())
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + updateCourseRequest.getCategoryId()));
-            List<Subject> subjects = category.getSubjects();
-            subjects.forEach(subject -> {
-                if (subject.getId().equals(updateCourseRequest.getSubjectId())) {
-                    course.setSubject(subject);
-                }
-            });
+            if (updateCourseRequest.getCategoryId() != null) {
+                Category category = categoryRepository.findById(updateCourseRequest.getCategoryId())
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + updateCourseRequest.getCategoryId()));
+                List<Subject> subjects = category.getSubjects();
+                subjects.forEach(subject -> {
+                    if (subject.getId().equals(updateCourseRequest.getSubjectId())) {
+                        course.setSubject(subject);
+                    }
+                });
+            }
         }
 
-        if (updateCourseRequest.getImageId() != null) {
 
-            Image image = imageRepository.findById(updateCourseRequest.getImageId())
+        if (updateCourseRequest.getImageId() != null) {
+            Image image = imageRepository.findById(subCourse.getImage().getId())
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + subCourse.getImage().getId()));
+
+            List<SubCourse> subCourseByImage = subCourseRepository.findAllByImage(image);
+            if (subCourseByImage.size() == 1) {
+                Optional.ofNullable(subCourse.getImage())
+                        .map(Image::getId)
+                        .ifPresent(imageRepository::deleteById);
+            } else {
+                subCourse.setImage(null);
+            }
+            Image imageUpdated = imageRepository.findById(subCourse.getImage().getId())
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                             .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + updateCourseRequest.getImageId()));
 
-            subCourse.setImage(image);
+            subCourse.setImage(imageUpdated);
         }
-
-        subCourse.setTitle(updateCourseRequest.getSubCourseTitle());
-        subCourse.setLevel(updateCourseRequest.getLevel());
-        subCourse.setPrice(updateCourseRequest.getPrice());
-        subCourse.setStartDateExpected(updateCourseRequest.getStartDateExpected());
-        subCourse.setEndDateExpected(updateCourseRequest.getEndDateExpected());
-        subCourse.setMinStudent(updateCourseRequest.getMinStudent());
-        subCourse.setMaxStudent(updateCourseRequest.getMaxStudent());
-        subCourse.setTypeLearn(updateCourseRequest.getType());
-        subCourse.setLevel(updateCourseRequest.getLevel());
-
+        if (updateCourseRequest.getSubCourseTitle() != null) {
+            subCourse.setTitle(updateCourseRequest.getSubCourseTitle());
+        }
+        if (updateCourseRequest.getLevel() != null) {
+            subCourse.setLevel(updateCourseRequest.getLevel());
+        }
+        if (updateCourseRequest.getPrice() != null) {
+            subCourse.setPrice(updateCourseRequest.getPrice());
+        }
+        if (updateCourseRequest.getStartDateExpected() != null) {
+            subCourse.setStartDateExpected(updateCourseRequest.getStartDateExpected());
+        }
+        if (updateCourseRequest.getEndDateExpected() != null) {
+            subCourse.setEndDateExpected(updateCourseRequest.getEndDateExpected());
+        }
+        if (updateCourseRequest.getMinStudent() != null) {
+            subCourse.setMinStudent(updateCourseRequest.getMinStudent());
+        }
+        if (updateCourseRequest.getMaxStudent() != null) {
+            subCourse.setMaxStudent(updateCourseRequest.getMaxStudent());
+        }
+        if (updateCourseRequest.getType() != null) {
+            subCourse.setTypeLearn(updateCourseRequest.getType());
+        }
+        if (updateCourseRequest.getLevel() != null) {
+            subCourse.setLevel(updateCourseRequest.getLevel());
+        }
 
         subCourse.setMentor(currentUserAccountLogin);
-        List<TimeInWeekRequest> timeInWeekRequests = updateCourseRequest.getTimeInWeekRequests();
-        TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
-        if (duplicateElement == null) {
-            List<Long> slotIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
-            List<Long> dowIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getDayOfWeekId).collect(Collectors.toList());
-            Map<Long, Slot> slotMap = slotRepository.findAllById(slotIds).stream().collect(Collectors.toMap(Slot::getId, Function.identity()));
-            Map<Long, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAllById(dowIds).stream().collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
-            for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
-                TimeInWeek timeInWeek = new TimeInWeek();
-                DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
-                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(DAY_OF_WEEK_COULD_NOT_BE_FOUND));
-                timeInWeek.setDayOfWeek(dayOfWeek);
+        if (updateCourseRequest.getTimeInWeekRequests() != null) {
+            List<TimeInWeekRequest> timeInWeekRequests = updateCourseRequest.getTimeInWeekRequests();
+            TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
+            if (duplicateElement == null) {
+                List<Long> slotIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
+                List<Long> dowIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getDayOfWeekId).collect(Collectors.toList());
+                Map<Long, Slot> slotMap = slotRepository.findAllById(slotIds).stream().collect(Collectors.toMap(Slot::getId, Function.identity()));
+                Map<Long, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAllById(dowIds).stream().collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
+                for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
+                    TimeInWeek timeInWeek = new TimeInWeek();
+                    DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
+                            .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(DAY_OF_WEEK_COULD_NOT_BE_FOUND));
+                    timeInWeek.setDayOfWeek(dayOfWeek);
 
-                Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
-                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(SLOT_COULD_NOT_BE_FOUND));
-                timeInWeek.setSlot(slot);
+                    Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
+                            .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(SLOT_COULD_NOT_BE_FOUND));
+                    timeInWeek.setSlot(slot);
 
-                timeInWeek.setSubCourse(subCourse);
-                subCourse.addTimeInWeek(timeInWeek);
+                    timeInWeek.setSubCourse(subCourse);
+                    subCourse.addTimeInWeek(timeInWeek);
+                }
+
+            } else {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED);
             }
-
-        } else {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED);
         }
+
         subCourseRepository.save(subCourse);
         return true;
     }
 
 
+    @Transactional
     @Override
     public Boolean mentorDeleteCourse(Long subCourseId) {
         User user = MentorUtil.checkIsMentor();
+
         SubCourse subCourse = subCourseRepository.findById(subCourseId).
                 orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
@@ -464,21 +509,43 @@ public class CourseServiceImpl implements ICourseService {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
         }
-        Optional.ofNullable(subCourse.getImage())
-                .map(Image::getId)
-                .ifPresent(imageRepository::deleteById);
 
-        subCourse.setCourse(null);
+        if (subCourse.getImage() != null) {
+            Image image = imageRepository.findById(subCourse.getImage().getId())
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + subCourse.getImage().getId()));
+
+            List<SubCourse> subCourseByImage = subCourseRepository.findAllByImage(image);
+            if (subCourseByImage.size() == 1) {
+                Optional.ofNullable(subCourse.getImage())
+                        .map(Image::getId)
+                        .ifPresent(imageRepository::deleteById);
+            } else {
+                subCourse.setImage(null);
+            }
+        }
+
+        if (subCourse.getCourse().getType().equals(ECourseType.PRIVATE)) {
+            courseRepository.delete(subCourse.getCourse());
+        } else {
+            subCourse.setCourse(null);
+        }
+
         subCourseRepository.delete(subCourse);
+
+        ActivityHistoryUtil.logHistoryForCourseDeleted(user.getId(), subCourseId);
         return true;
     }
 
     @Override
-    public List<CourseDto> getCoursePublic() {
+    public ApiPage<CourseDto> getCoursePublic(Pageable pageable) {
         List<Course> coursesTypePublic = courseRepository.findAllByType(ECourseType.PUBLIC);
-        return coursesTypePublic.stream()
+        List<CourseDto> courseDtosTypePublic = coursesTypePublic.stream()
                 .map(ConvertUtil::convertCourseToCourseDTO)
                 .collect(Collectors.toList());
+
+
+        return PageUtil.convert(new PageImpl<>(courseDtosTypePublic, pageable, courseDtosTypePublic.size()));
     }
 
 
@@ -531,10 +598,50 @@ public class CourseServiceImpl implements ICourseService {
         subCourse.setStatus(approvalCourseRequest.getStatus());
         subCourseRepository.save(subCourse);
 
-        ActivityHistoryUtil.logHistoryForCourseApprove(subCourseId, approvalCourseRequest.getMessage());
+
+        // log history
+        ActivityHistoryUtil.logHistoryForCourseApprove(subCourse.getMentor().getId(), subCourseId, approvalCourseRequest.getMessage());
 
         return true;
     }
+
+    @Override
+    public Boolean managerCreateCourse(CreateCoursePublicRequest createCourseRequest) {
+        Course courseFromRequest = createCoursePublicFromRequest(createCourseRequest);
+        courseFromRequest.setType(ECourseType.PUBLIC);
+        courseRepository.save(courseFromRequest);
+        return true;
+    }
+
+    private Course createCoursePublicFromRequest(CreateCoursePublicRequest coursePublicRequest) {
+        Long categoryId = coursePublicRequest.getCategoryId();
+        if (categoryId == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE));
+        }
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + categoryId));
+
+
+        Long subjectId = coursePublicRequest.getSubjectId();
+        if (subjectId == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE));
+        }
+        Optional<Subject> optionalSubject = category.getSubjects().stream().filter(s -> s.getId().equals(subjectId)).findFirst();
+        Subject subject = optionalSubject.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                .withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + subjectId));
+
+        Course course = new Course();
+        course.setName(coursePublicRequest.getName());
+        course.setCode(coursePublicRequest.getCode());
+        course.setDescription(coursePublicRequest.getDescription());
+        course.setSubject(subject);
+
+        return course;
+    }
+
 
     private void validateApprovalCourseRequest(ECourseStatus statusRequest) {
         List<ECourseStatus> ALLOWED_STATUSES = Arrays.asList(NOTSTART, EDITREQUEST, REJECTED);

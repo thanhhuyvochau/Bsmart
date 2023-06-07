@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static fpt.project.bsmart.util.ActivityHistoryUtil.logHistoryForOrderCourse;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID;
 
 @Service
@@ -207,6 +208,9 @@ public class TransactionService implements ITransactionService {
         transaction.setAfterBalance(presentBalance.subtract(price));
         wallet.decreaseBalance(transaction.getAmount());
         transactionRepository.save(transaction);
+
+        //log
+        logHistoryForOrderCourse(wallet.getOwner().getId(), order.getId()) ;
         return true;
     }
 

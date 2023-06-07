@@ -1,6 +1,7 @@
 package fpt.project.bsmart.repository;
 
 import fpt.project.bsmart.entity.Course;
+import fpt.project.bsmart.entity.Image;
 import fpt.project.bsmart.entity.SubCourse;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -26,4 +28,6 @@ public interface SubCourseRepository extends JpaRepository<SubCourse, Long> {
     Page<SubCourse> findByMentor( User user, Pageable pageable);
     Optional<SubCourse> findByIdAndStatus(Long id , ECourseStatus status) ;
     Page<SubCourse> findAll(Specification<SubCourse> build, Pageable pageable);
+
+    List<SubCourse> findAllByImage(Image image);
 }
