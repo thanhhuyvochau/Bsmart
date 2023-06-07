@@ -9,6 +9,7 @@ import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.request.ClassFeedbackRequest;
 import fpt.project.bsmart.entity.request.category.CreateClassRequest;
 import fpt.project.bsmart.entity.response.ClassResponse;
+import fpt.project.bsmart.entity.response.SimpleClassResponse;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.repository.OrderDetailRepository;
@@ -16,6 +17,7 @@ import fpt.project.bsmart.repository.SubCourseRepository;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.ClassFeedbackSpecificationBuilder;
+import fpt.project.bsmart.validator.ClassValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -86,17 +88,17 @@ public class ClassServiceImpl implements IClassService {
     }
 
     @Override
-    public ApiPage<ClassResponse> getClassFeedbacks(ClassFeedbackRequest classFeedbackRequest, Pageable pageable) {
+    public ApiPage<SimpleClassResponse> getClassFeedbacks(ClassFeedbackRequest classFeedbackRequest, Pageable pageable) {
         ClassFeedbackSpecificationBuilder classFeedbackSpecificationBuilder = ClassFeedbackSpecificationBuilder.classFeedbackSpecificationBuilder()
                 .searchBySubCourseName(classFeedbackRequest.getSubCourseName())
                 .searchByMentorName(classFeedbackRequest.getMentorName())
                 .filterByStartDay(classFeedbackRequest.getStartDate())
                 .filterByEndDate(classFeedbackRequest.getEndDate());
         Page<Class> classes = classRepository.findAll(classFeedbackSpecificationBuilder.build(), pageable);
-        List<ClassResponse> classResponses = classes.stream()
-                .map(ConvertUtil::convertClassToClassResponse)
+        List<SimpleClassResponse> simpleClassRespons = classes.stream()
+                .map(ConvertUtil::convertClassToSimpleClassResponse)
                 .collect(Collectors.toList());
-        PageImpl<ClassResponse> classResponsePage = new PageImpl<>(classResponses);
+        PageImpl<SimpleClassResponse> classResponsePage = new PageImpl<>(simpleClassRespons);
         return PageUtil.convert(classResponsePage);
 
     }
@@ -108,5 +110,15 @@ public class ClassServiceImpl implements IClassService {
             throw ApiException.create(HttpStatus.CONFLICT).withMessage("Lớp học chưa tới thời gian bắt đầu!");
         }
         return Optional.ofNullable(ClassUtil.getPercentageOfClassTime(clazz)).orElseThrow(() -> ApiException.create(HttpStatus.CONFLICT).withMessage("Đã có lỗi xảy ra vui lòng thử lại"));
+    }
+
+    @Override
+    public ClassResponse getDetailClass(Long id) {
+        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy lớp với id:" + id));
+        User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        if (ClassValidator.isMentorOfClass(currentUser, clazz) || ClassValidator.isUserIsStudentOfClass(clazz, currentUser)) {
+            return ConvertUtil.convertClassToClassResponse(clazz);
+        }
+        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Bạn không thuộc về lớp này!");
     }
 }
