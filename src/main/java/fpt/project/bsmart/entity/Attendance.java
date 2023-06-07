@@ -1,6 +1,7 @@
 package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "attendance")
@@ -18,6 +19,16 @@ public class Attendance {
     private Boolean attendance = false;
     @Column(name = "note")
     private String note;
+
+    public Attendance(TimeTable timeTable, StudentClass studentClass, Boolean attendance, String note) {
+        this.timeTable = timeTable;
+        this.studentClass = studentClass;
+        this.attendance = attendance;
+        this.note = note;
+    }
+
+    public Attendance() {
+    }
 
     public Long getId() {
         return id;
@@ -57,5 +68,18 @@ public class Attendance {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Attendance that = (Attendance) o;
+        return Objects.equals(id, that.id) && Objects.equals(timeTable, that.timeTable) && Objects.equals(studentClass, that.studentClass) && Objects.equals(attendance, that.attendance) && Objects.equals(note, that.note);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, timeTable, studentClass, attendance, note);
     }
 }

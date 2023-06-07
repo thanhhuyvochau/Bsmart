@@ -32,7 +32,8 @@ import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
-import static fpt.project.bsmart.util.ConvertUtil.*;
+import static fpt.project.bsmart.util.ConvertUtil.convertCourseSubCourseToCourseSubCourseDetailResponse;
+import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDTO;
 
 
 @Service
@@ -245,15 +246,7 @@ public class CourseServiceImpl implements ICourseService {
                 .queryByCategoryId(query.getCategoryId());
 
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
-
-        List<CourseResponse> courseResponses = coursesPage.getContent().stream()
-                .filter(course -> !course.getSubCourses().isEmpty())
-                .distinct()
-                .map(ConvertUtil::convertCourseCourseResponsePage)
-                .collect(Collectors.toList());
-
-        return PageUtil.convert(new PageImpl<>(courseResponses, pageable, coursesPage.getTotalElements()));
-
+        return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
     }
 
 

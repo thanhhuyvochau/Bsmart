@@ -6,7 +6,9 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.request.ClassFeedbackRequest;
 import fpt.project.bsmart.entity.request.category.CreateClassRequest;
+import fpt.project.bsmart.entity.response.AttendanceStudentResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
+import fpt.project.bsmart.service.AttendanceService;
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -22,9 +24,11 @@ import javax.validation.Valid;
 public class ClassController {
 
     private final IClassService iClassService;
+    private final AttendanceService attendanceService;
 
-    public ClassController(IClassService iClassService) {
+    public ClassController(IClassService iClassService, AttendanceService attendanceService) {
         this.iClassService = iClassService;
+        this.attendanceService = attendanceService;
     }
 
     @Operation(summary = "mentor tao lớp học")
@@ -44,6 +48,10 @@ public class ClassController {
     public ResponseEntity<ApiResponse<ClassProgressTimeDto>> getClassProgression(@Valid @RequestParam Long classId) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getClassProgression(classId)));
     }
-
+    @Operation(summary = "Học sinh lấy điểm danh của lớp học")
+    @GetMapping("/{classId}/student/attendances")
+    public ResponseEntity<ApiResponse<AttendanceStudentResponse>> getDetailStudentAttendance(@PathVariable long classId) {
+        return ResponseEntity.ok(ApiResponse.success(attendanceService.getAttendanceByClassForStudent(classId)));
+    }
 
 }

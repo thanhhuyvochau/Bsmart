@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -38,7 +37,6 @@ public class SecurityUtil {
     public static User getCurrentUser() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Object principal = securityContext.getAuthentication().getPrincipal();
-        UserDetails userDetails1 = null;
         User user = null;
         if (principal instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) principal;
@@ -48,6 +46,22 @@ public class SecurityUtil {
                             .withMessage(messageUtil.getLocalMessage("Tài khoản đăng nhập hiện tại không tìm thấy") + email));
         }
         return user;
+    }
+
+    public static Optional<User> getCurrentUserOptional() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Object principal = securityContext.getAuthentication().getPrincipal();
+        User user = null;
+        if (principal instanceof UserDetailsImpl) {
+
+            UserDetailsImpl userDetails = (UserDetailsImpl) principal;
+            String email = userDetails.getEmail();
+            user = staticUserRepository.findByEmail(email)
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(messageUtil.getLocalMessage("Tài khoản đăng nhập hiện tại không tìm thấy") + email));
+
+        }
+        return Optional.ofNullable(user);
     }
 
     public static Wallet getCurrentUserWallet() {
@@ -89,5 +103,9 @@ public class SecurityUtil {
             }
         }
         return false;
+    }
+
+    public static User getUserOrThrowException(Optional<User> userOptional) {
+        return userOptional.orElseThrow(() -> ApiException.create(HttpStatus.UNAUTHORIZED).withMessage("Người dùng chưa đăng nhập hoặc không tồn tại"));
     }
 }
