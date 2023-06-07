@@ -11,6 +11,7 @@ import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CourseSubCourseResponse {
@@ -42,7 +43,7 @@ public class CourseSubCourseResponse {
     private String courseDescription;
 
 
-    private CategoryDto category;
+    private List<CategoryDto> categoryDtoList = new ArrayList<>();
 
     private SubjectDto subject;
 
@@ -93,12 +94,12 @@ public class CourseSubCourseResponse {
         this.imageUrl = imageUrl;
     }
 
-    public CategoryDto getCategory() {
-        return category;
+    public List<CategoryDto> getCategoryDtoList() {
+        return categoryDtoList;
     }
 
-    public void setCategory(CategoryDto category) {
-        this.category = category;
+    public void setCategoryDtoList(List<CategoryDto> categoryDtoList) {
+        this.categoryDtoList = categoryDtoList;
     }
 
     public SubjectDto getSubject() {

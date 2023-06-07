@@ -15,10 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -43,9 +40,12 @@ public class ConvertUtil {
     }
 
     public static SubjectDto convertSubjectToSubjectDto(Subject subject) {
-        SubjectDto subjectDto = ObjectUtil.copyProperties(subject, new SubjectDto(), SubjectDto.class);
-        if (subject.getCategory() != null) {
-            subjectDto.setCategoryId(subject.getCategory().getId());
+        SubjectDto subjectDto = ObjectUtil.copyProperties(subject, new SubjectDto(), SubjectDto.class,true);
+        Set<Category> categories = subject.getCategories();
+        if (!categories.isEmpty()) {
+            for (Category category : categories) {
+                subjectDto.getCategoryIds().add(category.getId());
+            }
         }
         return subjectDto;
     }
@@ -184,8 +184,11 @@ public class ConvertUtil {
 
         if (course.getSubject() != null) {
             response.setSubject(convertSubjectToSubjectDto(course.getSubject()));
-            if (course.getSubject().getCategory() != null) {
-                response.setCategoryDto(convertCategoryToCategoryDto(course.getSubject().getCategory()));
+            Set<Category> categories = course.getSubject().getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+                    response.getCategoryDtoList().add(convertCategoryToCategoryDto(category));
+                }
             }
         }
 
@@ -227,9 +230,12 @@ public class ConvertUtil {
         Subject subject = course.getSubject();
         if (subject != null) {
             response.setSubject(convertSubjectToSubjectDto(subject));
-            Category category = subject.getCategory();
-            if (category != null) {
-                response.setCategory(convertCategoryToCategoryDto(category));
+            Set<Category> categories = subject.getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+                    response.getCategoryDtoList().add(convertCategoryToCategoryDto(category));
+                }
+
             }
         }
 
@@ -249,10 +255,12 @@ public class ConvertUtil {
             if (subject != null) {
                 SubjectDto subjectDto = convertSubjectToSubjectDto(subject);
                 response.setSubject(subjectDto);
-                Category category = subject.getCategory();
-                if (category != null) {
-                    CategoryDto categoryDto = convertCategoryToCategoryDto(category);
-                    response.setCategory(categoryDto);
+                Set<Category> categories = subject.getCategories();
+                if (!categories.isEmpty()) {
+                    for (Category category : categories) {
+                        CategoryDto categoryDto = convertCategoryToCategoryDto(category);
+                        response.getCategoryDtoList().add(categoryDto);
+                    }
                 }
             }
         }
@@ -327,13 +335,13 @@ public class ConvertUtil {
         if (subject != null) {
             courseResponse.setSubjectId(subject.getId());
             courseResponse.setSubjectName(subject.getName());
-            Category category = subject.getCategory();
-            if (category != null) {
-                courseResponse.setCategoryId(category.getId());
-                courseResponse.setCategoryName(category.getName());
+            Set<Category> categories = subject.getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+                    CategoryDto categoryDto = convertCategoryToCategoryDto(category);
+                    courseResponse.getCategoryDtoList().add(categoryDto);
+                }
             }
-
-
         }
         return courseResponse;
     }

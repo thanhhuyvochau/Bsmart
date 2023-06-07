@@ -406,7 +406,7 @@ public class CourseServiceImpl implements ICourseService {
             if (updateCourseRequest.getCategoryId() != null) {
                 Category category = categoryRepository.findById(updateCourseRequest.getCategoryId())
                         .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + updateCourseRequest.getCategoryId()));
-                List<Subject> subjects = category.getSubjects();
+                Set<Subject> subjects = category.getSubjects();
                 subjects.forEach(subject -> {
                     if (subject.getId().equals(updateCourseRequest.getSubjectId())) {
                         course.setSubject(subject);
