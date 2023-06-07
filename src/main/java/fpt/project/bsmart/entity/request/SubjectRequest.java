@@ -2,7 +2,8 @@ package fpt.project.bsmart.entity.request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SubjectRequest {
 
@@ -13,8 +14,7 @@ public class SubjectRequest {
     private String name;
 
     @NotNull
-    @Positive
-    private Long categoryId;
+    private List<Long> categoryIds = new ArrayList<>();
 
     public String getCode() {
         return code;
@@ -32,12 +32,11 @@ public class SubjectRequest {
         this.name = name;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
+    public List<Long> getCategoryIds() {
+        return categoryIds;
     }
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
+    public void setCategoryIds(List<Long> categoryIds) {
+        this.categoryIds = categoryIds;
     }
-
 }

@@ -63,15 +63,15 @@ public class CourseSpecificationBuilder {
         return this;
     }
 
-    public CourseSpecificationBuilder queryByCategoryId(List<Long> categoryId) {
-        if (categoryId == null || categoryId.isEmpty()) {
+    public CourseSpecificationBuilder queryByCategoryId(List<Long> categoryIds) {
+        if (categoryIds == null || categoryIds.isEmpty()) {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
             Join<Course, Subject> courseSubjectJoin = root.join(Course_.SUBJECT, JoinType.INNER);
-            Join<Subject, Category> categoryJoin = courseSubjectJoin.join(Subject_.CATEGORY);
+            Join<Subject, Category> categoryJoin = courseSubjectJoin.join(Subject_.CATEGORIES);
             Path<Object> objectPath = categoryJoin.get(Category_.ID);
-            return criteriaBuilder.and(objectPath.in(categoryId));
+            return criteriaBuilder.and(objectPath.in(categoryIds));
         });
         return this;
     }

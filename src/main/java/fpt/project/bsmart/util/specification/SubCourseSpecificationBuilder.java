@@ -77,7 +77,7 @@ public class SubCourseSpecificationBuilder {
         specifications.add((root, query, criteriaBuilder) -> {
             Join<SubCourse, Course> courseJoin = root.join(SubCourse_.COURSE, JoinType.INNER);
             Join<Course, Subject> courseSubjectJoin = courseJoin.join(Course_.SUBJECT, JoinType.INNER);
-            Join<Subject, Category> subjectCategoryJoin = courseSubjectJoin.join(Subject_.CATEGORY, JoinType.INNER);
+            Join<Subject, Category> subjectCategoryJoin = courseSubjectJoin.join(Subject_.CATEGORIES, JoinType.INNER);
 //            Path<Object> objectPath = categoryJoin.get(Category_.ID);
             return criteriaBuilder.and(subjectCategoryJoin.get(Category_.ID).in(categoryId));
         });

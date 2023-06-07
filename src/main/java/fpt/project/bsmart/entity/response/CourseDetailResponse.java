@@ -8,7 +8,8 @@ import fpt.project.bsmart.entity.dto.ClassDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 
-
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class CourseDetailResponse {
@@ -25,7 +26,7 @@ public class CourseDetailResponse {
 
     private SubjectDto subject;
 
-    private CategoryDto categoryDto;
+    private List<CategoryDto> categoryDtoList = new ArrayList<>();
 
     private Long mentorId;
 
@@ -70,12 +71,12 @@ public class CourseDetailResponse {
         return subject;
     }
 
-    public CategoryDto getCategoryDto() {
-        return categoryDto;
+    public List<CategoryDto> getCategoryDtoList() {
+        return categoryDtoList;
     }
 
-    public void setCategoryDto(CategoryDto categoryDto) {
-        this.categoryDto = categoryDto;
+    public void setCategoryDtoList(List<CategoryDto> categoryDtoList) {
+        this.categoryDtoList = categoryDtoList;
     }
 
     public void setSubject(SubjectDto subject) {
