@@ -241,6 +241,7 @@ public class ConvertUtil {
             response.setCourseCode(course.getCode());
             response.setCourseName(course.getName());
             response.setCourseDescription(course.getDescription());
+            response.setCourseType(course.getType());
             Subject subject = course.getSubject();
             if (subject != null) {
                 SubjectDto subjectDto = convertSubjectToSubjectDto(subject);

@@ -3,6 +3,7 @@ package fpt.project.bsmart.entity.response;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseType;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
@@ -48,6 +49,7 @@ public class CourseSubCourseResponse {
 
     private ECourseLevel level;
 
+    private ECourseType courseType ;
 
     private String mentorName;
 
@@ -73,6 +75,14 @@ public class CourseSubCourseResponse {
 
     public void setCourseId(Long courseId) {
         this.courseId = courseId;
+    }
+
+    public ECourseType getCourseType() {
+        return courseType;
+    }
+
+    public void setCourseType(ECourseType courseType) {
+        this.courseType = courseType;
     }
 
     public String getImageUrl() {
