@@ -82,7 +82,7 @@ public class CourseController {
     }
 
 
-    @Operation(summary = "mentor sửa khoá học con ")
+    @Operation(summary = "mentor sửa khoá học  ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PutMapping("/{subCourseId}")
     public ResponseEntity<ApiResponse<Boolean>> mentorUpdateCourse(@PathVariable Long subCourseId, @Nullable @RequestBody UpdateSubCourseRequest updateCourseRequest) {
