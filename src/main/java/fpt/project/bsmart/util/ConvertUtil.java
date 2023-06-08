@@ -671,6 +671,11 @@ public class ConvertUtil {
         return ObjectUtil.copyProperties(classModule, new ClassModuleDto(), ClassModuleDto.class, true);
     }
 
-    ;
+    public static TimeTableResponse convertTimeTableToResponse(TimeTable timeTable) {
+        TimeTableResponse timeTableResponse = ObjectUtil.copyProperties(timeTable, new TimeTableResponse(), TimeTableResponse.class, true);
+        SlotDto slotDto = convertSlotToSlotDto(timeTable.getSlot());
+        timeTableResponse.setSlot(slotDto);
+        return timeTableResponse;
+    }
 
 }

@@ -9,8 +9,10 @@ import fpt.project.bsmart.entity.request.category.CreateClassRequest;
 import fpt.project.bsmart.entity.response.AttendanceStudentResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
+import fpt.project.bsmart.entity.response.TimeTableResponse;
 import fpt.project.bsmart.service.AttendanceService;
 import fpt.project.bsmart.service.IClassService;
+import fpt.project.bsmart.service.ITimeTableService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -26,10 +28,12 @@ public class ClassController {
 
     private final IClassService iClassService;
     private final AttendanceService attendanceService;
+    private final ITimeTableService timeTableService;
 
-    public ClassController(IClassService iClassService, AttendanceService attendanceService) {
+    public ClassController(IClassService iClassService, AttendanceService attendanceService, ITimeTableService timeTableService) {
         this.iClassService = iClassService;
         this.attendanceService = attendanceService;
+        this.timeTableService = timeTableService;
     }
 
     @Operation(summary = "mentor tao lớp học")
@@ -60,5 +64,10 @@ public class ClassController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ClassResponse>> getClassDetail(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getDetailClass(id)));
+    }
+
+    @GetMapping("/{id}/time-tables")
+    public ResponseEntity<ApiResponse<ApiPage<TimeTableResponse>>> getTimeTables(Long id, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(timeTableService.getTimeTableByClass(id, pageable)));
     }
 }
