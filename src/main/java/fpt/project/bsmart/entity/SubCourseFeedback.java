@@ -4,6 +4,8 @@ import fpt.project.bsmart.entity.constant.EFeedbackType;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "sub_course_feedback")
@@ -16,6 +18,8 @@ public class SubCourseFeedback {
     private SubCourse subCourse;
     @Column(name = "feedback_name")
     private String feedbackName;
+    @OneToMany(mappedBy = "feedbackSubmission", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FeedbackSubmitAnswer> submitAnswers = new ArrayList<>();
     @Column(name = "score")
     private Double score;
     @Column(name = "opinion")
@@ -51,6 +55,17 @@ public class SubCourseFeedback {
 
     public void setFeedbackName(String feedbackName) {
         this.feedbackName = feedbackName;
+    }
+
+    public List<FeedbackSubmitAnswer> getSubmitAnswers() {
+        return submitAnswers;
+    }
+
+    public void setSubmitAnswers(List<FeedbackSubmitAnswer> submitAnswers) {
+        this.submitAnswers.clear();
+        if(submitAnswers !=null) {
+            this.submitAnswers.addAll(submitAnswers);
+        }
     }
 
     public Double getScore() {

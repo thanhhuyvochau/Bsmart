@@ -76,7 +76,7 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
                 Quiz quiz = addQuiz((AddQuizRequest) activityRequest, activity);
                 activity.setQuiz(quiz);
                 activityRepository.save(activity);
-                break;
+                return true;
             case "ASSIGNMENT":
                 Assignment assignment = addAssignment((AssignmentRequest) activityRequest, activity);
                 activity.setAssignment(assignment);
@@ -85,12 +85,11 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
             default:
                 throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE) + code);
         }
-        return false;
     }
 
 
 
-    public Quiz addQuiz(AddQuizRequest addQuizRequest, Activity activity) {
+    private Quiz addQuiz(AddQuizRequest addQuizRequest, Activity activity) {
         if(addQuizRequest.getCode().trim().isEmpty()){
 
         }

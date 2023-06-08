@@ -23,7 +23,7 @@ public class FeedbackQuestionRequest {
         return answers;
     }
 
-    public void setAnswer(List<FeedbackAnswerRequest> answers) {
+    public void setAnswers(List<FeedbackAnswerRequest> answers) {
         this.answers = answers;
     }
 

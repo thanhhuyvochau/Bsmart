@@ -7,9 +7,10 @@ import fpt.project.bsmart.entity.constant.EFeedbackType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface SubCourseFeedbackRepository extends JpaRepository<SubCourseFeedback, Long> {
-
+    List<SubCourseFeedback> getAllBySubCourse(SubCourse subCourse);
 }

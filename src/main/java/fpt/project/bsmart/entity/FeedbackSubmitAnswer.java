@@ -8,14 +8,18 @@ public class FeedbackSubmitAnswer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne
-    @JoinColumn(name = "submit_answer_id")
-    private FeedbackSubmitQuestion submitQuestion;
     @ManyToOne
-    @JoinColumn(name = "feedback_answer")
-    private FeedbackAnswer answer;
-    @Column(name = "submit_answer")
-    private String submitAnswer;
+    @JoinColumn(name = "feedback_submission")
+    private SubCourseFeedback feedbackSubmission;
+    @ManyToOne
+    @JoinColumn(name = "feedback_question")
+    private FeedbackQuestion question;
+    @ManyToOne
+    @JoinColumn(name = "submit_answer")
+    private FeedbackAnswer submitAnswer;
+    @Column(name = "filled_answer")
+    private String filledAnswer;
+
 
     public Long getId() {
         return id;
@@ -25,27 +29,37 @@ public class FeedbackSubmitAnswer {
         this.id = id;
     }
 
-    public FeedbackSubmitQuestion getSubmitQuestion() {
-        return submitQuestion;
+    public SubCourseFeedback getFeedbackSubmission() {
+        return feedbackSubmission;
     }
 
-    public void setSubmitQuestion(FeedbackSubmitQuestion submitQuestion) {
-        this.submitQuestion = submitQuestion;
+    public void setFeedbackSubmission(SubCourseFeedback feedbackSubmission) {
+        this.feedbackSubmission = feedbackSubmission;
     }
 
-    public FeedbackAnswer getAnswer() {
-        return answer;
+    public FeedbackQuestion getQuestion() {
+        return question;
     }
 
-    public void setAnswer(FeedbackAnswer answer) {
-        this.answer = answer;
+    public void setQuestion(FeedbackQuestion question) {
+        this.question = question;
     }
 
-    public String getSubmitAnswer() {
+    public FeedbackAnswer getSubmitAnswer() {
         return submitAnswer;
     }
 
-    public void setSubmitAnswer(String submitAnswer) {
+    public void setSubmitAnswer(FeedbackAnswer submitAnswer) {
         this.submitAnswer = submitAnswer;
     }
+
+    public String getFilledAnswer() {
+        return filledAnswer;
+    }
+
+    public void setFilledAnswer(String filledAnswer) {
+        this.filledAnswer = filledAnswer;
+    }
+
+
 }

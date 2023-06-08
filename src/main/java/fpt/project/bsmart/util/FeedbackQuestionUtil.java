@@ -21,6 +21,10 @@ public class FeedbackQuestionUtil {
     public static final Integer MIN_QUESTION_IN_TEMPLATE = 2;
     public static final Integer MAX_QUESTION_IN_TEMPLATE = 10;
 
+    public FeedbackQuestionUtil(MessageUtil messageUtil){
+        this.messageUtil = messageUtil;
+    }
+
     public static void validateFeedbackAnswer(FeedbackQuestionRequest request){
         List<FeedbackAnswerRequest> answers = request.getAnswers();
         if (answers.isEmpty()

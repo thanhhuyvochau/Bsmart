@@ -3,6 +3,7 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.FeedbackQuestionDto;
 import fpt.project.bsmart.entity.dto.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.dto.SubCourseFeedbackDto;
 import fpt.project.bsmart.entity.request.feedback.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.feedback.FeedbackQuestionRequest;
 import fpt.project.bsmart.entity.request.feedback.SubCourseFeedbackRequest;
@@ -52,10 +53,16 @@ public class FeedbackController {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.deleteFeedbackQuestion(id)));
     }
 
-    //@Operation(summary = "Học sinh feedback subcourse")
-    //@PostMapping("/sub-courses")
+    @Operation(summary = "Học sinh feedback subcourse")
+    @PostMapping("/sub-courses")
     public ResponseEntity<ApiResponse<Long>> addNewSubCourseFeedback(@RequestBody SubCourseFeedbackRequest subCourseFeedbackRequest){
         return ResponseEntity.ok(ApiResponse.success(feedbackService.addNewSubCourseFeedback(subCourseFeedbackRequest)));
+    }
+
+    @Operation(summary = "Học sinh cập nhật subcourse feedback")
+    @PutMapping("/sub-courses/{id}")
+    public ResponseEntity<ApiResponse<Long>> updateSubCourseFeedback(@PathVariable Long id, @RequestBody SubCourseFeedbackRequest subCourseFeedbackRequest){
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.updateSubCourseFeedBack(id, subCourseFeedbackRequest)));
     }
 
     @Operation(summary = "Lấy toàn bộ feedback template")
@@ -93,5 +100,17 @@ public class FeedbackController {
     @PostMapping("template/{templateId}/sub-course/{subCourseId}")
     public ResponseEntity<ApiResponse<Long>> updateFeedbackTemplateToSubCourse(@PathVariable Long templateId, @PathVariable Long subCourseId){
         return ResponseEntity.ok(ApiResponse.success(feedbackService.updateFeedbackTemplateToSubCourse(templateId, subCourseId)));
+    }
+
+    @Operation(summary = "Lấy sub-course feedback bằng id")
+    @GetMapping("/{id}/sub-courses")
+    public ResponseEntity<ApiResponse<SubCourseFeedbackDto>> getSubCourseFeedbackById(@PathVariable Long id){
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.getSubcourseFeedbackById(id)));
+    }
+
+    @Operation(summary = "Lấy toàn bộ sub-course feedback bằng sub-course id")
+    @GetMapping("/sub-course/{id}")
+    public ResponseEntity<ApiResponse<List<SubCourseFeedbackDto>>> getAllFeedbackBySubCourseId(@PathVariable Long id){
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.getAllSubCourseFeedback(id)));
     }
 }

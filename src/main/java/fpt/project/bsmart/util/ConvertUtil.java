@@ -417,6 +417,7 @@ public class ConvertUtil {
             for(FeedbackAnswer feedbackAnswer : question.getAnswers()){
                 answer.add(ObjectUtil.copyProperties(feedbackAnswer, new FeedbackAnswerDto(), FeedbackAnswerDto.class));
             }
+            feedbackQuestionDto.setAnswers(answer);
         }
         return feedbackQuestionDto;
     }
@@ -558,5 +559,33 @@ public class ConvertUtil {
 
     public static QuizAnswerDto convertQuizAnswerToQuizAnswerDto(QuizAnswer quizAnswer) {
         return ObjectUtil.copyProperties(quizAnswer, new QuizAnswerDto(), QuizAnswerDto.class);
+    }
+
+    public static SubCourseFeedbackDto convertSubCourseFeedbackToSubCourseFeedbackDto(SubCourseFeedback subCourseFeedback){
+        SubCourseFeedbackDto subCourseFeedbackDto = new SubCourseFeedbackDto();
+        if(subCourseFeedback.getSubmitAnswers() != null){
+            List<SubmitFeedbackQuestionDto> submitFeedbackQuestionDtos = new ArrayList<>();
+            for (FeedbackSubmitAnswer submitAnswer: subCourseFeedback.getSubmitAnswers()) {
+                SubmitFeedbackQuestionDto submitQuestion = new SubmitFeedbackQuestionDto();
+                submitQuestion.setId(submitAnswer.getId());
+                submitQuestion.setQuestion(submitAnswer.getQuestion().getQuestion());
+                if(submitAnswer.getQuestion().getQuestionType().equals(EQuestionType.FILL_THE_ANSWER)){
+                    submitQuestion.setAnswer(submitAnswer.getFilledAnswer());
+                }else{
+                    submitQuestion.setAnswer(submitAnswer.getSubmitAnswer().getAnswer());
+                }
+                submitFeedbackQuestionDtos.add(submitQuestion);
+            }
+            subCourseFeedbackDto.setQuestions(submitFeedbackQuestionDtos);
+        }
+        subCourseFeedbackDto.setId(subCourseFeedback.getId());
+        subCourseFeedbackDto.setSubCourseId(subCourseFeedback.getSubCourse().getId());
+        subCourseFeedbackDto.setFeedbackName(subCourseFeedback.getFeedbackName());
+        subCourseFeedbackDto.setScore(subCourseFeedback.getScore());
+        subCourseFeedbackDto.setOpinion(subCourseFeedback.getOpinion());
+        subCourseFeedbackDto.setFeedbackType(subCourseFeedback.getFeedbackType());
+        subCourseFeedbackDto.setSubmitUserId(subCourseFeedback.getSubmitBy().getId());
+        subCourseFeedbackDto.setSubmitDate(subCourseFeedback.getSubmitDate());
+        return subCourseFeedbackDto;
     }
 }
