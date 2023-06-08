@@ -1,7 +1,6 @@
 package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.entity.Category;
-import fpt.project.bsmart.entity.Subject;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.request.category.CategoryRequest;
@@ -68,10 +67,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public Long deleteCategory(Long id) {
         Category category = findById(id);
-        for (Subject subject : category.getSubjects()) {
-            subject.setCategory(null);
-        }
-        categoryRepository.delete(category);
+        category.remove();
         return id;
     }
 }

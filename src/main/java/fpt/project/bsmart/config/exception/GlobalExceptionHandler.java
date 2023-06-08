@@ -19,17 +19,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.failed("Access Denied"));
     }
 
-//    @ExceptionHandler({Exception.class})
-//    @ResponseBody
-//    public ResponseEntity<ApiResponse> handleCommonException(Exception e) {
-//        e.printStackTrace();
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failed(e.getMessage() == null ? defaultErrorMessage : e.getMessage()));
-//    }
-
-    @ExceptionHandler(ApiException.class)
+    @ExceptionHandler({ApiException.class})
     @ResponseBody
     public ResponseEntity<ApiResponse> handleApiException(ApiException e) {
         return ResponseEntity.status(e.getStatus())
                 .body(ApiResponse.failed(e.getMessage()));
     }
+
+    @ExceptionHandler({Exception.class})
+    @ResponseBody
+    public ResponseEntity<ApiResponse> handleCommonException(Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failed(e.getMessage() == null ? defaultErrorMessage : e.getMessage()));
+    }
+
+
 }

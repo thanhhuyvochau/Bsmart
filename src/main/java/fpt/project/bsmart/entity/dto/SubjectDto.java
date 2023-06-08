@@ -1,10 +1,13 @@
 package fpt.project.bsmart.entity.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SubjectDto {
     private Long id;
     private String code;
     private String name;
-    private Long categoryId;
+    private List<Long> categoryIds = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -30,11 +33,11 @@ public class SubjectDto {
         this.name = name;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
+    public List<Long> getCategoryIds() {
+        return categoryIds;
     }
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
+    public void setCategoryIds(List<Long> categoryIds) {
+        this.categoryIds = categoryIds;
     }
 }

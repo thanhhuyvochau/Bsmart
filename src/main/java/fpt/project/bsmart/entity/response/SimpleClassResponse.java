@@ -1,20 +1,14 @@
 package fpt.project.bsmart.entity.response;
 
-import fpt.project.bsmart.entity.dto.ActivityDto;
-import fpt.project.bsmart.entity.dto.ClassSectionDto;
-
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
-public class ClassResponse {
+public class SimpleClassResponse {
     private Long id;
     private Instant startDate;
     private Instant endDate;
     private Integer numberOfStudent = 0;
     private String subCourseName;
     private String mentorName;
-    private List<ClassSectionDto> classSectionList = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -62,13 +56,5 @@ public class ClassResponse {
 
     public void setMentorName(String mentorName) {
         this.mentorName = mentorName;
-    }
-
-    public List<ClassSectionDto> getClassSectionList() {
-        return classSectionList;
-    }
-
-    public void setClassSectionList(List<ClassSectionDto> classSectionList) {
-        this.classSectionList = classSectionList;
     }
 }

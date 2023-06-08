@@ -6,7 +6,10 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.request.ClassFeedbackRequest;
 import fpt.project.bsmart.entity.request.category.CreateClassRequest;
+import fpt.project.bsmart.entity.response.AttendanceStudentResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
+import fpt.project.bsmart.entity.response.SimpleClassResponse;
+import fpt.project.bsmart.service.AttendanceService;
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -22,9 +25,11 @@ import javax.validation.Valid;
 public class ClassController {
 
     private final IClassService iClassService;
+    private final AttendanceService attendanceService;
 
-    public ClassController(IClassService iClassService) {
+    public ClassController(IClassService iClassService, AttendanceService attendanceService) {
         this.iClassService = iClassService;
+        this.attendanceService = attendanceService;
     }
 
     @Operation(summary = "mentor tao lớp học")
@@ -35,7 +40,7 @@ public class ClassController {
 
     //@Operation(summary = "Lấy danh sách lớp đã tới thời điểm/ đã có feedback")
     @GetMapping("/feedback")
-    public ResponseEntity<ApiResponse<ApiPage<ClassResponse>>> getClassFeedbacks(@Nullable ClassFeedbackRequest classFeedbackRequest, Pageable pageable){
+    public ResponseEntity<ApiResponse<ApiPage<SimpleClassResponse>>> getClassFeedbacks(@Nullable ClassFeedbackRequest classFeedbackRequest, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getClassFeedbacks(classFeedbackRequest, pageable)));
     }
 
@@ -45,5 +50,15 @@ public class ClassController {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getClassProgression(classId)));
     }
 
+    @Operation(summary = "Học sinh lấy điểm danh của lớp học")
+    @GetMapping("/{classId}/student/attendances")
+    public ResponseEntity<ApiResponse<AttendanceStudentResponse>> getDetailStudentAttendance(@PathVariable long classId) {
+        return ResponseEntity.ok(ApiResponse.success(attendanceService.getAttendanceByClassForStudent(classId)));
+    }
 
+    @Operation(summary = "Lấy lớp chi tiết")
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<ClassResponse>> getClassDetail(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getDetailClass(id)));
+    }
 }

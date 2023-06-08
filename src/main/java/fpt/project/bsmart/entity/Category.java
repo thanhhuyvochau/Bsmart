@@ -2,7 +2,9 @@ package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "category")
@@ -15,8 +17,12 @@ public class Category extends BaseEntity {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private List<Subject> subjects = new ArrayList<>();
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "subject_category",
+            joinColumns = @JoinColumn(name = "category_id"),
+            inverseJoinColumns = @JoinColumn(name = "subject_id"))
+    private Set<Subject> subjects = new HashSet<>();
 
 
     public Long getId() {
@@ -43,11 +49,28 @@ public class Category extends BaseEntity {
         this.name = name;
     }
 
-    public List<Subject> getSubjects() {
+    public Set<Subject> getSubjects() {
         return subjects;
     }
 
-    public void setSubjects(List<Subject> subjects) {
+    public void setSubjects(Set<Subject> subjects) {
         this.subjects = subjects;
+    }
+
+    public void removeSubject(Subject subject) {
+        subject.getCategories().remove(this);
+        this.subjects.remove(subject);
+    }
+
+    public void addSubject(Subject subject) {
+        if (subjects.contains(subject)) return;
+        subject.getCategories().add(this);
+        this.getSubjects().add(subject);
+    }
+
+    public void remove() {
+        for (Subject subject : subjects) {
+            removeSubject(subject);
+        }
     }
 }

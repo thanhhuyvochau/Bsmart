@@ -2,21 +2,22 @@ package fpt.project.bsmart.entity.response;
 
 
 import fpt.project.bsmart.entity.constant.ETypeLearn;
+import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CourseResponse {
 
     private Long id;
 
-    private List<ImageDto>images ;
+    private List<ImageDto> images;
 
     private String courseCode;
     private String courseName;
 
-    private Long categoryId;
-    private String categoryName;
+    private List<CategoryDto> categoryDtoList = new ArrayList<>();
 
     private Long subjectId;
     private String subjectName;
@@ -24,11 +25,11 @@ public class CourseResponse {
 
     private String courseDescription;
 
-    private int totalSubCourse ;
+    private int totalSubCourse;
 
-    private List<ETypeLearn> learns ;
+    private List<ETypeLearn> learns;
 
-    private List<String> mentorName ;
+    private List<String> mentorName;
 
 
     public Long getId() {
@@ -63,20 +64,12 @@ public class CourseResponse {
         this.courseName = courseName;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
+    public List<CategoryDto> getCategoryDtoList() {
+        return categoryDtoList;
     }
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+    public void setCategoryDtoList(List<CategoryDto> categoryDtoList) {
+        this.categoryDtoList = categoryDtoList;
     }
 
     public Long getSubjectId() {
@@ -94,7 +87,6 @@ public class CourseResponse {
     public void setSubjectName(String subjectName) {
         this.subjectName = subjectName;
     }
-
 
 
     public String getCourseDescription() {

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_BY_ID;
@@ -39,9 +40,13 @@ public class SubjectServiceImpl implements ISubjectService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + id));
     }
 
-    private Category findCategoryById(Long id){
+    private Category findCategoryById(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + id));
+    }
+
+    private List<Category> findCategoryByIds(List<Long> ids) {
+        return categoryRepository.findAllById(ids);
     }
 
     @Override
@@ -57,10 +62,10 @@ public class SubjectServiceImpl implements ISubjectService {
     @Override
     public List<SubjectDto> getSubjectsByCategory(Long id) {
         Category category = findCategoryById(id);
-        List<Subject> subjectList = category.getSubjects();
+        Set<Subject> subjectList = category.getSubjects();
         List<SubjectDto> subjectDtoList = new ArrayList<>();
-        if(!subjectList.isEmpty()){
-            for(Subject subject : subjectList){
+        if (!subjectList.isEmpty()) {
+            for (Subject subject : subjectList) {
                 subjectDtoList.add(convertSubjectToSubjectDto(subject));
             }
         }
@@ -75,28 +80,30 @@ public class SubjectServiceImpl implements ISubjectService {
 
     @Override
     public Long createSubject(SubjectRequest subjectRequest) {
-        Category category = findCategoryById(subjectRequest.getCategoryId());
+        List<Category> categories = findCategoryByIds(subjectRequest.getCategoryIds());
         Subject subject = new Subject();
         subject.setName(subjectRequest.getName());
         subject.setCode(subjectRequest.getCode());
-        subject.setCategory(category);
+        for (Category category : categories) {
+            category.addSubject(subject);
+        }
         return subjectRepository.save(subject).getId();
     }
 
     @Override
     public Long updateSubject(Long id, SubjectRequest subjectRequest) {
-        Category category = categoryRepository.findById(subjectRequest.getCategoryId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + subjectRequest.getCategoryId()));
+        List<Category> categories = findCategoryByIds(subjectRequest.getCategoryIds());
         Subject subject = findById(id);
         subject.setName(subjectRequest.getName());
         subject.setCode(subjectRequest.getCode());
-        subject.setCategory(category);
+        for (Category category : categories) {
+            category.addSubject(subject);
+        }
         return subjectRepository.save(subject).getId();
     }
 
     public Long deleteSubject(Long id) {
         Subject subject = findById(id);
-
         subjectRepository.delete(subject);
         return id;
     }

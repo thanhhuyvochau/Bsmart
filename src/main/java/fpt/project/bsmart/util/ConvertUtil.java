@@ -40,9 +40,12 @@ public class ConvertUtil {
     }
 
     public static SubjectDto convertSubjectToSubjectDto(Subject subject) {
-        SubjectDto subjectDto = ObjectUtil.copyProperties(subject, new SubjectDto(), SubjectDto.class);
-        if (subject.getCategory() != null) {
-            subjectDto.setCategoryId(subject.getCategory().getId());
+        SubjectDto subjectDto = ObjectUtil.copyProperties(subject, new SubjectDto(), SubjectDto.class, true);
+        Set<Category> categories = subject.getCategories();
+        if (!categories.isEmpty()) {
+            for (Category category : categories) {
+                subjectDto.getCategoryIds().add(category.getId());
+            }
         }
         return subjectDto;
     }
@@ -181,8 +184,11 @@ public class ConvertUtil {
 
         if (course.getSubject() != null) {
             response.setSubject(convertSubjectToSubjectDto(course.getSubject()));
-            if (course.getSubject().getCategory() != null) {
-                response.setCategoryDto(convertCategoryToCategoryDto(course.getSubject().getCategory()));
+            Set<Category> categories = course.getSubject().getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+                    response.getCategoryDtoList().add(convertCategoryToCategoryDto(category));
+                }
             }
         }
 
@@ -224,9 +230,12 @@ public class ConvertUtil {
         Subject subject = course.getSubject();
         if (subject != null) {
             response.setSubject(convertSubjectToSubjectDto(subject));
-            Category category = subject.getCategory();
-            if (category != null) {
-                response.setCategory(convertCategoryToCategoryDto(category));
+            Set<Category> categories = subject.getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+                    response.getCategoryDtoList().add(convertCategoryToCategoryDto(category));
+                }
+
             }
         }
 
@@ -246,10 +255,12 @@ public class ConvertUtil {
             if (subject != null) {
                 SubjectDto subjectDto = convertSubjectToSubjectDto(subject);
                 response.setSubject(subjectDto);
-                Category category = subject.getCategory();
-                if (category != null) {
-                    CategoryDto categoryDto = convertCategoryToCategoryDto(category);
-                    response.setCategory(categoryDto);
+                Set<Category> categories = subject.getCategories();
+                if (!categories.isEmpty()) {
+                    for (Category category : categories) {
+                        CategoryDto categoryDto = convertCategoryToCategoryDto(category);
+                        response.getCategoryDtoList().add(categoryDto);
+                    }
                 }
             }
         }
@@ -261,7 +272,7 @@ public class ConvertUtil {
         response.setLevel(ObjectUtils.defaultIfNull(subCourse.getLevel(), null));
         response.setMinStudent(ObjectUtils.defaultIfNull(subCourse.getMinStudent(), 0));
         response.setMaxStudent(ObjectUtils.defaultIfNull(subCourse.getMaxStudent(), 0));
-        response.setPrice(ObjectUtils.defaultIfNull(subCourse.getPrice(),BigDecimal.ZERO));
+        response.setPrice(ObjectUtils.defaultIfNull(subCourse.getPrice(), BigDecimal.ZERO));
         response.setEndDateExpected(ObjectUtils.defaultIfNull(subCourse.getEndDateExpected(), null));
         response.setStartDateExpected(ObjectUtils.defaultIfNull(subCourse.getStartDateExpected(), null));
         response.setNumberOfSlot(ObjectUtils.defaultIfNull(subCourse.getNumberOfSlot(), null));
@@ -271,7 +282,6 @@ public class ConvertUtil {
         if (subCourse.getImage() != null) {
             response.setImageUrl(subCourse.getImage().getUrl());
         }
-
 
 
         if (subCourse.getMentor() != null) {
@@ -325,13 +335,13 @@ public class ConvertUtil {
         if (subject != null) {
             courseResponse.setSubjectId(subject.getId());
             courseResponse.setSubjectName(subject.getName());
-            Category category = subject.getCategory();
-            if (category != null) {
-                courseResponse.setCategoryId(category.getId());
-                courseResponse.setCategoryName(category.getName());
+            Set<Category> categories = subject.getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+                    CategoryDto categoryDto = convertCategoryToCategoryDto(category);
+                    courseResponse.getCategoryDtoList().add(categoryDto);
+                }
             }
-
-
         }
         return courseResponse;
     }
@@ -464,15 +474,15 @@ public class ConvertUtil {
         return userFeedbackResponse;
     }
 
-    public static ClassResponse convertClassToClassResponse(Class clazz) {
-        ClassResponse classResponse = ObjectUtil.copyProperties(clazz, new ClassResponse(), ClassResponse.class);
+    public static SimpleClassResponse convertClassToSimpleClassResponse(Class clazz) {
+        SimpleClassResponse simpleClassResponse = ObjectUtil.copyProperties(clazz, new SimpleClassResponse(), SimpleClassResponse.class);
         if (clazz.getSubCourse() != null) {
-            classResponse.setSubCourseName(clazz.getSubCourse().getTitle());
+            simpleClassResponse.setSubCourseName(clazz.getSubCourse().getTitle());
         }
         if (clazz.getSubCourse().getMentor() != null) {
-            classResponse.setMentorName(clazz.getSubCourse().getMentor().getFullName());
+            simpleClassResponse.setMentorName(clazz.getSubCourse().getMentor().getFullName());
         }
-        return classResponse;
+        return simpleClassResponse;
     }
 
     public static QuestionDto convertQuestionToQuestionDto(Question question) {
@@ -486,7 +496,7 @@ public class ConvertUtil {
         return ObjectUtil.copyProperties(answer, new AnswerDto(), AnswerDto.class, true);
     }
 
-    public static ActivityDto convertActivityToDto(Activity activity) {
+    public static ActivityDto convertActivityToDto(Activity activity) { // Convert ra detail của activity
         ActivityType type = activity.getType();
         switch (type.getCode()) {
             case "ASSIGNMENT":
@@ -502,11 +512,32 @@ public class ConvertUtil {
         }
     }
 
+    public static ActivityDto convertActivityToSimpleDto(Activity activity) { // Convert ra đơn giản để show cho user xem
+        ActivityType type = activity.getType();
+        switch (type.getCode()) {
+            case "ASSIGNMENT":
+                ActivityDto<SimpleAssignmentDto> activityDto = ObjectUtil.copyProperties(activity, new ActivityDto<>(), ActivityDto.class, true);
+                activityDto.setType(ConvertUtil.convertActivityTypeToDto(activity.getType()));
+                SimpleAssignmentDto simpleAssignmentDto = convertAssignmentToSimpleDto(activity.getAssignment());
+                activityDto.setActivityDetail(simpleAssignmentDto);
+                return activityDto;
+            case "QUIZ":
+                return null; // convert quiz activity ở đây tương tự như trên
+            default:
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy loại hoạt động!");
+        }
+    }
+
     private static AssignmentDto convertAssignmentToDto(Assignment assignment) {
         AssignmentDto assignmentDto = ObjectUtil.copyProperties(assignment, new AssignmentDto(), AssignmentDto.class, true);
         for (AssignmentFile assignmentFile : assignment.getAssignmentFiles()) {
             assignmentDto.getAssignmentFiles().add(ConvertUtil.convertAssignmentFileToDto(assignmentFile));
         }
+        return assignmentDto;
+    }
+
+    private static SimpleAssignmentDto convertAssignmentToSimpleDto(Assignment assignment) {
+        SimpleAssignmentDto assignmentDto = ObjectUtil.copyProperties(assignment, new SimpleAssignmentDto(), SimpleAssignmentDto.class, true);
         return assignmentDto;
     }
 
@@ -590,7 +621,56 @@ public class ConvertUtil {
         return ObjectUtil.copyProperties(quizAnswer, new QuizAnswerDto(), QuizAnswerDto.class);
     }
 
+
+    public static StudentClassResponse convertStudentClassToResponse(StudentClass studentClass) {
+        User student = studentClass.getStudent();
+        StudentClassResponse studentClassResponse = new StudentClassResponse();
+        studentClassResponse.setEmail(student.getEmail());
+        studentClassResponse.setId(studentClass.getId());
+        studentClassResponse.setName(student.getFullName());
+        return studentClassResponse;
+    }
+
     public static ActivityHistoryResponse convertActivityHistoryToActivityHistoryResponse(ActivityHistory activityHistory) {
         return ObjectUtil.copyProperties(activityHistory, new ActivityHistoryResponse(), ActivityHistoryResponse.class);
     }
+
+    public static ClassResponse convertClassToClassResponse(Class clazz) {
+        ClassResponse classResponse = ObjectUtil.copyProperties(clazz, new ClassResponse(), ClassResponse.class);
+        if (clazz.getSubCourse() != null) {
+            classResponse.setSubCourseName(clazz.getSubCourse().getTitle());
+        }
+        if (clazz.getSubCourse().getMentor() != null) {
+            classResponse.setMentorName(clazz.getSubCourse().getMentor().getFullName());
+        }
+        List<ClassSection> classSections = clazz.getClassSections();
+        for (ClassSection classSection : classSections) {
+            ClassSectionDto classSectionDto = convertClassSectionToDto(classSection);
+            classResponse.getClassSectionList().add(classSectionDto);
+        }
+        return classResponse;
+    }
+
+    public static ClassSectionDto convertClassSectionToDto(ClassSection classSection) {
+        ClassSectionDto classSectionDto = ObjectUtil.copyProperties(classSection, new ClassSectionDto(), ClassSectionDto.class, true);
+        for (ClassModule classModule : classSection.getClassModules()) {
+            ClassModuleDto classModuleDto = convertClassModuleToDto(classModule);
+            classSectionDto.getClassModules().add(classModuleDto);
+        }
+
+        List<Activity> activities = classSection.getActivities();
+        for (Activity activity : activities) {
+            ActivityDto activityDto = convertActivityToSimpleDto(activity);
+            classSectionDto.getActivities().add(activityDto);
+        }
+        return classSectionDto;
+    }
+
+
+    public static ClassModuleDto convertClassModuleToDto(ClassModule classModule) {
+        return ObjectUtil.copyProperties(classModule, new ClassModuleDto(), ClassModuleDto.class, true);
+    }
+
+    ;
+
 }

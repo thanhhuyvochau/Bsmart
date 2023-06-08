@@ -1,25 +1,27 @@
 package fpt.project.bsmart.entity.response;
 
-public class AttendanceResponse {
-    private Long id;
-    private StudentClassResponse student;
+import java.time.Instant;
+
+public class AttendanceStudentDetailResponse {
+    private Instant date;
+    private Integer slotNum;
     private boolean isAttendance;
     private String note;
 
-    public Long getId() {
-        return id;
+    public Instant getDate() {
+        return date;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setDate(Instant date) {
+        this.date = date;
     }
 
-    public StudentClassResponse getStudent() {
-        return student;
+    public Integer getSlotNum() {
+        return slotNum;
     }
 
-    public void setStudent(StudentClassResponse student) {
-        this.student = student;
+    public void setSlotNum(Integer slotNum) {
+        this.slotNum = slotNum;
     }
 
     public boolean isAttendance() {
