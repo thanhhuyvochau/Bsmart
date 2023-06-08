@@ -15,5 +15,4 @@ public interface IClassService {
     ClassProgressTimeDto getClassProgression(Long clazzId);
 
     ClassResponse getDetailClass(Long id);
-
 }
