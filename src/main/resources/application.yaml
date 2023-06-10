@@ -77,9 +77,9 @@ management:
 # VNPay Config
 vnp_product_type: 250000
 vnp_PayUrl: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-vnp_HashSecret: NSZFYQQMCHFKNHOUKYIJLUQVZTCWBUZR
-vnp_Returnurl: http://localhost:8082/api/payment/payment-result
-vnp_TmnCode: 76E1ZE8I
+vnp_HashSecret: NJJDAQCFVUBSYMOUNBJUZJQSXDEWEPKY
+vnp_Returnurl: http://localhost:8082/api/transactions/pay/vnpay/result
+vnp_TmnCode: 2P0JI5DH
 vnp_apiUrl: https://sandbox.vnpayment.vn/merchant_webapi/merchant.html
 
 # External API
@@ -135,6 +135,8 @@ activate:
 
 host:
   url: http://103.173.155.221:3000/confirm_email/
+
+
 
 
 

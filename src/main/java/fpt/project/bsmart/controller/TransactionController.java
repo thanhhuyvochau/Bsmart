@@ -5,7 +5,9 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.DepositRequest;
 import fpt.project.bsmart.entity.request.PayCourseRequest;
+import fpt.project.bsmart.entity.request.VpnPayRequest;
 import fpt.project.bsmart.entity.request.WithdrawRequest;
+import fpt.project.bsmart.entity.response.VnPayResponse;
 import fpt.project.bsmart.service.ITransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +15,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -65,6 +71,19 @@ public class TransactionController {
     @PreAuthorize("hasAnyRole('STUDENT')")
     public ResponseEntity<ApiResponse<Boolean>> payCourseFromCart(@RequestBody List<PayCourseRequest> request) {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.payCourseFromCart(request)));
+    }
+
+    @Operation(summary = "Thanh toán khóa học bằng VNPay")
+    @PostMapping("/pay/vnpay")
+    public ResponseEntity<ApiResponse<VnPayResponse>> payCourseByBankAccount(@RequestBody VpnPayRequest payRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payByBankAccount(request, payRequest)));
+    }
+
+    @Operation(summary = "Thanh toán khóa học từ giỏ hàng")
+    @GetMapping("/pay/vnpay/result")
+    public ResponseEntity<ApiResponse<String>> getResultOfPayByVnPay(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        iTransactionService.executeAfterPayment(request);
+        return ResponseEntity.ok(ApiResponse.success("Thanh toán thành công"));
     }
 
 }

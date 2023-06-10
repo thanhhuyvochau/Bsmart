@@ -4,9 +4,13 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.DepositRequest;
 import fpt.project.bsmart.entity.request.PayCourseRequest;
+import fpt.project.bsmart.entity.request.VpnPayRequest;
 import fpt.project.bsmart.entity.request.WithdrawRequest;
+import fpt.project.bsmart.entity.response.VnPayResponse;
 import org.springframework.data.domain.Pageable;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public interface ITransactionService {
@@ -20,6 +24,13 @@ public interface ITransactionService {
 
     // Hiện tại sẽ chỉ làm các giao dịch rút tiền và nạp tiền
     Boolean payQuickCourse(PayCourseRequest request);
+
     Boolean payCourseFromCart(List<PayCourseRequest> request);
+
+    VnPayResponse payByBankAccount(HttpServletRequest req, VpnPayRequest request) throws UnsupportedEncodingException;
+
+    void executeAfterPayment(HttpServletRequest request);
+
+//    Boolean getBankPaymentResult(Long transaction)
 
 }
