@@ -48,6 +48,10 @@ public class Transaction extends BaseEntity {
     @Column(name = "payment_type")
     @Enumerated(EnumType.STRING)
     private EPaymentType paymentType = EPaymentType.OTHER;
+    @Column(name = "transaction_no")
+    private String transactionNo;
+    @Column(name = "vpn_command")
+    private String vpnCommand;
 
     public Long getId() {
         return id;
@@ -146,6 +150,8 @@ public class Transaction extends BaseEntity {
         }
         return transaction;
     }
+    @Column(name = "order_info")
+    private String orderInfo;
 
     public Long getReceivedBankAccount() {
         return receivedBankAccount;
@@ -185,5 +191,29 @@ public class Transaction extends BaseEntity {
 
     public void setPaymentType(EPaymentType paymentType) {
         this.paymentType = paymentType;
+    }
+
+    public String getTransactionNo() {
+        return transactionNo;
+    }
+
+    public void setTransactionNo(String transactionNo) {
+        this.transactionNo = transactionNo;
+    }
+
+    public String getVpnCommand() {
+        return vpnCommand;
+    }
+
+    public void setVpnCommand(String vpnCommand) {
+        this.vpnCommand = vpnCommand;
+    }
+
+    public String getOrderInfo() {
+        return orderInfo;
+    }
+
+    public void setOrderInfo(String orderInfo) {
+        this.orderInfo = orderInfo;
     }
 }

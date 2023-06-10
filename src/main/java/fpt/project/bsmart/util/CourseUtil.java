@@ -1,22 +1,15 @@
 package fpt.project.bsmart.util;
 
 
-import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.MentorProfile;
+import fpt.project.bsmart.entity.SubCourse;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.EQuestionType;
-import fpt.project.bsmart.entity.constant.ETransactionStatus;
-import fpt.project.bsmart.entity.constant.ETypeLearn;
-import fpt.project.bsmart.entity.dto.*;
-import fpt.project.bsmart.entity.response.*;
-import org.springframework.beans.factory.annotation.Value;
+import fpt.project.bsmart.entity.constant.EOrderStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.EDITREQUEST;
@@ -31,7 +24,7 @@ public class CourseUtil {
 
     private static String failIcon;
 
-    public static Boolean checkCourseValid(SubCourse subCourse ,User user ){
+    public static Boolean checkCourseValid(SubCourse subCourse, User user) {
         if (!subCourse.getStatus().equals(REQUESTING)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(COURSE_STATUS_NOT_ALLOW);
         }
@@ -49,5 +42,16 @@ public class CourseUtil {
         return true;
     }
 
+    public static Boolean isPaidCourse(SubCourse subCourse, User user) {
+        List<User> allPaidSubCourseUsers = subCourse.getOrderDetails().stream()
+                .filter(orderDetail -> orderDetail.getOrder().getStatus().equals(EOrderStatus.SUCCESS))
+                .map(orderDetail -> orderDetail.getOrder().getUser()).collect(Collectors.toList());
+        return allPaidSubCourseUsers.contains(user);
+    }
 
+    public static Boolean isFullMemberOfSubCourse(SubCourse subCourse) {
+        long numberOfBought = subCourse.getOrderDetails().stream()
+                .filter(orderDetail -> orderDetail.getOrder().getStatus().equals(EOrderStatus.SUCCESS)).count();
+        return numberOfBought == subCourse.getMaxStudent();
+    }
 }

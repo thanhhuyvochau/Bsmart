@@ -39,7 +39,22 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    public Order(BigDecimal totalPrice, BigDecimal centerBonus, BigDecimal studentBonus, BigDecimal referBonus, BigDecimal totalBonus, Float referBonusPercent, Float studentBonusPercent, Float centerBonusPercent, List<OrderDetail> orderDetails, EOrderStatus status, User user) {
+        this.totalPrice = totalPrice;
+        this.centerBonus = centerBonus;
+        this.studentBonus = studentBonus;
+        this.referBonus = referBonus;
+        this.totalBonus = totalBonus;
+        this.referBonusPercent = referBonusPercent;
+        this.studentBonusPercent = studentBonusPercent;
+        this.centerBonusPercent = centerBonusPercent;
+        this.orderDetails = orderDetails;
+        this.status = status;
+        this.user = user;
+    }
 
+    public Order() {
+    }
 
     public Long getId() {
         return id;
@@ -135,6 +150,83 @@ public class Order extends BaseEntity {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public static class Builder {
+
+        private BigDecimal totalPrice;
+        private BigDecimal centerBonus;
+        private BigDecimal studentBonus;
+        private BigDecimal referBonus;
+        private BigDecimal totalBonus;
+        private Float referBonusPercent;
+        private Float studentBonusPercent;
+        private Float centerBonusPercent;
+        private List<OrderDetail> orderDetails = new ArrayList<>();
+        private EOrderStatus status;
+
+        private User user;
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public Builder setTotalPrice(BigDecimal totalPrice) {
+            this.totalPrice = totalPrice;
+            return this;
+        }
+
+        public Builder setCenterBonus(BigDecimal centerBonus) {
+            this.centerBonus = centerBonus;
+            return this;
+        }
+
+        public Builder setStudentBonus(BigDecimal studentBonus) {
+            this.studentBonus = studentBonus;
+            return this;
+        }
+
+        public Builder setReferBonus(BigDecimal referBonus) {
+            this.referBonus = referBonus;
+            return this;
+        }
+
+        public Builder setTotalBonus(BigDecimal totalBonus) {
+            this.totalBonus = totalBonus;
+            return this;
+        }
+
+        public Builder setReferBonusPercent(Float referBonusPercent) {
+            this.referBonusPercent = referBonusPercent;
+            return this;
+        }
+
+        public Builder setStudentBonusPercent(Float studentBonusPercent) {
+            this.studentBonusPercent = studentBonusPercent;
+            return this;
+        }
+
+        public Builder setCenterBonusPercent(Float centerBonusPercent) {
+            this.centerBonusPercent = centerBonusPercent;
+            return this;
+        }
+
+        public Builder setOrderDetails(List<OrderDetail> orderDetails) {
+            this.orderDetails = orderDetails;
+            return this;
+        }
+
+        public Builder setStatus(EOrderStatus status) {
+            this.status = status;
+            return this;
+        }
+        public Builder setUser(User user) {
+            this.user = user;
+            return this;
+        }
+        public Order build() {
+            return new Order(totalPrice, centerBonus, studentBonus, referBonus, totalBonus, referBonusPercent, studentBonusPercent, centerBonusPercent, orderDetails, status, user);
+        }
     }
 
 
