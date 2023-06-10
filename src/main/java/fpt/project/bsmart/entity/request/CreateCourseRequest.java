@@ -3,7 +3,7 @@ package fpt.project.bsmart.entity.request;
 import java.util.List;
 
 public class CreateCourseRequest {
-    private String code;
+
     private String name;
     private Long categoryId;
     private Long subjectId;
@@ -11,13 +11,6 @@ public class CreateCourseRequest {
 
     private List<CreateSubCourseRequest> subCourseRequests ;
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
 
     public String getName() {
         return name;

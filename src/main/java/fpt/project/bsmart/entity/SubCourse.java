@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.ETypeLearn;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -13,7 +14,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "sub_course")
-public class SubCourse  extends  BaseEntity{
+public class SubCourse  extends  BaseEntity  {
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

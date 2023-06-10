@@ -24,6 +24,17 @@ public class CourseUtil {
 
     private static String failIcon;
 
+    public static String generateRandomCode(int length) {
+        String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; ++i) {
+            int randomIndex = (int) (Math.random() * alphabet.length());
+            char randomChar = alphabet.charAt(randomIndex);
+            sb.append(randomChar);
+        }
+        return sb.toString();
+    }
+
     public static Boolean checkCourseValid(SubCourse subCourse, User user) {
         if (!subCourse.getStatus().equals(REQUESTING)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(COURSE_STATUS_NOT_ALLOW);
