@@ -1,37 +1,44 @@
 package fpt.project.bsmart.service.Impl;
 
+import fpt.project.bsmart.config.vnpay.VnpConfig;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EOrderStatus;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETransactionType;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.DepositRequest;
 import fpt.project.bsmart.entity.request.PayCourseRequest;
+import fpt.project.bsmart.entity.request.VpnPayRequest;
 import fpt.project.bsmart.entity.request.WithdrawRequest;
+import fpt.project.bsmart.entity.response.VnPayResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ITransactionService;
-import fpt.project.bsmart.util.ConvertUtil;
-import fpt.project.bsmart.util.MessageUtil;
-import fpt.project.bsmart.util.PageUtil;
-import fpt.project.bsmart.util.SecurityUtil;
+import fpt.project.bsmart.util.*;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.ActivityHistoryUtil.logHistoryForOrderCourse;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID;
 
 @Service
+@Transactional
 public class TransactionService implements ITransactionService {
 
     private final WalletRepository walletRepository;
@@ -52,8 +59,9 @@ public class TransactionService implements ITransactionService {
     private final CartItemRepository cartItemRepository;
 
     private final ReferralCodeRepository referralCodeRepository;
+    private final VnpConfig vnpConfig;
 
-    public TransactionService(WalletRepository walletRepository, TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, OrderDetailRepository orderDetailRepository, CourseRepository courseRepository, OrderRepository orderRepository, SubCourseRepository subCourseRepository, CartItemRepository cartItemRepository, ReferralCodeRepository referralCodeRepository) {
+    public TransactionService(WalletRepository walletRepository, TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, OrderDetailRepository orderDetailRepository, CourseRepository courseRepository, OrderRepository orderRepository, SubCourseRepository subCourseRepository, CartItemRepository cartItemRepository, ReferralCodeRepository referralCodeRepository, VnpConfig vnpConfig) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
@@ -65,6 +73,7 @@ public class TransactionService implements ITransactionService {
         this.subCourseRepository = subCourseRepository;
         this.cartItemRepository = cartItemRepository;
         this.referralCodeRepository = referralCodeRepository;
+        this.vnpConfig = vnpConfig;
     }
 
     @Override
@@ -210,7 +219,7 @@ public class TransactionService implements ITransactionService {
         transactionRepository.save(transaction);
 
         //log
-        logHistoryForOrderCourse(wallet.getOwner().getId(), order.getId()) ;
+        logHistoryForOrderCourse(wallet.getOwner().getId(), order.getId());
         return true;
     }
 
@@ -256,5 +265,123 @@ public class TransactionService implements ITransactionService {
         }
         transactionRepository.saveAll(transactions);
         return true;
+    }
+
+    public VnPayResponse payByBankAccount(HttpServletRequest req, VpnPayRequest request) throws UnsupportedEncodingException {
+        SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Subcourse not found with id:" + request.getSubCourseId()));
+        if (!subCourse.getStatus().equals(ECourseStatus.NOTSTART)) {
+            throw ApiException.create(HttpStatus.METHOD_NOT_ALLOWED).withMessage("You cannot buy this course because status is invalid!");
+        }
+        User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        boolean isPaidSubCourse = CourseUtil.isPaidCourse(subCourse, user);
+        if (isPaidSubCourse) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Sub course was paid, try other class!");
+        }
+        if (CourseUtil.isFullMemberOfSubCourse(subCourse)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Sub Course got maximum number of student :(( !");
+        }
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setSubCourse(subCourse);
+        BigDecimal price = subCourse.getPrice();
+        orderDetail.setFinalPrice(price);
+        orderDetail.setOriginalPrice(price);
+
+        Order order = Order.Builder.builder()
+                .setOrderDetails(Arrays.asList(orderDetail))
+                .setTotalPrice(price)
+                .setUser(user)
+                .setStatus(EOrderStatus.WAIT)
+                .build();
+
+        orderDetail.setOrder(order);
+
+        Transaction transaction = new Transaction();
+        transaction.setOrder(order);
+        transactionRepository.save(transaction);
+        return new VnPayResponse(buildPaymentUrl(req, subCourse, transaction));
+    }
+
+    @NotNull
+    private String buildPaymentUrl(HttpServletRequest req, SubCourse subCourse, Transaction transaction) throws UnsupportedEncodingException {
+        String vnp_Version = "2.1.0";
+        String vnp_Command = "pay";
+        String vnp_OrderInfo = "Thanh toan khoa học " + subCourse.getCourse().getName();
+        String orderType = "pay";
+        String vnp_IpAddr = vnpConfig.getIpAddress(req);
+        String vnp_TmnCode = vnpConfig.getVnp_TmnCode();
+        int amount = subCourse.getPrice().intValue() * 100;
+        Map<String, String> vnp_Params = new HashMap<>();
+        vnp_Params.put("vnp_Version", vnp_Version);
+        vnp_Params.put("vnp_Command", vnp_Command);
+        vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
+        vnp_Params.put("vnp_Amount", String.valueOf(amount));
+        vnp_Params.put("vnp_CurrCode", "VND");
+        transaction.setAmount(BigDecimal.valueOf(amount));
+        transaction.setVpnCommand(vnp_Command);
+        transaction.setOrderInfo(vnp_OrderInfo);
+        String vnp_TxnRef = transaction.getId().toString();
+//        vnp_Params.put("vnp_TxnRef", vnp_TxnRef + "&" + request.getSessionId());
+        vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
+        vnp_Params.put("vnp_OrderInfo", vnp_OrderInfo);
+        String locate = "VN";
+        vnp_Params.put("vnp_Locale", locate);
+        vnp_Params.put("vnp_ReturnUrl", vnpConfig.getVnp_Returnurl());
+        vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
+        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT-7"));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        String vnp_CreateDate = formatter.format(cld.getTime());
+        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+        cld.add(Calendar.YEAR, 1);
+        String vnp_ExpireDate = formatter.format(cld.getTime());
+        //Add Params of 2.0.1 Version
+        vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+        SimpleDateFormat formatterCheck = new SimpleDateFormat("dd-MM-yyyy");
+        System.out.println("EXPIRED:" + formatterCheck.format(cld.getTime()));
+        //Billing
+        //Build data to hash and querystring
+        List fieldNames = new ArrayList(vnp_Params.keySet());
+        Collections.sort(fieldNames);
+        StringBuilder hashData = new StringBuilder();
+        StringBuilder query = new StringBuilder();
+        Iterator itr = fieldNames.iterator();
+        while (itr.hasNext()) {
+            String fieldName = (String) itr.next();
+            String fieldValue = (String) vnp_Params.get(fieldName);
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                //Build hash data
+                hashData.append(fieldName);
+                hashData.append('=');
+                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                //Build query
+                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
+                query.append('=');
+                query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                if (itr.hasNext()) {
+                    query.append('&');
+                    hashData.append('&');
+                }
+            }
+        }
+        String queryUrl = query.toString();
+        String vnp_SecureHash = vnpConfig.hmacSHA512(vnpConfig.getVnp_HashSecret(), hashData.toString());
+        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
+        String paymentUrl = vnpConfig.getVnp_PayUrl() + "?" + queryUrl;
+        return paymentUrl;
+    }
+
+    @Override
+    public void executeAfterPayment(HttpServletRequest request) {
+        String responseCode = request.getParameter("vnp_ResponseCode");
+        String transactionStatus = request.getParameter("vnp_TransactionStatus");
+        String referenceValues = request.getParameter("vnp_TxnRef");
+        String transactionId = referenceValues;
+        Transaction transaction = transactionRepository
+                .findById(Long.valueOf(transactionId)).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Transaction not found with id:" + transactionId));
+        if (transactionStatus.equals("00") && responseCode.equals("00")) {
+            transaction.getOrder().setStatus(EOrderStatus.SUCCESS);
+        }
     }
 }
