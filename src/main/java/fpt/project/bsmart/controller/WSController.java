@@ -6,6 +6,7 @@ import fpt.project.bsmart.service.NotificationService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/websocket")
 public class WSController {
 
   private final NotificationService notificationService ;
@@ -15,8 +16,9 @@ public class WSController {
   }
 
   @PostMapping("/send-message")
-  public void sendMessage(@RequestBody Message message){
-    notificationService.sendMessage(message.getMessageContent());
+  public String sendMessage(@RequestBody Message message){
+    String s = notificationService.sendMessage(message.getMessageContent());
+    return s ;
   }
 
   @PostMapping("/send-private-message/{id}")

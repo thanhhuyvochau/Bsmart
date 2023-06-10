@@ -35,6 +35,7 @@ public class NotificationController {
         return new ResponseMessage(HtmlUtils.htmlEscape(message.getMessageContent()));
     }
 
+
     @MessageMapping("/private-message")
     @SendToUser("/receive/private-message")
     public ResponseMessage getPrivateMessage(final Message mess, final Principal principal) throws InterruptedException {
@@ -51,6 +52,7 @@ public class NotificationController {
     public Message send(final Message message) throws Exception {
         return message;
     }
+
 }
 
 

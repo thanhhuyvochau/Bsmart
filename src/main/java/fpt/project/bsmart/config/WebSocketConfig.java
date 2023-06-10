@@ -24,7 +24,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // giúp chúng ta định nghĩa những endpoint mà client sẽ sử dụng để gọi và kết nối tới WebSocket.
-        registry.addEndpoint("/websocket");
+        registry.addEndpoint("/websocket").setAllowedOriginPatterns("*");
         //không phải tất cả các trình duyệt đều hỗ trợ WebSocket => Dùng SockJS
         registry.addEndpoint("/ws").withSockJS();
 

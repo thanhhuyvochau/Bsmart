@@ -3,7 +3,6 @@ package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.ECourseType;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.CourseResponse;
@@ -49,5 +48,5 @@ public interface ICourseService {
 
     Boolean managerCreateCourse(CreateCoursePublicRequest createCourseRequest);
 
-//    Boolean mentorUploadImageForCourse(Long id, FileDto request);
+
 }

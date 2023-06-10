@@ -1,7 +1,7 @@
 package fpt.project.bsmart.service;
 
 public interface NotificationService {
-    public void sendMessage(final String message) ;
+    public String  sendMessage(final String message) ;
 
     public void sendPrivateMessage(final String message, final String id) ;
 

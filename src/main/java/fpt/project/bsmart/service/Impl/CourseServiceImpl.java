@@ -278,7 +278,6 @@ public class CourseServiceImpl implements ICourseService {
     public ApiPage<CourseSubCourseResponse> memberGetCourse(ECourseStatus status, Pageable pageable) {
         User currentUser = SecurityUtil.getCurrentUser();
         List<Order> orders = currentUser.getOrder();
-        List<SubCourse> subCourses = new ArrayList<>();
         if (status == ECourseStatus.ALL) {
             return memberGetAllCourses(orders, pageable);
         }
@@ -389,8 +388,6 @@ public class CourseServiceImpl implements ICourseService {
         }
 
 
-//        subCourseRepository.save(subCourse);
-//        subCourse.setImage(null);
         if (subCourse.getCourse().getType().equals(ECourseType.PRIVATE)) {
             Course course = subCourse.getCourse();
             if (updateCourseRequest.getCourseCode() != null) {
@@ -400,7 +397,7 @@ public class CourseServiceImpl implements ICourseService {
                 course.setName(updateCourseRequest.getCourseName());
             }
             if (updateCourseRequest.getCourseDescription() != null) {
-                course.setName(updateCourseRequest.getCourseDescription());
+                course.setDescription(updateCourseRequest.getCourseDescription());
             }
 
             if (updateCourseRequest.getCategoryId() != null) {
@@ -661,7 +658,7 @@ public class CourseServiceImpl implements ICourseService {
 
     @Override
     public Boolean memberRegisterCourse(Long id) {
-        User userLogin = SecurityUtil.getCurrentUser();
+        SecurityUtil.getCurrentUser();
         return true;
     }
 
