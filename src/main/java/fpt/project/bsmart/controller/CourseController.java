@@ -68,10 +68,16 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getCoursePublic(pageable)));
     }
 
-    @Operation(summary = "mentor tao khoá học")
-    @PostMapping("/{id}")
-    public ResponseEntity<ApiResponse<Long>> mentorCreateCourse(@Nullable Long id , @Valid @RequestBody CreateCourseRequest createCourseRequest) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(id , createCourseRequest)));
+    @Operation(summary = "mentor tao khoá học của riêng mình ")
+    @PostMapping
+    public ResponseEntity<ApiResponse<Long>> mentorCreateCoursePrivate( @Valid @RequestBody CreateCourseRequest createCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCoursePrivate( createCourseRequest)));
+    }
+
+    @Operation(summary = "mentor tao khoá học từ khóa học public")
+    @PostMapping("public-course/{id}")
+    public ResponseEntity<ApiResponse<Long>> mentorCreateCoursePublic(@PathVariable Long id , @Valid @RequestBody CreateCourseRequest createCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCoursePublic(id , createCourseRequest)));
     }
 
 

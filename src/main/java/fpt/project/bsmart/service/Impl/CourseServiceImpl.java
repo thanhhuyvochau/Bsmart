@@ -75,21 +75,27 @@ public class CourseServiceImpl implements ICourseService {
 
 
     @Override
-    public Long mentorCreateCourse(Long id, CreateCourseRequest createCourseRequest) {
+    public Long mentorCreateCoursePrivate(CreateCourseRequest createCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
-        Course course;
-        if (id != null) {
-            course = courseRepository.findById(id)
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-        } else {
-            course = createCourseFromRequest(createCourseRequest);
-        }
+
+        // create info for course
+        Course course = createCourseFromRequest(createCourseRequest);
+        return createSubCourseAndTimeInWeek(currentUserAccountLogin, course, createCourseRequest);
+    }
+
+
+    @Override
+    public Long mentorCreateCoursePublic(Long id, CreateCourseRequest createCourseRequest) {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        return createSubCourseAndTimeInWeek(currentUserAccountLogin, course, createCourseRequest);
+    }
+    private Long createSubCourseAndTimeInWeek ( User currentUserAccountLogin, Course course ,CreateCourseRequest createCourseRequest ) {
         // check mentor account is valid
         checkMentorProfile(currentUserAccountLogin);
 
         course.setStatus(REQUESTING);
-
-
         List<CreateSubCourseRequest> subCourseRequestsList = createCourseRequest.getSubCourseRequests();
         List<SubCourse> subCourses = new ArrayList<>();
         subCourseRequestsList.forEach(createSubCourseRequest -> {
@@ -101,13 +107,11 @@ public class CourseServiceImpl implements ICourseService {
             // create time in week for subCourse
             List<TimeInWeek> timeInWeeksFromRequest = createTimeInWeeksFromRequest(timeInWeekRequests);
 
-
             subCourseFromRequest.setTimeInWeeks(timeInWeeksFromRequest);
             subCourseFromRequest.setCourse(course);
             subCourses.add(subCourseFromRequest);
 
         });
-
         course.setSubCourses(subCourses);
 
         // ghi log
@@ -118,6 +122,7 @@ public class CourseServiceImpl implements ICourseService {
 
         return courseRepository.save(course).getId();
     }
+
 
     private void checkMentorProfile(User currentUserAccountLogin) {
         MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
@@ -152,7 +157,7 @@ public class CourseServiceImpl implements ICourseService {
 
         Course course = new Course();
         course.setName(createCourseRequest.getName());
-        course.setCode(createCourseRequest.getCode());
+        course.setCode(CourseUtil.generateRandomCode(8));
         course.setDescription(createCourseRequest.getDescription());
         course.setSubject(subject);
 

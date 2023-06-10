@@ -16,8 +16,9 @@ import java.util.List;
 public interface ICourseService {
 
     List<CourseDto> getCoursesBySubject(Long subjectId);
-    Long mentorCreateCourse(Long id  ,CreateCourseRequest createCourseRequest);
+    Long mentorCreateCoursePrivate(CreateCourseRequest createCourseRequest);
 
+    Long mentorCreateCoursePublic(Long id  ,CreateCourseRequest createCourseRequest);
     ApiPage<CourseSubCourseResponse> mentorGetCourse(ECourseStatus status  , Pageable pageable);
 
     ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest , Pageable pageable);
@@ -47,6 +48,7 @@ public interface ICourseService {
     Boolean managerApprovalCourseRequest(Long subCourseId, ManagerApprovalCourseRequest approvalCourseRequest);
 
     Boolean managerCreateCourse(CreateCoursePublicRequest createCourseRequest);
+
 
 
 }
