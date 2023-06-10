@@ -15,9 +15,10 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendMessage(final String message) {
+    public String sendMessage(final String message) {
         ResponseMessage res = new ResponseMessage(message);
         messagingTemplate.convertAndSend("/receive/message", res);
+        return  message ;
     }
 
     @Override
