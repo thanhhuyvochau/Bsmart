@@ -24,14 +24,13 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class ActivityServiceImpl implements IActivityService , Cloneable {
+public class ActivityServiceImpl implements IActivityService, Cloneable {
     @Value("${minio.endpoint}")
     String minioUrl;
     private final ActivityTypeRepository activityTypeRepository;
@@ -89,65 +88,64 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
     }
 
 
-
     public Quiz addQuiz(AddQuizRequest addQuizRequest, Activity activity) {
-        if(addQuizRequest.getCode().trim().isEmpty()){
+        if (addQuizRequest.getCode().trim().isEmpty()) {
 
         }
 
-        if(addQuizRequest.getStartDate().isBefore(Instant.now()) || addQuizRequest.getEndDate().isBefore(Instant.now())){
+        if (addQuizRequest.getStartDate().isBefore(Instant.now()) || addQuizRequest.getEndDate().isBefore(Instant.now())) {
 
         }
-        if(addQuizRequest.getStartDate().isAfter(addQuizRequest.getEndDate())){
+        if (addQuizRequest.getStartDate().isAfter(addQuizRequest.getEndDate())) {
 
         }
 
-        if(addQuizRequest.getTime() < 0){
+        if (addQuizRequest.getTime() < 0) {
 
         }
-        if(addQuizRequest.getDefaultPoint() < 0){
+        if (addQuizRequest.getDefaultPoint() < 0) {
 
         }
-        if(addQuizRequest.getIsAllowReview() && addQuizRequest.getAllowReviewAfterMin() < 0){
+        if (addQuizRequest.getIsAllowReview() && addQuizRequest.getAllowReviewAfterMin() < 0) {
 
         }
-        if(addQuizRequest.getPassword().trim().isEmpty()){
+        if (addQuizRequest.getPassword().trim().isEmpty()) {
 
         }
 
         List<QuizQuestionRequest> questions = addQuizRequest.getQuizQuestions();
-        if(questions.size() < QuizUtil.MIN_QUESTIONS_PER_QUIZ || questions.size() > QuizUtil.MAX_QUESTIONS_PER_QUIZ){
+        if (questions.size() < QuizUtil.MIN_QUESTIONS_PER_QUIZ || questions.size() > QuizUtil.MAX_QUESTIONS_PER_QUIZ) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("");
         }
 
         List<QuizQuestion> quizQuestions = new ArrayList<>();
-        for(QuizQuestionRequest question : questions){
-            if(question.getQuestion().trim().isEmpty()){
+        for (QuizQuestionRequest question : questions) {
+            if (question.getQuestion().trim().isEmpty()) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
             }
             List<QuizAnswerRequest> answers = question.getAnswers();
-            if(answers.size() < QuizUtil.MIN_ANSWERS_PER_QUESTION || answers.size() > QuizUtil.MAX_ANSWERS_PER_QUESTION){
+            if (answers.size() < QuizUtil.MIN_ANSWERS_PER_QUESTION || answers.size() > QuizUtil.MAX_ANSWERS_PER_QUESTION) {
 
             }
             boolean isContainEmptyAnswer = answers.stream().anyMatch(x -> x.getAnswer().trim().isEmpty());
-            if(isContainEmptyAnswer){
+            if (isContainEmptyAnswer) {
 
             }
             long numOfRightAnswer = answers.stream().filter(x -> x.getRight()).count();
-            switch (question.getQuestionType()){
+            switch (question.getQuestionType()) {
                 case SINGLE:
-                    if(numOfRightAnswer > 1){
+                    if (numOfRightAnswer > 1) {
                         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + numOfRightAnswer);
                     }
                     break;
                 case MULTIPLE:
-                    if(numOfRightAnswer < 2 || numOfRightAnswer == answers.size()){
+                    if (numOfRightAnswer < 2 || numOfRightAnswer == answers.size()) {
                         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + numOfRightAnswer);
                     }
                     break;
             }
             List<QuizAnswer> quizAnswers = new ArrayList<>();
-            for(QuizAnswerRequest answer : answers){
+            for (QuizAnswerRequest answer : answers) {
                 QuizAnswer quizAnswer = new QuizAnswer();
                 quizAnswer.setAnswer(answer.getAnswer());
                 quizAnswer.setIsRight(answer.getRight());
@@ -181,7 +179,7 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
         Instant endDate = request.getEndDate();
 
         if (startDate.isBefore(now) || endDate.isBefore(now) || startDate.isAfter(endDate)) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_DAY));
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ASSIGNMENT_DATE));
         }
 
         Assignment assignment = new Assignment();
@@ -332,55 +330,56 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
         }
     }
 
-    private Quiz findQuizById(Long id){
+    private Quiz findQuizById(Long id) {
         return quizRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("")));
     }
 
-    private User validateUser(Long classSectionId){
+    private User validateUser(Long classSectionId) {
         User user = SecurityUtil.getCurrentUser();
         boolean isStudent = SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT);
-        if(!isStudent){
+        if (!isStudent) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
         ClassSection classSection = classSectionRepository.findById(classSectionId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SECTION_NOT_FOUND_BY_ID) + classSectionId));
         List<StudentClass> studentClass = classSection.getClazz().getStudentClasses();
         boolean isStudentBelongToClass = studentClass.stream().anyMatch(x -> user.equals(x.getStudent()));
-        if(!isStudentBelongToClass){
+        if (!isStudentBelongToClass) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
         return user;
     }
 
-    private void isAvailableToAttempt(Quiz quiz, User user){
+    private void isAvailableToAttempt(Quiz quiz, User user) {
         Instant currentTime = Instant.now();
-        if(currentTime.isBefore(quiz.getStartDate()) || currentTime.isAfter(quiz.getEndDate())){
+        if (currentTime.isBefore(quiz.getStartDate()) || currentTime.isAfter(quiz.getEndDate())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
-        if(!quiz.getStatus().equals(QuizStatus.OPENING)){
+        if (!quiz.getStatus().equals(QuizStatus.OPENING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
-        if(!quiz.getIsUnlimitedAttempt()){
+        if (!quiz.getIsUnlimitedAttempt()) {
             int submitTimes = quiz.getQuizSubmittions().stream()
                     .filter(x -> x.getSubmittedBy().equals(user))
                     .collect(Collectors.toList()).size();
             boolean isAvailableToAttempt = submitTimes < quiz.getAttemptNumber();
-            if(!isAvailableToAttempt){
+            if (!isAvailableToAttempt) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
             }
         }
     }
-    public QuizDto studentAttemptQuiz(StudentAttemptQuizRequest request){
+
+    public QuizDto studentAttemptQuiz(StudentAttemptQuizRequest request) {
         User user = validateUser(request.getClassSectionId());
         Quiz quiz = findQuizById(request.getQuizId());
         isAvailableToAttempt(quiz, user);
 
-        if(request.getPassword().trim().isEmpty()){
+        if (request.getPassword().trim().isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
         boolean isMatchPassword = encoder.matches(request.getPassword(), quiz.getPassword());
-        if(!isMatchPassword){
+        if (!isMatchPassword) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
         QuizDto quizDto = ConvertUtil.convertQuizToQuizDto(quiz);
@@ -388,38 +387,38 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
         quizDto.setSuffleQuestion(null);
         quizDto.setPassword(null);
         List<QuizQuestionDto> questions = quizDto.getQuizQuestions();
-        for(QuizQuestionDto quizQuestionDto : questions){
+        for (QuizQuestionDto quizQuestionDto : questions) {
             quizQuestionDto.getAnswers().stream().forEach(x -> x.setRight(false));
         }
-        if(quiz.getIsSuffleQuestion()){
+        if (quiz.getIsSuffleQuestion()) {
             Collections.shuffle(questions);
         }
         quizDto.setQuizQuestions(questions);
         return quizDto;
     }
 
-    public QuizSubmittionDto studentReviewQuiz(Long id){
+    public QuizSubmittionDto studentReviewQuiz(Long id) {
         User user = SecurityUtil.getCurrentUser();
         QuizSubmittion quizSubmittion = quizSubmissionRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("")));
         boolean isProposer = quizSubmittion.getSubmittedBy().equals(user);
-        if(!isProposer){
+        if (!isProposer) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
-        if(!quizSubmittion.getQuiz().getIsAllowReview()){
+        if (!quizSubmittion.getQuiz().getIsAllowReview()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
         long reviewAfter = quizSubmittion.getQuiz().getAllowReviewAfterMin();
         Instant endTime = quizSubmittion.getCreated().plus(reviewAfter, ChronoUnit.MINUTES);
         Instant now = Instant.now();
-        if(endTime.isAfter(now)){
+        if (endTime.isAfter(now)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
         return null;
     }
 
 
-    public boolean studentSubmitQuiz(SubmitQuizRequest request){
+    public boolean studentSubmitQuiz(SubmitQuizRequest request) {
         User user = validateUser(request.getClassSectionId());
         Quiz quiz = findQuizById(request.getQuizId());
         isAvailableToAttempt(quiz, user);
@@ -427,7 +426,7 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
         List<QuizQuestion> quizQuestions = quiz.getQuizQuestions();
         QuizSubmittion quizSubmittion = new QuizSubmittion();
         List<QuizSubmitQuestion> submitQuestions = new ArrayList<>();
-        for(QuizQuestion quizQuestion : quizQuestions){
+        for (QuizQuestion quizQuestion : quizQuestions) {
             SubmittedQuestionRequest submittedQuestion = submittedQuestions.stream()
                     .filter(x -> x.getQuestionId().equals(quizQuestion.getId())).findFirst()
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("")));
@@ -438,7 +437,7 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
             List<QuizSubmitAnswer> quizSubmitAnswers;
             List<QuizAnswer> quizAnswers = quizQuestion.getAnswers();
             List<Long> submittedAnswers = submittedQuestion.getAnswerId();
-            switch (quizQuestion.getType()){
+            switch (quizQuestion.getType()) {
                 case SINGLE:
                     quizSubmitAnswers = handleSingleChoice(submittedAnswers, quizAnswers, submitQuestion);
                     break;
@@ -462,16 +461,16 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
         return true;
     }
 
-    private int getCorrectNumberFromSubmission(List<QuizSubmitQuestion> quizSubmitQuestions){
+    private int getCorrectNumberFromSubmission(List<QuizSubmitQuestion> quizSubmitQuestions) {
         int correctNumber = 0;
         for (QuizSubmitQuestion quizSubmitQuestion : quizSubmitQuestions) {
             List<QuizSubmitAnswer> quizSubmitAnswers = quizSubmitQuestion.getQuizSubmitAnswers();
-            if(!quizSubmitAnswers.isEmpty()){
-                if(quizSubmitQuestion.getQuizQuestion().getType().equals(QuestionType.SINGLE)){
-                    if (quizSubmitAnswers.get(0).getQuizAnswer().getIsRight()){
+            if (!quizSubmitAnswers.isEmpty()) {
+                if (quizSubmitQuestion.getQuizQuestion().getType().equals(QuestionType.SINGLE)) {
+                    if (quizSubmitAnswers.get(0).getQuizAnswer().getIsRight()) {
                         correctNumber++;
                     }
-                }else{
+                } else {
                     List<QuizAnswer> quizAnswers = quizSubmitQuestion.getQuizQuestion().getAnswers();
                     long submittedCorrectAnswerCount = quizSubmitAnswers.stream()
                             .filter(x -> x.getQuizAnswer().getIsRight())
@@ -479,7 +478,7 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
                     long quizCorrectAnswerCount = quizAnswers.stream()
                             .filter(x -> x.getIsRight())
                             .count();
-                    if(submittedCorrectAnswerCount == quizCorrectAnswerCount){
+                    if (submittedCorrectAnswerCount == quizCorrectAnswerCount) {
                         correctNumber++;
                     }
                 }
@@ -488,12 +487,12 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
         return correctNumber;
     }
 
-    private List<QuizSubmitAnswer> handleSingleChoice(List<Long> submittedAnswers, List<QuizAnswer> quizAnswers, QuizSubmitQuestion quizSubmitQuestion){
+    private List<QuizSubmitAnswer> handleSingleChoice(List<Long> submittedAnswers, List<QuizAnswer> quizAnswers, QuizSubmitQuestion quizSubmitQuestion) {
         List<QuizSubmitAnswer> quizSubmitAnswers = new ArrayList<>();
-        if(!submittedAnswers.isEmpty()){
+        if (!submittedAnswers.isEmpty()) {
             boolean isOnlyOneAnswer = submittedAnswers.size() == 1;
             Long submittedAnswerId = submittedAnswers.get(0);
-            if(!isOnlyOneAnswer){
+            if (!isOnlyOneAnswer) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
             }
             QuizSubmitAnswer quizSubmitAnswer = getQuizSubmitAnswerBySubmittedId(quizAnswers, submittedAnswerId, quizSubmitQuestion);
@@ -502,9 +501,9 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
         return quizSubmitAnswers;
     }
 
-    private List<QuizSubmitAnswer> handleMultipleChoice(List<Long> submittedAnswers, List<QuizAnswer> quizAnswers, QuizSubmitQuestion quizSubmitQuestion){
+    private List<QuizSubmitAnswer> handleMultipleChoice(List<Long> submittedAnswers, List<QuizAnswer> quizAnswers, QuizSubmitQuestion quizSubmitQuestion) {
         List<QuizSubmitAnswer> quizSubmitAnswers = new ArrayList<>();
-        if(!submittedAnswers.isEmpty()){
+        if (!submittedAnswers.isEmpty()) {
             for (int i = 0; i < submittedAnswers.size(); i++) {
                 Long submittedAnswerId = submittedAnswers.get(i);
                 QuizSubmitAnswer quizSubmitAnswer = getQuizSubmitAnswerBySubmittedId(quizAnswers, submittedAnswerId, quizSubmitQuestion);
@@ -514,7 +513,7 @@ public class ActivityServiceImpl implements IActivityService , Cloneable {
         return quizSubmitAnswers;
     }
 
-    private QuizSubmitAnswer getQuizSubmitAnswerBySubmittedId(List<QuizAnswer> quizAnswers,Long submittedAnswerId, QuizSubmitQuestion quizSubmitQuestion){
+    private QuizSubmitAnswer getQuizSubmitAnswerBySubmittedId(List<QuizAnswer> quizAnswers, Long submittedAnswerId, QuizSubmitQuestion quizSubmitQuestion) {
         QuizSubmitAnswer quizSubmitAnswer = new QuizSubmitAnswer();
         QuizAnswer quizAnswer = quizAnswers.stream()
                 .filter(x -> x.getId().equals(submittedAnswerId)).findFirst()

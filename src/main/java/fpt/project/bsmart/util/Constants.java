@@ -69,6 +69,7 @@ public class Constants {
             public static final String INVALID_QUESTION_LIST_SIZE = "INVALID_QUESTION_LIST_SIZE";
             public static final String INVALID_FEEDBACK_TIME = "INVALID_FEEDBACK_TIME";
             public static final String INVALID_FEEDBACK_TYPE = "INVALID_FEEDBACK_TYPE";
+            public static final String INVALID_ASSIGNMENT_DATE = "INVALID_ASSIGNMENT_DATE";
         }
         public static class Empty{
             public static final String EMPTY_FULL_NAME = "EMPTY_FULL_NAME";
