@@ -1,5 +1,6 @@
 package fpt.project.bsmart.entity.response;
 
+import fpt.project.bsmart.entity.constant.EActivityAction;
 import fpt.project.bsmart.entity.constant.EActivityType;
 
 import javax.persistence.*;
@@ -11,6 +12,8 @@ public class ActivityHistoryResponse {
     private Long id;
 
     private EActivityType type;
+
+    private EActivityAction action;
 
     private LocalDateTime activityTime;
 
@@ -36,6 +39,14 @@ public class ActivityHistoryResponse {
 
     public void setActivityName(String activityName) {
         this.activityName = activityName;
+    }
+
+    public EActivityAction getAction() {
+        return action;
+    }
+
+    public void setAction(EActivityAction action) {
+        this.action = action;
     }
 
     public EActivityType getType() {

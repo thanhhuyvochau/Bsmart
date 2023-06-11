@@ -21,12 +21,8 @@ public class OrderDetail extends BaseEntity {
     private BigDecimal originalPrice;
     @Column(name = "final_price")
     private BigDecimal finalPrice;
-    @Column(name = "referral_code")
-    private String referralCode;
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "orderDetail")
-    private List<ReferralCode> referralCodes = new ArrayList<>();
 
 
     public Long getId() {
@@ -44,7 +40,6 @@ public class OrderDetail extends BaseEntity {
     public void setSubCourse(SubCourse subCourse) {
         this.subCourse = subCourse;
     }
-
 
 
     public Order getOrder() {
@@ -71,21 +66,5 @@ public class OrderDetail extends BaseEntity {
         this.finalPrice = finalPrice;
     }
 
-    public String getReferralCode() {
-        return referralCode;
-    }
 
-    public void setReferralCode(String referralCode) {
-        this.referralCode = referralCode;
-    }
-
-
-
-    public List<ReferralCode> getReferralCodes() {
-        return referralCodes;
-    }
-
-    public void setReferralCodes(List<ReferralCode> referralCodes) {
-        this.referralCodes = referralCodes;
-    }
 }

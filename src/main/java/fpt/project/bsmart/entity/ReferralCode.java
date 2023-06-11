@@ -3,6 +3,9 @@ package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 @Entity
@@ -13,30 +16,33 @@ public class ReferralCode extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-
     @Column(name = "code")
     private String code;
 
-    @Column(name = "expiration_date")
-    private Instant expirationDate;
-    @Column(name = "status")
-    private Boolean status;
+    @Column(name = "discount_percent")
+    private Integer discountPercent;
 
-    @Column(name = "used")
-    private Boolean used;
+    @Column(name = "usage_limit")
+    private Integer usageLimit;
+
+    @Column(name = "usage_count")
+    private Integer usageCount;
+
+    @Column(name = "point")
+    private Integer point;
+
+    @Column(name = "expired_at")
+    private Date expiredAt;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_detail_id", referencedColumnName = "id")
+    private OrderDetail OrderDetail ;
+
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "owner_id")
     private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "referral_code_Type_id")
-    private ReferralCodeType referralCodeType;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_detail_id")
-    private OrderDetail orderDetail;
 
     public Long getId() {
         return id;
@@ -54,30 +60,44 @@ public class ReferralCode extends BaseEntity {
         this.code = code;
     }
 
-
-
-    public Instant getExpirationDate() {
-        return expirationDate;
+    public Integer getDiscountPercent() {
+        return discountPercent;
     }
 
-    public void setExpirationDate(Instant expirationDate) {
-        this.expirationDate = expirationDate;
+    public void setDiscountPercent(Integer discountPercent) {
+        this.discountPercent = discountPercent;
     }
 
-    public Boolean getStatus() {
-        return status;
+    public Integer getUsageLimit() {
+        return usageLimit;
     }
 
-    public void setStatus(Boolean status) {
-        this.status = status;
+    public void setUsageLimit(Integer usageLimit) {
+        this.usageLimit = usageLimit;
     }
 
-    public Boolean getUsed() {
-        return used;
+    public Integer getUsageCount() {
+        return usageCount;
     }
 
-    public void setUsed(Boolean used) {
-        this.used = used;
+    public void setUsageCount(Integer usageCount) {
+        this.usageCount = usageCount;
+    }
+
+    public Integer getPoint() {
+        return point;
+    }
+
+    public void setPoint(Integer point) {
+        this.point = point;
+    }
+
+    public Date getExpiredAt() {
+        return expiredAt;
+    }
+
+    public void setExpiredAt(Date expiredAt) {
+        this.expiredAt = expiredAt;
     }
 
     public User getUser() {
@@ -88,19 +108,11 @@ public class ReferralCode extends BaseEntity {
         this.user = user;
     }
 
-    public ReferralCodeType getReferralCodeType() {
-        return referralCodeType;
+    public fpt.project.bsmart.entity.OrderDetail getOrderDetail() {
+        return OrderDetail;
     }
 
-    public void setReferralCodeType(ReferralCodeType referralCodeType) {
-        this.referralCodeType = referralCodeType;
-    }
-
-    public OrderDetail getOrderDetail() {
-        return orderDetail;
-    }
-
-    public void setOrderDetail(OrderDetail orderDetail) {
-        this.orderDetail = orderDetail;
+    public void setOrderDetail(fpt.project.bsmart.entity.OrderDetail orderDetail) {
+        OrderDetail = orderDetail;
     }
 }
