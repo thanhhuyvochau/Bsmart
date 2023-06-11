@@ -3,7 +3,6 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.ECourseType;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.CourseResponse;
@@ -19,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;

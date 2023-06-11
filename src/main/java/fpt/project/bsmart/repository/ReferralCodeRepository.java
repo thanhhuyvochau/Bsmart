@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface ReferralCodeRepository extends JpaRepository<ReferralCode, Long> {
-    Optional<ReferralCode> findByCodeAndStatusIsTrue(String code) ;
+
 }

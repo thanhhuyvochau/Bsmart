@@ -1,5 +1,6 @@
 package fpt.project.bsmart.entity;
 
+import fpt.project.bsmart.entity.constant.EActivityAction;
 import fpt.project.bsmart.entity.constant.EActivityType;
 
 import javax.persistence.*;
@@ -14,6 +15,11 @@ public class ActivityHistory extends BaseEntity {
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private EActivityType type;
+
+    @Column(name = "action")
+    @Enumerated(EnumType.STRING)
+    private EActivityAction action;
+
 
     @Column(name = "activity_time", nullable = false)
     private LocalDateTime activityTime;
@@ -41,6 +47,14 @@ public class ActivityHistory extends BaseEntity {
 
     public EActivityType getType() {
         return type;
+    }
+
+    public EActivityAction getAction() {
+        return action;
+    }
+
+    public void setAction(EActivityAction action) {
+        this.action = action;
     }
 
     public void setType(EActivityType type) {

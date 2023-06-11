@@ -12,8 +12,9 @@ public class Constants {
     public class UrlConstants {
         public static final String COMMON_ROOT = "/api";
         public static final String COMMON_ACTIVITY_HISTORY = "/activity-history";
-
         public static final String COMMON_COURSES = "/courses";
+
+        public static final String COMMON_REFERRAL_CODE = "/referral-code";
     }
 
     public static class ErrorMessage {

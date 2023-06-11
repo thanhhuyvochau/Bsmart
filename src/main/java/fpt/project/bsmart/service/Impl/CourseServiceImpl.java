@@ -351,19 +351,8 @@ public class CourseServiceImpl implements ICourseService {
         } else {
             subCoursesList = subCourseRepository.findByStatus(NOTSTART, pageable);
         }
-
         return PageUtil.convert(subCoursesList.map(ConvertUtil::subCourseToCourseSubCourseResponseConverter));
-
     }
-
-
-
-
-    /*
-     * TODO :lean code ở đây
-     *  @author Your Name
-     * */
-
 
 
     @Transactional
@@ -580,7 +569,6 @@ public class CourseServiceImpl implements ICourseService {
 
         // log history
         ActivityHistoryUtil.logHistoryForCourseApprove(subCourse.getMentor().getId(), subCourse, approvalCourseRequest.getMessage());
-
         subCourseRepository.save(subCourse);
         return true;
     }
