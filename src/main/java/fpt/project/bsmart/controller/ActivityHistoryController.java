@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_ACTIVITY_HISTORY;
+import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_ROOT;
+
 @RestController
-@RequestMapping("/api/activity-history")
+@RequestMapping(COMMON_ROOT + COMMON_ACTIVITY_HISTORY)
 public class ActivityHistoryController {
 
 

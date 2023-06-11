@@ -18,6 +18,9 @@ public class ActivityHistory extends BaseEntity {
     @Column(name = "activity_time", nullable = false)
     private LocalDateTime activityTime;
 
+    @Column(name = "activity_name")
+    private String activityName;
+
     @Column(name = "detail")
     private String detail;
 
@@ -42,6 +45,14 @@ public class ActivityHistory extends BaseEntity {
 
     public void setType(EActivityType type) {
         this.type = type;
+    }
+
+    public String getActivityName() {
+        return activityName;
+    }
+
+    public void setActivityName(String activityName) {
+        this.activityName = activityName;
     }
 
     public String getDetail() {

@@ -17,14 +17,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
 import java.util.List;
 
+import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_COURSES;
+import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_ROOT;
+
 @RestController
-@RequestMapping("/api/courses")
+@RequestMapping(COMMON_ROOT + COMMON_COURSES )
+@Transactional(rollbackFor = {Exception.class})
 public class CourseController {
 
     private final ICourseService iCourseService;
@@ -70,13 +75,13 @@ public class CourseController {
 
     @Operation(summary = "mentor tao khoá học của riêng mình ")
     @PostMapping
-    public ResponseEntity<ApiResponse<Long>> mentorCreateCoursePrivate( @Valid @RequestBody CreateCourseRequest createCourseRequest) {
+    public ResponseEntity<ApiResponse< List<Long>>> mentorCreateCoursePrivate( @Valid @RequestBody CreateCourseRequest createCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCoursePrivate( createCourseRequest)));
     }
 
     @Operation(summary = "mentor tao khoá học từ khóa học public")
     @PostMapping("public-course/{id}")
-    public ResponseEntity<ApiResponse<Long>> mentorCreateCoursePublic(@PathVariable Long id , @Valid @RequestBody CreateCourseRequest createCourseRequest) {
+    public ResponseEntity<ApiResponse< List<Long>>> mentorCreateCoursePublic(@PathVariable Long id , @Valid @RequestBody CreateCourseRequest createCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCoursePublic(id , createCourseRequest)));
     }
 
@@ -98,10 +103,16 @@ public class CourseController {
     @Operation(summary = "mentor xem tất cả course của mình")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/mentor")
-    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> mentorGetCourse(ECourseStatus status, Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetCourse(status, pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> mentorGetAllCourse(ECourseStatus status, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetAllCourse(status, pageable)));
     }
 
+    @Operation(summary = "mentor / member xem chi tiết 1 course của mình")
+    @PreAuthorize("hasAnyRole('TEACHER' , 'STUDENT')")
+    @GetMapping("/{subCourseId}/mentor")
+    public ResponseEntity<ApiResponse<CourseSubCourseResponse>> mentorGetCourse(@PathVariable Long subCourseId) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorGetCourse(subCourseId)));
+    }
 
     @Operation(summary = "mentor gửi yêu cầu phê duệt khoá hoc ")
     @PreAuthorize("hasAnyRole('TEACHER')")

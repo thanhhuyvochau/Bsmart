@@ -12,12 +12,13 @@ public class ActivityHistoryResponse {
 
     private EActivityType type;
 
-
     private LocalDateTime activityTime;
 
     private String detail;
 
     private Long activityId;
+
+    private String activityName ;
 
     private Long userId;
 
@@ -27,6 +28,14 @@ public class ActivityHistoryResponse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getActivityName() {
+        return activityName;
+    }
+
+    public void setActivityName(String activityName) {
+        this.activityName = activityName;
     }
 
     public EActivityType getType() {

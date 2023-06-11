@@ -34,7 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.util.ActivityHistoryUtil.logHistoryForOrderCourse;
+import static fpt.project.bsmart.util.ActivityHistoryUtil.logHistoryForMemberOrderCourse;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID;
 
 @Service
@@ -119,6 +119,7 @@ public class TransactionService implements ITransactionService {
         transactionRepository.save(transaction);
         return true;
     }
+
 
     @Override
     public Boolean payQuickCourse(PayCourseRequest request) {
@@ -216,10 +217,12 @@ public class TransactionService implements ITransactionService {
         transaction.setBeforeBalance(presentBalance);
         transaction.setAfterBalance(presentBalance.subtract(price));
         wallet.decreaseBalance(transaction.getAmount());
-        transactionRepository.save(transaction);
 
         //log
-        logHistoryForOrderCourse(wallet.getOwner().getId(), order.getId());
+        logHistoryForMemberOrderCourse(wallet.getOwner().getId(), order.getId(), subCourse);
+
+        transactionRepository.save(transaction);
+
         return true;
     }
 
