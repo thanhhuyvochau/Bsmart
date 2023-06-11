@@ -27,6 +27,13 @@ public class MentorUtil {
 
     }
 
+    public static MentorProfile getCurrentUserMentorProfile(User currentUserAccountLogin) {
+        MentorUtil.checkIsMentor();
+        return currentUserAccountLogin.getMentorProfile();
+    }
+
+
+
     public static User checkIsMentor() {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
         MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
@@ -41,7 +48,6 @@ public class MentorUtil {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(staticMessageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
-
 
         if (!mentorProfile.getStatus().equals(EAccountStatus.STARTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
