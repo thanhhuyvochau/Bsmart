@@ -16,10 +16,10 @@ import java.util.List;
 public interface ICourseService {
 
     List<CourseDto> getCoursesBySubject(Long subjectId);
-    Long mentorCreateCoursePrivate(CreateCourseRequest createCourseRequest);
+    List<Long> mentorCreateCoursePrivate(CreateCourseRequest createCourseRequest);
 
-    Long mentorCreateCoursePublic(Long id  ,CreateCourseRequest createCourseRequest);
-    ApiPage<CourseSubCourseResponse> mentorGetCourse(ECourseStatus status  , Pageable pageable);
+    List<Long> mentorCreateCoursePublic(Long id  ,CreateCourseRequest createCourseRequest);
+    ApiPage<CourseSubCourseResponse> mentorGetAllCourse(ECourseStatus status  , Pageable pageable);
 
     ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest , Pageable pageable);
 
@@ -50,5 +50,5 @@ public interface ICourseService {
     Boolean managerCreateCourse(CreateCoursePublicRequest createCourseRequest);
 
 
-
+    CourseSubCourseResponse mentorGetCourse( Long subCourseId);
 }

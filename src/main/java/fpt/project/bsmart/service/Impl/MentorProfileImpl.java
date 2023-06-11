@@ -130,9 +130,8 @@ public class MentorProfileImpl implements IMentorProfileService {
                     .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
         }
         mentorProfile.setStatus(EAccountStatus.STARTING);
-        ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser().getId(), managerApprovalAccountRequest.getMessage());
+        ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser() , managerApprovalAccountRequest.getMessage());
 
-        ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser().getId(), managerApprovalAccountRequest.getMessage());
         return mentorProfileRepository.save(mentorProfile).getId();
 
     }

@@ -75,7 +75,7 @@ public class CourseServiceImpl implements ICourseService {
 
 
     @Override
-    public Long mentorCreateCoursePrivate(CreateCourseRequest createCourseRequest) {
+    public  List<Long> mentorCreateCoursePrivate(CreateCourseRequest createCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
 
         // create info for course
@@ -85,17 +85,20 @@ public class CourseServiceImpl implements ICourseService {
 
 
     @Override
-    public Long mentorCreateCoursePublic(Long id, CreateCourseRequest createCourseRequest) {
+    public  List<Long> mentorCreateCoursePublic(Long id, CreateCourseRequest createCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
         return createSubCourseAndTimeInWeek(currentUserAccountLogin, course, createCourseRequest);
     }
-    private Long createSubCourseAndTimeInWeek ( User currentUserAccountLogin, Course course ,CreateCourseRequest createCourseRequest ) {
+
+    private List<Long> createSubCourseAndTimeInWeek(User currentUserAccountLogin, Course course, CreateCourseRequest createCourseRequest) {
         // check mentor account is valid
         checkMentorProfile(currentUserAccountLogin);
 
         course.setStatus(REQUESTING);
+
+        List<Long> subCourseId = new ArrayList<>( );
         List<CreateSubCourseRequest> subCourseRequestsList = createCourseRequest.getSubCourseRequests();
         List<SubCourse> subCourses = new ArrayList<>();
         subCourseRequestsList.forEach(createSubCourseRequest -> {
@@ -109,18 +112,26 @@ public class CourseServiceImpl implements ICourseService {
 
             subCourseFromRequest.setTimeInWeeks(timeInWeeksFromRequest);
             subCourseFromRequest.setCourse(course);
+
+
+
             subCourses.add(subCourseFromRequest);
+
 
         });
         course.setSubCourses(subCourses);
+         courseRepository.save(course) ;
+
 
         // ghi log
         subCourses.forEach(subCourse -> {
-                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), subCourse.getId());
+                    subCourseId.add(subCourse.getId());
+                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), subCourse);
                 }
         );
 
-        return courseRepository.save(course).getId();
+
+        return subCourseId;
     }
 
 
@@ -227,7 +238,7 @@ public class CourseServiceImpl implements ICourseService {
 
 
     @Override
-    public ApiPage<CourseSubCourseResponse> mentorGetCourse(ECourseStatus courseStatus, Pageable pageable) {
+    public ApiPage<CourseSubCourseResponse> mentorGetAllCourse(ECourseStatus courseStatus, Pageable pageable) {
         User currentUser = SecurityUtil.getCurrentUser();
         Page<SubCourse> subCoursesPage;
 
@@ -237,6 +248,15 @@ public class CourseServiceImpl implements ICourseService {
             subCoursesPage = subCourseRepository.findByStatusAndMentor(courseStatus, currentUser, pageable);
         }
         return PageUtil.convert(subCoursesPage.map(ConvertUtil::subCourseToCourseSubCourseResponseConverter));
+
+    }
+
+    @Override
+    public CourseSubCourseResponse mentorGetCourse(Long subCourseId) {
+        SubCourse subCourse = subCourseRepository.findById(subCourseId).
+                orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
+        return ConvertUtil.subCourseToCourseSubCourseResponseConverter(subCourse);
 
     }
 
@@ -533,9 +553,9 @@ public class CourseServiceImpl implements ICourseService {
             subCourse.setCourse(null);
         }
 
+        ActivityHistoryUtil.logHistoryForCourseDeleted(user.getId(), subCourse);
         subCourseRepository.delete(subCourse);
 
-        ActivityHistoryUtil.logHistoryForCourseDeleted(user.getId(), subCourseId);
         return true;
     }
 
@@ -598,12 +618,11 @@ public class CourseServiceImpl implements ICourseService {
         }
 
         subCourse.setStatus(approvalCourseRequest.getStatus());
-        subCourseRepository.save(subCourse);
-
 
         // log history
-        ActivityHistoryUtil.logHistoryForCourseApprove(subCourse.getMentor().getId(), subCourseId, approvalCourseRequest.getMessage());
+        ActivityHistoryUtil.logHistoryForCourseApprove(subCourse.getMentor().getId(), subCourse, approvalCourseRequest.getMessage());
 
+        subCourseRepository.save(subCourse);
         return true;
     }
 
@@ -614,6 +633,7 @@ public class CourseServiceImpl implements ICourseService {
         courseRepository.save(courseFromRequest);
         return true;
     }
+
 
     private Course createCoursePublicFromRequest(CreateCoursePublicRequest coursePublicRequest) {
         Long categoryId = coursePublicRequest.getCategoryId();
