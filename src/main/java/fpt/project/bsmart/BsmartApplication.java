@@ -41,7 +41,7 @@ public class BsmartApplication {
 
         SpringApplication.run(BsmartApplication.class, args);
     }
-
+// commit 1
 
 }
 
