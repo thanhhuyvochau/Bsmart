@@ -34,7 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.util.ActivityHistoryUtil.logHistoryForOrderCourse;
+import static fpt.project.bsmart.util.ActivityHistoryUtil.logHistoryForMemberOrderCourse;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID;
 
 @Service
@@ -120,6 +120,7 @@ public class TransactionService implements ITransactionService {
         return true;
     }
 
+
     @Override
     public Boolean payQuickCourse(PayCourseRequest request) {
         SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
@@ -162,51 +163,55 @@ public class TransactionService implements ITransactionService {
         order.getOrderDetails().add(orderDetail);
         order.setUser(wallet.getOwner());
 
+        //  TODO: Need to implement  feature ReferralCode
+        // AUTHOR: Đang
+
+
         List<ReferralCode> referalCodeList = new ArrayList<>();
         ReferralCode referralCode = null;
-        if (request.getReferralCode() != null || request.getReferralCode().isEmpty()) {
-            referralCode = referralCodeRepository.findByCodeAndStatusIsTrue(request.getReferralCode())
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("Mã giới thiệu không tìm thấy!!") + request.getReferralCode()));
+//        if (request.getReferralCode() != null || request.getReferralCode().isEmpty()) {
+//            referralCode = referralCodeRepository.findByCodeAndStatusIsTrue(request.getReferralCode())
+//                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("Mã giới thiệu không tìm thấy!!") + request.getReferralCode()));
 
 
-            ReferralCodeType referralCodeType = referralCode.getReferralCodeType();
-            if (referralCodeType == null) {
-                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("link  giới thiệu không thuộc loại khuyến mãi nào ");
-            }
-            Double discount = referralCodeType.getDiscount();
-            if (discount != null && discount > 0) {
-                price = price.subtract(price.multiply(BigDecimal.valueOf(discount)).divide(BigDecimal.valueOf(100), 2, RoundingMode.CEILING));
-            }
+//            ReferralCodeType referralCodeType = referralCode.getReferralCodeType();
+//            if (referralCodeType == null) {
+//                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("link  giới thiệu không thuộc loại khuyến mãi nào ");
+//            }
+//            Double discount = referralCodeType.getDiscount();
+//            if (discount != null && discount > 0) {
+//                price = price.subtract(price.multiply(BigDecimal.valueOf(discount)).divide(BigDecimal.valueOf(100), 2, RoundingMode.CEILING));
+//            }
 
-            if (referralCode.getUsed() == null) {
-                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiêu đã được sử dụng rồi !! Vui lòng nhập mã khác");
-            }
-            if (referralCode.getUser() == null) {
-                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiệu không tìm thấy ");
-            }
-            if (referralCode.getUsed()) {
-                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiêu đã được sử dụng rồi !! Vui lòng nhập mã khác");
-            }
-            referalCodeList.add(referralCode);
+//            if (referralCode.getUsed() == null) {
+//                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiêu đã được sử dụng rồi !! Vui lòng nhập mã khác");
+////            }
+//            if (referralCode.getUser() == null) {
+//                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiệu không tìm thấy ");
+//            }
+//            if (referralCode.getUsed()) {
+//                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiêu đã được sử dụng rồi !! Vui lòng nhập mã khác");
+//            }
+//            referalCodeList.add(referralCode);
 
 
-            orderDetail.setReferralCode(request.getReferralCode());
-            orderDetail.getReferralCodes().addAll(referalCodeList);
-            orderDetail.setReferralCodes(referalCodeList);
-        }
+//            orderDetail.setReferralCode(request.getReferralCode());
+//            orderDetail.getReferralCodes().addAll(referalCodeList);
+//            orderDetail.setReferralCodes(referalCodeList);
+//        }
         orderRepository.save(order);
         orderDetail.setOrder(order);
 
         orderDetailRepository.save(orderDetail);
-        if (referralCode != null) {
-            referralCode.setUsed(true);
-            referralCode.setStatus(false);
-            referralCode.setOrderDetail(orderDetail);
-
-            User user = referralCode.getUser();
-            Double point = user.getPoint();
-            user.setPoint(point + 10D);
-        }
+//        if (referralCode != null) {
+//            referralCode.setUsed(true);
+//            referralCode.setStatus(false);
+//            referralCode.setOrderDetail(orderDetail);
+//
+//            User user = referralCode.getUser();
+//            Double point = user.getPoint();
+//            user.setPoint(point + 10D);
+//        }
         Transaction transaction = new Transaction();
         transaction.setAmount(price);
         transaction.setStatus(ETransactionStatus.SUCCESS);
@@ -216,10 +221,12 @@ public class TransactionService implements ITransactionService {
         transaction.setBeforeBalance(presentBalance);
         transaction.setAfterBalance(presentBalance.subtract(price));
         wallet.decreaseBalance(transaction.getAmount());
-        transactionRepository.save(transaction);
 
         //log
-        logHistoryForOrderCourse(wallet.getOwner().getId(), order.getId());
+        logHistoryForMemberOrderCourse(wallet.getOwner().getId(), order.getId(), subCourse);
+
+        transactionRepository.save(transaction);
+
         return true;
     }
 

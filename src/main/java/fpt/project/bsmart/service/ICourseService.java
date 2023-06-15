@@ -3,7 +3,6 @@ package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.ECourseType;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.CourseResponse;
@@ -17,9 +16,10 @@ import java.util.List;
 public interface ICourseService {
 
     List<CourseDto> getCoursesBySubject(Long subjectId);
-    Long mentorCreateCourse(Long id  ,CreateCourseRequest createCourseRequest);
+    List<Long> mentorCreateCoursePrivate(CreateCourseRequest createCourseRequest);
 
-    ApiPage<CourseSubCourseResponse> mentorGetCourse(ECourseStatus status  , Pageable pageable);
+    List<Long> mentorCreateCoursePublic(Long id  ,CreateCourseRequest createCourseRequest);
+    ApiPage<CourseSubCourseResponse> mentorGetAllCourse(ECourseStatus status  , Pageable pageable);
 
     ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest , Pageable pageable);
 
@@ -49,5 +49,6 @@ public interface ICourseService {
 
     Boolean managerCreateCourse(CreateCoursePublicRequest createCourseRequest);
 
-//    Boolean mentorUploadImageForCourse(Long id, FileDto request);
+
+    CourseSubCourseResponse mentorGetCourse( Long subCourseId);
 }

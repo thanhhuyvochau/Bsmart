@@ -70,12 +70,17 @@ public class User extends BaseEntity {
     private String keycloakUserId;
     @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
+
 //    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<StudentClass> studentClasses = new ArrayList<>();
     @Column(name = "is_verified")
     private boolean isVerified = false;
     @Column(name = "provider")
     private String provider;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private ReferralCode referralCode;
+
 
     public Long getId() {
         return id;
@@ -283,5 +288,13 @@ public class User extends BaseEntity {
 
     public void setProvider(String provider) {
         this.provider = provider;
+    }
+
+    public ReferralCode getReferralCode() {
+        return referralCode;
+    }
+
+    public void setReferralCode(ReferralCode referralCode) {
+        this.referralCode = referralCode;
     }
 }

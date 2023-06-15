@@ -14,8 +14,7 @@ import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.EDITREQUEST;
 import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_DOES_NOT_BELONG_TO_THE_TEACHER;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_STATUS_NOT_ALLOW;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 @Component
 public class CourseUtil {
@@ -23,6 +22,31 @@ public class CourseUtil {
     private static String successIcon;
 
     private static String failIcon;
+
+    public static void checkCourseOwnership(SubCourse subCourse, MentorProfile mentorProfile) {
+        if (!subCourse.getMentor().getMentorProfile().equals(mentorProfile)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
+        }
+
+        if (!subCourse.getStatus().equals(EDITREQUEST) && !subCourse.getStatus().equals(REQUESTING)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(SUB_COURSE_STATUS_NOT_ALLOW));
+        }
+    }
+
+
+
+    public static String generateRandomCode(int length) {
+        String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; ++i) {
+            int randomIndex = (int) (Math.random() * alphabet.length());
+            char randomChar = alphabet.charAt(randomIndex);
+            sb.append(randomChar);
+        }
+        return sb.toString();
+    }
 
     public static Boolean checkCourseValid(SubCourse subCourse, User user) {
         if (!subCourse.getStatus().equals(REQUESTING)) {
