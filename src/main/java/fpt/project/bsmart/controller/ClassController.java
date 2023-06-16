@@ -4,7 +4,10 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
+import fpt.project.bsmart.entity.dto.ClassSectionDto;
 import fpt.project.bsmart.entity.request.ClassFeedbackRequest;
+import fpt.project.bsmart.entity.request.ClassSectionCreateRequest;
+import fpt.project.bsmart.entity.request.ClassSectionUpdateRequest;
 import fpt.project.bsmart.entity.request.category.CreateClassRequest;
 import fpt.project.bsmart.entity.response.AttendanceStudentResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
@@ -69,5 +72,25 @@ public class ClassController {
     @GetMapping("/{id}/time-tables")
     public ResponseEntity<ApiResponse<ApiPage<TimeTableResponse>>> getTimeTables(Long id, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(timeTableService.getTimeTableByClass(id, pageable)));
+    }
+
+    @PostMapping("/{id}/class-sections")
+    public ResponseEntity<ApiResponse<ClassSectionDto>> createClassSection(@RequestBody ClassSectionCreateRequest request, @PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.createClassSection(request, id)));
+    }
+
+    @PutMapping("/{id}/class-sections/{classSectionId}")
+    public ResponseEntity<ApiResponse<ClassSectionDto>> updateClassSection(@RequestBody ClassSectionUpdateRequest request, @PathVariable("id") Long id, @PathVariable("classSectionId") Long classSectionId) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.updateClassSection(id, classSectionId, request)));
+    }
+
+    @DeleteMapping("/{id}/class-sections/{classSectionId}")
+    public ResponseEntity<ApiResponse<Boolean>> deleteClassSection(@PathVariable("classSectionId") Long classSectionId, @PathVariable("id") Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.deleteClassSection(classSectionId, id)));
+    }
+
+    @GetMapping("/{id}/class-sections/{classSectionId}")
+    public ResponseEntity<ApiResponse<ClassSectionDto>> getClassSection(@PathVariable("id") Long id, @PathVariable("classSectionId") Long classId) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassSection(id, classId)));
     }
 }
