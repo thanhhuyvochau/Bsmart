@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.EOrderStatus;
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.request.ClassFeedbackRequest;
+import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.category.CreateClassRequest;
 import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
@@ -16,11 +17,12 @@ import fpt.project.bsmart.repository.OrderDetailRepository;
 import fpt.project.bsmart.repository.SubCourseRepository;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.util.*;
-import fpt.project.bsmart.util.specification.ClassFeedbackSpecificationBuilder;
+import fpt.project.bsmart.util.specification.ClassSpecificationBuilder;
 import fpt.project.bsmart.validator.ClassValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -89,12 +91,12 @@ public class ClassServiceImpl implements IClassService {
 
     @Override
     public ApiPage<SimpleClassResponse> getClassFeedbacks(ClassFeedbackRequest classFeedbackRequest, Pageable pageable) {
-        ClassFeedbackSpecificationBuilder classFeedbackSpecificationBuilder = ClassFeedbackSpecificationBuilder.classFeedbackSpecificationBuilder()
+        ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
                 .searchBySubCourseName(classFeedbackRequest.getSubCourseName())
                 .searchByMentorName(classFeedbackRequest.getMentorName())
                 .filterByStartDay(classFeedbackRequest.getStartDate())
                 .filterByEndDate(classFeedbackRequest.getEndDate());
-        Page<Class> classes = classRepository.findAll(classFeedbackSpecificationBuilder.build(), pageable);
+        Page<Class> classes = classRepository.findAll(classSpecificationBuilder.build(), pageable);
         List<SimpleClassResponse> simpleClassRespons = classes.stream()
                 .map(ConvertUtil::convertClassToSimpleClassResponse)
                 .collect(Collectors.toList());
@@ -120,5 +122,22 @@ public class ClassServiceImpl implements IClassService {
             return ConvertUtil.convertClassToClassResponse(clazz);
         }
         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Bạn không thuộc về lớp này!");
+    }
+
+    @Override
+    public ApiPage<SimpleClassResponse> getUserClasses(ClassFilterRequest request, Pageable pageable) {
+        User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        ClassSpecificationBuilder builder = ClassSpecificationBuilder.classSpecificationBuilder();
+        builder.searchByClassName(request.getQ())
+                .filterByStartDay(request.getStartDate())
+                .filterByEndDate(request.getEndDate());
+        if (request.getAsRole() == 2) {
+            builder.byMentor(user);
+        } else if (request.getAsRole() == 1) {
+            builder.byStudent(user);
+        }
+        Specification<Class> specification = builder.build();
+        Page<Class> classes = classRepository.findAll(specification, pageable);
+        return PageUtil.convert(classes.map(ConvertUtil::convertClassToSimpleClassResponse));
     }
 }

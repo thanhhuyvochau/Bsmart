@@ -9,17 +9,21 @@ import org.springframework.data.jpa.domain.Specification;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ClassFeedbackSpecificationBuilder {
-    public static ClassFeedbackSpecificationBuilder classFeedbackSpecificationBuilder () {return new ClassFeedbackSpecificationBuilder();}
+public class ClassSpecificationBuilder {
+    public static ClassSpecificationBuilder classSpecificationBuilder() {
+        return new ClassSpecificationBuilder();
+    }
+
     private List<Specification<Class>> specifications = new ArrayList<>();
 
-    public ClassFeedbackSpecificationBuilder searchByMentorName(String name){
-        if(StringUtil.isNullOrEmpty(name)){
+    public ClassSpecificationBuilder searchByMentorName(String name) {
+        if (StringUtil.isNullOrEmpty(name)) {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
@@ -29,8 +33,8 @@ public class ClassFeedbackSpecificationBuilder {
         return this;
     }
 
-    public ClassFeedbackSpecificationBuilder searchBySubCourseName(String name){
-        if(StringUtil.isNullOrEmpty(name)){
+    public ClassSpecificationBuilder searchBySubCourseName(String name) {
+        if (StringUtil.isNullOrEmpty(name)) {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
@@ -41,8 +45,9 @@ public class ClassFeedbackSpecificationBuilder {
         });
         return this;
     }
-    public ClassFeedbackSpecificationBuilder filterByStartDay(Instant startDate){
-        if(startDate == null){
+
+    public ClassSpecificationBuilder filterByStartDay(Instant startDate) {
+        if (startDate == null) {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
@@ -52,8 +57,8 @@ public class ClassFeedbackSpecificationBuilder {
         return this;
     }
 
-    public ClassFeedbackSpecificationBuilder filterByEndDate(Instant endDate){
-        if(endDate == null){
+    public ClassSpecificationBuilder filterByEndDate(Instant endDate) {
+        if (endDate == null) {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
@@ -63,12 +68,43 @@ public class ClassFeedbackSpecificationBuilder {
         return this;
     }
 
-    public Specification build(){
+    public ClassSpecificationBuilder searchByClassName(String name) {
+        if (StringUtil.isNullOrEmpty(name)) {
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            Path<SubCourse> subCoursePath = root.get(Class_.SUB_COURSE);
+            return criteriaBuilder.like(subCoursePath.get(SubCourse_.TITLE), "%"+name+"%");
+        });
+        return this;
+    }
+
+    public ClassSpecificationBuilder byMentor(User mentor) {
+        if (mentor == null) {
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            Path<SubCourse> subCoursePath = root.get(Class_.SUB_COURSE);
+            return criteriaBuilder.equal(subCoursePath.get(SubCourse_.MENTOR), mentor);
+        });
+        return this;
+    }
+
+    public ClassSpecificationBuilder byStudent(User student) {
+        if (student == null) {
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.in(root.get(Class_.STUDENT_CLASSES).get(StudentClass_.STUDENT)).value(student));
+        return this;
+    }
+
+    public Specification<Class> build() {
         return specifications.stream()
                 .filter(Objects::nonNull)
                 .reduce(all(), Specification::and);
     }
-    private Specification<Class> all(){
+
+    private Specification<Class> all() {
         return Specification.where(null);
     }
 }
