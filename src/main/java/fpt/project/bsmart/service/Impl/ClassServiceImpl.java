@@ -81,10 +81,10 @@ public class ClassServiceImpl implements IClassService {
         List<Section> sections = subCourse.getCourse().getSections();
         for (Section section : sections) {
             ClassSection classSection = new ClassSection(section.getName(), clazz);
-            for (Module module : section.getModules()) {
-                ClassModule classModule = new ClassModule(module.getName(), classSection);
-                classSection.getClassModules().add(classModule);
-            }
+//            for (Module module : section.getModules()) {
+//                ClassModule classModule = new ClassModule(module.getName(), classSection);
+//                classSection.getClassModules().add(classModule);
+//            }
             clazz.getClassSections().add(classSection);
         }
         classRepository.save(clazz);

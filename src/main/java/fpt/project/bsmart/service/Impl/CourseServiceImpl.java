@@ -1,14 +1,21 @@
 package fpt.project.bsmart.service.Impl;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import fpt.project.bsmart.config.common.CustomFilter;
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.Module;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.common.SimpleResult;
 import fpt.project.bsmart.entity.constant.EAccountStatus;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.ECourseType;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.CourseDto;
+import fpt.project.bsmart.entity.dto.course.CourseContentDto;
+import fpt.project.bsmart.entity.dto.module.ModuleDto;
+import fpt.project.bsmart.entity.dto.section.SectionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
@@ -31,6 +38,8 @@ import java.util.stream.Collectors;
 
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
+import static fpt.project.bsmart.util.Constants.CustomFilterConstants.CONTENT_FILTER;
+import static fpt.project.bsmart.util.Constants.CustomFilterConstants.COURSE_CONTENT_FILTER_PROP;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.ConvertUtil.convertCourseSubCourseToCourseSubCourseDetailResponse;
 import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDTO;
@@ -247,6 +256,41 @@ public class CourseServiceImpl implements ICourseService {
         return ConvertUtil.subCourseToCourseSubCourseResponseConverter(subCourse);
 
     }
+
+    @Transactional()
+    @Override
+    public Boolean mentorCreateContentCourse(Long id, List<CourseContentDto> request) throws JsonProcessingException {
+
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+
+        List<Section> sections = new ArrayList<>();
+        request.forEach(courseContent -> {
+
+            SectionDto sectionContent = courseContent.getSections();
+            Section section = new Section();
+            section.setName(sectionContent.getName());;
+
+            List<Module> modules = new ArrayList<>();
+            List<ModuleDto> modulesContent = sectionContent.getModules();
+            modulesContent.forEach(moduleContent -> {
+                Module module = new Module();
+                module.setName(moduleContent.getName());
+                module.setSection(section);
+                modules.add(module);
+            });
+            section.getModules().addAll(modules);
+            section.setCourse(course);
+            sections.add(section);
+        });
+
+        course.getSections().addAll(sections);
+        courseRepository.save(course);
+
+
+        return true;
+    }
+
 
     @Override
     public ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest query, Pageable pageable) {
