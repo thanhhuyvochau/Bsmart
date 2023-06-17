@@ -1,9 +1,13 @@
 package fpt.project.bsmart.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import fpt.project.bsmart.config.common.CustomFilter;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.common.SimpleResult;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.CourseDto;
+import fpt.project.bsmart.entity.dto.course.CourseContentDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
@@ -24,17 +28,19 @@ import javax.annotation.Nullable;
 import javax.validation.Valid;
 import java.util.List;
 
+import static fpt.project.bsmart.util.Constants.CustomFilterConstants.CONTENT_FILTER;
+import static fpt.project.bsmart.util.Constants.CustomFilterConstants.COURSE_CONTENT_FILTER_PROP;
 import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_COURSES;
 import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_ROOT;
 
 @RestController
-@RequestMapping(COMMON_ROOT + COMMON_COURSES )
+@RequestMapping(COMMON_ROOT + COMMON_COURSES)
 @Transactional(rollbackFor = {Exception.class})
 public class CourseController {
 
     private final ICourseService iCourseService;
 
-    public CourseController(ICourseService iCourseService) {
+    public CourseController(ICourseService iCourseService) throws JsonProcessingException {
         this.iCourseService = iCourseService;
     }
 
@@ -75,14 +81,14 @@ public class CourseController {
 
     @Operation(summary = "mentor tao khoá học của riêng mình ")
     @PostMapping
-    public ResponseEntity<ApiResponse< List<Long>>> mentorCreateCoursePrivate( @Valid @RequestBody CreateCourseRequest createCourseRequest) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCoursePrivate( createCourseRequest)));
+    public ResponseEntity<ApiResponse<List<Long>>> mentorCreateCoursePrivate(@Valid @RequestBody CreateCourseRequest createCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCoursePrivate(createCourseRequest)));
     }
 
     @Operation(summary = "mentor tao khoá học từ khóa học public")
     @PostMapping("public-course/{id}")
-    public ResponseEntity<ApiResponse< List<Long>>> mentorCreateCoursePublic(@PathVariable Long id , @Valid @RequestBody CreateCourseRequest createCourseRequest) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCoursePublic(id , createCourseRequest)));
+    public ResponseEntity<ApiResponse<List<Long>>> mentorCreateCoursePublic(@PathVariable Long id, @Valid @RequestBody CreateCourseRequest createCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCoursePublic(id, createCourseRequest)));
     }
 
 
@@ -121,6 +127,16 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorRequestApprovalCourse(subCourseId)));
     }
 
+
+
+    @Operation(summary = "mentor tao nội dung khoá học ")
+    @PostMapping("/{id}/content")
+    public  ResponseEntity<ApiResponse<Boolean>> mentorCreateContentCourse(@PathVariable Long id , @Valid @RequestBody List<CourseContentDto> request ) throws JsonProcessingException {
+        return ResponseEntity.ok(ApiResponse.success( iCourseService.mentorCreateContentCourse(id ,request)));
+
+    }
+
+
     // ################################## Member ##########################################
 
     @Operation(summary = "Member xem khóa học đã đăng ký")
@@ -135,7 +151,6 @@ public class CourseController {
     public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourseSuggest(@PageableDefault(sort = "created", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourseSuggest(pageable)));
     }
-
 
 
     // ################################## Manager ##########################################
@@ -161,7 +176,6 @@ public class CourseController {
     public ResponseEntity<ApiResponse<Boolean>> managerCreateCourse(@RequestBody CreateCoursePublicRequest createCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.managerCreateCourse(createCourseRequest)));
     }
-
 
 
 }

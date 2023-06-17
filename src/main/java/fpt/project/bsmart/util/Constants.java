@@ -40,26 +40,27 @@ public class Constants {
         public static final String ACCOUNT_IS_NOT_MENTOR = "ACCOUNT_IS_NOT_MENTOR";
 
 
-        public static final String  COURSE_CODE_ALREADY_EXISTS= "COURSE_CODE_ALREADY_EXISTS";
+        public static final String COURSE_CODE_ALREADY_EXISTS = "COURSE_CODE_ALREADY_EXISTS";
 
-        public static final String  COURSE_STATUS_NOT_ALLOW= "COURSE_STATUS_NOT_ALLOW";
+        public static final String COURSE_STATUS_NOT_ALLOW = "COURSE_STATUS_NOT_ALLOW";
 
-        public static final String  COURSE_DOES_NOT_BELONG_TO_THE_TEACHER= "COURSE_DOES_NOT_BELONG_TO_THE_TEACHER";
+        public static final String COURSE_DOES_NOT_BELONG_TO_THE_TEACHER = "COURSE_DOES_NOT_BELONG_TO_THE_TEACHER";
 
-        public static final String  SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED= "SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED";
+        public static final String SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED = "SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED";
 
-        public static final String  DAY_OF_WEEK_COULD_NOT_BE_FOUND= "DAY_OF_WEEK_COULD_NOT_BE_FOUND";
-        public static final String  SLOT_COULD_NOT_BE_FOUND= "SLOT_COULD_NOT_BE_FOUND";
-        public static final String  PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE= "PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE";
-        public static final String  PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE= "PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE";
-        public static final String  PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE= "PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE";
+        public static final String DAY_OF_WEEK_COULD_NOT_BE_FOUND = "DAY_OF_WEEK_COULD_NOT_BE_FOUND";
+        public static final String SLOT_COULD_NOT_BE_FOUND = "SLOT_COULD_NOT_BE_FOUND";
+        public static final String PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE = "PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE";
+        public static final String PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE = "PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE";
+        public static final String PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE = "PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE";
 
         public static final String USER_NOT_HAVE_PERMISSION_TO_VIEW_THIS_COURSE = "USER_NOT_HAVE_PERMISSION_TO_VIEW_THIS_COURSE";
 
-        public static final String  INVALID_COURSE_APPROVAL_STATUS= "INVALID_COURSE_APPROVAL_STATUS";
+        public static final String INVALID_COURSE_APPROVAL_STATUS = "INVALID_COURSE_APPROVAL_STATUS";
 
-        public static final String  ACCOUNT_STATUS_NOT_ALLOW= "ACCOUNT_STATUS_NOT_ALLOW";
-        public static class Invalid{
+        public static final String ACCOUNT_STATUS_NOT_ALLOW = "ACCOUNT_STATUS_NOT_ALLOW";
+
+        public static class Invalid {
 
             public static final String USERNAME_PASSWORD_INCORRECT = "USERNAME_PASSWORD_INCORRECT";
             public static final String INVALID_FACEBOOK_LINK = "INVALID_FACEBOOK_LINK";
@@ -79,7 +80,8 @@ public class Constants {
             public static final String INVALID_FEEDBACK_TYPE = "INVALID_FEEDBACK_TYPE";
             public static final String INVALID_ASSIGNMENT_DATE = "INVALID_ASSIGNMENT_DATE";
         }
-        public static class Empty{
+
+        public static class Empty {
             public static final String EMPTY_FULL_NAME = "EMPTY_FULL_NAME";
             public static final String EMPTY_ADDRESS = "EMPTY_ADDRESS";
             public static final String EMPTY_PASSWORD = "EMPTY_PASSWORD";
@@ -93,6 +95,7 @@ public class Constants {
             public static final String EMPTY_FEEDBACK_TEMPLATE_ID = "EMPTY_FEEDBACK_TEMPLATE_ID";
             public static final String EMPTY_FEEDBACK_ANSWER = "EMPTY_FEEDBACK_ANSWER";
         }
+
         public static final String MISSING_MULTI_CHOICE_FEEDBACK_QUESTION = "MISSING_MULTI_CHOICE_FEEDBACK_QUESTION";
         public static final String MISSING_MAX_SCORE = "MISSING_MAX_SCORE";
         public static final String DUPLICATE_SCORE_IN_FEEDBACK_QUESTION = "DUPLICATE_SCORE_IN_FEEDBACK_QUESTION";
@@ -116,6 +119,12 @@ public class Constants {
 
     public static class Notification {
         public static final String TRANSACTION_PAY_SUCCESS = "transaction_pay_success";
+    }
+
+    public static class CustomFilterConstants {
+        public static final String CONTENT_FILTER = "courseContentFilter";
+
+        public static final String[] COURSE_CONTENT_FILTER_PROP = {"name"};
     }
 
 }

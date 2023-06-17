@@ -58,9 +58,9 @@ public class ConvertUtil {
         }
         if (!section.getModules().isEmpty()) {
             List<ModuleDto> moduleDtoList = new ArrayList<>();
-            for (Module module : section.getModules()) {
-                moduleDtoList.add(convertModuleToModuleDto(module));
-            }
+//            for (Module module : section.getModules()) {
+//                moduleDtoList.add(convertModuleToModuleDto(module));
+//            }
             sectionDto.setModules(moduleDtoList);
         }
         return sectionDto;
@@ -164,11 +164,11 @@ public class ConvertUtil {
 
         return userDto;
     }
-
-    public static ModuleDto convertModuleToModuleDto(Module module) {
-        ModuleDto moduleDto = ObjectUtil.copyProperties(module, new ModuleDto(), ModuleDto.class);
-        return moduleDto;
-    }
+//
+//    public static ModuleDto convertModuleToModuleDto(Module module) {
+//        ModuleDto moduleDto = ObjectUtil.copyProperties(module, new ModuleDto(), ModuleDto.class);
+//        return moduleDto;
+//    }
 
 
     public static CourseDto convertCourseToCourseDTO(Course course) {

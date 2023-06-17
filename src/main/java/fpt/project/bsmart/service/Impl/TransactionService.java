@@ -166,7 +166,10 @@ public class TransactionService implements ITransactionService {
         //  TODO: Need to implement  feature ReferralCode
         // AUTHOR: Đang
 
-
+        boolean checkValidCourseHasReferral = ReferralCodeUtil.checkCourseToGenerateReferral(subCourse);
+        if (checkValidCourseHasReferral) {
+            ReferralCodeUtil.generateRandomReferralCode(orderDetail ,owner );
+        }
         List<ReferralCode> referalCodeList = new ArrayList<>();
         ReferralCode referralCode = null;
 //        if (request.getReferralCode() != null || request.getReferralCode().isEmpty()) {

@@ -82,6 +82,8 @@ public class SubCourse  extends  BaseEntity  {
     @Column(name = "has_referral_code")
     private boolean hasReferralCode;
 
+    @Column(name = "number_referral_code")
+    private Integer numberReferralCode;
 
 
     public Long getId() {
@@ -252,5 +254,13 @@ public class SubCourse  extends  BaseEntity  {
 
     public void setHasReferralCode(boolean hasReferralCode) {
         this.hasReferralCode = hasReferralCode;
+    }
+
+    public Integer getNumberReferralCode() {
+        return numberReferralCode;
+    }
+
+    public void setNumberReferralCode(Integer numberReferralCode) {
+        this.numberReferralCode = numberReferralCode;
     }
 }
