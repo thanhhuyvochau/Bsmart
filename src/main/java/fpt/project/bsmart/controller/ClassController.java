@@ -90,7 +90,7 @@ public class ClassController {
     }
 
     @GetMapping("/{id}/class-sections/{classSectionId}")
-    public ResponseEntity<ApiResponse<ClassSectionDto>> getClassSection(@PathVariable("id") Long id, @PathVariable("classSectionId") Long classId) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassSection(id, classId)));
+    public ResponseEntity<ApiResponse<ClassSectionDto>> getClassSection(@PathVariable("id") Long id, @PathVariable("classSectionId") Long classSectionId) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassSection(classSectionId,id )));
     }
 }
