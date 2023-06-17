@@ -102,12 +102,12 @@ public class ClassController {
 
 
     @GetMapping("/{id}/announcements")
-    public ResponseEntity<ApiResponse<ApiPage<ClassAnnouncementDto>>> getAnnouncements(@PathVariable("id") Long id, Pageable pageable) {
+    public ResponseEntity<ApiResponse<ApiPage<SimpleClassAnnouncementResponse>>> getAnnouncements(@PathVariable("id") Long id, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.getAllClassAnnouncements(id, pageable)));
     }
 
     @GetMapping("/{id}/announcements/{announcement-id}")
-    public ResponseEntity<ApiResponse<SimpleClassAnnouncementResponse>> getAnnouncement(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId) {
+    public ResponseEntity<ApiResponse<ClassAnnouncementDto>> getAnnouncement(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId) {
         return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.getClassAnnouncementById(id, classAnnouncementId)));
     }
 

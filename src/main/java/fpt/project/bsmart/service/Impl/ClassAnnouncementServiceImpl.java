@@ -38,7 +38,7 @@ public class ClassAnnouncementServiceImpl implements ClassAnnouncementService {
     }
 
     @Override
-    public ApiPage<ClassAnnouncementDto> getAllClassAnnouncements(Long classId, Pageable pageable) {
+    public ApiPage<SimpleClassAnnouncementResponse> getAllClassAnnouncements(Long classId, Pageable pageable) {
         Class clazz = classRepository.findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Class not found with id:" + classId));
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         if (!ClassValidator.isMemberOfClass(clazz, user)) {
@@ -46,11 +46,11 @@ public class ClassAnnouncementServiceImpl implements ClassAnnouncementService {
         }
         List<ClassAnnouncement> classAnnouncements = clazz.getClassAnnouncements();
         Page<ClassAnnouncement> classAnnouncementPage = new PageImpl<>(classAnnouncements, pageable, classAnnouncements.size());
-        return PageUtil.convert(classAnnouncementPage.map(ConvertUtil::convertClassAnnouncementToDto));
+        return PageUtil.convert(classAnnouncementPage.map(ConvertUtil::convertClassAnnouncementToSimpleResponse));
     }
 
     @Override
-    public SimpleClassAnnouncementResponse getClassAnnouncementById(Long classId, Long id) {
+    public ClassAnnouncementDto getClassAnnouncementById(Long classId, Long id) {
         ClassAnnouncement classAnnouncement = classAnnouncementRepository
                 .findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Announcement not found with id:" + id));

@@ -7,9 +7,9 @@ import fpt.project.bsmart.entity.request.ClassAnnouncementRequest;
 import org.springframework.data.domain.Pageable;
 
 public interface ClassAnnouncementService {
-    ApiPage<ClassAnnouncementDto> getAllClassAnnouncements(Long classId, Pageable pageable);
+    ApiPage<SimpleClassAnnouncementResponse> getAllClassAnnouncements(Long classId, Pageable pageable);
 
-    SimpleClassAnnouncementResponse getClassAnnouncementById(Long classId, Long id);
+    ClassAnnouncementDto getClassAnnouncementById(Long classId, Long id);
 
     ClassAnnouncementDto saveClassAnnouncement(Long classId, ClassAnnouncementRequest request);
 
