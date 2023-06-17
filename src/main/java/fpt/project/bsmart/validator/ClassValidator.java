@@ -20,8 +20,12 @@ public class ClassValidator {
         return studentClasses.stream().filter(studentClass -> Objects.equals(studentClass.getId(), studentClassId)).findFirst();
     }
 
-    public static boolean isUserIsStudentOfClass(Class clazz, User user) {
+    public static boolean isStudentOfClass(Class clazz, User user) {
         List<User> userList = clazz.getStudentClasses().stream().map(StudentClass::getStudent).collect(Collectors.toList());
         return userList.stream().anyMatch(u -> Objects.equals(u.getId(), user.getId()));
+    }
+
+    public static boolean isMemberOfClass(Class clazz, User user) {
+        return isStudentOfClass(clazz, user) || isMentorOfClass(user, clazz);
     }
 }

@@ -53,7 +53,7 @@ public class TimeTableServiceImpl implements ITimeTableService {
     public ApiPage<TimeTableResponse> getTimeTableByClass(Long id, Pageable pageable) {
         Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy lớp với id:" + id));
         User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
-        if (ClassValidator.isMentorOfClass(currentUser, clazz) || ClassValidator.isUserIsStudentOfClass(clazz, currentUser)) {
+        if (ClassValidator.isMentorOfClass(currentUser, clazz) || ClassValidator.isStudentOfClass(clazz, currentUser)) {
             List<TimeTable> timeTables = clazz.getTimeTables();
             List<TimeTableResponse> timeTableResponses = new ArrayList<>();
             for (TimeTable timeTable : timeTables) {

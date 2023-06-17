@@ -7,7 +7,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "class")
-public class Class {
+public class Class extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,6 +27,8 @@ public class Class {
     private List<StudentClass> studentClasses = new ArrayList<>();
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClassSection> classSections = new ArrayList<>();
+    @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClassAnnouncement> classAnnouncements = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -90,5 +92,13 @@ public class Class {
 
     public void setClassSections(List<ClassSection> classSections) {
         this.classSections = classSections;
+    }
+
+    public List<ClassAnnouncement> getClassAnnouncements() {
+        return classAnnouncements;
+    }
+
+    public void setClassAnnouncements(List<ClassAnnouncement> classAnnouncements) {
+        this.classAnnouncements = classAnnouncements;
     }
 }
