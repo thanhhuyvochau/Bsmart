@@ -6,21 +6,23 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.EOrderStatus;
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
+import fpt.project.bsmart.entity.dto.ClassSectionDto;
 import fpt.project.bsmart.entity.request.ClassFeedbackRequest;
+import fpt.project.bsmart.entity.request.ClassFilterRequest;
+import fpt.project.bsmart.entity.request.ClassSectionCreateRequest;
+import fpt.project.bsmart.entity.request.ClassSectionUpdateRequest;
 import fpt.project.bsmart.entity.request.category.CreateClassRequest;
 import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
-import fpt.project.bsmart.repository.ClassRepository;
-import fpt.project.bsmart.repository.CourseRepository;
-import fpt.project.bsmart.repository.OrderDetailRepository;
-import fpt.project.bsmart.repository.SubCourseRepository;
+import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.util.*;
-import fpt.project.bsmart.util.specification.ClassFeedbackSpecificationBuilder;
+import fpt.project.bsmart.util.specification.ClassSpecificationBuilder;
 import fpt.project.bsmart.validator.ClassValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -40,13 +42,15 @@ public class ClassServiceImpl implements IClassService {
 
     private final ClassRepository classRepository;
     private final SubCourseRepository subCourseRepository;
+    private final ClassSectionRepository classSectionRepository;
 
-    public ClassServiceImpl(MessageUtil messageUtil, CourseRepository courseRepository, OrderDetailRepository orderDetailRepository, ClassRepository classRepository, SubCourseRepository subCourseRepository) {
+    public ClassServiceImpl(MessageUtil messageUtil, CourseRepository courseRepository, OrderDetailRepository orderDetailRepository, ClassRepository classRepository, SubCourseRepository subCourseRepository, ClassSectionRepository classSectionRepository) {
         this.messageUtil = messageUtil;
         this.courseRepository = courseRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.classRepository = classRepository;
         this.subCourseRepository = subCourseRepository;
+        this.classSectionRepository = classSectionRepository;
     }
 
     @Override
@@ -89,12 +93,12 @@ public class ClassServiceImpl implements IClassService {
 
     @Override
     public ApiPage<SimpleClassResponse> getClassFeedbacks(ClassFeedbackRequest classFeedbackRequest, Pageable pageable) {
-        ClassFeedbackSpecificationBuilder classFeedbackSpecificationBuilder = ClassFeedbackSpecificationBuilder.classFeedbackSpecificationBuilder()
+        ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
                 .searchBySubCourseName(classFeedbackRequest.getSubCourseName())
                 .searchByMentorName(classFeedbackRequest.getMentorName())
                 .filterByStartDay(classFeedbackRequest.getStartDate())
                 .filterByEndDate(classFeedbackRequest.getEndDate());
-        Page<Class> classes = classRepository.findAll(classFeedbackSpecificationBuilder.build(), pageable);
+        Page<Class> classes = classRepository.findAll(classSpecificationBuilder.build(), pageable);
         List<SimpleClassResponse> simpleClassRespons = classes.stream()
                 .map(ConvertUtil::convertClassToSimpleClassResponse)
                 .collect(Collectors.toList());
@@ -120,5 +124,94 @@ public class ClassServiceImpl implements IClassService {
             return ConvertUtil.convertClassToClassResponse(clazz);
         }
         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Bạn không thuộc về lớp này!");
+    }
+
+    @Override
+    public ApiPage<SimpleClassResponse> getUserClasses(ClassFilterRequest request, Pageable pageable) {
+        User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        ClassSpecificationBuilder builder = ClassSpecificationBuilder.classSpecificationBuilder();
+        builder.searchByClassName(request.getQ())
+                .filterByStartDay(request.getStartDate())
+                .filterByEndDate(request.getEndDate());
+        if (request.getAsRole() == 2) {
+            builder.byMentor(user);
+        } else if (request.getAsRole() == 1) {
+            builder.byStudent(user);
+        }
+        Specification<Class> specification = builder.build();
+        Page<Class> classes = classRepository.findAll(specification, pageable);
+        return PageUtil.convert(classes.map(ConvertUtil::convertClassToSimpleClassResponse));
+    }
+
+    @Override
+    public ClassSectionDto createClassSection(ClassSectionCreateRequest request, Long classId) {
+        ClassSection classSection = new ClassSection();
+        classSection.setName(request.getName());
+        Optional<Class> optionalClass = classRepository.findById(classId);
+        if (optionalClass.isPresent()) {
+            Class clazz = optionalClass.get();
+            if (!ClassValidator.isMentorOfClass(SecurityUtil.getCurrentUser(), clazz)) {
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not the mentor of class");
+            }
+            classSection.setClazz(clazz);
+        } else {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Invalid classId: " + classId);
+        }
+        ClassSection savedClassSection = classSectionRepository.save(classSection);
+        return ConvertUtil.convertClassSectionToDto(savedClassSection);
+    }
+
+    @Override
+    public ClassSectionDto getClassSection(Long classSectionId, Long classId) {
+        Optional<ClassSection> optionalClassSection = classSectionRepository.findById(classSectionId);
+        if (optionalClassSection.isPresent()) {
+            ClassSection classSection = optionalClassSection.get();
+            Class clazz = classSection.getClazz();
+            if (!Objects.equals(clazz.getId(), classId)) {
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("The parameters is not match between classId parameter and class own section!");
+            } else if (!ClassValidator.isMentorOfClass(SecurityUtil.getCurrentUser(), clazz)) {
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not the mentor of class");
+            }
+            return ConvertUtil.convertClassSectionToDto(classSection);
+        } else {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("ClassSection not found with id: " + classSectionId);
+        }
+    }
+
+    @Override
+    public ClassSectionDto updateClassSection(Long classId, Long classSectionId, ClassSectionUpdateRequest request) {
+        Optional<ClassSection> optionalClassSection = classSectionRepository.findById(classSectionId);
+        if (optionalClassSection.isPresent()) {
+            ClassSection classSection = optionalClassSection.get();
+            classSection.setName(request.getName());
+            Class clazz = classSection.getClazz();
+            if (!Objects.equals(clazz.getId(), classId)) {
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("The parameters is not match between classId parameter and class own section!");
+            } else if (!ClassValidator.isMentorOfClass(SecurityUtil.getCurrentUser(), clazz)) {
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not the mentor of class");
+            }
+            ClassSection updatedClassSection = classSectionRepository.save(classSection);
+            return ConvertUtil.convertClassSectionToDto(updatedClassSection);
+        } else {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("ClassSection not found with classSectionId: " + classSectionId);
+        }
+    }
+
+    @Override
+    public Boolean deleteClassSection(Long classSectionId, Long classId) {
+        Optional<ClassSection> optionalClassSection = classSectionRepository.findById(classSectionId);
+        if (optionalClassSection.isPresent()) {
+            ClassSection classSection = optionalClassSection.get();
+            Class clazz = classSection.getClazz();
+            if (!Objects.equals(clazz.getId(), classId)) {
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("The parameters is not match between classId parameter and class own section!");
+            } else if (!ClassValidator.isMentorOfClass(SecurityUtil.getCurrentUser(), clazz)) {
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not the mentor of class");
+            }
+            classSectionRepository.delete(classSection);
+        } else {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("ClassSection not found with id: " + classSectionId);
+        }
+        return true;
     }
 }

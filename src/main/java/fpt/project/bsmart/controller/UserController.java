@@ -2,18 +2,23 @@ package fpt.project.bsmart.controller;
 
 
 import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.UserDto;
+import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.ChangePasswordRequest;
 import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
+import fpt.project.bsmart.entity.response.SimpleClassResponse;
+import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
-import javax.validation.constraints.Null;
 import java.io.IOException;
 import java.util.List;
 
@@ -32,9 +36,11 @@ public class UserController {
     @Autowired
     private SimpMessagingTemplate template;
     private final IUserService iUserService;
+    private final IClassService classService;
 
-    public UserController(IUserService iUserService) {
+    public UserController(IUserService iUserService, IClassService classService) {
         this.iUserService = iUserService;
+        this.classService = classService;
     }
 
     @PostMapping
@@ -44,7 +50,7 @@ public class UserController {
 
         User currentUser = SecurityUtil.getCurrentUser();
         // gửi thông báo cho người dùng qua WebSocket
-        template.convertAndSend("/topic/register", currentUser );
+        template.convertAndSend("/topic/register", currentUser);
 
         return ResponseEntity.ok("Đăng ký tài khoản thành công!");
     }
@@ -52,46 +58,47 @@ public class UserController {
 
     @Operation(summary = "Lấy thông tin user theo id")
     @GetMapping("{id}")
-    public ResponseEntity<ApiResponse<UserDto>> getUser(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<UserDto>> getUser(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iUserService.getUserById(id)));
     }
 
     @Operation(summary = "Lấy thông tin user đang đăng nhập hiện tại")
     @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<UserDto>> getCurrentLoginUser(){
+    public ResponseEntity<ApiResponse<UserDto>> getCurrentLoginUser() {
         return ResponseEntity.ok(ApiResponse.success(iUserService.getLoginUser()));
     }
 
     @Operation(summary = "Xóa liên kết mạng xã hội")
     @PreAuthorize("hasAnyRole('TEACHER','STUDENT')")
     @PutMapping("/social/remove")
-    public ResponseEntity<ApiResponse<Long>> removeSocialLink(String link){
+    public ResponseEntity<ApiResponse<Long>> removeSocialLink(String link) {
         return ResponseEntity.ok(ApiResponse.success(iUserService.removeSocialLink(link)));
     }
+
     @Operation(summary = "Chỉnh sửa liên kết mạng xã hội")
     @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @PutMapping("/social")
-    public ResponseEntity<ApiResponse<Long>> editSocialProfile(@RequestBody SocialProfileEditRequest socialProfileEditRequest){
+    public ResponseEntity<ApiResponse<Long>> editSocialProfile(@RequestBody SocialProfileEditRequest socialProfileEditRequest) {
         return ResponseEntity.ok(ApiResponse.success(iUserService.editUserSocialProfile(socialProfileEditRequest)));
     }
 
     @Operation(summary = "Thay đổi mật khẩu")
     @PutMapping("/password")
-    public ResponseEntity<ApiResponse<Long>> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest){
+    public ResponseEntity<ApiResponse<Long>> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
         return ResponseEntity.ok(ApiResponse.success(iUserService.changePassword(changePasswordRequest)));
     }
 
     @Operation(summary = "Member chỉnh sửa thông tin cá nhân")
     @PreAuthorize("hasAnyRole('STUDENT')")
     @PutMapping("/member-personal")
-    public ResponseEntity<ApiResponse<Long>> editMemberPersonalProfile(@RequestBody PersonalProfileEditRequest personalProfileEditRequest){
+    public ResponseEntity<ApiResponse<Long>> editMemberPersonalProfile(@RequestBody PersonalProfileEditRequest personalProfileEditRequest) {
         return ResponseEntity.ok(ApiResponse.success(iUserService.editUserPersonalProfile(personalProfileEditRequest)));
     }
 
     @Operation(summary = "Mentor chỉnh sửa thông tin cá nhân")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PutMapping("/mentor-personal")
-    public ResponseEntity<ApiResponse<Long>> editMentorPersonalProfile(@RequestBody MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest){
+    public ResponseEntity<ApiResponse<Long>> editMentorPersonalProfile(@RequestBody MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest) {
         return ResponseEntity.ok(ApiResponse.success(iUserService.editMentorPersonalProfile(mentorPersonalProfileEditRequest)));
     }
 
@@ -99,15 +106,15 @@ public class UserController {
     @Operation(summary = "upload dại diện - CMMD.CDCC")
     @PreAuthorize("hasAnyRole('TEACHER' , 'STUDENT')")
     @PostMapping("/upload-image")
-    public ResponseEntity<ApiResponse<Long>> uploadImageRegisterProfile( @ModelAttribute UploadImageRequest uploadImageRequest) throws IOException {
-        return ResponseEntity.ok(ApiResponse.success(iUserService.uploadImageProfile( uploadImageRequest)));
+    public ResponseEntity<ApiResponse<Long>> uploadImageRegisterProfile(@ModelAttribute UploadImageRequest uploadImageRequest) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(iUserService.uploadImageProfile(uploadImageRequest)));
     }
 
     @Operation(summary = "upload nhiều bằng cấp ")
     @PreAuthorize("hasAnyRole('TEACHER' , 'STUDENT')")
     @PostMapping("/upload-degree")
-    public ResponseEntity<ApiResponse<Boolean>> uploadDegree( @Nullable  @RequestParam List<Long> degreeIdsToDelete , @Nullable  @RequestParam("files") MultipartFile[] files) throws IOException {
-        return ResponseEntity.ok(ApiResponse.success(iUserService.uploadDegree( degreeIdsToDelete, files)));
+    public ResponseEntity<ApiResponse<Boolean>> uploadDegree(@Nullable @RequestParam List<Long> degreeIdsToDelete, @Nullable @RequestParam("files") MultipartFile[] files) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(iUserService.uploadDegree(degreeIdsToDelete, files)));
     }
 
 
@@ -117,6 +124,9 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(iUserService.registerAccount(createAccountRequest)));
     }
 
-
-
+    @Operation(summary = "Lấy lớp của học sinh / giáo viên")
+    @GetMapping("/classes")
+    public ResponseEntity<ApiResponse<ApiPage<SimpleClassResponse>>> getUserClasses(ClassFilterRequest request, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(classService.getUserClasses(request, pageable)));
+    }
 }
