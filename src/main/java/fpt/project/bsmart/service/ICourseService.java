@@ -1,9 +1,12 @@
 package fpt.project.bsmart.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.common.SimpleResult;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.CourseDto;
+import fpt.project.bsmart.entity.dto.course.CourseContentDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
@@ -51,4 +54,6 @@ public interface ICourseService {
 
 
     CourseSubCourseResponse mentorGetCourse( Long subCourseId);
+
+    Boolean mentorCreateContentCourse( Long id ,List<CourseContentDto>  request) throws JsonProcessingException;
 }
