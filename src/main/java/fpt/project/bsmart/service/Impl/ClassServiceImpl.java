@@ -120,7 +120,7 @@ public class ClassServiceImpl implements IClassService {
     public ClassResponse getDetailClass(Long id) {
         Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy lớp với id:" + id));
         User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
-        if (ClassValidator.isMentorOfClass(currentUser, clazz) || ClassValidator.isUserIsStudentOfClass(clazz, currentUser)) {
+        if (ClassValidator.isMentorOfClass(currentUser, clazz) || ClassValidator.isStudentOfClass(clazz, currentUser)) {
             return ConvertUtil.convertClassToClassResponse(clazz);
         }
         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Bạn không thuộc về lớp này!");

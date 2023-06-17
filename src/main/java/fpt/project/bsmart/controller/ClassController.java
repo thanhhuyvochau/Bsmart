@@ -3,8 +3,11 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.dto.ClassAnnouncementDto;
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ClassSectionDto;
+import fpt.project.bsmart.entity.dto.SimpleClassAnnouncementResponse;
+import fpt.project.bsmart.entity.request.ClassAnnouncementRequest;
 import fpt.project.bsmart.entity.request.ClassFeedbackRequest;
 import fpt.project.bsmart.entity.request.ClassSectionCreateRequest;
 import fpt.project.bsmart.entity.request.ClassSectionUpdateRequest;
@@ -14,6 +17,7 @@ import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
 import fpt.project.bsmart.entity.response.TimeTableResponse;
 import fpt.project.bsmart.service.AttendanceService;
+import fpt.project.bsmart.service.ClassAnnouncementService;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.service.ITimeTableService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,11 +36,13 @@ public class ClassController {
     private final IClassService iClassService;
     private final AttendanceService attendanceService;
     private final ITimeTableService timeTableService;
+    private final ClassAnnouncementService classAnnouncementService;
 
-    public ClassController(IClassService iClassService, AttendanceService attendanceService, ITimeTableService timeTableService) {
+    public ClassController(IClassService iClassService, AttendanceService attendanceService, ITimeTableService timeTableService, ClassAnnouncementService classAnnouncementService) {
         this.iClassService = iClassService;
         this.attendanceService = attendanceService;
         this.timeTableService = timeTableService;
+        this.classAnnouncementService = classAnnouncementService;
     }
 
     @Operation(summary = "mentor tao lớp học")
@@ -91,6 +97,32 @@ public class ClassController {
 
     @GetMapping("/{id}/class-sections/{classSectionId}")
     public ResponseEntity<ApiResponse<ClassSectionDto>> getClassSection(@PathVariable("id") Long id, @PathVariable("classSectionId") Long classSectionId) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassSection(classSectionId,id )));
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassSection(classSectionId, id)));
+    }
+
+
+    @GetMapping("/{id}/announcements")
+    public ResponseEntity<ApiResponse<ApiPage<ClassAnnouncementDto>>> getAnnouncements(@PathVariable("id") Long id, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.getAllClassAnnouncements(id, pageable)));
+    }
+
+    @GetMapping("/{id}/announcements/{announcement-id}")
+    public ResponseEntity<ApiResponse<SimpleClassAnnouncementResponse>> getAnnouncement(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId) {
+        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.getClassAnnouncementById(id, classAnnouncementId)));
+    }
+
+    @PostMapping("/{id}/announcements")
+    public ResponseEntity<ApiResponse<ClassAnnouncementDto>> createAnnouncements(@PathVariable("id") Long id, @RequestBody ClassAnnouncementRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.saveClassAnnouncement(id, request)));
+    }
+
+    @PutMapping("/{id}/announcements/{announcement-id}")
+    public ResponseEntity<ApiResponse<ClassAnnouncementDto>> updateAnnouncements(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId, @RequestBody ClassAnnouncementRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.updateClassAnnouncement(id, classAnnouncementId, request)));
+    }
+
+    @DeleteMapping("/{id}/announcements/{announcement-id}")
+    public ResponseEntity<ApiResponse<Boolean>> deleteAnnouncements(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId) {
+        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.deleteClassAnnouncement(id, classAnnouncementId)));
     }
 }

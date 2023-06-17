@@ -678,4 +678,14 @@ public class ConvertUtil {
         return timeTableResponse;
     }
 
+    public static ClassAnnouncementDto convertClassAnnouncementToDto(ClassAnnouncement classAnnouncement) {
+        ClassAnnouncementDto classAnnouncementDto = ObjectUtil.copyProperties(classAnnouncement, new ClassAnnouncementDto(), ClassAnnouncementDto.class, true);
+        return classAnnouncementDto;
+    }
+
+    public static SimpleClassAnnouncementResponse convertClassAnnouncementToSimpleResponse(ClassAnnouncement classAnnouncement) {
+        SimpleClassAnnouncementResponse cimpleClassAnnouncementResponse = ObjectUtil.copyProperties(classAnnouncement, new SimpleClassAnnouncementResponse(), SimpleClassAnnouncementResponse.class, true);
+        return cimpleClassAnnouncementResponse;
+    }
+
 }
