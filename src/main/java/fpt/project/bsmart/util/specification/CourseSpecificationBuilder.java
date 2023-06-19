@@ -29,8 +29,9 @@ public class CourseSpecificationBuilder {
         }
 
         specifications.add((root, query, criteriaBuilder) -> {
+            Expression<String> courseCode = root.get(Course_.code);
             Expression<String> courseName = root.get(Course_.name);
-            Expression<String> stringExpression = SpecificationUtil.concat(criteriaBuilder, " ", courseName);
+            Expression<String> stringExpression = SpecificationUtil.concat(criteriaBuilder, " ", courseName, courseCode);
             String search = q.replaceAll("\\s\\s+", " ").trim();
             return criteriaBuilder.like(stringExpression, '%' + search + '%');
         });
@@ -46,7 +47,7 @@ public class CourseSpecificationBuilder {
         specifications.add((root, query, criteriaBuilder) -> {
 //            Join<Course, SubCourse> courseSubCourseJoin = root.join(Course_.SUB_COURSES, JoinType.INNER);
 
-            return criteriaBuilder.equal(root.get(Course_.STATUS),status);
+            return criteriaBuilder.equal(root.get(Course_.STATUS), status);
         });
         return this;
     }
@@ -76,7 +77,7 @@ public class CourseSpecificationBuilder {
         return this;
     }
 
-    public CourseSpecificationBuilder queryBySubCourseType(List<ETypeLearn> types ) {
+    public CourseSpecificationBuilder queryBySubCourseType(List<ETypeLearn> types) {
         if (types == null || types.isEmpty()) {
             return this;
         }
