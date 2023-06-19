@@ -157,7 +157,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Không tìm thấy lớp với id:" + classId));
         User currentUser = SecurityUtil.getCurrentUser();
-        if (!ClassValidator.isUserIsStudentOfClass(clazz, currentUser)) {
+        if (!ClassValidator.isStudentOfClass(clazz, currentUser)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Bạn không phải là học sinh của lớp này");
         }
 
