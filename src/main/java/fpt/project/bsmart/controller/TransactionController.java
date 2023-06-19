@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RestController
@@ -61,24 +62,25 @@ public class TransactionController {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.withdraw(request)));
     }
 
-    @Operation(summary = "Thanh toán khóa học nhanh")
-    @PostMapping("/pay-quick")
-    @PreAuthorize("hasAnyRole('STUDENT')")
-    public ResponseEntity<ApiResponse<Boolean>> payCourseQuickly(@RequestBody PayCourseRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payQuickCourse(request)));
-    }
+//    @Operation(summary = "Thanh toán khóa học nhanh")
+//    @PostMapping("/pay-quick")
+//    @PreAuthorize("hasAnyRole('STUDENT')")
+//    public ResponseEntity<ApiResponse<VnPayResponse>> payCourseQuickly(@RequestBody PayCourseRequest request) {
+//        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payQuickCourse(request)));
+//    }
 
     @Operation(summary = "Thanh toán khóa học từ giỏ hàng")
     @PostMapping("/pay")
     @PreAuthorize("hasAnyRole('STUDENT')")
-    public ResponseEntity<ApiResponse<Boolean>> payCourseFromCart(@RequestBody List<PayCourseRequest> request) {
-        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payCourseFromCart(request)));
+    public ResponseEntity<ApiResponse<VnPayResponse>> payCourseFromCart(HttpServletRequest req, @RequestBody List<PayCourseRequest> request) throws UnsupportedEncodingException {
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payCourseFromCart(req, request)));
     }
 
-    @Operation(summary = "Thanh toán khóa học bằng VNPay")
-    @PostMapping("/pay/vnpay")
+    @Operation(summary = "Thanh toán khóa học nhanh")
+    @PostMapping("/pay-quick")
+    @PreAuthorize("hasAnyRole('STUDENT')")
     public ResponseEntity<ApiResponse<VnPayResponse>> payCourseByBankAccount(@RequestBody VpnPayRequest payRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payByBankAccount(request, payRequest)));
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payQuickCourse(request, payRequest)));
     }
 
     @Operation(summary = "Thanh toán khóa học từ giỏ hàng")

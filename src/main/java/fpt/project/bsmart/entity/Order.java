@@ -14,15 +14,15 @@ public class Order extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "total_price")
-    private BigDecimal totalPrice;
+    private BigDecimal totalPrice = BigDecimal.ZERO;
     @Column(name = "center_bonus")
-    private BigDecimal centerBonus;
+    private BigDecimal centerBonus = BigDecimal.ZERO;
     @Column(name = "student_bonus")
-    private BigDecimal studentBonus;
+    private BigDecimal studentBonus = BigDecimal.ZERO;
     @Column(name = "refer_bonus")
-    private BigDecimal referBonus;
+    private BigDecimal referBonus = BigDecimal.ZERO;
     @Column(name = "total_bonus")
-    private BigDecimal totalBonus;
+    private BigDecimal totalBonus = BigDecimal.ZERO;
     @Column(name = "refer_bonus_percent")
     private Float referBonusPercent;
     @Column(name = "student_bonus_percent")
@@ -220,10 +220,12 @@ public class Order extends BaseEntity {
             this.status = status;
             return this;
         }
+
         public Builder setUser(User user) {
             this.user = user;
             return this;
         }
+
         public Order build() {
             return new Order(totalPrice, centerBonus, studentBonus, referBonus, totalBonus, referBonusPercent, studentBonusPercent, centerBonusPercent, orderDetails, status, user);
         }

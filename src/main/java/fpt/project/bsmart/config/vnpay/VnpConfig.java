@@ -126,9 +126,9 @@ public class VnpConfig {
     public String getIpAddress(HttpServletRequest request) {
         String ipAdress;
         try {
-            ipAdress = request.getHeader("X-FORWARDED-FOR");
-            if (ipAdress == null) {
-                ipAdress = request.getRemoteAddr();
+            ipAdress = request.getRemoteAddr();
+            if (ipAdress != null) {
+                return ipAdress;
             }
         } catch (Exception e) {
             ipAdress = "Invalid IP:" + e.getMessage();
