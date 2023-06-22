@@ -191,6 +191,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         assignment.setMaxFileSize(request.getMaxFileSize());
         assignment.setStatus(now.equals(request.getStartDate()) ? EAssignmentStatus.OPENING : EAssignmentStatus.PENDING);
         assignment.setActivity(activity);
+        assignment.setPassPoint(request.getPassPoint());
         // Lấy file đính kèm của assignment
         MultipartFile[] attachFiles = request.getAttachFiles();
         for (MultipartFile attachFile : attachFiles) {

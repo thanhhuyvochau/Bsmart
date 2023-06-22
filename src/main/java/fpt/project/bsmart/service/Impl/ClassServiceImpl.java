@@ -132,7 +132,9 @@ public class ClassServiceImpl implements IClassService {
         ClassSpecificationBuilder builder = ClassSpecificationBuilder.classSpecificationBuilder();
         builder.searchByClassName(request.getQ())
                 .filterByStartDay(request.getStartDate())
-                .filterByEndDate(request.getEndDate());
+                .filterByEndDate(request.getEndDate())
+                .filterByStatus(request.getStatus());
+
         if (request.getAsRole() == 2) {
             builder.byMentor(user);
         } else if (request.getAsRole() == 1) {

@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.AttendanceRequest;
 import fpt.project.bsmart.entity.response.AttendanceResponse;
+import fpt.project.bsmart.entity.response.AttendanceResponseWrapper;
 import fpt.project.bsmart.service.AttendanceService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +24,7 @@ public class AttendanceController {
 
     @Operation(summary = "Lấy điểm danh theo thời khóa biểu")
     @GetMapping("/{timeTableId}")
-    public ResponseEntity<ApiResponse<ApiPage<AttendanceResponse>>> getAllAttendanceByTimeTable(@PathVariable long timeTableId, Pageable pageable) {
+    public ResponseEntity<ApiResponse<AttendanceResponseWrapper>> getAllAttendanceByTimeTable(@PathVariable long timeTableId, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(attendanceService.getAttendanceByTimeTableForTeacher(timeTableId, pageable)));
     }
 

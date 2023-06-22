@@ -3,14 +3,14 @@ package fpt.project.bsmart.entity.request;
 import java.util.List;
 
 public class JwtResponse {
-    private String token ;
+    private String token;
 
     private Long id;
 
 
     private String email;
 
-    private List<String> roles ;
+    private List<String> roles;
 
     public JwtResponse(String token, Long id, String email, List<String> roles) {
         this.token = token;
@@ -34,7 +34,6 @@ public class JwtResponse {
     public void setId(Long id) {
         this.id = id;
     }
-
 
 
     public String getEmail() {

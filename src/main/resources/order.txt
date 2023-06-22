@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Order Confirmation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #006400;
+    }
+    p {
+      margin-bottom: 20px;
+    }
+    .order-details {
+      background-color: #f5f5f5;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    .order-details h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    .order-details p {
+      margin-bottom: 10px;
+    }
+    .order-details strong {
+      color: #006400;
+    }
+    .referral-code {
+      background-color: #f5f5f5;
+      padding: 20px;
+      border-radius: 5px;
+      margin-top: 30px;
+    }
+    .referral-code h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    .referral-code p {
+      margin-bottom: 10px;
+    }
+    .referral-code strong {
+      color: #006400;
+    }
+    .thank-you {
+      text-align: center;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Order Confirmation</h1>
+    <p>Dear [Customer Name],</p>
+    <p>Thank you for your order! We are pleased to confirm that your order has been successfully processed.</p>
+    <div class="order-details">
+      <h2>Order Details</h2>
+      <p><strong>Order Number:</strong> [Order Number]</p>
+      <p><strong>Order Date:</strong> [Order Date]</p>
+      <p><strong>Shipping Address:</strong> [Shipping Address]</p>
+      <p><strong>Payment Method:</strong> [Payment Method]</p>
+      <p><strong>Total Amount:</strong> [Total Amount]</p>
+    </div>
+    <div class="referral-code">
+      <h2>Referral Code</h2>
+      <p>Share your unique referral code <strong>[Referral Code]</strong> with your friends and family.</p>
+      <p>When they make a purchase using your code, they will receive a [Discount Percentage]% discount on their order, and you will also receive a [Discount Percentage]% discount on your next purchase!</p>
+    </div>
+    <div class="thank-you">
+      <p>Thank you for choosing our services. If you have any questions or need further assistance, please feel free to contact us.</p>
+      <p>Best regards,</p>
+      <p>The [Your Company] Team</p>
+    </div>
+  </div>
+</body>
+</html>

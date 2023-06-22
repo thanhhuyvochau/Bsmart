@@ -1,5 +1,6 @@
 package fpt.project.bsmart.util.email;
 
+import fpt.project.bsmart.entity.Order;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.Verification;
 import fpt.project.bsmart.entity.common.ApiException;
@@ -21,8 +22,11 @@ import java.util.UUID;
 @Transactional
 public class EmailUtil {
     @Autowired
-    @Qualifier("activateTemplate")
-    private String activateTemplate;
+    @Qualifier("verifyAccountTemplate")
+    private String verifyAccountTemplate;
+    @Autowired
+    @Qualifier("orderTemplate")
+    private String orderTemplate;
     private final JavaMailSender mailSender;
     private final VerificationRepository verificationRepository;
 
@@ -42,7 +46,23 @@ public class EmailUtil {
             String activeLink = hostURL + verifyCode;
             Verification.Builder builder = Verification.Builder.getBuilder();
             Verification verification = builder.withCode(verifyCode).withUser(user).build().getObject();
-            sendHtmlEmail(String.format(activateTemplate, activeLink), user.getEmail(), from, subject);
+            sendHtmlEmail(String.format(verifyAccountTemplate, activeLink), user.getEmail(), from, subject);
+            verificationRepository.save(verification);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("Gửi mail xác thực thất bại!");
+        }
+    }
+
+    public void sendOrderEmailTo(User user, Order or) {
+        try {
+            String subject = "Verify BSmart Account";
+            String from = "noreply@bsmart.gmail";
+            String verifyCode = String.valueOf(UUID.randomUUID());
+            String activeLink = hostURL + verifyCode;
+            Verification.Builder builder = Verification.Builder.getBuilder();
+            Verification verification = builder.withCode(verifyCode).withUser(user).build().getObject();
+            sendHtmlEmail(String.format(verifyAccountTemplate, activeLink), user.getEmail(), from, subject);
             verificationRepository.save(verification);
         } catch (Exception e) {
             e.printStackTrace();
@@ -56,7 +76,7 @@ public class EmailUtil {
         String verifyCode = String.valueOf(UUID.randomUUID());
         String activeLink = String.format(hostURL + "verify?code=%s", verifyCode);
         Verification.Builder builder = Verification.Builder.getBuilder();
-        sendHtmlEmail(String.format(activateTemplate, activeLink), user.getEmail(), from, subject);
+        sendHtmlEmail(String.format(verifyAccountTemplate, activeLink), user.getEmail(), from, subject);
         return true;
     }
 

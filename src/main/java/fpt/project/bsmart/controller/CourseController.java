@@ -48,6 +48,7 @@ public class CourseController {
     @GetMapping("/subject/{subjectId}")
     public ResponseEntity<ApiResponse<List<CourseDto>>> getCoursesBySubject(@PathVariable Long subjectId) {
         List<CourseDto> courses = iCourseService.getCoursesBySubject(subjectId);
+
         return ResponseEntity.ok(ApiResponse.success(courses));
 
     }

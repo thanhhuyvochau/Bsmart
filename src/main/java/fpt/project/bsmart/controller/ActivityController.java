@@ -42,9 +42,4 @@ public class ActivityController {
     public ResponseEntity<ApiResponse<ActivityDto>> getDetailActivity(@PathVariable("id") Long id) {
         return ResponseEntity.ok(ApiResponse.success(activityService.getDetailActivity(id)));
     }
-
-
-
-
-
 }
