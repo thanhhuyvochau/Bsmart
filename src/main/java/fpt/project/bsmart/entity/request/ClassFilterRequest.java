@@ -1,11 +1,14 @@
 package fpt.project.bsmart.entity.request;
 
+import fpt.project.bsmart.entity.constant.ECourseStatus;
+
 import java.time.Instant;
 
 public class ClassFilterRequest {
     private String q;
     private Instant startDate;
     private Instant endDate;
+    private ECourseStatus status;
     // Student = 1 | Teacher = 2
     private int asRole = 0;
 
@@ -39,5 +42,13 @@ public class ClassFilterRequest {
 
     public void setAsRole(int asRole) {
         this.asRole = asRole;
+    }
+
+    public ECourseStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ECourseStatus status) {
+        this.status = status;
     }
 }

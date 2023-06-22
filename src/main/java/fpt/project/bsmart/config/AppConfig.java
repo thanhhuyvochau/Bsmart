@@ -17,8 +17,12 @@ public class AppConfig {
         return new BCryptPasswordEncoder();
     }
     @Bean
-    public String activateTemplate() {
-        return ResourceReader.readFileToString("activate.txt");
+    public String verifyAccountTemplate() {
+        return ResourceReader.readFileToString("verify-account.txt");
+    }
+    @Bean
+    public String orderTemplate() {
+        return ResourceReader.readFileToString("order.txt");
     }
 
     @Bean
