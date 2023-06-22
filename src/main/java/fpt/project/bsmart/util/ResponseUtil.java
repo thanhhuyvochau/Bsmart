@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 
 public class ResponseUtil {
     public static void responseForRole(EUserRole role) {
-        SecurityJsonViewControllerAdvice.setJsonRoleView(role);
+        SecurityJsonViewControllerAdvice.JsonRoleViewHolder jsonViewHolder = SecurityJsonViewControllerAdvice.jsonViewHolder;
+        jsonViewHolder.setJsonRoleView(role);
     }
 }

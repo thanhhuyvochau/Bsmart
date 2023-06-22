@@ -12,12 +12,22 @@ import org.springframework.web.servlet.mvc.method.annotation.AbstractMappingJack
 import java.util.Map;
 
 @RestControllerAdvice
-public
-class SecurityJsonViewControllerAdvice extends AbstractMappingJacksonResponseBodyAdvice {
-    private static EUserRole JSON_ROLE_VIEW = EUserRole.ANONYMOUS;
+public class SecurityJsonViewControllerAdvice extends AbstractMappingJacksonResponseBodyAdvice {
 
-    public static synchronized void setJsonRoleView(EUserRole userRole) {
-        JSON_ROLE_VIEW = userRole;
+    public final static JsonRoleViewHolder jsonViewHolder = new JsonRoleViewHolder();
+
+    public static class JsonRoleViewHolder {
+        private EUserRole JSON_ROLE_VIEW = EUserRole.ANONYMOUS;
+
+        public EUserRole getJsonRoleView() {
+            return JSON_ROLE_VIEW;
+        }
+
+        public void setJsonRoleView(EUserRole jsonRoleView) {
+            synchronized (this) {
+                JSON_ROLE_VIEW = jsonRoleView;
+            }
+        }
     }
 
     @Override
@@ -28,9 +38,9 @@ class SecurityJsonViewControllerAdvice extends AbstractMappingJacksonResponseBod
             MethodParameter returnType,
             ServerHttpRequest request,
             ServerHttpResponse response) {
-        synchronized (JSON_ROLE_VIEW) {
+        synchronized (jsonViewHolder) {
             Map<EUserRole, Class> mapping = View.MAPPING;
-            Class jsonViewClass = mapping.get(JSON_ROLE_VIEW);
+            Class jsonViewClass = mapping.get(jsonViewHolder.getJsonRoleView());
             bodyContainer.setSerializationView(jsonViewClass);
         }
     }
