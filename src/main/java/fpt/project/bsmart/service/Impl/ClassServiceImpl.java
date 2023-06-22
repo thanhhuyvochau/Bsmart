@@ -64,8 +64,6 @@ public class ClassServiceImpl implements IClassService {
         clazz.setSubCourse(subCourse);
         List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(subCourse.getTimeInWeeks(), numberOfSlot, startDate, clazz);
         clazz.getTimeTables().addAll(timeTables);
-
-
         // Thêm học sinh thanh toán thành công vào lớp
         List<OrderDetail> successOrderDetails = orderDetailRepository.findAllBySubCourse(subCourse).stream()
                 .filter(orderDetail -> Objects.equals(orderDetail.getOrder().getStatus(), EOrderStatus.SUCCESS))
@@ -81,10 +79,10 @@ public class ClassServiceImpl implements IClassService {
         List<Section> sections = subCourse.getCourse().getSections();
         for (Section section : sections) {
             ClassSection classSection = new ClassSection(section.getName(), clazz);
-//            for (Module module : section.getModules()) {
-//                ClassModule classModule = new ClassModule(module.getName(), classSection);
-//                classSection.getClassModules().add(classModule);
-//            }
+            for (Module module : section.getModules()) {
+                ClassModule classModule = new ClassModule(module.getName(), classSection);
+                classSection.getClassModules().add(classModule);
+            }
             clazz.getClassSections().add(classSection);
         }
         classRepository.save(clazz);

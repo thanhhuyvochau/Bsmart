@@ -2,16 +2,12 @@ package fpt.project.bsmart.service.Impl;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import fpt.project.bsmart.config.common.CustomFilter;
 import fpt.project.bsmart.entity.*;
-import fpt.project.bsmart.entity.Module;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.common.SimpleResult;
-import fpt.project.bsmart.entity.constant.EAccountStatus;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.ECourseType;
-import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.dto.course.CourseContentDto;
 import fpt.project.bsmart.entity.dto.module.ModuleDto;
@@ -32,17 +28,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
-import static fpt.project.bsmart.util.Constants.CustomFilterConstants.CONTENT_FILTER;
-import static fpt.project.bsmart.util.Constants.CustomFilterConstants.COURSE_CONTENT_FILTER_PROP;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.ConvertUtil.convertCourseSubCourseToCourseSubCourseDetailResponse;
-import static fpt.project.bsmart.util.ConvertUtil.convertCourseToCourseDTO;
 
 
 @Service
@@ -111,15 +105,13 @@ public class CourseServiceImpl implements ICourseService {
         List<CreateSubCourseRequest> subCourseRequestsList = createCourseRequest.getSubCourseRequests();
         List<SubCourse> subCourses = new ArrayList<>();
         subCourseRequestsList.forEach(createSubCourseRequest -> {
-            // create subCourse for course
-            SubCourse subCourseFromRequest = createSubCourseFromRequest(createSubCourseRequest, currentUserAccountLogin);
-
             List<TimeInWeekRequest> timeInWeekRequests = createSubCourseRequest.getTimeInWeekRequests();
 
             // create time in week for subCourse
             List<TimeInWeek> timeInWeeksFromRequest = createTimeInWeeksFromRequest(timeInWeekRequests);
 
-            subCourseFromRequest.setTimeInWeeks(timeInWeeksFromRequest);
+            // create subCourse for course
+            SubCourse subCourseFromRequest = createSubCourseFromRequest(createSubCourseRequest, currentUserAccountLogin, timeInWeeksFromRequest);
             subCourseFromRequest.setCourse(course);
 
 
@@ -172,7 +164,7 @@ public class CourseServiceImpl implements ICourseService {
         return course;
     }
 
-    private SubCourse createSubCourseFromRequest(CreateSubCourseRequest subCourseRequest, User currentUserAccountLogin) {
+    private SubCourse createSubCourseFromRequest(CreateSubCourseRequest subCourseRequest, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
         if (subCourseRequest.getPrice() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE));
@@ -180,11 +172,9 @@ public class CourseServiceImpl implements ICourseService {
         SubCourse subCourse = new SubCourse();
         subCourse.setNumberOfSlot(subCourseRequest.getNumberOfSlot());
         subCourse.setTypeLearn(subCourseRequest.getType());
-        subCourse.setNumberOfSlot(subCourseRequest.getNumberOfSlot());
         subCourse.setMinStudent(subCourseRequest.getMinStudent());
         subCourse.setMaxStudent(subCourseRequest.getMaxStudent());
         subCourse.setStartDateExpected(subCourseRequest.getStartDateExpected());
-        subCourse.setEndDateExpected(subCourseRequest.getEndDateExpected());
         subCourse.setStatus(REQUESTING);
         subCourse.setTitle(subCourseRequest.getSubCourseTile());
         subCourse.setPrice(subCourseRequest.getPrice());
@@ -196,7 +186,21 @@ public class CourseServiceImpl implements ICourseService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + imageId));
         subCourse.setImage(image);
+        subCourse.setTimeInWeeks(timeInWeeks);
 
+        if (subCourseRequest.getEndDateExpected() != null) {
+            Instant endDateExpected = subCourseRequest.getEndDateExpected();
+            int numberOfSlot = calNumberOfSlotByEndDate(subCourseRequest.getStartDateExpected(), endDateExpected, timeInWeeks);
+            subCourse.setNumberOfSlot(numberOfSlot);
+            subCourse.setEndDateExpected(endDateExpected);
+        } else if (subCourseRequest.getNumberOfSlot() != null) {
+            Integer numberOfSlot = subCourseRequest.getNumberOfSlot();
+            Instant endDateExpected = calEndDateByNumberOfSlot(subCourseRequest.getStartDateExpected(), numberOfSlot, timeInWeeks);
+            subCourse.setNumberOfSlot(numberOfSlot);
+            subCourse.setEndDateExpected(endDateExpected);
+        } else {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Lỗi không tìm thấy số lượng slot học hoặc ngày kết thúc");
+        }
         return subCourse;
     }
 
@@ -269,7 +273,8 @@ public class CourseServiceImpl implements ICourseService {
 
             SectionDto sectionContent = courseContent.getSections();
             Section section = new Section();
-            section.setName(sectionContent.getName());;
+            section.setName(sectionContent.getName());
+            ;
 
             List<Module> modules = new ArrayList<>();
             List<ModuleDto> modulesContent = sectionContent.getModules();
@@ -410,8 +415,10 @@ public class CourseServiceImpl implements ICourseService {
         if (shouldUpdateImageCourse(subCourse, updateCourseRequest.getImageId())) {
             updateImageCourse(subCourse, updateCourseRequest);
         }
-        updateSubCourseFromRequest(subCourse, updateCourseRequest, currentUserAccountLogin);
-        updateTimeInWeekFromRequest(subCourse, updateCourseRequest);
+        List<TimeInWeek> timeInWeeks = updateTimeInWeekFromRequest(subCourse, updateCourseRequest);
+        updateSubCourseFromRequest(subCourse, updateCourseRequest, currentUserAccountLogin, timeInWeeks);
+        subCourse.getTimeInWeeks().clear();
+        subCourse.getTimeInWeeks().addAll((timeInWeeks));
         subCourseRepository.save(subCourse);
         return true;
     }
@@ -466,21 +473,34 @@ public class CourseServiceImpl implements ICourseService {
         subCourse.setImage(imageUpdated);
     }
 
-    private void updateSubCourseFromRequest(SubCourse subCourse, UpdateSubCourseRequest updateCourseRequest, User currentUserAccountLogin) {
+    private void updateSubCourseFromRequest(SubCourse subCourse, UpdateSubCourseRequest updateCourseRequest, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
         subCourse.setTitle(updateCourseRequest.getSubCourseTitle());
         subCourse.setLevel(updateCourseRequest.getLevel());
         subCourse.setPrice(updateCourseRequest.getPrice());
         subCourse.setStartDateExpected(updateCourseRequest.getStartDateExpected());
-        subCourse.setEndDateExpected(updateCourseRequest.getEndDateExpected());
         subCourse.setMinStudent(updateCourseRequest.getMinStudent());
         subCourse.setMaxStudent(updateCourseRequest.getMaxStudent());
         subCourse.setTypeLearn(updateCourseRequest.getType());
         subCourse.setLevel(updateCourseRequest.getLevel());
         subCourse.setMentor(currentUserAccountLogin);
+
+        if (updateCourseRequest.getEndDateExpected() != null) {
+            Instant endDateExpected = updateCourseRequest.getEndDateExpected();
+            int numberOfSlot = calNumberOfSlotByEndDate(updateCourseRequest.getStartDateExpected(), endDateExpected, timeInWeeks);
+            subCourse.setNumberOfSlot(numberOfSlot);
+            subCourse.setEndDateExpected(endDateExpected);
+        } else if (updateCourseRequest.getNumberOfSlot() != null) {
+            Integer numberOfSlot = updateCourseRequest.getNumberOfSlot();
+            Instant endDateExpected = calEndDateByNumberOfSlot(updateCourseRequest.getStartDateExpected(), numberOfSlot, timeInWeeks);
+            subCourse.setNumberOfSlot(numberOfSlot);
+            subCourse.setEndDateExpected(endDateExpected);
+        } else {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Lỗi không tìm thấy số lượng slot học hoặc ngày kết thúc");
+        }
     }
 
 
-    private void updateTimeInWeekFromRequest(SubCourse subCourse, UpdateSubCourseRequest updateCourseRequest) {
+    private List<TimeInWeek> updateTimeInWeekFromRequest(SubCourse subCourse, UpdateSubCourseRequest updateCourseRequest) {
         List<TimeInWeekRequest> timeInWeekRequests = updateCourseRequest.getTimeInWeekRequests();
         TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
         if (duplicateElement != null) {
@@ -506,7 +526,7 @@ public class CourseServiceImpl implements ICourseService {
             timeInWeek.setSubCourse(subCourse);
             timeInWeeks.add(timeInWeek);
         }
-        subCourse.setTimeInWeeks(timeInWeeks);
+        return timeInWeeks;
     }
 
 
@@ -678,5 +698,39 @@ public class CourseServiceImpl implements ICourseService {
         return true;
     }
 
+    private Instant calEndDateByNumberOfSlot(Instant startDate, int numberOfSlot, List<TimeInWeek> timeInWeeks) {
+        List<EDayOfWeekCode> availableDOW = timeInWeeks.stream().map(timeInWeek -> timeInWeek.getDayOfWeek().getCode()).distinct().collect(Collectors.toList());
+        Instant endDate = startDate;
+        int i = numberOfSlot;
+        while (i > 0) {
+            EDayOfWeekCode dayOfWeekCode = TimeUtil.getDayOfWeek(endDate);
+            if (dayOfWeekCode == null) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không thể nhận diện thứ trong tuần, lỗi hệ thống vui lòng liên hệ Admin!");
+            }
+            if (availableDOW.contains(dayOfWeekCode)) {
+                List<TimeInWeek> dateOfWeeks = timeInWeeks.stream().filter(timeInWeek -> Objects.equals(timeInWeek.getDayOfWeek().getCode(), dayOfWeekCode)).collect(Collectors.toList());
+                for (TimeInWeek dow : dateOfWeeks) {
+                    if (i <= 0) break;
+                    i--;
+                }
+            }
+            endDate = endDate.plus(1, ChronoUnit.DAYS);
+        }
+        return endDate;
+    }
 
+    private int calNumberOfSlotByEndDate(Instant startDate, Instant endDate, List<TimeInWeek> timeInWeeks) {
+        List<EDayOfWeekCode> availableDOW = timeInWeeks.stream().map(timeInWeek -> timeInWeek.getDayOfWeek().getCode()).distinct().collect(Collectors.toList());
+        Instant date = startDate;
+        int numberOfSlot = 0;
+        while (date.isBefore(endDate) || date.equals(endDate)) {
+            EDayOfWeekCode dayOfWeekCode = TimeUtil.getDayOfWeek(date);
+            if (availableDOW.contains(dayOfWeekCode)) {
+                List<TimeInWeek> dateOfWeeks = timeInWeeks.stream().filter(timeInWeek -> Objects.equals(timeInWeek.getDayOfWeek().getCode(), dayOfWeekCode)).collect(Collectors.toList());
+                numberOfSlot = numberOfSlot + dateOfWeeks.size();
+            }
+            date = date.plus(1, ChronoUnit.DAYS);
+        }
+        return numberOfSlot;
+    }
 }

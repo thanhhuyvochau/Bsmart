@@ -1,8 +1,15 @@
 package fpt.project.bsmart.entity.dto;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import fpt.project.bsmart.config.json.View;
+
 public class SimpleClassAnnouncementResponse {
+
     private Long id;
     private String title;
+    @JsonView(View.Teacher.class)
+    private boolean visible = false;
+
 
     // Constructors, getters, and setters
 
@@ -27,4 +34,11 @@ public class SimpleClassAnnouncementResponse {
         this.title = title;
     }
 
+    public boolean getVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 }

@@ -5,16 +5,14 @@ import fpt.project.bsmart.entity.ClassAnnouncement;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.ClassAnnouncementDto;
 import fpt.project.bsmart.entity.dto.SimpleClassAnnouncementResponse;
 import fpt.project.bsmart.entity.request.ClassAnnouncementRequest;
 import fpt.project.bsmart.repository.ClassAnnouncementRepository;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.service.ClassAnnouncementService;
-import fpt.project.bsmart.util.ConvertUtil;
-import fpt.project.bsmart.util.ObjectUtil;
-import fpt.project.bsmart.util.PageUtil;
-import fpt.project.bsmart.util.SecurityUtil;
+import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.validator.ClassValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -41,8 +39,11 @@ public class ClassAnnouncementServiceImpl implements ClassAnnouncementService {
     public ApiPage<SimpleClassAnnouncementResponse> getAllClassAnnouncements(Long classId, Pageable pageable) {
         Class clazz = classRepository.findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Class not found with id:" + classId));
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
-        if (!ClassValidator.isMemberOfClass(clazz, user)) {
+        EUserRole memberOfClassAsRole = ClassValidator.isMemberOfClassAsRole(clazz, user);
+        if (memberOfClassAsRole == null) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not member of this class");
+        } else {
+            ResponseUtil.responseForRole(memberOfClassAsRole);
         }
         List<ClassAnnouncement> classAnnouncements = clazz.getClassAnnouncements();
         Page<ClassAnnouncement> classAnnouncementPage = new PageImpl<>(classAnnouncements, pageable, classAnnouncements.size());
