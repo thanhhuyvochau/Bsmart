@@ -177,6 +177,4 @@ public class CourseController {
     public ResponseEntity<ApiResponse<Boolean>> managerCreateCourse(@RequestBody CreateCoursePublicRequest createCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.managerCreateCourse(createCourseRequest)));
     }
-
-
 }
