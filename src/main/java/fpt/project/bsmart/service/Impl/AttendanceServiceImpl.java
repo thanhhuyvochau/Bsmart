@@ -6,10 +6,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.request.AttendanceDetailRequest;
 import fpt.project.bsmart.entity.request.AttendanceRequest;
-import fpt.project.bsmart.entity.response.AttendanceResponse;
-import fpt.project.bsmart.entity.response.AttendanceStudentDetailResponse;
-import fpt.project.bsmart.entity.response.AttendanceStudentResponse;
-import fpt.project.bsmart.entity.response.StudentClassResponse;
+import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.repository.AttendanceRepository;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.TimeTableRepository;
@@ -122,7 +119,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     @Override
-    public ApiPage<AttendanceResponse> getAttendanceByTimeTableForTeacher(Long timeTableId, Pageable pageable) {
+    public AttendanceResponseWrapper getAttendanceByTimeTableForTeacher(Long timeTableId, Pageable pageable) {
         Optional<User> currentUserOptional = SecurityUtil.getCurrentUserOptional();
         User currentUser = SecurityUtil.getUserOrThrowException(currentUserOptional);
         TimeTable timeTable = timeTableRepository.findById(timeTableId)
@@ -148,7 +145,10 @@ public class AttendanceServiceImpl implements AttendanceService {
             attendanceResponses.add(attendanceResponse);
         }
         Page<AttendanceResponse> attendanceResponsePage = new PageImpl<>(attendanceResponses, pageable, attendanceResponses.size());
-        return PageUtil.convert(attendanceResponsePage);
+        TimeTableResponse timeTableResponse = ConvertUtil.convertTimeTableToResponse(timeTable);
+        ApiPage<AttendanceResponse> attendanceResponse = PageUtil.convert(attendanceResponsePage);
+        AttendanceResponseWrapper responseWrapper = new AttendanceResponseWrapper(timeTableResponse, attendanceResponse);
+        return responseWrapper;
     }
 
     @Override
