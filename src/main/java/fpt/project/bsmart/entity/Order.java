@@ -15,18 +15,19 @@ public class Order extends BaseEntity {
     private Long id;
     @Column(name = "total_price")
     private BigDecimal totalPrice;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private EOrderStatus status;
+
+
     @Column(name = "center_bonus")
-    private BigDecimal centerBonus;
+    private BigDecimal centerBonus = BigDecimal.ZERO;
     @Column(name = "student_bonus")
-    private BigDecimal studentBonus;
+    private BigDecimal studentBonus = BigDecimal.ZERO;
     @Column(name = "refer_bonus")
-    private BigDecimal referBonus;
+    private BigDecimal referBonus = BigDecimal.ZERO;
     @Column(name = "total_bonus")
-    private BigDecimal totalBonus;
+    private BigDecimal totalBonus = BigDecimal.ZERO;
     @Column(name = "refer_bonus_percent")
     private Float referBonusPercent;
     @Column(name = "student_bonus_percent")
@@ -222,10 +223,12 @@ public class Order extends BaseEntity {
             this.status = status;
             return this;
         }
+
         public Builder setUser(User user) {
             this.user = user;
             return this;
         }
+
         public Order build() {
             return new Order(totalPrice, centerBonus, studentBonus, referBonus, totalBonus, referBonusPercent, studentBonusPercent, centerBonusPercent, orderDetails, status, user);
         }

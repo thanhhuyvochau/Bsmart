@@ -1,6 +1,7 @@
 package fpt.project.bsmart.controller;
 
 
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.ClassAnnouncementDto;
@@ -20,9 +21,13 @@ import fpt.project.bsmart.service.AttendanceService;
 import fpt.project.bsmart.service.ClassAnnouncementService;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.service.ITimeTableService;
+import fpt.project.bsmart.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import org.codehaus.jackson.map.ser.FilterProvider;
+import org.codehaus.jackson.map.ser.impl.SimpleFilterProvider;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nullable;

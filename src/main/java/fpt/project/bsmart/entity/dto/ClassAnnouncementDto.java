@@ -1,11 +1,13 @@
 package fpt.project.bsmart.entity.dto;
 
-import fpt.project.bsmart.entity.Section;
+import fpt.project.bsmart.config.json.View;
+import org.codehaus.jackson.map.annotate.JsonView;
 
 public class ClassAnnouncementDto {
     private Long id;
     private String content;
     private String title;
+    @JsonView(View.Teacher.class)
     private Boolean visible;
 
     // Constructors, getters, and setters

@@ -33,6 +33,8 @@ public class Assignment extends BaseEntity {
     private Activity activity;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "assignment")
     private List<AssignmentFile> assignmentFiles = new ArrayList<>();
+    @Column(name = "pass_point")
+    private Long passPoint = 5L; // Default 5
 
     public Long getId() {
         return id;
@@ -113,4 +115,13 @@ public class Assignment extends BaseEntity {
     public void setAssignmentFiles(List<AssignmentFile> assignmentFiles) {
         this.assignmentFiles = assignmentFiles;
     }
+
+    public Long getPassPoint() {
+        return passPoint;
+    }
+
+    public void setPassPoint(Long passPoint) {
+        this.passPoint = passPoint;
+    }
+
 }

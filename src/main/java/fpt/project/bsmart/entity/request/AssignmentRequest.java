@@ -22,6 +22,7 @@ public class AssignmentRequest extends ActivityRequest {
     private MultipartFile[] attachFiles;
 
     private Boolean isOverWriteAttachFile = false;
+    private Long passPoint = 5L;
 
     public String getDescription() {
         return description;
@@ -85,5 +86,21 @@ public class AssignmentRequest extends ActivityRequest {
 
     public void setIsOverWriteAttachFile(Boolean overWriteAttachFile) {
         isOverWriteAttachFile = overWriteAttachFile;
+    }
+
+    public Boolean getOverWriteAttachFile() {
+        return isOverWriteAttachFile;
+    }
+
+    public void setOverWriteAttachFile(Boolean overWriteAttachFile) {
+        isOverWriteAttachFile = overWriteAttachFile;
+    }
+
+    public Long getPassPoint() {
+        return passPoint;
+    }
+
+    public void setPassPoint(Long passPoint) {
+        this.passPoint = passPoint;
     }
 }

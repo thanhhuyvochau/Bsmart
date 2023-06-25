@@ -23,11 +23,9 @@ public interface ITransactionService {
     Boolean withdraw(WithdrawRequest request);
 
     // Hiện tại sẽ chỉ làm các giao dịch rút tiền và nạp tiền
-    Boolean payQuickCourse(PayCourseRequest request);
+    VnPayResponse payCourseFromCart(HttpServletRequest req, List<PayCourseRequest> request) throws UnsupportedEncodingException;
 
-    Boolean payCourseFromCart(List<PayCourseRequest> request);
-
-    VnPayResponse payByBankAccount(HttpServletRequest req, VpnPayRequest request) throws UnsupportedEncodingException;
+    VnPayResponse payQuickCourse(HttpServletRequest req, VpnPayRequest request) throws UnsupportedEncodingException;
 
     void executeAfterPayment(HttpServletRequest request);
 

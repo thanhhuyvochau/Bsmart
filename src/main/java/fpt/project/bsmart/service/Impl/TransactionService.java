@@ -27,15 +27,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static fpt.project.bsmart.util.ActivityHistoryUtil.logHistoryForMemberOrderCourse;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID;
 
 @Service
 @Transactional
@@ -121,163 +117,114 @@ public class TransactionService implements ITransactionService {
     }
 
 
-    @Override
-    public Boolean payQuickCourse(PayCourseRequest request) {
-        SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
-        BigDecimal price = subCourse.getPrice();
-        if (price == null) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Hệ thống đang chỉnh sửa về giá của khóa học ! Vui long thử lại sau");
-        }
-
-        Wallet wallet = SecurityUtil.getCurrentUserWallet();
-        BigDecimal presentBalance = wallet.getBalance();
-        if (presentBalance.compareTo(price) < 0) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Số dư của bạn không đủ để thanh toán khóc học này, vui lòng nạp thêm!");
-        }
-
-        List<SubCourse> subCourses = new ArrayList<>();
-        User owner = wallet.getOwner();
-        List<Order> orders = owner.getOrder();
-        orders.forEach(order -> {
-            List<OrderDetail> orderDetails = order.getOrderDetails();
-            orderDetails.forEach(orderDetail -> {
-                subCourses.add(orderDetail.getSubCourse());
-            });
-        });
-        List<SubCourse> checkRegistered = subCourses.stream().filter(subCou -> subCou.getId().equals(subCourse.getId())).collect(Collectors.toList());
-        if (!checkRegistered.isEmpty()) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Bạn đã thanh toán khóa học này trươc đó !!!");
-        }
-        // TODO: Tạm thời chưa xử lý khuyến mãi, sẽ bổ sung xử lý KM sau
-
-
-        OrderDetail orderDetail = new OrderDetail();
-        orderDetail.setSubCourse(subCourse);
-        orderDetail.setFinalPrice(price);
-        orderDetail.setOriginalPrice(price);
-
-        Order order = new Order();
-        order.setStatus(EOrderStatus.SUCCESS);
-        order.setTotalPrice(price);
-        order.getOrderDetails().add(orderDetail);
-        order.setUser(wallet.getOwner());
-
-        //  TODO: Need to implement  feature ReferralCode
-        // AUTHOR: Đang
-
-        boolean checkValidCourseHasReferral = ReferralCodeUtil.checkCourseToGenerateReferral(subCourse);
-        if (checkValidCourseHasReferral) {
-            ReferralCodeUtil.generateRandomReferralCode(orderDetail ,owner );
-        }
-        List<ReferralCode> referalCodeList = new ArrayList<>();
-        ReferralCode referralCode = null;
-//        if (request.getReferralCode() != null || request.getReferralCode().isEmpty()) {
-//            referralCode = referralCodeRepository.findByCodeAndStatusIsTrue(request.getReferralCode())
-//                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("Mã giới thiệu không tìm thấy!!") + request.getReferralCode()));
-
-
-//            ReferralCodeType referralCodeType = referralCode.getReferralCodeType();
-//            if (referralCodeType == null) {
-//                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("link  giới thiệu không thuộc loại khuyến mãi nào ");
-//            }
-//            Double discount = referralCodeType.getDiscount();
-//            if (discount != null && discount > 0) {
-//                price = price.subtract(price.multiply(BigDecimal.valueOf(discount)).divide(BigDecimal.valueOf(100), 2, RoundingMode.CEILING));
-//            }
-
-//            if (referralCode.getUsed() == null) {
-//                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiêu đã được sử dụng rồi !! Vui lòng nhập mã khác");
-////            }
-//            if (referralCode.getUser() == null) {
-//                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiệu không tìm thấy ");
-//            }
-//            if (referralCode.getUsed()) {
-//                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiêu đã được sử dụng rồi !! Vui lòng nhập mã khác");
-//            }
-//            referalCodeList.add(referralCode);
-
-
-//            orderDetail.setReferralCode(request.getReferralCode());
-//            orderDetail.getReferralCodes().addAll(referalCodeList);
-//            orderDetail.setReferralCodes(referalCodeList);
+//    @Override
+//    public VnPayResponse payQuickCourse(PayCourseRequest request) {
+//        SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
+//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
+//        BigDecimal price = subCourse.getPrice();
+//        if (price == null) {
+//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Hệ thống đang chỉnh sửa về giá của khóa học ! Vui long thử lại sau");
 //        }
-        orderRepository.save(order);
-        orderDetail.setOrder(order);
-
-        orderDetailRepository.save(orderDetail);
-//        if (referralCode != null) {
-//            referralCode.setUsed(true);
-//            referralCode.setStatus(false);
-//            referralCode.setOrderDetail(orderDetail);
 //
-//            User user = referralCode.getUser();
-//            Double point = user.getPoint();
-//            user.setPoint(point + 10D);
+//        Wallet wallet = SecurityUtil.getCurrentUserWallet();
+//        BigDecimal presentBalance = wallet.getBalance();
+//        if (presentBalance.compareTo(price) < 0) {
+//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Số dư của bạn không đủ để thanh toán khóc học này, vui lòng nạp thêm!");
 //        }
-        Transaction transaction = new Transaction();
-        transaction.setAmount(price);
-        transaction.setStatus(ETransactionStatus.SUCCESS);
-        transaction.setOrder(order);
-        transaction.setWallet(wallet);
-        transaction.setType(ETransactionType.PAY);
-        transaction.setBeforeBalance(presentBalance);
-        transaction.setAfterBalance(presentBalance.subtract(price));
-        wallet.decreaseBalance(transaction.getAmount());
-
-        //log
-        logHistoryForMemberOrderCourse(wallet.getOwner().getId(), order.getId(), subCourse);
-
-        transactionRepository.save(transaction);
-
-        return true;
-    }
+//
+//        List<SubCourse> subCourses = new ArrayList<>();
+//        User owner = wallet.getOwner();
+//        List<Order> orders = owner.getOrder();
+//        orders.forEach(order -> {
+//            List<OrderDetail> orderDetails = order.getOrderDetails();
+//            orderDetails.forEach(orderDetail -> {
+//                subCourses.add(orderDetail.getSubCourse());
+//            });
+//        });
+//        List<SubCourse> checkRegistered = subCourses.stream().filter(subCou -> subCou.getId().equals(subCourse.getId())).collect(Collectors.toList());
+//        if (!checkRegistered.isEmpty()) {
+//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Bạn đã thanh toán khóa học này trươc đó !!!");
+//        }
+//        // TODO: Tạm thời chưa xử lý khuyến mãi, sẽ bổ sung xử lý KM sau
+//
+//
+//        OrderDetail orderDetail = new OrderDetail();
+//        orderDetail.setSubCourse(subCourse);
+//        orderDetail.setFinalPrice(price);
+//        orderDetail.setOriginalPrice(price);
+//
+//        Order order = new Order();
+//        order.setStatus(EOrderStatus.SUCCESS);
+//        order.setTotalPrice(price);
+//        order.getOrderDetails().add(orderDetail);
+//        order.setUser(wallet.getOwner());
+//
+//        //  TODO: Need to implement  feature ReferralCode
+//        // AUTHOR: Đang
+//
+//        boolean checkValidCourseHasReferral = ReferralCodeUtil.checkCourseToGenerateReferral(subCourse);
+//        if (checkValidCourseHasReferral) {
+//            ReferralCodeUtil.generateRandomReferralCode(orderDetail, owner);
+//        }
+//        orderRepository.save(order);
+//        orderDetail.setOrder(order);
+//        orderDetailRepository.save(orderDetail);
+//        Transaction transaction = new Transaction();
+//        transaction.setAmount(price);
+//        transaction.setStatus(ETransactionStatus.SUCCESS);
+//        transaction.setOrder(order);
+//        transaction.setWallet(wallet);
+//        transaction.setType(ETransactionType.PAY);
+//        transaction.setBeforeBalance(presentBalance);
+//        transaction.setAfterBalance(presentBalance.subtract(price));
+//        wallet.decreaseBalance(transaction.getAmount());
+//
+//        //log
+//        logHistoryForMemberOrderCourse(wallet.getOwner().getId(), order.getId(), subCourse);
+//
+//        transactionRepository.save(transaction);
+//
+//        return null;
+//    }
 
     @Override
-    public Boolean payCourseFromCart(List<PayCourseRequest> request) {
+    public VnPayResponse payCourseFromCart(HttpServletRequest req, List<PayCourseRequest> request) throws UnsupportedEncodingException {
         Cart cart = SecurityUtil.getCurrentUserCart();
         List<Long> cartItemIds = request.stream().map(PayCourseRequest::getCartItemId).collect(Collectors.toList());
         List<CartItem> boughtCartItems = cartItemRepository.findAllById(cartItemIds);
         if (!Objects.equals(boughtCartItems.size(), cartItemIds.size())) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Có lỗi đã xảy ra, có thể do khóa học trong giỏ hàng không hợp lệ!");
         }
-        List<Transaction> transactions = new ArrayList<>();
+        User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        Transaction transaction = new Transaction();
+        transaction.setStatus(ETransactionStatus.WAITING);
+        transaction.setType(ETransactionType.PAY);
+        Order order = new Order();
+        order.setStatus(EOrderStatus.WAIT);
+        order.setUser(user);
+        transaction.setOrder(order);
         for (CartItem cartItem : boughtCartItems) {
             SubCourse subCourse = cartItem.getSubCourse();
-            BigDecimal price = subCourse.getPrice();
-            Wallet wallet = SecurityUtil.getCurrentUserWallet();
-            BigDecimal presentBalance = wallet.getBalance();
-            if (presentBalance.compareTo(price) < 0) {
-                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Số dư của bạn không đủ để thanh toán khóc học này, vui lòng nạp thêm!");
+            boolean isPaidSubCourse = CourseUtil.isPaidCourse(subCourse, user);
+            if (isPaidSubCourse) {
+                throw ApiException.create(HttpStatus.CONFLICT).withMessage("Sub course was paid, try other class!");
             }
+            BigDecimal price = subCourse.getPrice();
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setSubCourse(subCourse);
             orderDetail.setFinalPrice(price);
             orderDetail.setOriginalPrice(price);
-
-            Order order = new Order();
-            order.setStatus(EOrderStatus.SUCCESS);
-            order.setTotalPrice(price);
+            orderDetail.setOrder(order);
             order.getOrderDetails().add(orderDetail);
-
-            Transaction transaction = new Transaction();
-            transaction.setAmount(cartItem.getPrice());
-            transaction.setStatus(ETransactionStatus.SUCCESS);
-            transaction.setOrder(order);
-            transaction.setWallet(wallet);
-            transaction.setType(ETransactionType.PAY);
-            transaction.setBeforeBalance(presentBalance);
-            transaction.setAfterBalance(presentBalance.subtract(price));
-
+            order.setTotalPrice(order.getTotalPrice().add(orderDetail.getFinalPrice()));
             cart.removeCartItem(cartItem);
-            wallet.decreaseBalance(transaction.getAmount());
-            transactions.add(transaction);
         }
-        transactionRepository.saveAll(transactions);
-        return true;
+        transaction.setAmount(order.getTotalPrice());
+        transactionRepository.save(transaction);
+        return new VnPayResponse(buildPaymentUrl(req, transaction));
     }
 
-    public VnPayResponse payByBankAccount(HttpServletRequest req, VpnPayRequest request) throws UnsupportedEncodingException {
+    public VnPayResponse payQuickCourse(HttpServletRequest req, VpnPayRequest request) throws UnsupportedEncodingException {
         SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Subcourse not found with id:" + request.getSubCourseId()));
@@ -297,58 +244,26 @@ public class TransactionService implements ITransactionService {
         BigDecimal price = subCourse.getPrice();
         orderDetail.setFinalPrice(price);
         orderDetail.setOriginalPrice(price);
-
         Order order = Order.Builder.builder()
                 .setOrderDetails(Arrays.asList(orderDetail))
                 .setTotalPrice(price)
                 .setUser(user)
                 .setStatus(EOrderStatus.WAIT)
                 .build();
-
         orderDetail.setOrder(order);
 
         Transaction transaction = new Transaction();
         transaction.setOrder(order);
+        transaction.setAmount(order.getTotalPrice());
         transactionRepository.save(transaction);
-        return new VnPayResponse(buildPaymentUrl(req, subCourse, transaction));
+        return new VnPayResponse(buildPaymentUrl(req, transaction));
     }
 
     @NotNull
-    private String buildPaymentUrl(HttpServletRequest req, SubCourse subCourse, Transaction transaction) throws UnsupportedEncodingException {
-        String vnp_Version = "2.1.0";
-        String vnp_Command = "pay";
-        String vnp_OrderInfo = "Thanh toan khoa học " + subCourse.getCourse().getName();
-        String orderType = "pay";
-        String vnp_IpAddr = vnpConfig.getIpAddress(req);
-        String vnp_TmnCode = vnpConfig.getVnp_TmnCode();
-        int amount = subCourse.getPrice().intValue() * 100;
-        Map<String, String> vnp_Params = new HashMap<>();
-        vnp_Params.put("vnp_Version", vnp_Version);
-        vnp_Params.put("vnp_Command", vnp_Command);
-        vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf(amount));
-        vnp_Params.put("vnp_CurrCode", "VND");
-        transaction.setAmount(BigDecimal.valueOf(amount));
-        transaction.setVpnCommand(vnp_Command);
-        transaction.setOrderInfo(vnp_OrderInfo);
-        String vnp_TxnRef = transaction.getId().toString();
-//        vnp_Params.put("vnp_TxnRef", vnp_TxnRef + "&" + request.getSessionId());
-        vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-        vnp_Params.put("vnp_OrderInfo", vnp_OrderInfo);
-        String locate = "VN";
-        vnp_Params.put("vnp_Locale", locate);
-        vnp_Params.put("vnp_ReturnUrl", vnpConfig.getVnp_Returnurl());
-        vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT-7"));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        String vnp_CreateDate = formatter.format(cld.getTime());
-        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
-        cld.add(Calendar.YEAR, 1);
-        String vnp_ExpireDate = formatter.format(cld.getTime());
-        //Add Params of 2.0.1 Version
-        vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
-        SimpleDateFormat formatterCheck = new SimpleDateFormat("dd-MM-yyyy");
-        System.out.println("EXPIRED:" + formatterCheck.format(cld.getTime()));
+    private String buildPaymentUrl(HttpServletRequest req, Transaction transaction) throws UnsupportedEncodingException {
+        Map<String, String> vnp_Params = prepareParameters(req, transaction.getAmount(), transaction.getId().toString());
+        transaction.setVpnCommand(vnp_Params.get("vnp_Command"));
+        transaction.setOrderInfo(vnp_Params.get("vnp_OrderInfo"));
         //Billing
         //Build data to hash and querystring
         List fieldNames = new ArrayList(vnp_Params.keySet());
@@ -381,6 +296,43 @@ public class TransactionService implements ITransactionService {
         return paymentUrl;
     }
 
+    @NotNull
+    private Map<String, String> prepareParameters(HttpServletRequest req, BigDecimal price, String uniquePayCode) {
+        String vnp_Version = "2.1.0";
+        String vnp_Command = "pay";
+        String vnp_OrderInfo = "Thanh Toan Khoa Hoc";
+        String orderType = "pay";
+        String vnp_IpAddr = vnpConfig.getIpAddress(req);
+        String vnp_TmnCode = vnpConfig.getVnp_TmnCode();
+        int amount = price.intValue() * 100;
+        Map<String, String> vnp_Params = new HashMap<>();
+        vnp_Params.put("vnp_Version", vnp_Version);
+        vnp_Params.put("vnp_Command", vnp_Command);
+        vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
+        vnp_Params.put("vnp_Amount", String.valueOf(amount));
+        vnp_Params.put("vnp_CurrCode", "VND");
+
+        String vnp_TxnRef = uniquePayCode;
+//        vnp_Params.put("vnp_TxnRef", vnp_TxnRef + "&" + request.getSessionId());
+        vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
+        vnp_Params.put("vnp_OrderInfo", vnp_OrderInfo);
+        String locate = "VN";
+        vnp_Params.put("vnp_Locale", locate);
+        vnp_Params.put("vnp_ReturnUrl", vnpConfig.getVnp_Returnurl());
+        vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
+        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT-7"));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        String vnp_CreateDate = formatter.format(cld.getTime());
+        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+        cld.add(Calendar.YEAR, 1);
+        String vnp_ExpireDate = formatter.format(cld.getTime());
+        //Add Params of 2.0.1 Version
+        vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+        SimpleDateFormat formatterCheck = new SimpleDateFormat("dd-MM-yyyy");
+        System.out.println("EXPIRED:" + formatterCheck.format(cld.getTime()));
+        return vnp_Params;
+    }
+
     @Override
     public void executeAfterPayment(HttpServletRequest request) {
         String responseCode = request.getParameter("vnp_ResponseCode");
@@ -392,6 +344,7 @@ public class TransactionService implements ITransactionService {
                         .withMessage("Transaction not found with id:" + transactionId));
         if (transactionStatus.equals("00") && responseCode.equals("00")) {
             transaction.getOrder().setStatus(EOrderStatus.SUCCESS);
+            transaction.setStatus(ETransactionStatus.SUCCESS);
         }
     }
 }
