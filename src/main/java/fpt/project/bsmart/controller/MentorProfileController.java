@@ -2,7 +2,7 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.constant.EAccountStatus;
+import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.ImageRequest;
@@ -50,7 +50,7 @@ public class MentorProfileController {
     @Operation(summary = "Lấy danh sách giảng viên chờ duyệt")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/pending")
-    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getPendingMentorProfile(@RequestParam EAccountStatus accountStatus , Pageable pageable){
+    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getPendingMentorProfile(@RequestParam EMentorProfileStatus accountStatus , Pageable pageable){
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getPendingMentorProfileList(accountStatus , pageable)));
     }
 

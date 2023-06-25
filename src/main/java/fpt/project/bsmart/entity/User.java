@@ -1,6 +1,8 @@
 package fpt.project.bsmart.entity;
 
 
+import fpt.project.bsmart.entity.constant.EGenderType;
+
 import javax.persistence.*;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -30,8 +32,7 @@ public class User extends BaseEntity {
 
     @Column(name = "address")
     private String address;
-    @Column(name = "introduce")
-    private String introduce;
+
     @Column(name = "phone")
     private String phone;
 
@@ -46,6 +47,9 @@ public class User extends BaseEntity {
     private String facebookLink;
     @Column(name = "instagram_link")
     private String instagramLink;
+
+    @Column(name = "gender")
+    private EGenderType gender;
 
     @Column(name = "intro_point")
     private Double point;
@@ -71,15 +75,12 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<StudentClass> studentClasses = new ArrayList<>();
+
     @Column(name = "is_verified")
     private boolean isVerified = false;
+
     @Column(name = "provider")
     private String provider;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private ReferralCode referralCode;
 
 
     public Long getId() {
@@ -114,13 +115,6 @@ public class User extends BaseEntity {
         this.email = email;
     }
 
-    public String getIntroduce() {
-        return introduce;
-    }
-
-    public void setIntroduce(String introduce) {
-        this.introduce = introduce;
-    }
 
     public Instant getBirthday() {
         return birthday;
@@ -192,6 +186,14 @@ public class User extends BaseEntity {
 
     public void setUserImages(List<Image> userImages) {
         this.userImages = userImages;
+    }
+
+    public EGenderType getGender() {
+        return gender;
+    }
+
+    public void setGender(EGenderType gender) {
+        this.gender = gender;
     }
 
     public Wallet getWallet() {
@@ -290,11 +292,5 @@ public class User extends BaseEntity {
         this.provider = provider;
     }
 
-    public ReferralCode getReferralCode() {
-        return referralCode;
-    }
 
-    public void setReferralCode(ReferralCode referralCode) {
-        this.referralCode = referralCode;
-    }
 }

@@ -1,6 +1,9 @@
 package fpt.project.bsmart.entity.constant;
 
 public enum EUserRole {
+    ANONYMOUS("Ẩn danh", "anonymous", "ROLE_ANONYMOUS"),
+
+
     TEACHER("Giáo viên", "teacher", "ROLE_TEACHER"),
     STUDENT("Học sinh", "student", "ROLE_STUDENT"),
     MANAGER("Quản lý", "manager", "ROLE_MANAGER"),
@@ -10,12 +13,12 @@ public enum EUserRole {
     private final String label;
     private final String name;
 
-    private final String keycloakRole;
+    private final String securityCode;
 
-    EUserRole(String label, String name, String keycloakRole) {
+    EUserRole(String label, String name, String securityCode) {
         this.label = label;
         this.name = name;
-        this.keycloakRole = keycloakRole;
+        this.securityCode = securityCode;
     }
 
     public String getLabel() {
@@ -26,7 +29,7 @@ public enum EUserRole {
         return name;
     }
 
-    public String getKeycloakRole() {
-        return keycloakRole;
+    public String getSecurityCode() {
+        return securityCode;
     }
 }

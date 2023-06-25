@@ -2,7 +2,7 @@ package fpt.project.bsmart.repository;
 
 import fpt.project.bsmart.entity.MentorProfile;
 import fpt.project.bsmart.entity.User;
-import fpt.project.bsmart.entity.constant.EAccountStatus;
+import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -22,5 +22,5 @@ public interface MentorProfileRepository extends JpaRepository<MentorProfile, Lo
     @Query("SELECT e from MentorProfile e WHERE  e.status = 'EDITREQUEST' and e.user.status = false")
     List<MentorProfile> getPendingMentorProfileEditRequest();
 
-    List<MentorProfile> findAllByStatus (EAccountStatus status);
+    List<MentorProfile> findAllByStatus (EMentorProfileStatus status);
 }
