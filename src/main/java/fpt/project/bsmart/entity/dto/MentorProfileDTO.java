@@ -1,6 +1,6 @@
 package fpt.project.bsmart.entity.dto;
 
-import fpt.project.bsmart.entity.constant.EAccountStatus;
+import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ public class MentorProfileDTO {
     private String introduce;
     private String workingExperience;
 
-    private EAccountStatus status;
+    private EMentorProfileStatus status;
 
     private List<MentorSkillDto> mentorSkills;
 
@@ -45,11 +45,11 @@ public class MentorProfileDTO {
         this.mentorSkills = mentorSkills;
     }
 
-    public EAccountStatus getStatus() {
+    public EMentorProfileStatus getStatus() {
         return status;
     }
 
-    public void setStatus(EAccountStatus status) {
+    public void setStatus(EMentorProfileStatus status) {
         this.status = status;
     }
 }

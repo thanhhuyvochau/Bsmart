@@ -14,7 +14,12 @@ public class Order extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "total_price")
-    private BigDecimal totalPrice = BigDecimal.ZERO;
+    private BigDecimal totalPrice;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private EOrderStatus status;
+
+
     @Column(name = "center_bonus")
     private BigDecimal centerBonus = BigDecimal.ZERO;
     @Column(name = "student_bonus")
@@ -29,12 +34,10 @@ public class Order extends BaseEntity {
     private Float studentBonusPercent;
     @Column(name = "center_bonus_percent")
     private Float centerBonusPercent;
+
+
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails = new ArrayList<>();
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private EOrderStatus status;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

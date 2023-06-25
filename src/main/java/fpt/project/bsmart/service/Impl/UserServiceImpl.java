@@ -348,9 +348,7 @@ public class UserServiceImpl implements IUserService {
         if (mentorPersonalProfileEditRequest.getAddress() != null) {
             user.setAddress(mentorPersonalProfileEditRequest.getAddress());
         }
-        if (mentorPersonalProfileEditRequest.getIntroduce() != null) {
-            user.setIntroduce(mentorPersonalProfileEditRequest.getIntroduce());
-        }
+
         return userRepository.save(user).getId();
     }
 
@@ -370,7 +368,7 @@ public class UserServiceImpl implements IUserService {
         user.setEmail(createAccountRequest.getEmail());
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());
-        user.setIntroduce(createAccountRequest.getIntroduce());
+
         user.setPassword(encoder.encode(createAccountRequest.getPassword()));
         user.getRoles().add(role);
         user.setBirthday(createAccountRequest.getBirthDay());
@@ -381,7 +379,7 @@ public class UserServiceImpl implements IUserService {
             user.setStatus(false);
             MentorProfile mentorProfile = new MentorProfile();
             mentorProfile.setUser(user);
-            mentorProfile.setStatus(EAccountStatus.REQUESTING);
+            mentorProfile.setStatus(EMentorProfileStatus.REQUESTING);
             mentorProfileRepository.save(mentorProfile);
         }
         User savedUser = userRepository.save(user);

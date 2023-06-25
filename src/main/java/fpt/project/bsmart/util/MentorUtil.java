@@ -5,7 +5,7 @@ import fpt.project.bsmart.entity.MentorProfile;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.EAccountStatus;
+import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -49,7 +49,7 @@ public class MentorUtil {
                     .withMessage(staticMessageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
 
-        if (!mentorProfile.getStatus().equals(EAccountStatus.STARTING)) {
+        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(staticMessageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }

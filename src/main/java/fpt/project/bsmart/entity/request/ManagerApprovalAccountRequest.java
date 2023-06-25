@@ -1,20 +1,20 @@
 package fpt.project.bsmart.entity.request;
 
 
-import fpt.project.bsmart.entity.constant.EAccountStatus;
+import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 
 import java.io.Serializable;
 
 public class ManagerApprovalAccountRequest implements Serializable {
 
-    private EAccountStatus status;
+    private EMentorProfileStatus status;
     private String message ;
 
-    public EAccountStatus getStatus() {
+    public EMentorProfileStatus getStatus() {
         return status;
     }
 
-    public void setStatus(EAccountStatus status) {
+    public void setStatus(EMentorProfileStatus status) {
         this.status = status;
     }
 
