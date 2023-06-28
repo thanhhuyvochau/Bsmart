@@ -1,16 +1,16 @@
 package fpt.project.bsmart.entity.request.User;
 
 public class SocialProfileEditRequest {
-    private String twitterLink;
+    private String linkedinLink;
     private String facebookLink;
-    private String instagramLink;
 
-    public String getTwitterLink() {
-        return twitterLink;
+
+    public String getLinkedinLink() {
+        return linkedinLink;
     }
 
-    public void setTwitterLink(String twitterLink) {
-        this.twitterLink = twitterLink;
+    public void setLinkedinLink(String linkedinLink) {
+        this.linkedinLink = linkedinLink;
     }
 
     public String getFacebookLink() {
@@ -21,11 +21,5 @@ public class SocialProfileEditRequest {
         this.facebookLink = facebookLink;
     }
 
-    public String getInstagramLink() {
-        return instagramLink;
-    }
 
-    public void setInstagramLink(String instagramLink) {
-        this.instagramLink = instagramLink;
-    }
 }

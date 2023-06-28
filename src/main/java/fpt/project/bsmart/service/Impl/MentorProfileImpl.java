@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.response.Mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.MentorSkillRepository;
@@ -203,5 +204,11 @@ public class MentorProfileImpl implements IMentorProfileService {
     @Override
     public List<Long> updateCertificate(List<ImageRequest> imageRequests) {
         return null;
+    }
+
+    @Override
+    public CompletenessMentorProfileResponse getCompletenessMentorProfile() {
+
+        return MentorUtil.checkCompletenessMentorProfile();
     }
 }

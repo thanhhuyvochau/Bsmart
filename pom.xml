@@ -37,6 +37,7 @@
             <artifactId>resteasy-jackson-provider</artifactId>
             <version>3.0.10.Final</version>
         </dependency>
+
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -137,6 +138,7 @@
             <artifactId>spring-messaging</artifactId>
             <version>5.2.0.RELEASE</version>
         </dependency>
+
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>sockjs-client</artifactId>

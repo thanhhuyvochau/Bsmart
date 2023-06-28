@@ -8,6 +8,7 @@ import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.request.ManagerApprovalAccountRequest;
 import fpt.project.bsmart.entity.request.MentorSearchRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
+import fpt.project.bsmart.entity.response.Mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import org.springframework.data.domain.Pageable;
 
@@ -21,4 +22,6 @@ public interface IMentorProfileService {
     Long approveMentorProfile(Long id,  ManagerApprovalAccountRequest managerApprovalAccountRequest);
     Long updateMentorProfile(UpdateMentorProfileRequest updateMentorProfileRequest);
     List<Long> updateCertificate(List<ImageRequest> imageRequests);
+
+    CompletenessMentorProfileResponse getCompletenessMentorProfile();
 }

@@ -11,7 +11,6 @@ public class UserDto {
 
     private Long id;
 
-    //private String introduce;
 
     private String fullName;
 

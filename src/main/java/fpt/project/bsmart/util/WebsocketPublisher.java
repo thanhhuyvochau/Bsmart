@@ -31,13 +31,13 @@ public class WebsocketPublisher {
         if (user == null) {
             return;
         }
-        String username = user.getUsername();
-        if (username == null) {
+        String email = user.getEmail();
+        if (email == null) {
             return;
         }
         Long count = staticNotificationRepository.countAllByUser(user);
 
-        String destination = "/topic/notification/" + username;
+        String destination = "/topic/notification/" + email;
 
         staticSimpMessagingTemplate.convertAndSend(destination);
     }

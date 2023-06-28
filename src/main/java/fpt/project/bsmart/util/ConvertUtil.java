@@ -83,6 +83,14 @@ public class ConvertUtil {
         return imageDto;
     }
 
+    public static ImageDto convertUserImageToUserImageDto(UserImage userImage) {
+        ImageDto imageDto = ObjectUtil.copyProperties(userImage, new ImageDto(), ImageDto.class);
+        if (userImage.getUser() != null) {
+//            imageDto.setUserId(image.getUser().getId());
+        }
+        return imageDto;
+    }
+
     public static RoleDto convertRoleToRoleDto(Role role) {
         RoleDto roleDto = ObjectUtil.copyProperties(role, new RoleDto(), RoleDto.class);
         roleDto.setName(role.getCode().getName());
@@ -144,9 +152,9 @@ public class ConvertUtil {
         }
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
-            for (Image image : user.getUserImages()) {
+            for (UserImage image : user.getUserImages()) {
                 if (image.isStatus()) {
-                    imageDtoList.add(convertImageToImageDto(image));
+                    imageDtoList.add(convertUserImageToUserImageDto(image));
                 }
 
                 userDto.setUserImages(imageDtoList);

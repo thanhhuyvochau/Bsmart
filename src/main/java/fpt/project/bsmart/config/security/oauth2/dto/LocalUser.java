@@ -53,10 +53,7 @@ public class LocalUser extends User implements OAuth2User, OidcUser {
 		this.attributes = attributes;
 	}
 
-	@Override
-	public String getName() {
-		return this.user.getUsername();
-	}
+
 
 	@Override
 	public Map<String, Object> getAttributes() {
@@ -80,5 +77,10 @@ public class LocalUser extends User implements OAuth2User, OidcUser {
 
 	public fpt.project.bsmart.entity.User getUser() {
 		return user;
+	}
+
+	@Override
+	public String getName() {
+		return null;
 	}
 }
