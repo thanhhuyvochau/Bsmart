@@ -127,7 +127,7 @@ public class MentorProfileImpl implements IMentorProfileService {
                     .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
         }
         mentorProfile.setStatus(EMentorProfileStatus.STARTING);
-        ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser() , managerApprovalAccountRequest.getMessage());
+        ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser(), managerApprovalAccountRequest.getMessage());
 
         return mentorProfileRepository.save(mentorProfile).getId();
 
@@ -195,9 +195,6 @@ public class MentorProfileImpl implements IMentorProfileService {
             }
             mentorProfile.setSkills(mentorSkills);
         }
-//        if (!mentorProfile.getStatus() && !user.getStatus()) {
-//            mentorProfile.setStatus(true);
-//        }
 
 
         return mentorProfileRepository.save(mentorProfile).getId();
