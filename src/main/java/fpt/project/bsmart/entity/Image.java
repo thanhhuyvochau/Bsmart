@@ -24,9 +24,7 @@ public class Image extends BaseEntity {
 
     @OneToOne(mappedBy = "image")
     private SubCourse subCourse;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+
     @ManyToOne
     @JoinColumn(name = "report_id")
     private ReportFeedback reportFeedback;
@@ -72,13 +70,6 @@ public class Image extends BaseEntity {
         this.subCourse = subCourse;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     public String getUrl() {
         return url;

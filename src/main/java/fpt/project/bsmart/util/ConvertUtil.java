@@ -75,13 +75,13 @@ public class ConvertUtil {
         return walletDto;
     }
 
-    public static ImageDto convertImageToImageDto(Image image) {
-        ImageDto imageDto = ObjectUtil.copyProperties(image, new ImageDto(), ImageDto.class);
-        if (image.getUser() != null) {
-//            imageDto.setUserId(image.getUser().getId());
-        }
-        return imageDto;
-    }
+//    public static ImageDto convertImageToImageDto(Image image) {
+//        ImageDto imageDto = ObjectUtil.copyProperties(image, new ImageDto(), ImageDto.class);
+//        if (image.getUser() != null) {
+//
+//        }
+//        return imageDto;
+//    }
 
     public static ImageDto convertUserImageToUserImageDto(UserImage userImage) {
         ImageDto imageDto = ObjectUtil.copyProperties(userImage, new ImageDto(), ImageDto.class);
@@ -414,7 +414,7 @@ public class ConvertUtil {
                 subCourseCartResponse.setMentor(convertUsertoUserDto(subCourse.getMentor()));
             }
             if (subCourse.getImage() != null) {
-                subCourseCartResponse.setImage(convertImageToImageDto(subCourse.getImage()));
+
             }
             courseCartResponse.getSubCourses().add(subCourseCartResponse);
         }

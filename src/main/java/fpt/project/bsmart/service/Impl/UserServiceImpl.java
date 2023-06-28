@@ -215,8 +215,6 @@ public class UserServiceImpl implements IUserService {
                 image.setUser(user);
                 userImageRepository.save(image);
             }
-
-//                imageIds.add(save.getId());
         }
 
 
