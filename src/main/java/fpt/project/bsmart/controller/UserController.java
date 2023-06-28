@@ -42,8 +42,6 @@ public class UserController {
     }
 
 
-
-
     @Operation(summary = "Lấy thông tin user theo id")
     @GetMapping("{id}")
     public ResponseEntity<ApiResponse<UserDto>> getUser(@PathVariable Long id) {

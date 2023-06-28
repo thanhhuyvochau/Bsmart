@@ -44,4 +44,6 @@ public class SecurityJsonViewControllerAdvice extends AbstractMappingJacksonResp
             bodyContainer.setSerializationView(jsonViewClass);
         }
     }
+
+
 }

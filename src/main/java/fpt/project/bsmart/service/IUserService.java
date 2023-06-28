@@ -50,5 +50,5 @@ public interface IUserService {
 
     User registerNewUser(final SignUpRequest signUpRequest);
 
-    User getUserByUsername(String username);
+    User getUserByEmail(String username);
 }

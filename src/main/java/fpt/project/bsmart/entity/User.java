@@ -17,9 +17,6 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_name")
-    private String username;
-
     @Column(name = "full_name")
     private String fullName;
 
@@ -42,11 +39,9 @@ public class User extends BaseEntity {
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     List<Role> roles = new ArrayList<>();
     @Column(name = "twitter_link")
-    private String twitterLink;
+    private String linkedinLink;
     @Column(name = "facebook_link")
     private String facebookLink;
-    @Column(name = "instagram_link")
-    private String instagramLink;
 
     @Column(name = "gender")
     private EGenderType gender;
@@ -55,7 +50,7 @@ public class User extends BaseEntity {
     private Double point;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
-    private List<Image> userImages = new ArrayList<>();
+    private List<UserImage> userImages = new ArrayList<>();
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
     private Wallet wallet = new Wallet();
     @OneToOne(mappedBy = "user")
@@ -89,14 +84,6 @@ public class User extends BaseEntity {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getFullName() {
@@ -156,12 +143,12 @@ public class User extends BaseEntity {
         this.roles = roles;
     }
 
-    public String getTwitterLink() {
-        return twitterLink;
+    public String getLinkedinLink() {
+        return linkedinLink;
     }
 
-    public void setTwitterLink(String twitterLink) {
-        this.twitterLink = twitterLink;
+    public void setLinkedinLink(String linkedinLink) {
+        this.linkedinLink = linkedinLink;
     }
 
     public String getFacebookLink() {
@@ -172,19 +159,11 @@ public class User extends BaseEntity {
         this.facebookLink = facebookLink;
     }
 
-    public String getInstagramLink() {
-        return instagramLink;
-    }
-
-    public void setInstagramLink(String instagramLink) {
-        this.instagramLink = instagramLink;
-    }
-
-    public List<Image> getUserImages() {
+    public List<UserImage> getUserImages() {
         return userImages;
     }
 
-    public void setUserImages(List<Image> userImages) {
+    public void setUserImages(List<UserImage> userImages) {
         this.userImages = userImages;
     }
 
