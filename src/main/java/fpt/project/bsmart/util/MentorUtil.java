@@ -4,7 +4,9 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.MentorProfile;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.UserImage;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.response.Mentor.CompletenessMentorProfileResponse;
@@ -12,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,7 +64,7 @@ public class MentorUtil {
     public static CompletenessMentorProfileResponse checkCompletenessMentorProfile() {
         User user = SecurityUtil.getCurrentUser();
         int completionPercentage = 0;
-        int totalFields = 9; // Tổng số trường thông tin của user
+        int totalFields = 13; // Tổng số trường thông tin của user
 
         List<CompletenessMentorProfileResponse.MissingInformation> missingInformations = new ArrayList<>();
         CompletenessMentorProfileResponse.MissingInformation missingInformation = new CompletenessMentorProfileResponse.MissingInformation();
@@ -159,36 +162,76 @@ public class MentorUtil {
         if (user.getIsVerified()) {
             completionPercentage++;
         }
+        List<UserImage> userImages = user.getUserImages();
+
+        if (userImages != null) {
+            Collection<EImageType> listTypeImage = userImages.stream().map(UserImage::getType).collect(Collectors.toList());
+            if (!listTypeImage.contains(EImageType.AVATAR)) {
+                fieldRequired = new CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field();
+                fieldRequired.setField("AVATAR");
+                fieldRequired.setName("Ảnh đại diện");
+                requiredInfoFiled.add(fieldRequired);
+            } else {
+                completionPercentage++;
+            }
+
+            if (!listTypeImage.contains(EImageType.BACKCI)) {
+                fieldRequired = new CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field();
+                fieldRequired.setField("BACKCI");
+                fieldRequired.setName("Căn cước công mặt sau");
+                requiredInfoFiled.add(fieldRequired);
+            } else {
+                completionPercentage++;
+            }
+            if (!listTypeImage.contains(EImageType.FRONTCI)) {
+                fieldRequired = new CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field();
+                fieldRequired.setField("FRONTCI");
+                fieldRequired.setName("Căn cước công mặt trước");
+                requiredInfoFiled.add(fieldRequired);
+            } else {
+                completionPercentage++;
+            }
+
+            if (!listTypeImage.contains(EImageType.DEGREE)) {
+                fieldRequired = new CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field();
+                fieldRequired.setField("DEGREE");
+                fieldRequired.setName("Bằng cấp");
+                requiredInfoFiled.add(fieldRequired);
+            } else {
+                completionPercentage++;
+            }
+
+        }
+
 
         MentorProfile mentorProfile = user.getMentorProfile();
-        if (mentorProfile!= null) {
-            if (mentorProfile.getIntroduce()== null ||mentorProfile.getIntroduce().isEmpty() ){
+        if (mentorProfile != null) {
+            if (mentorProfile.getIntroduce() == null || mentorProfile.getIntroduce().isEmpty()) {
                 fieldRequired = new CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field();
                 fieldRequired.setField("introduce");
                 fieldRequired.setName("Giới thiệu");
                 requiredInfoFiled.add(fieldRequired);
-            }else {
+            } else {
                 completionPercentage++;
             }
 
-            if (mentorProfile.getWorkingExperience()== null ||mentorProfile.getWorkingExperience().isEmpty() ){
+            if (mentorProfile.getWorkingExperience() == null || mentorProfile.getWorkingExperience().isEmpty()) {
                 fieldRequired = new CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field();
                 fieldRequired.setField("workingExperience");
                 fieldRequired.setName("Số Năm kinh nghiệm");
                 requiredInfoFiled.add(fieldRequired);
-            }else {
+            } else {
                 completionPercentage++;
             }
 
-            if (mentorProfile.getSkills() == null ||mentorProfile.getSkills().isEmpty() ){
+            if (mentorProfile.getSkills() == null || mentorProfile.getSkills().isEmpty()) {
                 fieldRequired = new CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field();
                 fieldRequired.setField("skills");
                 fieldRequired.setName("Kinh nghiệm");
                 requiredInfoFiled.add(fieldRequired);
-            }else {
+            } else {
                 completionPercentage++;
             }
-
 
         }
 
