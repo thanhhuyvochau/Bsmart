@@ -1,5 +1,6 @@
 package fpt.project.bsmart.entity.request;
 
+import fpt.project.bsmart.entity.constant.EGenderType;
 import fpt.project.bsmart.entity.constant.EUserRole;
 
 import javax.validation.constraints.NotNull;
@@ -16,8 +17,8 @@ public class CreateAccountRequest {
     private String password;
     @NotNull
     private EUserRole role;
-    @NotNull
-    private String introduce;
+
+    private EGenderType gender;
     @NotNull
     private Instant birthDay;
     public String getFullName() {
@@ -60,12 +61,12 @@ public class CreateAccountRequest {
         this.role = role;
     }
 
-    public String getIntroduce() {
-        return introduce;
+    public EGenderType getGender() {
+        return gender;
     }
 
-    public void setIntroduce(String introduce) {
-        this.introduce = introduce;
+    public void setGender(EGenderType gender) {
+        this.gender = gender;
     }
 
     public Instant getBirthDay() {

@@ -64,7 +64,7 @@ public class UserServiceImpl implements IUserService {
 
     private final VerificationRepository verificationRepository;
 
-    private final NotificationUtil notificationUtil ;
+    private final NotificationUtil notificationUtil;
 
 
     public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationUtil notificationUtil) {
@@ -210,7 +210,7 @@ public class UserServiceImpl implements IUserService {
                 image.setType(EImageType.DEGREE);
                 image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
                 image.setUser(user);
-                Image save = imageRepository.save(image);
+                imageRepository.save(image);
             }
 
 //                imageIds.add(save.getId());
@@ -355,12 +355,12 @@ public class UserServiceImpl implements IUserService {
 
     public Long registerAccount(CreateAccountRequest createAccountRequest) {
         User user = new User();
-        if (userRepository.existsByEmail(createAccountRequest.getEmail())) {
+        if (Boolean.TRUE.equals(userRepository.existsByEmail(createAccountRequest.getEmail()))) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Email : " + createAccountRequest.getEmail() + "đã được đăng ký"));
         }
 
-        if (userRepository.existsByPhone(createAccountRequest.getPhone())) {
+        if (Boolean.TRUE.equals(userRepository.existsByPhone(createAccountRequest.getPhone()))) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Số điện thoại : " + createAccountRequest.getPhone() + "đã được đăng ký"));
         }
@@ -368,6 +368,7 @@ public class UserServiceImpl implements IUserService {
         user.setEmail(createAccountRequest.getEmail());
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());
+        user.setGender(createAccountRequest.getGender());
 
         user.setPassword(encoder.encode(createAccountRequest.getPassword()));
         user.getRoles().add(role);
@@ -385,7 +386,7 @@ public class UserServiceImpl implements IUserService {
         User savedUser = userRepository.save(user);
         // Send verify mail
         emailUtil.sendVerifyEmailTo(savedUser);
-        notificationUtil.sendNotification("thanh cong" , "thanh cong" , createAccountRequest.getEmail() , user);
+        notificationUtil.sendNotification("thanh cong", "thanh cong", createAccountRequest.getEmail(), user);
         return savedUser.getId();
     }
 

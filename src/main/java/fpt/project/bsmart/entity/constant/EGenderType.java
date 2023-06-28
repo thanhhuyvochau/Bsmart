@@ -1,7 +1,7 @@
 package fpt.project.bsmart.entity.constant;
 
 public enum EGenderType {
-    MALE("Nam"), FEMALE("Nữ"), OTHER("Khác");
+    MALE("Nam"), FEMALE("Nữ") ;
 
     EGenderType(String label) {
         this.label = label;
