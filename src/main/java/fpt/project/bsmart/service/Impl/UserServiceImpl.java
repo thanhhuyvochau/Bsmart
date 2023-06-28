@@ -316,6 +316,10 @@ public class UserServiceImpl implements IUserService {
             user.setAddress(personalProfileEditRequest.getAddress());
         }
 
+        if (personalProfileEditRequest.getGender() != null) {
+            user.setGender(personalProfileEditRequest.getGender());
+        }
+
 
         return userRepository.save(user).getId();
     }
@@ -348,6 +352,11 @@ public class UserServiceImpl implements IUserService {
         if (mentorPersonalProfileEditRequest.getAddress() != null) {
             user.setAddress(mentorPersonalProfileEditRequest.getAddress());
         }
+
+        if (mentorPersonalProfileEditRequest.getGender() != null) {
+            user.setGender(mentorPersonalProfileEditRequest.getGender());
+        }
+
 
         return userRepository.save(user).getId();
     }
