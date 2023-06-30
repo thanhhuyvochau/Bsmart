@@ -6,11 +6,11 @@ import fpt.project.bsmart.entity.Subject;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.constant.EAccountStatus;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.response.Mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.MentorSkillRepository;
@@ -31,8 +31,6 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
-import static fpt.project.bsmart.entity.constant.ECourseStatus.REJECTED;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 @Service
@@ -99,7 +97,7 @@ public class MentorProfileImpl implements IMentorProfileService {
     }
 
     @Override
-    public ApiPage<UserDto> getPendingMentorProfileList(EAccountStatus accountStatus, Pageable pageable) {
+    public ApiPage<UserDto> getPendingMentorProfileList(EMentorProfileStatus accountStatus, Pageable pageable) {
 
         List<MentorProfile> pendingMentorProfileList = mentorProfileRepository.findAllByStatus(accountStatus);
         List<UserDto> userDtoList = new ArrayList<>();
@@ -125,19 +123,19 @@ public class MentorProfileImpl implements IMentorProfileService {
 
         validateApprovalAccountRequest(managerApprovalAccountRequest.getStatus());
 
-        if (mentorProfile.getStatus() != EAccountStatus.WAITING) {
+        if (mentorProfile.getStatus() != EMentorProfileStatus.WAITING) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
         }
-        mentorProfile.setStatus(EAccountStatus.STARTING);
-        ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser() , managerApprovalAccountRequest.getMessage());
+        mentorProfile.setStatus(EMentorProfileStatus.STARTING);
+        ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser(), managerApprovalAccountRequest.getMessage());
 
         return mentorProfileRepository.save(mentorProfile).getId();
 
     }
 
-    private void validateApprovalAccountRequest(EAccountStatus accountStatus) {
-        List<EAccountStatus> ALLOWED_STATUSES = Arrays.asList(EAccountStatus.STARTING, EAccountStatus.EDITREQUEST, EAccountStatus.REJECTED);
+    private void validateApprovalAccountRequest(EMentorProfileStatus accountStatus) {
+        List<EMentorProfileStatus> ALLOWED_STATUSES = Arrays.asList(EMentorProfileStatus.STARTING, EMentorProfileStatus.EDITREQUEST, EMentorProfileStatus.REJECTED);
 
         if (!ALLOWED_STATUSES.contains(accountStatus)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
@@ -198,9 +196,6 @@ public class MentorProfileImpl implements IMentorProfileService {
             }
             mentorProfile.setSkills(mentorSkills);
         }
-//        if (!mentorProfile.getStatus() && !user.getStatus()) {
-//            mentorProfile.setStatus(true);
-//        }
 
 
         return mentorProfileRepository.save(mentorProfile).getId();
@@ -209,5 +204,11 @@ public class MentorProfileImpl implements IMentorProfileService {
     @Override
     public List<Long> updateCertificate(List<ImageRequest> imageRequests) {
         return null;
+    }
+
+    @Override
+    public CompletenessMentorProfileResponse getCompletenessMentorProfile() {
+
+        return MentorUtil.checkCompletenessMentorProfile();
     }
 }

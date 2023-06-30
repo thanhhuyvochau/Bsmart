@@ -1,6 +1,6 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.constant.EAccountStatus;
+import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -20,10 +20,9 @@ public class MentorProfile extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private EAccountStatus status;
+    private EMentorProfileStatus status;
 
 
     @OneToMany(mappedBy = "mentorProfile", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -61,11 +60,11 @@ public class MentorProfile extends BaseEntity {
         this.user = user;
     }
 
-    public EAccountStatus getStatus() {
+    public EMentorProfileStatus getStatus() {
         return status;
     }
 
-    public void setStatus(EAccountStatus status) {
+    public void setStatus(EMentorProfileStatus status) {
         this.status = status;
     }
 

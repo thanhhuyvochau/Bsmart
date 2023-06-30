@@ -1,6 +1,8 @@
 package fpt.project.bsmart.entity;
 
 
+import fpt.project.bsmart.entity.constant.EGenderType;
+
 import javax.persistence.*;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -16,9 +18,6 @@ User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_name")
-    private String username;
-
     @Column(name = "full_name")
     private String fullName;
 
@@ -31,8 +30,7 @@ User extends BaseEntity {
 
     @Column(name = "address")
     private String address;
-    @Column(name = "introduce")
-    private String introduce;
+
     @Column(name = "phone")
     private String phone;
 
@@ -42,17 +40,18 @@ User extends BaseEntity {
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     List<Role> roles = new ArrayList<>();
     @Column(name = "twitter_link")
-    private String twitterLink;
+    private String linkedinLink;
     @Column(name = "facebook_link")
     private String facebookLink;
-    @Column(name = "instagram_link")
-    private String instagramLink;
+
+    @Column(name = "gender")
+    private EGenderType gender;
 
     @Column(name = "intro_point")
     private Double point;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
-    private List<Image> userImages = new ArrayList<>();
+    private List<UserImage> userImages = new ArrayList<>();
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
     private Wallet wallet = new Wallet();
     @OneToOne(mappedBy = "user")
@@ -72,15 +71,12 @@ User extends BaseEntity {
     @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<StudentClass> studentClasses = new ArrayList<>();
+
     @Column(name = "is_verified")
     private boolean isVerified = false;
+
     @Column(name = "provider")
     private String provider;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private ReferralCode referralCode;
 
 
     public Long getId() {
@@ -89,14 +85,6 @@ User extends BaseEntity {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getFullName() {
@@ -115,13 +103,6 @@ User extends BaseEntity {
         this.email = email;
     }
 
-    public String getIntroduce() {
-        return introduce;
-    }
-
-    public void setIntroduce(String introduce) {
-        this.introduce = introduce;
-    }
 
     public Instant getBirthday() {
         return birthday;
@@ -163,12 +144,12 @@ User extends BaseEntity {
         this.roles = roles;
     }
 
-    public String getTwitterLink() {
-        return twitterLink;
+    public String getLinkedinLink() {
+        return linkedinLink;
     }
 
-    public void setTwitterLink(String twitterLink) {
-        this.twitterLink = twitterLink;
+    public void setLinkedinLink(String linkedinLink) {
+        this.linkedinLink = linkedinLink;
     }
 
     public String getFacebookLink() {
@@ -179,20 +160,20 @@ User extends BaseEntity {
         this.facebookLink = facebookLink;
     }
 
-    public String getInstagramLink() {
-        return instagramLink;
-    }
-
-    public void setInstagramLink(String instagramLink) {
-        this.instagramLink = instagramLink;
-    }
-
-    public List<Image> getUserImages() {
+    public List<UserImage> getUserImages() {
         return userImages;
     }
 
-    public void setUserImages(List<Image> userImages) {
+    public void setUserImages(List<UserImage> userImages) {
         this.userImages = userImages;
+    }
+
+    public EGenderType getGender() {
+        return gender;
+    }
+
+    public void setGender(EGenderType gender) {
+        this.gender = gender;
     }
 
     public Wallet getWallet() {
@@ -291,11 +272,5 @@ User extends BaseEntity {
         this.provider = provider;
     }
 
-    public ReferralCode getReferralCode() {
-        return referralCode;
-    }
 
-    public void setReferralCode(ReferralCode referralCode) {
-        this.referralCode = referralCode;
-    }
 }

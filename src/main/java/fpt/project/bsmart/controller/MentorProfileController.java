@@ -2,13 +2,14 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.constant.EAccountStatus;
+import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.request.ManagerApprovalAccountRequest;
 import fpt.project.bsmart.entity.request.MentorSearchRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
+import fpt.project.bsmart.entity.response.Mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.service.IMentorProfileService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,7 +51,7 @@ public class MentorProfileController {
     @Operation(summary = "Lấy danh sách giảng viên chờ duyệt")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/pending")
-    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getPendingMentorProfile(@RequestParam EAccountStatus accountStatus , Pageable pageable){
+    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getPendingMentorProfile(@RequestParam EMentorProfileStatus accountStatus , Pageable pageable){
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getPendingMentorProfileList(accountStatus , pageable)));
     }
 
@@ -83,5 +84,12 @@ public class MentorProfileController {
 //    public ResponseEntity<ApiResponse<List<Long>>> updateAvatar(List<ImageRequest> imageRequests){
 //        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateCertificate(imageRequests)));
 //    }
+
+    @Operation(summary = "Lấy thông tin profile mentor chưa hoàn thiện và % ")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("/completeness")
+    public ResponseEntity<ApiResponse<CompletenessMentorProfileResponse>> getCompletenessMentorProfile(){
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getCompletenessMentorProfile()));
+    }
 
 }

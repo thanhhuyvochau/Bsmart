@@ -29,7 +29,6 @@ public class PageUtil {
         int end = Math.min((start + pageable.getPageSize()), list.size());
         if (start > list.size())
             return new PageImpl<>(new ArrayList<>(), pageable, list.size());
-        PageImpl<T> pagingData = new PageImpl<>(list.subList(start, end), pageable, list.size());
-        return pagingData;
+        return new PageImpl<>(list.subList(start, end), pageable, list.size());
     }
 }

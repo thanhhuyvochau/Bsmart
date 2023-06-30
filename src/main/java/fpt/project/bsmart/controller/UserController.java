@@ -1,7 +1,6 @@
 package fpt.project.bsmart.controller;
 
 
-import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.UserDto;
@@ -15,7 +14,6 @@ import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.service.IUserService;
-import fpt.project.bsmart.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -41,18 +39,6 @@ public class UserController {
     public UserController(IUserService iUserService, IClassService classService) {
         this.iUserService = iUserService;
         this.classService = classService;
-    }
-
-    @PostMapping
-    public ResponseEntity<String> register(@RequestBody User user) {
-        // xử lý đăng ký tài khoản ở đây
-        // ...
-
-        User currentUser = SecurityUtil.getCurrentUser();
-        // gửi thông báo cho người dùng qua WebSocket
-        template.convertAndSend("/topic/register", currentUser);
-
-        return ResponseEntity.ok("Đăng ký tài khoản thành công!");
     }
 
 

@@ -5,8 +5,8 @@ import fpt.project.bsmart.entity.constant.EImageType;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "image")
-public class Image extends BaseEntity {
+@Table(name = "user_image")
+public class UserImage extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,12 +22,10 @@ public class Image extends BaseEntity {
     @Column(name = "status")
     private boolean status;
 
-    @OneToOne(mappedBy = "image")
-    private SubCourse subCourse;
-
     @ManyToOne
-    @JoinColumn(name = "report_id")
-    private ReportFeedback reportFeedback;
+    @JoinColumn(name = "user_id")
+    private User user;
+
 
     public Long getId() {
         return id;
@@ -62,14 +60,14 @@ public class Image extends BaseEntity {
         this.status = status;
     }
 
-    public SubCourse getSubCourse() {
-        return subCourse;
+
+    public User getUser() {
+        return user;
     }
 
-    public void setSubCourse(SubCourse subCourse) {
-        this.subCourse = subCourse;
+    public void setUser(User user) {
+        this.user = user;
     }
-
 
     public String getUrl() {
         return url;

@@ -48,6 +48,7 @@ public class AppConfig {
         objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
         objectMapper.registerModule(module);
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
         return objectMapper;
     }
 }

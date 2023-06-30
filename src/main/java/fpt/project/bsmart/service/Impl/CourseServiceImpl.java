@@ -3,10 +3,12 @@ package fpt.project.bsmart.service.Impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.Module;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.ECourseType;
+
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.dto.course.CourseContentDto;

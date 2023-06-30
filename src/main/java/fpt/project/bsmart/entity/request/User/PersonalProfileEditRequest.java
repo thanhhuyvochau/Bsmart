@@ -1,5 +1,7 @@
 package fpt.project.bsmart.entity.request.User;
 
+import fpt.project.bsmart.entity.constant.EGenderType;
+
 import java.time.Instant;
 
 public class PersonalProfileEditRequest {
@@ -7,6 +9,8 @@ public class PersonalProfileEditRequest {
     private Instant birthday;
     private String address;
     private String phone;
+
+    private EGenderType gender ;
 
     public String getFullname() {
         return fullname;
@@ -38,5 +42,13 @@ public class PersonalProfileEditRequest {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public EGenderType getGender() {
+        return gender;
+    }
+
+    public void setGender(EGenderType gender) {
+        this.gender = gender;
     }
 }

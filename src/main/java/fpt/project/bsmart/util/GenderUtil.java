@@ -19,16 +19,14 @@ public class GenderUtil {
     }
 
     public static EGenderType getGenderByCode(String genderName) {
-        if (genderName == null) {
-            return EGenderType.OTHER;
-        }
+
         switch (genderName) {
             case "MALE":
                 return EGenderType.MALE;
             case "FEMALE":
                 return EGenderType.FEMALE;
-            default:
-                return EGenderType.OTHER;
         }
+        return EGenderType.MALE;
     }
+
 }

@@ -57,6 +57,8 @@ public class UserServiceImpl implements IUserService {
     private final PasswordEncoder encoder;
 
     private final ImageRepository imageRepository;
+
+    private final UserImageRepository userImageRepository;
     private final MentorProfileRepository mentorProfileRepository;
 
     private final MinioAdapter minioAdapter;
@@ -64,15 +66,16 @@ public class UserServiceImpl implements IUserService {
 
     private final VerificationRepository verificationRepository;
 
-    private final NotificationUtil notificationUtil ;
+    private final NotificationUtil notificationUtil;
 
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationUtil notificationUtil) {
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, UserImageRepository userImageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationUtil notificationUtil) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
         this.imageRepository = imageRepository;
+        this.userImageRepository = userImageRepository;
         this.mentorProfileRepository = mentorProfileRepository;
         this.minioAdapter = minioAdapter;
         this.emailUtil = emailUtil;
@@ -80,8 +83,8 @@ public class UserServiceImpl implements IUserService {
         this.notificationUtil = notificationUtil;
     }
 
-    private static void accept(Image image) {
-        image.setStatus(false);
+    private static void accept(UserImage userImage) {
+        userImage.setStatus(false);
     }
 
     private User findUserById(Long id) {
@@ -107,10 +110,8 @@ public class UserServiceImpl implements IUserService {
         User user = getCurrentLoginUser();
         if (user.getFacebookLink().equals(link)) {
             user.setFacebookLink(null);
-        } else if (user.getInstagramLink().equals(link)) {
-            user.setInstagramLink(null);
-        } else if (user.getTwitterLink().equals(link)) {
-            user.setTwitterLink(null);
+        } else if (user.getLinkedinLink().equals(link)) {
+            user.setLinkedinLink(null);
         } else {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(INVALID_SOCIAL_LINK);
         }
@@ -119,37 +120,38 @@ public class UserServiceImpl implements IUserService {
 
     public Long uploadImageProfile(UploadImageRequest uploadImageRequest) throws IOException {
         User user = getCurrentLoginUser();
-        List<Image> userImages = user.getUserImages();
 
-        List<Image> images = user.getUserImages();
+
+        List<UserImage> userImages = user.getUserImages();
+
+
         if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
-            List<Image> avatarCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
+            List<UserImage> avatarCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
             avatarCurrent.forEach(image1 -> {
                 accept(image1);
-                images.add(image1);
+                userImages.add(image1);
             });
         }
 
         if (uploadImageRequest.getImageType().equals(EImageType.FRONTCI)) {
-            List<Image> CIFrontCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.FRONTCI)).collect(Collectors.toList());
+            List<UserImage> CIFrontCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.FRONTCI)).collect(Collectors.toList());
             CIFrontCurrent.forEach(image -> {
                 accept(image);
-                images.add(image);
+                userImages.add(image);
             });
 
         }
         if (uploadImageRequest.getImageType().equals(EImageType.BACKCI)) {
-            List<Image> CIBackCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.BACKCI)).collect(Collectors.toList());
+            List<UserImage> CIBackCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.BACKCI)).collect(Collectors.toList());
             CIBackCurrent.forEach(image -> {
                 accept(image);
-                images.add(image);
+                userImages.add(image);
             });
 
         }
 
-
-        imageRepository.saveAll(images);
-        Image image = new Image();
+        userImageRepository.saveAll(userImages);
+        UserImage image = new UserImage();
         String name = uploadImageRequest.getFile().getOriginalFilename() + "-" + Instant.now().toString();
         ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, uploadImageRequest.getFile().getContentType(),
                 uploadImageRequest.getFile().getInputStream(), uploadImageRequest.getFile().getSize());
@@ -166,27 +168,28 @@ public class UserServiceImpl implements IUserService {
         if (uploadImageRequest.getImageType().equals(EImageType.BACKCI)) {
             image.setType(EImageType.BACKCI);
         }
-        return imageRepository.save(image).getId();
+        return userImageRepository.save(image).getId();
 
     }
 
     @Override
     public Boolean uploadDegree(List<Long> degreeIdsToDelete, MultipartFile[] file) throws IOException {
         User user = getCurrentLoginUser();
-        List<Image> userImages = user.getUserImages();
-        List<Image> allOldDegree = userImages.stream().filter(image -> image.getType().equals(EImageType.DEGREE)).collect(Collectors.toList());
+        List<UserImage> userImages = user.getUserImages();
+
+        List<UserImage> allOldDegree = userImages.stream().filter(image -> image.getType().equals(EImageType.DEGREE)).collect(Collectors.toList());
 
         // id degree trong db ne
-        List<Long> allOldDegreeId = allOldDegree.stream().map(Image::getId).collect(Collectors.toList());
+        List<Long> allOldDegreeId = allOldDegree.stream().map(UserImage::getId).collect(Collectors.toList());
 
         List<Long> idsToDelete = degreeIdsToDelete != null ? degreeIdsToDelete : Collections.emptyList();
 
 
-        List<Image> degreeToDelete = new ArrayList<>();
+        List<UserImage> degreeToDelete = new ArrayList<>();
 
         for (Long aLong : idsToDelete) {
             if (allOldDegreeId.contains(aLong)) {
-                Optional<Image> byId = imageRepository.findById(aLong);
+                Optional<UserImage> byId = userImageRepository.findById(aLong);
                 byId.ifPresent(degreeToDelete::add);
             }
 
@@ -201,7 +204,7 @@ public class UserServiceImpl implements IUserService {
 
         for (MultipartFile file1 : files) {
             if (!Objects.equals(file1.getOriginalFilename(), "")) {
-                Image image = new Image();
+                UserImage image = new UserImage();
                 String name = file1.getOriginalFilename() + "-" + Instant.now().toString();
                 ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file1.getContentType(),
                         file1.getInputStream(), file1.getSize());
@@ -210,10 +213,8 @@ public class UserServiceImpl implements IUserService {
                 image.setType(EImageType.DEGREE);
                 image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
                 image.setUser(user);
-                Image save = imageRepository.save(image);
+                userImageRepository.save(image);
             }
-
-//                imageIds.add(save.getId());
         }
 
 
@@ -238,17 +239,12 @@ public class UserServiceImpl implements IUserService {
             }
             user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
         }
-        if (socialProfileEditRequest.getInstagramLink() != null) {
-            if (!StringUtil.isValidInstagramLink(socialProfileEditRequest.getInstagramLink())) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_INSTAGRAM_LINK));
-            }
-            user.setInstagramLink(socialProfileEditRequest.getInstagramLink());
-        }
-        if (socialProfileEditRequest.getTwitterLink() != null) {
-            if (!StringUtil.isValidTwitterLink(socialProfileEditRequest.getTwitterLink())) {
+
+        if (socialProfileEditRequest.getLinkedinLink() != null) {
+            if (!StringUtil.isValidTwitterLink(socialProfileEditRequest.getLinkedinLink())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_TWITTER_LINK));
             }
-            user.setTwitterLink(socialProfileEditRequest.getTwitterLink());
+            user.setLinkedinLink(socialProfileEditRequest.getLinkedinLink());
         }
         return userRepository.save(user).getId();
     }
@@ -316,6 +312,10 @@ public class UserServiceImpl implements IUserService {
             user.setAddress(personalProfileEditRequest.getAddress());
         }
 
+        if (personalProfileEditRequest.getGender() != null) {
+            user.setGender(personalProfileEditRequest.getGender());
+        }
+
 
         return userRepository.save(user).getId();
     }
@@ -348,21 +348,24 @@ public class UserServiceImpl implements IUserService {
         if (mentorPersonalProfileEditRequest.getAddress() != null) {
             user.setAddress(mentorPersonalProfileEditRequest.getAddress());
         }
-        if (mentorPersonalProfileEditRequest.getIntroduce() != null) {
-            user.setIntroduce(mentorPersonalProfileEditRequest.getIntroduce());
+
+        if (mentorPersonalProfileEditRequest.getGender() != null) {
+            user.setGender(mentorPersonalProfileEditRequest.getGender());
         }
+
+
         return userRepository.save(user).getId();
     }
 
 
     public Long registerAccount(CreateAccountRequest createAccountRequest) {
         User user = new User();
-        if (userRepository.existsByEmail(createAccountRequest.getEmail())) {
+        if (Boolean.TRUE.equals(userRepository.existsByEmail(createAccountRequest.getEmail()))) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Email : " + createAccountRequest.getEmail() + "đã được đăng ký"));
         }
 
-        if (userRepository.existsByPhone(createAccountRequest.getPhone())) {
+        if (Boolean.TRUE.equals(userRepository.existsByPhone(createAccountRequest.getPhone()))) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage("Số điện thoại : " + createAccountRequest.getPhone() + "đã được đăng ký"));
         }
@@ -370,7 +373,8 @@ public class UserServiceImpl implements IUserService {
         user.setEmail(createAccountRequest.getEmail());
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());
-        user.setIntroduce(createAccountRequest.getIntroduce());
+        user.setGender(createAccountRequest.getGender());
+
         user.setPassword(encoder.encode(createAccountRequest.getPassword()));
         user.getRoles().add(role);
         user.setBirthday(createAccountRequest.getBirthDay());
@@ -381,13 +385,13 @@ public class UserServiceImpl implements IUserService {
             user.setStatus(false);
             MentorProfile mentorProfile = new MentorProfile();
             mentorProfile.setUser(user);
-            mentorProfile.setStatus(EAccountStatus.REQUESTING);
+            mentorProfile.setStatus(EMentorProfileStatus.REQUESTING);
             mentorProfileRepository.save(mentorProfile);
         }
         User savedUser = userRepository.save(user);
         // Send verify mail
         emailUtil.sendVerifyEmailTo(savedUser);
-        notificationUtil.sendNotification("thanh cong" , "thanh cong" , createAccountRequest.getEmail() , user);
+        notificationUtil.sendNotification("thanh cong", "thanh cong", createAccountRequest.getEmail(), user);
         return savedUser.getId();
     }
 
@@ -435,7 +439,7 @@ public class UserServiceImpl implements IUserService {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Email not found from OAuth2 provider");
         }
         SignUpRequest userDetails = toUserRegistrationObject(registrationId, oAuth2UserInfo);
-        User user = getUserByUsername(oAuth2UserInfo.getEmail());
+        User user = getUserByEmail(oAuth2UserInfo.getEmail());
         if (user != null) {
             if (!user.getProvider().equals(registrationId) && !user.getProvider().equals(SocialProvider.LOCAL.getProviderType())) {
                 throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(
@@ -461,9 +465,9 @@ public class UserServiceImpl implements IUserService {
 
 
     @Override
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + username));
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + email));
     }
 
     @Override
@@ -481,7 +485,6 @@ public class UserServiceImpl implements IUserService {
 
     private User buildUser(final SignUpRequest formDTO) {
         User user = new User();
-        user.setUsername(formDTO.getDisplayName());
         user.setEmail(formDTO.getEmail());
         user.setPassword(encoder.encode(formDTO.getPassword()));
         final List<Role> roles = new ArrayList<>();

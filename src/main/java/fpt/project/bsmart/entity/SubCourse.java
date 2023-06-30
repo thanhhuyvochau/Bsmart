@@ -55,6 +55,13 @@ public class SubCourse  extends  BaseEntity  {
     @Column(name = "number_of_slot")
     private Integer numberOfSlot = 0;
 
+
+    @Column(name = "has_referral_code")
+    private boolean hasReferralCode;
+
+    @Column(name = "number_referral_code")
+    private Integer numberReferralCode;
+
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
@@ -79,11 +86,6 @@ public class SubCourse  extends  BaseEntity  {
     private User mentor;
 
 
-    @Column(name = "has_referral_code")
-    private boolean hasReferralCode;
-
-    @Column(name = "number_referral_code")
-    private Integer numberReferralCode;
 
 
     public Long getId() {
