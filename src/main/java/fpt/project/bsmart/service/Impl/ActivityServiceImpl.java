@@ -13,9 +13,11 @@ import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IActivityService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.adapter.MinioAdapter;
+import fpt.project.bsmart.validator.ClassValidator;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +33,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class ActivityServiceImpl implements IActivityService, Cloneable {
+
+
     @Value("${minio.endpoint}")
     String minioUrl;
     private final ActivityTypeRepository activityTypeRepository;
@@ -193,21 +197,21 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         assignment.setActivity(activity);
         assignment.setPassPoint(request.getPassPoint());
         // Lấy file đính kèm của assignment
-        MultipartFile[] attachFiles = request.getAttachFiles();
+        List<MultipartFile> attachFiles = request.getAttachFiles();
         for (MultipartFile attachFile : attachFiles) {
-            assignment.getAssignmentFiles().add(createAssignmentFile(attachFile, assignment));
+            assignment.getAssignmentFiles().add(createAssignmentFile(attachFile, assignment, FileType.ATTACH));
         }
         return assignment;
     }
 
-    private AssignmentFile createAssignmentFile(MultipartFile attachFile, Assignment assignment) throws IOException {
+    private AssignmentFile createAssignmentFile(MultipartFile attachFile, Assignment assignment, FileType fileType) throws IOException {
         String originalFilename = attachFile.getOriginalFilename();
         String name = originalFilename + "_" + Instant.now().toString();
         ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, attachFile.getContentType(), attachFile.getInputStream(), attachFile.getSize());
 
         AssignmentFile assignmentFile = new AssignmentFile();
         assignmentFile.setName(originalFilename);
-        assignmentFile.setFileType(FileType.ATTACH);
+        assignmentFile.setFileType(fileType);
         assignmentFile.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
         assignmentFile.setUser(SecurityUtil.getCurrentUser());
         assignmentFile.setAssignment(assignment);
@@ -255,6 +259,9 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_TYPE_NOT_FOUND_BY_ID) + activityRequest.getActivityTypeId()));
 
         Activity activity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
+        activity.setName(activityRequest.getName());
+        activity.setIsVisible(activityRequest.getIsVisible());
+        activity.setClassSection(classSection);
         String code = activityType.getCode();
         switch (code) {
             case "QUIZ":
@@ -287,11 +294,11 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         assignment.setMaxFileSize(request.getMaxFileSize());
         assignment.setStatus(now.equals(request.getStartDate()) ? EAssignmentStatus.OPENING : EAssignmentStatus.PENDING);
         // Lấy file đính kèm của assignment
-        MultipartFile[] attachFiles = request.getAttachFiles();
+        List<MultipartFile> attachFiles = request.getAttachFiles();
         List<AssignmentFile> existedAssignmentFiles = assignment.getAssignmentFiles();
         Map<String, AssignmentFile> assignmentMapByName = existedAssignmentFiles.stream().collect(Collectors.toMap(AssignmentFile::getName, Function.identity()));
         for (MultipartFile attachFile : attachFiles) {
-            AssignmentFile newAssignmentFile = createAssignmentFile(attachFile, assignment);
+            AssignmentFile newAssignmentFile = createAssignmentFile(attachFile, assignment, FileType.ATTACH);
             AssignmentFile existedAssignment = assignmentMapByName.get(newAssignmentFile.getName());
             if (existedAssignment != null) {
                 if (request.getIsOverWriteAttachFile()) {
@@ -522,5 +529,27 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         quizSubmitAnswer.setQuizAnswer(quizAnswer);
         quizSubmitAnswer.setQuizSubmitQuestion(quizSubmitQuestion);
         return quizSubmitAnswer;
+    }
+
+
+    @Override
+    public Boolean submitAssignment(Long id, SubmitAssignmentRequest request) {
+        User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        Activity activity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy Assignment với id:" + id));
+        Class clazz = activity.getClassSection().getClazz();
+        EUserRole userRole = ClassValidator.isMemberOfClassAsRole(clazz, currentUser);
+        if (userRole == null){
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Người dùng không phải thành viên của lớp này");
+        } else if (userRole != EUserRole.STUDENT) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Người dùng không phải học sinh của lớp này");
+        }
+        Assignment assignment = activity.getAssignment();
+        if (assignment == null){
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Không tìm thấy Assignment của Activity này");
+        }
+
+//        createAssignmentFile(request.getSubmittedFiles(), assignment, FileType.SUBMIT)
+
+        return null;
     }
 }
