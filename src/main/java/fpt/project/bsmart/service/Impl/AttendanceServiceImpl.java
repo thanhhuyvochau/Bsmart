@@ -12,9 +12,7 @@ import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.TimeTableRepository;
 import fpt.project.bsmart.service.AttendanceService;
 
-import fpt.project.bsmart.util.ConvertUtil;
-import fpt.project.bsmart.util.PageUtil;
-import fpt.project.bsmart.util.SecurityUtil;
+import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.validator.AttendanceValidator;
 import fpt.project.bsmart.validator.ClassValidator;
 import org.modelmapper.ModelMapper;
@@ -30,19 +28,23 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_ATTENDANCE_DAY;
+
 @Service
 public class AttendanceServiceImpl implements AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
 
     private final ModelMapper modelMapper;
-
+    private final MessageUtil messageUtil;
     private final ClassRepository classRepository;
     private final TimeTableRepository timeTableRepository;
 
-    public AttendanceServiceImpl(AttendanceRepository attendanceRepository, ModelMapper modelMapper, ClassRepository classRepository, TimeTableRepository timeTableRepository) {
+    public AttendanceServiceImpl(AttendanceRepository attendanceRepository, ModelMapper modelMapper, MessageUtil messageUtil, ClassRepository classRepository, TimeTableRepository timeTableRepository) {
         this.attendanceRepository = attendanceRepository;
         this.modelMapper = modelMapper;
+        this.messageUtil = messageUtil;
         this.classRepository = classRepository;
         this.timeTableRepository = timeTableRepository;
     }
@@ -52,10 +54,10 @@ public class AttendanceServiceImpl implements AttendanceService {
         Optional<User> currentUserOptional = SecurityUtil.getCurrentUserOptional();
         User currentUser = SecurityUtil.getUserOrThrowException(currentUserOptional);
         TimeTable timeTable = timeTableRepository.findById(request.getTimeTableId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy thời khóa biểu với id:" + request.getTimeTableId()));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(TIME_TABLE_NOT_FOUND_BY_ID) + request.getTimeTableId()));
         Class clazz = timeTable.getClazz();
         if (!ClassValidator.isMentorOfClass(currentUser, clazz)) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Bạn không phải là giáo viên của lớp này" + request.getTimeTableId());
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS) + request.getTimeTableId());
         }
         List<Attendance> attendanceList = timeTable.getAttendanceList();
         boolean attendanceListEmpty = attendanceList.isEmpty();
@@ -73,16 +75,16 @@ public class AttendanceServiceImpl implements AttendanceService {
         List<Attendance> attendances = new ArrayList<>();
         Class clazz = timeTable.getClazz();
         if (!AttendanceValidator.isEnableTimeForDoAttendance(timeTable.getDate())) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Ngày không hợp lệ không thể điểm danh");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(INVALID_ATTENDANCE_DAY));
         }
         List<AttendanceDetailRequest> details = request.getDetails();
         if (AttendanceValidator.isDuplicateAttendanceDetail(details)) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Điểm danh bị trùng lặp học sinh");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(DUPLICATE_STUDENT_ATTENDANCE));
         }
         for (AttendanceDetailRequest detail : details) {
             StudentClass studentClass = ClassValidator.isExistedStudentClass(clazz, detail.getStudentClassId())
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage("Không tìm thấy học sinh cần điểm danh với id:" + detail.getStudentClassId()));
+                            .withMessage(messageUtil.getLocalMessage(STUDENT_ATTENDANCE_NOT_FOUND_BY_ID) + detail.getStudentClassId()));
             Attendance attendance = new Attendance(timeTable, studentClass, detail.isAttendance(), detail.getNote());
             attendances.add(attendance);
         }
@@ -96,16 +98,16 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         Class clazz = timeTable.getClazz();
         if (!AttendanceValidator.isEnableTimeForDoAttendance(timeTable.getDate())) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Ngày không hợp lệ không thể điểm danh");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(INVALID_ATTENDANCE_DAY));
         }
         List<AttendanceDetailRequest> details = request.getDetails();
         if (AttendanceValidator.isDuplicateAttendanceDetail(details)) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Điểm danh bị trùng lặp học sinh");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(DUPLICATE_STUDENT_ATTENDANCE));
         }
         for (AttendanceDetailRequest detail : details) {
             StudentClass studentClass = ClassValidator.isExistedStudentClass(clazz, detail.getStudentClassId())
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage("Không tìm thấy học sinh cần điểm danh với id:" + detail.getStudentClassId()));
+                            .withMessage(messageUtil.getLocalMessage(STUDENT_ATTENDANCE_NOT_FOUND_BY_ID) + detail.getStudentClassId()));
 
             Attendance attendance = existedAttendancesMap.get(detail.getStudentClassId());
             if (attendance == null) {
@@ -124,10 +126,10 @@ public class AttendanceServiceImpl implements AttendanceService {
         Optional<User> currentUserOptional = SecurityUtil.getCurrentUserOptional();
         User currentUser = SecurityUtil.getUserOrThrowException(currentUserOptional);
         TimeTable timeTable = timeTableRepository.findById(timeTableId)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy thời khóa biểu với id:" + timeTableId));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(TIME_TABLE_NOT_FOUND_BY_ID) + timeTableId));
         Class clazz = timeTable.getClazz();
         if (!ClassValidator.isMentorOfClass(currentUser, clazz)) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Bạn không phải là giáo viên của lớp này");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
         }
         Map<Long, Attendance> attendanceMap = timeTable.getAttendanceList().stream()
                 .collect(Collectors.toMap(attendance -> attendance.getStudentClass().getId(), Function.identity()));
@@ -156,10 +158,10 @@ public class AttendanceServiceImpl implements AttendanceService {
     public AttendanceStudentResponse getAttendanceByClassForStudent(Long classId) {
         Class clazz = classRepository
                 .findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage("Không tìm thấy lớp với id:" + classId));
+                        .withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
         User currentUser = SecurityUtil.getCurrentUser();
         if (!ClassValidator.isStudentOfClass(clazz, currentUser)) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Bạn không phải là học sinh của lớp này");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
         }
 
         List<TimeTable> timeTables = clazz.getTimeTables();

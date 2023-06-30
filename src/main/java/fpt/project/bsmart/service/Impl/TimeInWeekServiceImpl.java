@@ -9,6 +9,7 @@ import fpt.project.bsmart.entity.request.SubCourseTimeRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ITimeInWeekService;
+import fpt.project.bsmart.util.MessageUtil;
 import fpt.project.bsmart.util.ObjectUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+
 @Service
 @Transactional
 public class TimeInWeekServiceImpl implements ITimeInWeekService {
@@ -28,14 +31,16 @@ public class TimeInWeekServiceImpl implements ITimeInWeekService {
     private final DayOfWeekRepository dayOfWeekRepository;
     private final SlotRepository slotRepository;
     private final ClassRepository classRepository;
+    private final MessageUtil messageUtil;
 
     private final SubCourseRepository subCourseRepository;
 
-    public TimeInWeekServiceImpl(TimeInWeekRepository timeInWeekRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, ClassRepository classRepository, SubCourseRepository subCourseRepository) {
+    public TimeInWeekServiceImpl(TimeInWeekRepository timeInWeekRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, ClassRepository classRepository, MessageUtil messageUtil, SubCourseRepository subCourseRepository) {
         this.timeInWeekRepository = timeInWeekRepository;
         this.dayOfWeekRepository = dayOfWeekRepository;
         this.slotRepository = slotRepository;
         this.classRepository = classRepository;
+        this.messageUtil = messageUtil;
         this.subCourseRepository = subCourseRepository;
     }
 
@@ -51,9 +56,9 @@ public class TimeInWeekServiceImpl implements ITimeInWeekService {
     @Override
     public Boolean createTimeInWeek(SubCourseTimeRequest request) {
         SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm khóa học cần tạo lịch!"));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
         if (!subCourse.getTimeInWeeks().isEmpty()) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không thể tạo thêm lịch cho khóa học này, vui lòng chỉ chỉnh sửa hoặc tạo mới!");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUB_COURSE_CAN_NOT_CREATE_TIME_IN_WEEK));
         }
         List<TimeInWeekRequest> timeInWeekRequests = request.getTimeInWeekRequests();
         TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
@@ -65,11 +70,11 @@ public class TimeInWeekServiceImpl implements ITimeInWeekService {
             for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
                 TimeInWeek timeInWeek = new TimeInWeek();
                 DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
-                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy ngày trong tuần đã chọn vui lòng thử lại!"));
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(TIME_OF_WEEK_NOT_FOUND_BY_ID) + timeInWeekRequest.getDayOfWeekId()));
                 timeInWeek.setDayOfWeek(dayOfWeek);
 
                 Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
-                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy slot đã chọn vui lòng thử lại!"));
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SLOT_NOT_FOUND_BY_ID) + timeInWeekRequest.getSlotId()));
                 timeInWeek.setSlot(slot);
 
                 timeInWeek.setSubCourse(subCourse);
@@ -77,7 +82,7 @@ public class TimeInWeekServiceImpl implements ITimeInWeekService {
             }
             return true;
         } else {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Đã bị trùng lịch và slot, vui lòng kiểm tra lại!");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(DUPLICATE_SLOT_AND_TIME_IN_WEEK));
         }
     }
 

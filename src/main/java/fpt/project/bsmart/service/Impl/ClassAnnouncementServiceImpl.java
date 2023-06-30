@@ -24,24 +24,27 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
 
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+
 @Service
 @Transactional
 public class ClassAnnouncementServiceImpl implements ClassAnnouncementService {
     private final ClassAnnouncementRepository classAnnouncementRepository;
     private final ClassRepository classRepository;
-
-    public ClassAnnouncementServiceImpl(ClassAnnouncementRepository classAnnouncementRepository, ClassRepository classRepository) {
+    private final MessageUtil messageUtil;
+    public ClassAnnouncementServiceImpl(ClassAnnouncementRepository classAnnouncementRepository, ClassRepository classRepository, MessageUtil messageUtil) {
         this.classAnnouncementRepository = classAnnouncementRepository;
         this.classRepository = classRepository;
+        this.messageUtil = messageUtil;
     }
 
     @Override
     public ApiPage<SimpleClassAnnouncementResponse> getAllClassAnnouncements(Long classId, Pageable pageable) {
-        Class clazz = classRepository.findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Class not found with id:" + classId));
+        Class clazz = classRepository.findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         EUserRole memberOfClassAsRole = ClassValidator.isMemberOfClassAsRole(clazz, user);
         if (memberOfClassAsRole == null) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not member of this class");
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
         } else {
             ResponseUtil.responseForRole(memberOfClassAsRole);
         }
@@ -54,11 +57,11 @@ public class ClassAnnouncementServiceImpl implements ClassAnnouncementService {
     public ClassAnnouncementDto getClassAnnouncementById(Long classId, Long id) {
         ClassAnnouncement classAnnouncement = classAnnouncementRepository
                 .findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage("Announcement not found with id:" + id));
+                        .withMessage(messageUtil.getLocalMessage(ANNOUNCEMENT_NOT_FOUND_BY_ID) + id));
         Class clazz = classAnnouncement.getClazz();
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         if (!ClassValidator.isMemberOfClass(clazz, user)) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not member of this class");
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
         } else if (!Objects.equals(classId, clazz.getId())) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Invalid classId parameter and class id of class announcement");
         }
@@ -67,10 +70,10 @@ public class ClassAnnouncementServiceImpl implements ClassAnnouncementService {
 
     @Override
     public ClassAnnouncementDto saveClassAnnouncement(Long classId, ClassAnnouncementRequest request) {
-        Class clazz = classRepository.findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Class not found with id:" + classId));
+        Class clazz = classRepository.findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         if (!ClassValidator.isMentorOfClass(user, clazz)) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not member of this class");
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
         }
         ClassAnnouncement classAnnouncement = ObjectUtil.copyProperties(request, new ClassAnnouncement(), ClassAnnouncement.class, true);
         classAnnouncement.setClazz(clazz);
@@ -80,14 +83,14 @@ public class ClassAnnouncementServiceImpl implements ClassAnnouncementService {
 
     @Override
     public ClassAnnouncementDto updateClassAnnouncement(Long classId, Long id, ClassAnnouncementRequest request) {
-        Class clazz = classRepository.findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Class not found with id:" + classId));
+        Class clazz = classRepository.findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
         ClassAnnouncement classAnnouncement = classAnnouncementRepository
                 .findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage("Announcement not found with id:" + classId));
+                        .withMessage(messageUtil.getLocalMessage(ANNOUNCEMENT_NOT_FOUND_BY_ID) + classId));
 
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         if (!ClassValidator.isMentorOfClass(user, clazz)) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not mentor of this class");
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
         }
         classAnnouncement.setContent(request.getContent());
         classAnnouncement.setTitle(request.getTitle());
@@ -100,11 +103,11 @@ public class ClassAnnouncementServiceImpl implements ClassAnnouncementService {
     public Boolean deleteClassAnnouncement(Long classId, Long id) {
         ClassAnnouncement classAnnouncement = classAnnouncementRepository
                 .findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage("Announcement not found with id:" + id));
+                        .withMessage(messageUtil.getLocalMessage(ANNOUNCEMENT_NOT_FOUND_BY_ID) + id));
         Class clazz = classAnnouncement.getClazz();
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         if (!ClassValidator.isMemberOfClass(clazz, user)) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not mentor of this class");
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
         }
         clazz.getClassAnnouncements().remove(classAnnouncement);
         classAnnouncementRepository.delete(classAnnouncement);

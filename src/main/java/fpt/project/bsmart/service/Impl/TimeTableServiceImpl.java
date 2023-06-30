@@ -12,6 +12,7 @@ import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.TimeTableRepository;
 import fpt.project.bsmart.service.ITimeTableService;
 import fpt.project.bsmart.util.ConvertUtil;
+import fpt.project.bsmart.util.MessageUtil;
 import fpt.project.bsmart.util.PageUtil;
 import fpt.project.bsmart.util.SecurityUtil;
 import fpt.project.bsmart.validator.ClassValidator;
@@ -24,15 +25,21 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static fpt.project.bsmart.util.Constants.ErrorMessage.CLASS_NOT_FOUND_BY_ID;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.TIME_TABLE_NOT_FOUND_BY_ID;
+
 @Service
 @Transactional
 public class TimeTableServiceImpl implements ITimeTableService {
     private final TimeTableRepository timeTableRepository;
     private final ClassRepository classRepository;
+    private final MessageUtil messageUtil;
 
-    public TimeTableServiceImpl(TimeTableRepository timeTableRepository, ClassRepository classRepository) {
+    public TimeTableServiceImpl(TimeTableRepository timeTableRepository, ClassRepository classRepository, MessageUtil messageUtil) {
         this.timeTableRepository = timeTableRepository;
         this.classRepository = classRepository;
+        this.messageUtil = messageUtil;
     }
 
     @Override
@@ -51,7 +58,7 @@ public class TimeTableServiceImpl implements ITimeTableService {
 
     @Override
     public ApiPage<TimeTableResponse> getTimeTableByClass(Long id, Pageable pageable) {
-        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy lớp với id:" + id));
+        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
         User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         if (ClassValidator.isMentorOfClass(currentUser, clazz) || ClassValidator.isStudentOfClass(clazz, currentUser)) {
             List<TimeTable> timeTables = clazz.getTimeTables();
@@ -68,7 +75,7 @@ public class TimeTableServiceImpl implements ITimeTableService {
 
     private TimeTable getOrThrow(Long id) {
         return timeTableRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Thời khóa biểu không tồn tại, vui lòng thử lại!"));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(TIME_TABLE_NOT_FOUND_BY_ID) + id));
     }
 
     private Boolean isValidTimeTable(TimeTable timeTable, Class clazz) {
