@@ -17,7 +17,6 @@ import fpt.project.bsmart.validator.ClassValidator;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -240,7 +239,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         if (!Objects.equals(subCourseMentor.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
-        activity.setIsVisible(!activity.getIsVisible());
+        activity.setVisible(!activity.getVisible());
         return true;
     }
 
@@ -260,7 +259,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
 
         Activity activity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
         activity.setName(activityRequest.getName());
-        activity.setIsVisible(activityRequest.getIsVisible());
+        activity.setVisible(activityRequest.getIsVisible());
         activity.setClassSection(classSection);
         String code = activityType.getCode();
         switch (code) {

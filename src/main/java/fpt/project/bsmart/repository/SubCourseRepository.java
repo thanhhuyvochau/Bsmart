@@ -2,7 +2,6 @@ package fpt.project.bsmart.repository;
 
 import fpt.project.bsmart.entity.Course;
 import fpt.project.bsmart.entity.Image;
-import fpt.project.bsmart.entity.SubCourse;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import org.springframework.data.domain.Page;

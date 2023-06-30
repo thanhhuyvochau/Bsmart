@@ -1,6 +1,5 @@
 package fpt.project.bsmart.config.cron;
 
-import fpt.project.bsmart.entity.ActivityType;
 import fpt.project.bsmart.entity.DayOfWeek;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;

@@ -1,6 +1,10 @@
 package fpt.project.bsmart.entity;
 
+import fpt.project.bsmart.entity.constant.ECourseActivityType;
+
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "activity")
@@ -12,23 +16,28 @@ public class Activity extends BaseEntity {
     private String name;
     @ManyToOne
     @JoinColumn(name = "type_id")
-    private ActivityType type;
+    private ECourseActivityType type;
     @Column(name = "is_visible")
-    private Boolean isVisible;
-    @OneToOne(mappedBy = "activity")
+    private Boolean visible;
+    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
     private Quiz quiz;
     @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
     private Assignment assignment;
+    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
+    private Lesson lesson;
+    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
+    private Resource resource;
+    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
+    private ClassAnnouncement announcement;
+    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
+    private Section section;
     @ManyToOne
-    @JoinColumn(name = "class_section_id")
-    private ClassSection classSection;
-
-    public Activity(String name, ActivityType type, Boolean isVisible, ClassSection classSection) {
-        this.name = name;
-        this.type = type;
-        this.isVisible = isVisible;
-        this.classSection = classSection;
-    }
+    @JoinColumn(name = "parent_id")
+    private Activity parent;
+    @OneToMany(mappedBy = "parent")
+    private List<Activity> children = new ArrayList<>();
+    @OneToMany(mappedBy = "authorizeClass", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ActivityAuthorize> activityAuthorizes = new ArrayList<>();
 
     public Activity() {
     }
@@ -49,20 +58,13 @@ public class Activity extends BaseEntity {
         this.name = name;
     }
 
-    public ActivityType getType() {
-        return type;
+
+    public Boolean getVisible() {
+        return visible;
     }
 
-    public void setType(ActivityType type) {
-        this.type = type;
-    }
-
-    public Boolean getIsVisible() {
-        return isVisible;
-    }
-
-    public void setIsVisible(Boolean visible) {
-        isVisible = visible;
+    public void setVisible(Boolean visible) {
+        this.visible = visible;
     }
 
     public Quiz getQuiz() {
@@ -81,11 +83,67 @@ public class Activity extends BaseEntity {
         this.assignment = assignment;
     }
 
-    public ClassSection getClassSection() {
-        return classSection;
+    public ECourseActivityType getType() {
+        return type;
     }
 
-    public void setClassSection(ClassSection classSection) {
-        this.classSection = classSection;
+    public void setType(ECourseActivityType type) {
+        this.type = type;
+    }
+
+    public Section getSection() {
+        return section;
+    }
+
+    public void setSection(Section section) {
+        this.section = section;
+    }
+
+    public Activity getParent() {
+        return parent;
+    }
+
+    public void setParent(Activity parent) {
+        this.parent = parent;
+    }
+
+    public List<Activity> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Activity> children) {
+        this.children = children;
+    }
+
+    public Lesson getLesson() {
+        return lesson;
+    }
+
+    public void setLesson(Lesson lesson) {
+        this.lesson = lesson;
+    }
+
+    public Resource getResource() {
+        return resource;
+    }
+
+    public void setResource(Resource resource) {
+        this.resource = resource;
+    }
+
+    public ClassAnnouncement getAnnouncement() {
+        return announcement;
+    }
+
+    public void setAnnouncement(ClassAnnouncement announcement) {
+        this.announcement = announcement;
+    }
+
+    public List<ActivityAuthorize> getActivityAuthorizes() {
+        return activityAuthorizes;
+    }
+
+    public void setActivityAuthorizes(List<ActivityAuthorize> activityAuthorizes) {
+        this.activityAuthorizes = activityAuthorizes;
     }
 }

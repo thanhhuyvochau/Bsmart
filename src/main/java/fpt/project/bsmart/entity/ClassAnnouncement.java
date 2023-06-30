@@ -8,9 +8,6 @@ public class ClassAnnouncement extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "class_id")
-    private Class clazz;
     @Column(name = "content")
     @Lob
     private String content;
@@ -18,6 +15,9 @@ public class ClassAnnouncement extends BaseEntity {
     private String title;
     @Column(name = "visible")
     private Boolean visible = false;
+    @OneToOne
+    @JoinColumn(name = "activity_id")
+    private Activity activity;
 
     public Long getId() {
         return id;
@@ -27,12 +27,12 @@ public class ClassAnnouncement extends BaseEntity {
         this.id = id;
     }
 
-    public Class getClazz() {
-        return clazz;
+    public Activity getActivity() {
+        return activity;
     }
 
-    public void setClazz(Class clazz) {
-        this.clazz = clazz;
+    public void setActivity(Activity activity) {
+        this.activity = activity;
     }
 
     public String getContent() {

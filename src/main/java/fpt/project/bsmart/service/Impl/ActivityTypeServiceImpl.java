@@ -1,6 +1,5 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.ActivityType;
 import fpt.project.bsmart.entity.dto.ActivityTypeDto;
 import fpt.project.bsmart.repository.ActivityTypeRepository;
 import fpt.project.bsmart.service.ActivityTypeService;

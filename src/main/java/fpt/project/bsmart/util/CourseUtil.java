@@ -2,7 +2,6 @@ package fpt.project.bsmart.util;
 
 
 import fpt.project.bsmart.entity.MentorProfile;
-import fpt.project.bsmart.entity.SubCourse;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EOrderStatus;

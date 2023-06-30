@@ -2,7 +2,6 @@ package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.entity.DayOfWeek;
 import fpt.project.bsmart.entity.Slot;
-import fpt.project.bsmart.entity.SubCourse;
 import fpt.project.bsmart.entity.TimeInWeek;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.request.SubCourseTimeRequest;
