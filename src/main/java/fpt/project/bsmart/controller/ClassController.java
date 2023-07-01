@@ -80,10 +80,10 @@ public class ClassController {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getDetailClass(id)));
     }
 
-    @GetMapping("/{id}/time-tables")
-    public ResponseEntity<ApiResponse<ApiPage<TimeTableResponse>>> getTimeTables(Long id, Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(timeTableService.getTimeTableByClass(id, pageable)));
-    }
+//    @GetMapping("/{id}/time-tables")
+//    public ResponseEntity<ApiResponse<ApiPage<TimeTableResponse>>> getTimeTables(Long id, Pageable pageable) {
+//        return ResponseEntity.ok(ApiResponse.success(timeTableService.getTimeTableByClass(id, pageable)));
+//    }
 
     @PostMapping("/{id}/class-sections")
     public ResponseEntity<ApiResponse<ClassSectionDto>> createClassSection(@RequestBody ClassSectionCreateRequest request, @PathVariable Long id) {
@@ -106,28 +106,28 @@ public class ClassController {
     }
 
 
-    @GetMapping("/{id}/announcements")
-    public ResponseEntity<ApiResponse<ApiPage<SimpleClassAnnouncementResponse>>> getAnnouncements(@PathVariable("id") Long id, Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.getAllClassAnnouncements(id, pageable)));
-    }
-
-    @GetMapping("/{id}/announcements/{announcement-id}")
-    public ResponseEntity<ApiResponse<ClassAnnouncementDto>> getAnnouncement(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId) {
-        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.getClassAnnouncementById(id, classAnnouncementId)));
-    }
-
-    @PostMapping("/{id}/announcements")
-    public ResponseEntity<ApiResponse<ClassAnnouncementDto>> createAnnouncements(@PathVariable("id") Long id, @RequestBody ClassAnnouncementRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.saveClassAnnouncement(id, request)));
-    }
-
-    @PutMapping("/{id}/announcements/{announcement-id}")
-    public ResponseEntity<ApiResponse<ClassAnnouncementDto>> updateAnnouncements(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId, @RequestBody ClassAnnouncementRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.updateClassAnnouncement(id, classAnnouncementId, request)));
-    }
-
-    @DeleteMapping("/{id}/announcements/{announcement-id}")
-    public ResponseEntity<ApiResponse<Boolean>> deleteAnnouncements(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId) {
-        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.deleteClassAnnouncement(id, classAnnouncementId)));
-    }
+//    @GetMapping("/{id}/announcements")
+//    public ResponseEntity<ApiResponse<ApiPage<SimpleClassAnnouncementResponse>>> getAnnouncements(@PathVariable("id") Long id, Pageable pageable) {
+//        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.getAllClassAnnouncements(id, pageable)));
+//    }
+//
+//    @GetMapping("/{id}/announcements/{announcement-id}")
+//    public ResponseEntity<ApiResponse<ClassAnnouncementDto>> getAnnouncement(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId) {
+//        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.getClassAnnouncementById(id, classAnnouncementId)));
+//    }
+//
+//    @PostMapping("/{id}/announcements")
+//    public ResponseEntity<ApiResponse<ClassAnnouncementDto>> createAnnouncements(@PathVariable("id") Long id, @RequestBody ClassAnnouncementRequest request) {
+//        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.saveClassAnnouncement(id, request)));
+//    }
+//
+//    @PutMapping("/{id}/announcements/{announcement-id}")
+//    public ResponseEntity<ApiResponse<ClassAnnouncementDto>> updateAnnouncements(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId, @RequestBody ClassAnnouncementRequest request) {
+//        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.updateClassAnnouncement(id, classAnnouncementId, request)));
+//    }
+//
+//    @DeleteMapping("/{id}/announcements/{announcement-id}")
+//    public ResponseEntity<ApiResponse<Boolean>> deleteAnnouncements(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId) {
+//        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.deleteClassAnnouncement(id, classAnnouncementId)));
+//    }
 }

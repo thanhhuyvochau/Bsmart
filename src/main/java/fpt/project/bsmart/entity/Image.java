@@ -22,8 +22,8 @@ public class Image extends BaseEntity {
     @Column(name = "status")
     private boolean status;
 
-    @OneToOne(mappedBy = "image")
-    private SubCourse subCourse;
+//    @OneToOne(mappedBy = "image")
+//    private SubCourse subCourse;
 
     @ManyToOne
     @JoinColumn(name = "report_id")
@@ -62,13 +62,13 @@ public class Image extends BaseEntity {
         this.status = status;
     }
 
-    public SubCourse getSubCourse() {
-        return subCourse;
-    }
-
-    public void setSubCourse(SubCourse subCourse) {
-        this.subCourse = subCourse;
-    }
+//    public SubCourse getSubCourse() {
+//        return subCourse;
+//    }
+//
+//    public void setSubCourse(SubCourse subCourse) {
+//        this.subCourse = subCourse;
+//    }
 
 
     public String getUrl() {

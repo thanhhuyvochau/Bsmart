@@ -77,17 +77,17 @@ public class CourseSpecificationBuilder {
         return this;
     }
 
-    public CourseSpecificationBuilder queryBySubCourseType(List<ETypeLearn> types) {
-        if (types == null || types.isEmpty()) {
-            return this;
-        }
-        specifications.add((root, query, criteriaBuilder) -> {
-            Join<Course, SubCourse> courseSubjectJoin = root.join(Course_.SUB_COURSES, JoinType.INNER);
-
-            return criteriaBuilder.and(courseSubjectJoin.get(SubCourse_.TYPE_LEARN).in(types));
-        });
-        return this;
-    }
+//    public CourseSpecificationBuilder queryBySubCourseType(List<ETypeLearn> types) {
+//        if (types == null || types.isEmpty()) {
+//            return this;
+//        }
+//        specifications.add((root, query, criteriaBuilder) -> {
+//            Join<Course, SubCourse> courseSubjectJoin = root.join(Course_.SUB_COURSES, JoinType.INNER);
+//
+//            return criteriaBuilder.and(courseSubjectJoin.get(SubCourse_.TYPE_LEARN).in(types));
+//        });
+//        return this;
+//    }
 
 
     public Specification<Course> build() {

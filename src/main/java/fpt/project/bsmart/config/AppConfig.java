@@ -43,10 +43,14 @@ public class AppConfig {
     @Bean
     @Primary
     public ObjectMapper objectMapper() {
+        JavaTimeModule module = new JavaTimeModule();
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
-        objectMapper.registerModule(new JavaTimeModule()) ;
+
+        objectMapper.registerModule(module);
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+
         return objectMapper;
     }
 }

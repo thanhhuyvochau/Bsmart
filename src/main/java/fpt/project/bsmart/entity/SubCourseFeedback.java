@@ -9,9 +9,9 @@ public class SubCourseFeedback {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "sub_course_id")
-    private SubCourse subCourse;
+//    @ManyToOne
+//    @JoinColumn(name = "sub_course_id")
+//    private SubCourse subCourse;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "feedback_answer")
     private FeedbackAnswer feedbackAnswer;
@@ -31,13 +31,13 @@ public class SubCourseFeedback {
         this.id = id;
     }
 
-    public SubCourse getSubCourse() {
-        return subCourse;
-    }
-
-    public void setSubCourse(SubCourse subCourse) {
-        this.subCourse = subCourse;
-    }
+//    public SubCourse getSubCourse() {
+//        return subCourse;
+//    }
+//
+//    public void setSubCourse(SubCourse subCourse) {
+//        this.subCourse = subCourse;
+//    }
 
     public FeedbackAnswer getFeedbackAnswer() {
         return feedbackAnswer;

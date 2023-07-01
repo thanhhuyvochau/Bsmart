@@ -22,10 +22,10 @@ public class ReferralCodeUtil {
         ReferralCodeUtil.referralCodeRepository = referralCodeRepository;
     }
 
-    public static boolean checkCourseToGenerateReferral(SubCourse subCourse) {
-        List<OrderDetail> orderDetails = subCourse.getOrderDetails();
-        return orderDetails.size() < subCourse.getNumberReferralCode() && subCourse.isHasReferralCode();
-    }
+//    public static boolean checkCourseToGenerateReferral(SubCourse subCourse) {
+//        List<OrderDetail> orderDetails = subCourse.getOrderDetails();
+//        return orderDetails.size() < subCourse.getNumberReferralCode() && subCourse.isHasReferralCode();
+//    }
 
 
     public static void generateRandomReferralCode(OrderDetail orderDetail, User owner) {

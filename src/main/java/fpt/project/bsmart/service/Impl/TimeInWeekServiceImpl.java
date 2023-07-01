@@ -2,7 +2,6 @@ package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.entity.DayOfWeek;
 import fpt.project.bsmart.entity.Slot;
-import fpt.project.bsmart.entity.SubCourse;
 import fpt.project.bsmart.entity.TimeInWeek;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.request.SubCourseTimeRequest;
@@ -33,15 +32,15 @@ public class TimeInWeekServiceImpl implements ITimeInWeekService {
     private final ClassRepository classRepository;
     private final MessageUtil messageUtil;
 
-    private final SubCourseRepository subCourseRepository;
 
-    public TimeInWeekServiceImpl(TimeInWeekRepository timeInWeekRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, ClassRepository classRepository, MessageUtil messageUtil, SubCourseRepository subCourseRepository) {
+
+    public TimeInWeekServiceImpl(TimeInWeekRepository timeInWeekRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, ClassRepository classRepository, MessageUtil messageUtil) {
         this.timeInWeekRepository = timeInWeekRepository;
         this.dayOfWeekRepository = dayOfWeekRepository;
         this.slotRepository = slotRepository;
         this.classRepository = classRepository;
         this.messageUtil = messageUtil;
-        this.subCourseRepository = subCourseRepository;
+
     }
 
 //    @Override
@@ -55,11 +54,11 @@ public class TimeInWeekServiceImpl implements ITimeInWeekService {
 
     @Override
     public Boolean createTimeInWeek(SubCourseTimeRequest request) {
-        SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
-        if (!subCourse.getTimeInWeeks().isEmpty()) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUB_COURSE_CAN_NOT_CREATE_TIME_IN_WEEK));
-        }
+//        SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
+//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
+//        if (!subCourse.getTimeInWeeks().isEmpty()) {
+//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUB_COURSE_CAN_NOT_CREATE_TIME_IN_WEEK));
+//        }
         List<TimeInWeekRequest> timeInWeekRequests = request.getTimeInWeekRequests();
         TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
         if (duplicateElement == null) {
@@ -77,8 +76,8 @@ public class TimeInWeekServiceImpl implements ITimeInWeekService {
                         .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SLOT_NOT_FOUND_BY_ID) + timeInWeekRequest.getSlotId()));
                 timeInWeek.setSlot(slot);
 
-                timeInWeek.setSubCourse(subCourse);
-                subCourse.addTimeInWeek(timeInWeek);
+//                timeInWeek.setSubCourse(subCourse);
+//                subCourse.addTimeInWeek(timeInWeek);
             }
             return true;
         } else {

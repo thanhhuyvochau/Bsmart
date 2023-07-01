@@ -1,11 +1,10 @@
 package fpt.project.bsmart.config.cron;
 
-import fpt.project.bsmart.entity.ActivityType;
 import fpt.project.bsmart.entity.DayOfWeek;
 import fpt.project.bsmart.entity.Role;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.constant.EUserRole;
-import fpt.project.bsmart.repository.ActivityTypeRepository;
+
 import fpt.project.bsmart.repository.DayOfWeekRepository;
 import fpt.project.bsmart.repository.RoleRepository;
 import org.springframework.context.annotation.Configuration;
@@ -22,15 +21,15 @@ public class ScheduleJobConfig {
 
     private final DayOfWeekRepository dayOfWeekRepository;
 
-    private final ActivityTypeRepository activityTypeRepository;
+
 
     private final RoleRepository roleRepository;
 
-    public ScheduleJobConfig(DayOfWeekRepository dayOfWeekRepository, ActivityTypeRepository activityTypeRepository, RoleRepository roleRepository) {
+    public ScheduleJobConfig(DayOfWeekRepository dayOfWeekRepository, RoleRepository roleRepository) {
         this.dayOfWeekRepository = dayOfWeekRepository;
-        this.activityTypeRepository = activityTypeRepository;
         this.roleRepository = roleRepository;
     }
+
 
     @Scheduled(fixedDelay = 20 * 60 * 1000)
     private void initializeDayOfWeekIfNotExist() {
@@ -52,18 +51,18 @@ public class ScheduleJobConfig {
         }
     }
 
-    @Scheduled(fixedDelay = 20 * 60 * 1000)
-    private void initializeActivityTypeIfNotExist() {
-
-        System.out.println("START INITIALIZE ACTIVITY TYPE");
-        List<ActivityType> newActivityType = Arrays.asList(
-                new ActivityType("QUIZ", "quiz"),
-                new ActivityType("ASSIGNMENT", "assignment")
-        );
-        newActivityType.stream()
-                .filter(activityType -> activityTypeRepository.findByCode(activityType.getCode()) == null)
-                .forEach(activityTypeRepository::save);
-    }
+//    @Scheduled(fixedDelay = 20 * 60 * 1000)
+//    private void initializeActivityTypeIfNotExist() {
+//
+//        System.out.println("START INITIALIZE ACTIVITY TYPE");
+//        List<ActivityType> newActivityType = Arrays.asList(
+//                new ActivityType("QUIZ", "quiz"),
+//                new ActivityType("ASSIGNMENT", "assignment")
+//        );
+//        newActivityType.stream()
+//                .filter(activityType -> activityTypeRepository.findByCode(activityType.getCode()) == null)
+//                .forEach(activityTypeRepository::save);
+//    }
 
     @Scheduled(fixedDelay = 20 * 60 * 1000)
     private void initializeRoleIfNotExist() {

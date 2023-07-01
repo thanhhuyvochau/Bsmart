@@ -6,8 +6,8 @@ import fpt.project.bsmart.entity.response.TimeTableResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface ITimeTableService {
-    Boolean editTimeTable(EditClassTimeTableRequest request);
-
-    ApiPage<TimeTableResponse> getTimeTableByClass(Long id, Pageable pageable);
+//    Boolean editTimeTable(EditClassTimeTableRequest request);
+//
+//    ApiPage<TimeTableResponse> getTimeTableByClass(Long id, Pageable pageable);
 
 }
