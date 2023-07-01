@@ -2,7 +2,6 @@ package fpt.project.bsmart.entity;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.ETypeLearn;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -41,9 +40,6 @@ public class Class extends BaseEntity {
     @Column(name = "price")
     private BigDecimal price;
 
-    @Column(name = "learn_type")
-    @Enumerated(EnumType.STRING)
-    private ETypeLearn typeLearn;
 
     @Column(name = "min_student")
     private Integer minStudent;
@@ -195,13 +191,7 @@ public class Class extends BaseEntity {
         this.price = price;
     }
 
-    public ETypeLearn getTypeLearn() {
-        return typeLearn;
-    }
 
-    public void setTypeLearn(ETypeLearn typeLearn) {
-        this.typeLearn = typeLearn;
-    }
 
     public Integer getMinStudent() {
         return minStudent;

@@ -139,7 +139,6 @@ public class ClassServiceImpl implements IClassService {
         }
         Class aClass = new Class();
         aClass.setNumberOfSlot(subCourseRequest.getNumberOfSlot());
-        aClass.setTypeLearn(subCourseRequest.getType());
         aClass.setMinStudent(subCourseRequest.getMinStudent());
         aClass.setMaxStudent(subCourseRequest.getMaxStudent());
         aClass.setStartDateExpected(subCourseRequest.getStartDateExpected());

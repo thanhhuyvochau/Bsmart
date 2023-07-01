@@ -1,8 +1,6 @@
 package fpt.project.bsmart.entity.request;
 
 
-import fpt.project.bsmart.entity.constant.ETypeLearn;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -27,7 +25,7 @@ public class CreateClassRequest implements Serializable {
 
     private BigDecimal price;
 
-    private ETypeLearn typeLearn;
+
 
     private Long courseId;
 
@@ -95,13 +93,7 @@ public class CreateClassRequest implements Serializable {
         this.price = price;
     }
 
-    public ETypeLearn getTypeLearn() {
-        return typeLearn;
-    }
 
-    public void setTypeLearn(ETypeLearn typeLearn) {
-        this.typeLearn = typeLearn;
-    }
 
 
     public Long getCourseId() {

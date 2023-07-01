@@ -3,7 +3,6 @@ package fpt.project.bsmart.entity.response;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 
@@ -28,7 +27,7 @@ public class SubCourseDetailResponse {
 
     private Instant endDateExpected ;
 
-    private ETypeLearn typeLearn;
+
 
     private int minStudent ;
 
@@ -104,13 +103,7 @@ public class SubCourseDetailResponse {
         this.endDateExpected = endDateExpected;
     }
 
-    public ETypeLearn getTypeLearn() {
-        return typeLearn;
-    }
 
-    public void setTypeLearn(ETypeLearn typeLearn) {
-        this.typeLearn = typeLearn;
-    }
 
     public int getMinStudent() {
         return minStudent;

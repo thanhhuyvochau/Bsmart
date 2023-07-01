@@ -38,11 +38,11 @@ import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_ROOT;
 @Transactional(rollbackFor = {Exception.class})
 public class CourseController {
 
-//    private final ICourseService iCourseService;
-//
-//    public CourseController(ICourseService iCourseService) throws JsonProcessingException {
-//        this.iCourseService = iCourseService;
-//    }
+    private final ICourseService iCourseService;
+
+    public CourseController(ICourseService iCourseService) throws JsonProcessingException {
+        this.iCourseService = iCourseService;
+    }
 
 //    @Operation(summary = "lấy tất cả các course theo subject id")
 //    @GetMapping("/subject/{subjectId}")
@@ -53,12 +53,12 @@ public class CourseController {
 //
 //    }
 
-//    @Operation(summary = "Get all courses for course page")
-//    @GetMapping
-//    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(
-//            @Nullable CourseSearchRequest query, Pageable pageable) {
-//        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(query, pageable)));
-//    }
+    @Operation(summary = "Get all courses for course page")
+    @GetMapping
+    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(
+            @Nullable CourseSearchRequest query, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(query, pageable)));
+    }
 //
 //    @Operation(summary = "lấy tất cả các subcourse theo course đô lên trang khoa học")
 //    @GetMapping("{id}/sub-courses")
