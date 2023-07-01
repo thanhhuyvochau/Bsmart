@@ -23,16 +23,16 @@ public class ClassSpecificationBuilder {
 
     private List<Specification<Class>> specifications = new ArrayList<>();
 
-    public ClassSpecificationBuilder searchByMentorName(String name) {
-        if (StringUtil.isNullOrEmpty(name)) {
-            return this;
-        }
-        specifications.add((root, query, criteriaBuilder) -> {
-            Join<Class, SubCourse> classSubCourseJoin = root.join(SubCourse_.MENTOR, JoinType.LEFT);
-            return criteriaBuilder.like(classSubCourseJoin.get(User_.FULL_NAME), "%" + name + "%");
-        });
-        return this;
-    }
+//    public ClassSpecificationBuilder searchByMentorName(String name) {
+//        if (StringUtil.isNullOrEmpty(name)) {
+//            return this;
+//        }
+//        specifications.add((root, query, criteriaBuilder) -> {
+//            Join<Class, SubCourse> classSubCourseJoin = root.join(SubCourse_.MENTOR, JoinType.LEFT);
+//            return criteriaBuilder.like(classSubCourseJoin.get(User_.FULL_NAME), "%" + name + "%");
+//        });
+//        return this;
+//    }
 
     public ClassSpecificationBuilder searchBySubCourseName(String name) {
         if (StringUtil.isNullOrEmpty(name)) {
@@ -69,27 +69,27 @@ public class ClassSpecificationBuilder {
         return this;
     }
 
-    public ClassSpecificationBuilder searchByClassName(String name) {
-        if (StringUtil.isNullOrEmpty(name)) {
-            return this;
-        }
-        specifications.add((root, query, criteriaBuilder) -> {
-            Path<SubCourse> subCoursePath = root.get(Class_.SUB_COURSE);
-            return criteriaBuilder.like(subCoursePath.get(SubCourse_.TITLE), "%" + name + "%");
-        });
-        return this;
-    }
+//    public ClassSpecificationBuilder searchByClassName(String name) {
+//        if (StringUtil.isNullOrEmpty(name)) {
+//            return this;
+//        }
+//        specifications.add((root, query, criteriaBuilder) -> {
+//            Path<SubCourse> subCoursePath = root.get(Class_.SUB_COURSE);
+//            return criteriaBuilder.like(subCoursePath.get(SubCourse_.TITLE), "%" + name + "%");
+//        });
+//        return this;
+//    }
 
-    public ClassSpecificationBuilder byMentor(User mentor) {
-        if (mentor == null) {
-            return this;
-        }
-        specifications.add((root, query, criteriaBuilder) -> {
-            Path<SubCourse> subCoursePath = root.get(Class_.SUB_COURSE);
-            return criteriaBuilder.equal(subCoursePath.get(SubCourse_.MENTOR), mentor);
-        });
-        return this;
-    }
+//    public ClassSpecificationBuilder byMentor(User mentor) {
+//        if (mentor == null) {
+//            return this;
+//        }
+//        specifications.add((root, query, criteriaBuilder) -> {
+//            Path<SubCourse> subCoursePath = root.get(Class_.SUB_COURSE);
+//            return criteriaBuilder.equal(subCoursePath.get(SubCourse_.MENTOR), mentor);
+//        });
+//        return this;
+//    }
 
     public ClassSpecificationBuilder byStudent(User student) {
         if (student == null) {

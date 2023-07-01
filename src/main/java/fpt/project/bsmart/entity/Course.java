@@ -26,14 +26,14 @@ public class Course {
     @JoinColumn(name = "subject_id")
     private Subject subject;
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<SubCourse> subCourses;
+    private List<Class> classes = new ArrayList<>();
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private ECourseStatus status;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Section> sections = new ArrayList<>();
+    private List<Activity> activities = new ArrayList<>();
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
@@ -80,29 +80,12 @@ public class Course {
         this.subject = subject;
     }
 
-
-    public List<SubCourse> getSubCourses() {
-        return subCourses;
-    }
-
-    public void setSubCourses(List<SubCourse> subCourses) {
-        this.subCourses = subCourses;
-    }
-
     public ECourseStatus getStatus() {
         return status;
     }
 
     public void setStatus(ECourseStatus status) {
         this.status = status;
-    }
-
-    public List<Section> getSections() {
-        return sections;
-    }
-
-    public void setSections(List<Section> sections) {
-        this.sections = sections;
     }
 
     public ECourseType getType() {

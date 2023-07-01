@@ -22,10 +22,10 @@ public class ActivityTypeController {
         this.activityTypeService = activityTypeService;
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<ActivityTypeDto>>> getAllActivityTypes() {
-
-
-        return ResponseEntity.ok(ApiResponse.success(activityTypeService.getAllActivityTypes()));
-    }
+//    @GetMapping
+//    public ResponseEntity<ApiResponse<List<ActivityTypeDto>>> getAllActivityTypes() {
+//
+//
+//        return ResponseEntity.ok(ApiResponse.success(activityTypeService.getAllActivityTypes()));
+//    }
 }

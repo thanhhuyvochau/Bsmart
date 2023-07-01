@@ -28,6 +28,10 @@ public class SecurityJsonViewControllerAdvice extends AbstractMappingJacksonResp
                 JSON_ROLE_VIEW = jsonRoleView;
             }
         }
+
+        void resetState() {
+            JSON_ROLE_VIEW = EUserRole.ANONYMOUS;
+        }
     }
 
     @Override
@@ -42,6 +46,7 @@ public class SecurityJsonViewControllerAdvice extends AbstractMappingJacksonResp
             Map<EUserRole, Class> mapping = View.MAPPING;
             Class jsonViewClass = mapping.get(jsonViewHolder.getJsonRoleView());
             bodyContainer.setSerializationView(jsonViewClass);
+            jsonViewHolder.resetState();
         }
     }
 

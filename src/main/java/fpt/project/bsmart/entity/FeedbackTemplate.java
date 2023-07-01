@@ -25,8 +25,8 @@ public class FeedbackTemplate {
     @Column(name = "feedback_type")
     private EFeedbackType feedbackType;
 
-    @OneToMany(mappedBy = "feedbackTemplate", cascade = CascadeType.ALL)
-    private List<SubCourse> subCourses = new ArrayList<>();
+//    @OneToMany(mappedBy = "feedbackTemplate", cascade = CascadeType.ALL)
+//    private List<SubCourse> subCourses = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -68,11 +68,11 @@ public class FeedbackTemplate {
         this.feedbackType = feedbackType;
     }
 
-    public List<SubCourse> getSubCourses() {
-        return subCourses;
-    }
-
-    public void setSubCourses(List<SubCourse> subCourses) {
-        this.subCourses = subCourses;
-    }
+//    public List<SubCourse> getSubCourses() {
+//        return subCourses;
+//    }
+//
+//    public void setSubCourses(List<SubCourse> subCourses) {
+//        this.subCourses = subCourses;
+//    }
 }

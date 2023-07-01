@@ -56,9 +56,9 @@ public class AttendanceServiceImpl implements AttendanceService {
         TimeTable timeTable = timeTableRepository.findById(request.getTimeTableId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(TIME_TABLE_NOT_FOUND_BY_ID) + request.getTimeTableId()));
         Class clazz = timeTable.getClazz();
-        if (!ClassValidator.isMentorOfClass(currentUser, clazz)) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS) + request.getTimeTableId());
-        }
+//        if (!ClassValidator.isMentorOfClass(currentUser, clazz)) {
+//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS) + request.getTimeTableId());
+//        }
         List<Attendance> attendanceList = timeTable.getAttendanceList();
         boolean attendanceListEmpty = attendanceList.isEmpty();
         if (attendanceListEmpty) {
@@ -128,9 +128,9 @@ public class AttendanceServiceImpl implements AttendanceService {
         TimeTable timeTable = timeTableRepository.findById(timeTableId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(TIME_TABLE_NOT_FOUND_BY_ID) + timeTableId));
         Class clazz = timeTable.getClazz();
-        if (!ClassValidator.isMentorOfClass(currentUser, clazz)) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
-        }
+//        if (!ClassValidator.isMentorOfClass(currentUser, clazz)) {
+//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
+//        }
         Map<Long, Attendance> attendanceMap = timeTable.getAttendanceList().stream()
                 .collect(Collectors.toMap(attendance -> attendance.getStudentClass().getId(), Function.identity()));
         List<StudentClass> studentClasses = clazz.getStudentClasses();
@@ -184,9 +184,9 @@ public class AttendanceServiceImpl implements AttendanceService {
             attendanceStudentDetailResponses.add(detailResponse);
         }
         AttendanceStudentResponse response = new AttendanceStudentResponse();
-        clazz.getSubCourse().getNumberOfSlot();
+//        clazz.getSubCourse().getNumberOfSlot();
         response.setAttendanceStudentDetails(attendanceStudentDetailResponses);
-        response.setAbsentPercentage(calculateAbsentPercentage(clazz.getSubCourse().getNumberOfSlot(), absentNum));
+//        response.setAbsentPercentage(calculateAbsentPercentage(clazz.getSubCourse().getNumberOfSlot(), absentNum));
         return response;
     }
 

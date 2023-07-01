@@ -1,17 +1,17 @@
 package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
-@Table(name = "section")
-public class Section {
+@Table(name = "activity_authorize")
+public class ActivityAuthorize extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "name")
-    private String name;
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "class_id")
+    private Class authorizeClass;
+    @ManyToOne
     @JoinColumn(name = "activity_id")
     private Activity activity;
 
@@ -23,12 +23,12 @@ public class Section {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public Class getAuthorizeClass() {
+        return authorizeClass;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAuthorizeClass(Class authorizeClass) {
+        this.authorizeClass = authorizeClass;
     }
 
     public Activity getActivity() {

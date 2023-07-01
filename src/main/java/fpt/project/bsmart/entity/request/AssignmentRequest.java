@@ -4,6 +4,8 @@ package fpt.project.bsmart.entity.request;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AssignmentRequest extends ActivityRequest {
 
@@ -19,7 +21,7 @@ public class AssignmentRequest extends ActivityRequest {
 
     private Integer maxFileSize = 5; // đơn vị MB
 
-    private MultipartFile[] attachFiles;
+    private List<MultipartFile> attachFiles = new ArrayList<>();
 
     private Boolean isOverWriteAttachFile = false;
     private Long passPoint = 5L;
@@ -72,11 +74,11 @@ public class AssignmentRequest extends ActivityRequest {
         this.maxFileSize = maxFileSize;
     }
 
-    public MultipartFile[] getAttachFiles() {
+    public List<MultipartFile> getAttachFiles() {
         return attachFiles;
     }
 
-    public void setAttachFiles(MultipartFile[] attachFiles) {
+    public void setAttachFiles(List<MultipartFile> attachFiles) {
         this.attachFiles = attachFiles;
     }
 

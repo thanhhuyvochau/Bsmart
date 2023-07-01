@@ -12,8 +12,9 @@ public class TimeInWeek {
     @JoinColumn(name = "dow_id")
     private DayOfWeek dayOfWeek;
     @ManyToOne
-    @JoinColumn(name = "sub_course_id")
-    private SubCourse subCourse;
+    @JoinColumn(name = "class_id")
+    private Class clazz;
+
     @ManyToOne
     @JoinColumn(name = "slot_id")
     private Slot slot;
@@ -34,12 +35,12 @@ public class TimeInWeek {
         this.dayOfWeek = dayOfWeek;
     }
 
-    public SubCourse getSubCourse() {
-        return subCourse;
+    public Class getClazz() {
+        return clazz;
     }
 
-    public void setSubCourse(SubCourse subCourse) {
-        this.subCourse = subCourse;
+    public void setClazz(Class clazz) {
+        this.clazz = clazz;
     }
 
     public Slot getSlot() {

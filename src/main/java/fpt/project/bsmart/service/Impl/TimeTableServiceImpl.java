@@ -42,35 +42,35 @@ public class TimeTableServiceImpl implements ITimeTableService {
         this.messageUtil = messageUtil;
     }
 
-    @Override
-    public Boolean editTimeTable(EditClassTimeTableRequest request) {
-        TimeTable timeTable = getOrThrow(request.getTimeTableId());
-        Class clazz = timeTable.getClazz();
+//    @Override
+//    public Boolean editTimeTable(EditClassTimeTableRequest request) {
+//        TimeTable timeTable = getOrThrow(request.getTimeTableId());
+//        Class clazz = timeTable.getClazz();
+//
+//        if (isValidTimeTable(timeTable, clazz)) {
+//
+//        } else {
+//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Dữ liệu chỉnh sửa thời khóa biểu không hợp lệ vui lòng thử lại");
+//        }
+//
+//        return null;
+//    }
 
-        if (isValidTimeTable(timeTable, clazz)) {
-
-        } else {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Dữ liệu chỉnh sửa thời khóa biểu không hợp lệ vui lòng thử lại");
-        }
-
-        return null;
-    }
-
-    @Override
-    public ApiPage<TimeTableResponse> getTimeTableByClass(Long id, Pageable pageable) {
-        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
-        User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
-        if (ClassValidator.isMentorOfClass(currentUser, clazz) || ClassValidator.isStudentOfClass(clazz, currentUser)) {
-            List<TimeTable> timeTables = clazz.getTimeTables();
-            List<TimeTableResponse> timeTableResponses = new ArrayList<>();
-            for (TimeTable timeTable : timeTables) {
-                TimeTableResponse timeTableResponse = ConvertUtil.convertTimeTableToResponse(timeTable);
-                timeTableResponses.add(timeTableResponse);
-            }
-            return PageUtil.convert(new PageImpl<>(timeTableResponses, pageable, timeTableResponses.size()));
-        }
-        return new ApiPage<>();
-    }
+//    @Override
+//    public ApiPage<TimeTableResponse> getTimeTableByClass(Long id, Pageable pageable) {
+//        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
+//        User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+//        if (ClassValidator.isMentorOfClass(currentUser, clazz) || ClassValidator.isStudentOfClass(clazz, currentUser)) {
+//            List<TimeTable> timeTables = clazz.getTimeTables();
+//            List<TimeTableResponse> timeTableResponses = new ArrayList<>();
+//            for (TimeTable timeTable : timeTables) {
+//                TimeTableResponse timeTableResponse = ConvertUtil.convertTimeTableToResponse(timeTable);
+//                timeTableResponses.add(timeTableResponse);
+//            }
+//            return PageUtil.convert(new PageImpl<>(timeTableResponses, pageable, timeTableResponses.size()));
+//        }
+//        return new ApiPage<>();
+//    }
 
 
     private TimeTable getOrThrow(Long id) {
@@ -78,23 +78,23 @@ public class TimeTableServiceImpl implements ITimeTableService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(TIME_TABLE_NOT_FOUND_BY_ID) + id));
     }
 
-    private Boolean isValidTimeTable(TimeTable timeTable, Class clazz) {
-        return this.isHasRightToEdit(clazz) && this.isClazzValidOfTimeTable(timeTable, clazz);
-    }
+//    private Boolean isValidTimeTable(TimeTable timeTable, Class clazz) {
+//        return this.isHasRightToEdit(clazz) && this.isClazzValidOfTimeTable(timeTable, clazz);
+//    }
 
-    private Boolean isHasRightToEdit(Class clazz) {
-        User currentUser = SecurityUtil.getCurrentUser();
-        User mentor = clazz.getSubCourse().getMentor();
-        boolean isManager = currentUser.getRoles().stream().anyMatch(role -> Objects.equals(role.getCode(), EUserRole.MANAGER));
+//    private Boolean isHasRightToEdit(Class clazz) {
+//        User currentUser = SecurityUtil.getCurrentUser();
+//        User mentor = clazz.getSubCourse().getMentor();
+//        boolean isManager = currentUser.getRoles().stream().anyMatch(role -> Objects.equals(role.getCode(), EUserRole.MANAGER));
 
-        if (Objects.equals(currentUser.getId(), mentor.getId())) {
-            return true;
-        } else if (isManager) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+//        if (Objects.equals(currentUser.getId(), mentor.getId())) {
+//            return true;
+//        } else if (isManager) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
 
     private Boolean isClazzValidOfTimeTable(TimeTable timeTable, Class clazz) {
         return Objects.equals(timeTable.getClazz().getId(), clazz.getId());

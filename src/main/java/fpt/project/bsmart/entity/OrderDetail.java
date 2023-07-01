@@ -12,8 +12,8 @@ public class OrderDetail extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "sub_course_id")
-    private SubCourse subCourse;
+    @JoinColumn(name = "class_id")
+    private Class clazz;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
@@ -33,14 +33,14 @@ public class OrderDetail extends BaseEntity {
         this.id = id;
     }
 
-    public SubCourse getSubCourse() {
-        return subCourse;
+
+    public Class getClazz() {
+        return clazz;
     }
 
-    public void setSubCourse(SubCourse subCourse) {
-        this.subCourse = subCourse;
+    public void setClazz(Class clazz) {
+        this.clazz = clazz;
     }
-
 
     public Order getOrder() {
         return order;

@@ -27,9 +27,9 @@ public class ClassUtil {
         if (nearestTimeTable.isPresent()) {
             TimeTable presentTimeTable = nearestTimeTable.get();
             Integer currentSlotNums = presentTimeTable.getCurrentSlotNums();
-            Integer numberOfSlot = clazz.getSubCourse().getNumberOfSlot();
-            double percentage = (double) currentSlotNums / (double) numberOfSlot;
-            return new ClassProgressTimeDto(currentSlotNums, BigDecimal.valueOf(percentage).setScale(2, RoundingMode.UP).doubleValue());
+//            Integer numberOfSlot = clazz.getSubCourse().getNumberOfSlot();
+//            double percentage = (double) currentSlotNums / (double) numberOfSlot;
+//            return new ClassProgressTimeDto(currentSlotNums, BigDecimal.valueOf(percentage).setScale(2, RoundingMode.UP).doubleValue());
         }
         return null;
     }

@@ -12,7 +12,7 @@ public class CartItemDto extends BaseEntity {
     private Cart cart;
 
 
-    private SubCourse subCourse;
+//    private SubCourse subCourse;
 
     private BigDecimal price = BigDecimal.ZERO;
 
@@ -32,13 +32,13 @@ public class CartItemDto extends BaseEntity {
         this.cart = cart;
     }
 
-    public SubCourse getSubCourse() {
-        return subCourse;
-    }
-
-    public void setSubCourse(SubCourse subCourse) {
-        this.subCourse = subCourse;
-    }
+//    public SubCourse getSubCourse() {
+//        return subCourse;
+//    }
+//
+//    public void setSubCourse(SubCourse subCourse) {
+//        this.subCourse = subCourse;
+//    }
 
     public BigDecimal getPrice() {
         return price;

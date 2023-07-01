@@ -13,9 +13,9 @@ public class CartItem extends BaseEntity {
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    @ManyToOne
-    @JoinColumn(name = "sub_course_id")
-    private SubCourse subCourse;
+//    @ManyToOne
+//    @JoinColumn(name = "sub_course_id")
+//    private SubCourse subCourse;
     @Column(name = "price")
     private BigDecimal price = BigDecimal.ZERO;
 
@@ -35,13 +35,13 @@ public class CartItem extends BaseEntity {
         this.cart = cart;
     }
 
-    public SubCourse getSubCourse() {
-        return subCourse;
-    }
-
-    public void setSubCourse(SubCourse subCourse) {
-        this.subCourse = subCourse;
-    }
+//    public SubCourse getSubCourse() {
+//        return subCourse;
+//    }
+//
+//    public void setSubCourse(SubCourse subCourse) {
+//        this.subCourse = subCourse;
+//    }
 
     public BigDecimal getPrice() {
         return price;

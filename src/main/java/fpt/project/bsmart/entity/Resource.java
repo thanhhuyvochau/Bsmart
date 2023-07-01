@@ -1,16 +1,15 @@
 package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
-@Table(name = "section")
-public class Section {
+@Table(name = "resource")
+public class Resource {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "name")
-    private String name;
+    @Column(name = "url")
+    private String url;
     @OneToOne
     @JoinColumn(name = "activity_id")
     private Activity activity;
@@ -23,12 +22,12 @@ public class Section {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUrl() {
+        return url;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public Activity getActivity() {

@@ -11,10 +11,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ClassValidator {
-    public static boolean isMentorOfClass(User currentUser, Class clazz) {
-        User mentor = clazz.getSubCourse().getMentor();
-        return Objects.equals(mentor.getId(), currentUser.getId());
-    }
+//    public static boolean isMentorOfClass(User currentUser, Class clazz) {
+//        User mentor = clazz.getSubCourse().getMentor();
+//        return Objects.equals(mentor.getId(), currentUser.getId());
+//    }
 
     public static Optional<StudentClass> isExistedStudentClass(Class clazz, Long studentClassId) {
         List<StudentClass> studentClasses = clazz.getStudentClasses();
@@ -26,16 +26,16 @@ public class ClassValidator {
         return userList.stream().anyMatch(u -> Objects.equals(u.getId(), user.getId()));
     }
 
-    public static boolean isMemberOfClass(Class clazz, User user) {
-        return isStudentOfClass(clazz, user) || isMentorOfClass(user, clazz);
-    }
+//    public static boolean isMemberOfClass(Class clazz, User user) {
+//        return isStudentOfClass(clazz, user) || isMentorOfClass(user, clazz);
+//    }
 
-    public static EUserRole isMemberOfClassAsRole(Class clazz, User user) {
-        if (isStudentOfClass(clazz, user)) {
-            return EUserRole.STUDENT;
-        } else if (isMentorOfClass(user, clazz)) {
-            return EUserRole.TEACHER;
-        }
-        return null;
-    }
+//    public static EUserRole isMemberOfClassAsRole(Class clazz, User user) {
+//        if (isStudentOfClass(clazz, user)) {
+//            return EUserRole.STUDENT;
+//        } else if (isMentorOfClass(user, clazz)) {
+//            return EUserRole.TEACHER;
+//        }
+//        return null;
+//    }
 }
