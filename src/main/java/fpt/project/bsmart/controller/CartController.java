@@ -14,23 +14,23 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
-    private final ICartService cartService;
+//    private final ICartService cartService;
 
-    public CartController(ICartService cartService) {
-        this.cartService = cartService;
-    }
+//    public CartController(ICartService cartService) {
+//        this.cartService = cartService;
+//    }
 
-    @Operation(summary = "Lấy thông tin giỏ hàng")
-    @GetMapping
-    public ResponseEntity<ApiResponse<CartResponse>> getCart() {
-        return ResponseEntity.ok(ApiResponse.success(cartService.getCarts()));
-    }
-
-    @Operation(summary = "Thêm hàng vào giỏ")
-    @PostMapping
-    public ResponseEntity<ApiResponse<Integer>> addCourseToCart(@Valid @RequestBody AddCartItemRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(cartService.addCourseToCart(request)));
-    }
+//    @Operation(summary = "Lấy thông tin giỏ hàng")
+//    @GetMapping
+//    public ResponseEntity<ApiResponse<CartResponse>> getCart() {
+//        return ResponseEntity.ok(ApiResponse.success(cartService.getCarts()));
+//    }
+//
+//    @Operation(summary = "Thêm hàng vào giỏ")
+//    @PostMapping
+//    public ResponseEntity<ApiResponse<Integer>> addCourseToCart(@Valid @RequestBody AddCartItemRequest request) {
+//        return ResponseEntity.ok(ApiResponse.success(cartService.addCourseToCart(request)));
+//    }
     //TODO: Tạm thời sẽ không cho cập nhật giỏ hàng vì mỗi hàng trong giỏ hàng sẽ là 1 sub course riêng biệt không được trùng nhau
 //    @Operation(summary = "Cập nhật hàng trong giỏ")
 //    @PutMapping
@@ -38,9 +38,9 @@ public class CartController {
 //        return ResponseEntity.ok(ApiResponse.success(cartService.updateCourseInCart(request)));
 //    }
 
-    @Operation(summary = "Xóa hàng trong giỏ")
-    @DeleteMapping
-    public ResponseEntity<ApiResponse<Integer>> deleteCartItem(@RequestBody DeleteCartItemRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(cartService.removeCourseToCart(request)));
-    }
+//    @Operation(summary = "Xóa hàng trong giỏ")
+//    @DeleteMapping
+//    public ResponseEntity<ApiResponse<Integer>> deleteCartItem(@RequestBody DeleteCartItemRequest request) {
+//        return ResponseEntity.ok(ApiResponse.success(cartService.removeCourseToCart(request)));
+//    }
 }

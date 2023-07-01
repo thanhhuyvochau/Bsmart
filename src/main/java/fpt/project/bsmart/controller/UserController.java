@@ -34,11 +34,11 @@ public class UserController {
     @Autowired
     private SimpMessagingTemplate template;
     private final IUserService iUserService;
-    private final IClassService classService;
+//    private final IClassService classService;
 
-    public UserController(IUserService iUserService, IClassService classService) {
+    public UserController(IUserService iUserService) {
         this.iUserService = iUserService;
-        this.classService = classService;
+
     }
 
 
@@ -110,9 +110,10 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(iUserService.registerAccount(createAccountRequest)));
     }
 
-    @Operation(summary = "Lấy lớp của học sinh / giáo viên")
-    @GetMapping("/classes")
-    public ResponseEntity<ApiResponse<ApiPage<SimpleClassResponse>>> getUserClasses(ClassFilterRequest request, Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(classService.getUserClasses(request, pageable)));
-    }
+//    @Operation(summary = "Lấy lớp của học sinh / giáo viên")
+//    @GetMapping("/classes")
+//    public ResponseEntity<ApiResponse<ApiPage<SimpleClassResponse>>> getUserClasses(ClassFilterRequest request, Pageable pageable) {
+//        return ResponseEntity.ok(ApiResponse.success(classService.getUserClasses(request, pageable)));
+//    }
+
 }

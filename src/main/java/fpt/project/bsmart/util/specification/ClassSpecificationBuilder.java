@@ -34,18 +34,18 @@ public class ClassSpecificationBuilder {
 //        return this;
 //    }
 
-    public ClassSpecificationBuilder searchBySubCourseName(String name) {
-        if (StringUtil.isNullOrEmpty(name)) {
-            return this;
-        }
-        specifications.add((root, query, criteriaBuilder) -> {
-            Expression<String> expression = root.get(SubCourse_.TITLE);
-            Expression<String> stringExpression = SpecificationUtil.concat(criteriaBuilder, " ", expression);
-            String search = name.replaceAll("\\s\\s", " ").trim();
-            return criteriaBuilder.like(stringExpression, "%" + search + "%");
-        });
-        return this;
-    }
+//    public ClassSpecificationBuilder searchBySubCourseName(String name) {
+//        if (StringUtil.isNullOrEmpty(name)) {
+//            return this;
+//        }
+//        specifications.add((root, query, criteriaBuilder) -> {
+//            Expression<String> expression = root.get(SubCourse_.TITLE);
+//            Expression<String> stringExpression = SpecificationUtil.concat(criteriaBuilder, " ", expression);
+//            String search = name.replaceAll("\\s\\s", " ").trim();
+//            return criteriaBuilder.like(stringExpression, "%" + search + "%");
+//        });
+//        return this;
+//    }
 
     public ClassSpecificationBuilder filterByStartDay(Instant startDate) {
         if (startDate == null) {
