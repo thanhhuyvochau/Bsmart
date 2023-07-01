@@ -1,53 +1,35 @@
 package fpt.project.bsmart.controller;
 
 
-import fpt.project.bsmart.entity.User;
-import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.dto.ClassAnnouncementDto;
-import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
-import fpt.project.bsmart.entity.dto.ClassSectionDto;
-import fpt.project.bsmart.entity.dto.SimpleClassAnnouncementResponse;
-import fpt.project.bsmart.entity.request.ClassAnnouncementRequest;
-import fpt.project.bsmart.entity.request.ClassFeedbackRequest;
-import fpt.project.bsmart.entity.request.ClassSectionCreateRequest;
-import fpt.project.bsmart.entity.request.ClassSectionUpdateRequest;
-import fpt.project.bsmart.entity.request.category.CreateClassRequest;
+import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.AttendanceStudentResponse;
-import fpt.project.bsmart.entity.response.ClassResponse;
-import fpt.project.bsmart.entity.response.SimpleClassResponse;
-import fpt.project.bsmart.entity.response.TimeTableResponse;
-import fpt.project.bsmart.service.AttendanceService;
-import fpt.project.bsmart.service.ClassAnnouncementService;
 import fpt.project.bsmart.service.IClassService;
-import fpt.project.bsmart.service.ITimeTableService;
-import fpt.project.bsmart.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
-import org.codehaus.jackson.map.ser.FilterProvider;
-import org.codehaus.jackson.map.ser.impl.SimpleFilterProvider;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.MappingJacksonValue;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Nullable;
 import javax.validation.Valid;
+import java.util.List;
 
 
 @RestController
 @RequestMapping("/api/classes")
 public class ClassController {
 
-//    private final IClassService iClassService;
-    private final AttendanceService attendanceService;
-    private final ITimeTableService timeTableService;
-    private final ClassAnnouncementService classAnnouncementService;
+    private final IClassService iClassService;
 
-    public ClassController( AttendanceService attendanceService, ITimeTableService timeTableService, ClassAnnouncementService classAnnouncementService) {
+    public ClassController(IClassService iClassService) {
+        this.iClassService = iClassService;
+    }
 
-        this.attendanceService = attendanceService;
-        this.timeTableService = timeTableService;
-        this.classAnnouncementService = classAnnouncementService;
+
+    @Operation(summary = "mentor tao khoá học của riêng mình ")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PostMapping
+    public ResponseEntity<ApiResponse<List<Long>>> mentorCreateCoursePrivate(@Valid @RequestBody MentorCreateClassRequest mentorCreateClassRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateCoursePrivate(mentorCreateClassRequest)));
     }
 
 //    @Operation(summary = "mentor tao lớp học")
@@ -68,11 +50,11 @@ public class ClassController {
 //        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassProgression(classId)));
 //    }
 
-    @Operation(summary = "Học sinh lấy điểm danh của lớp học")
-    @GetMapping("/{classId}/student/attendances")
-    public ResponseEntity<ApiResponse<AttendanceStudentResponse>> getDetailStudentAttendance(@PathVariable long classId) {
-        return ResponseEntity.ok(ApiResponse.success(attendanceService.getAttendanceByClassForStudent(classId)));
-    }
+//    @Operation(summary = "Học sinh lấy điểm danh của lớp học")
+//    @GetMapping("/{classId}/student/attendances")
+//    public ResponseEntity<ApiResponse<AttendanceStudentResponse>> getDetailStudentAttendance(@PathVariable long classId) {
+//        return ResponseEntity.ok(ApiResponse.success(attendanceService.getAttendanceByClassForStudent(classId)));
+//    }
 
 //    @Operation(summary = "Lấy lớp chi tiết")
 //    @GetMapping("/{id}")

@@ -2,14 +2,14 @@ package fpt.project.bsmart.entity.request;
 
 import java.util.List;
 
-public class CreateCourseRequest {
+public class MentorCreateClassRequest {
 
     private String name;
     private Long categoryId;
     private Long subjectId;
     private String description;
 
-    private List<CreateSubCourseRequest> subCourseRequests ;
+    private List<CreateClassInforRequest> createClassRequest ;
 
 
     public String getName() {
@@ -44,11 +44,11 @@ public class CreateCourseRequest {
         this.description = description;
     }
 
-    public List<CreateSubCourseRequest> getSubCourseRequests() {
-        return subCourseRequests;
+    public List<CreateClassInforRequest> getCreateClassRequest() {
+        return createClassRequest;
     }
 
-    public void setSubCourseRequests(List<CreateSubCourseRequest> subCourseRequests) {
-        this.subCourseRequests = subCourseRequests;
+    public void setCreateClassRequest(List<CreateClassInforRequest> createClassRequest) {
+        this.createClassRequest = createClassRequest;
     }
 }

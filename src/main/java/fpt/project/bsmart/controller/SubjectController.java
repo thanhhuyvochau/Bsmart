@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.request.SubjectRequest;
 import fpt.project.bsmart.service.ISubjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -54,5 +55,12 @@ public class SubjectController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Long>> deleteSubject(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iSubjectService.deleteSubject(id)));
+    }
+
+    @Operation(summary = "Lấy subject theo skill của mentor")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("mentor-skills")
+    public ResponseEntity<ApiResponse<List<SubjectDto>>> getSubjectsByMentorSkill(){
+        return ResponseEntity.ok(ApiResponse.success(iSubjectService.getSubjectsByMentorSkill()));
     }
 }

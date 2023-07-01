@@ -3,7 +3,6 @@ package fpt.project.bsmart.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.common.SimpleResult;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.CourseDto;
 import fpt.project.bsmart.entity.dto.course.CourseContentDto;
@@ -19,9 +18,9 @@ import java.util.List;
 public interface ICourseService {
 
     List<CourseDto> getCoursesBySubject(Long subjectId);
-    List<Long> mentorCreateCoursePrivate(CreateCourseRequest createCourseRequest);
+    List<Long> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest);
 
-    List<Long> mentorCreateCoursePublic(Long id  ,CreateCourseRequest createCourseRequest);
+    List<Long> mentorCreateCoursePublic(Long id  , MentorCreateClassRequest mentorCreateClassRequest);
     ApiPage<CourseSubCourseResponse> mentorGetAllCourse(ECourseStatus status  , Pageable pageable);
 
     ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest , Pageable pageable);

@@ -1,24 +1,27 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.Category;
-import fpt.project.bsmart.entity.Subject;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.request.SubjectRequest;
 import fpt.project.bsmart.repository.CategoryRepository;
+import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
 import fpt.project.bsmart.service.ISubjectService;
 import fpt.project.bsmart.util.MessageUtil;
+import fpt.project.bsmart.util.SecurityUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_BY_ID;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.ConvertUtil.convertSubjectToSubjectDto;
+import static fpt.project.bsmart.util.MentorUtil.checkIsMentor;
 
 
 @Service
@@ -28,10 +31,14 @@ public class SubjectServiceImpl implements ISubjectService {
 
     private final MessageUtil messageUtil;
 
-    public SubjectServiceImpl(SubjectRepository subjectRepository, CategoryRepository categoryRepository, MessageUtil messageUtil) {
+    private final MentorProfileRepository mentorProfileRepository;
+
+
+    public SubjectServiceImpl(SubjectRepository subjectRepository, CategoryRepository categoryRepository, MessageUtil messageUtil, MentorProfileRepository mentorProfileRepository) {
         this.subjectRepository = subjectRepository;
         this.categoryRepository = categoryRepository;
         this.messageUtil = messageUtil;
+        this.mentorProfileRepository = mentorProfileRepository;
     }
 
 
@@ -106,6 +113,21 @@ public class SubjectServiceImpl implements ISubjectService {
         Subject subject = findById(id);
         subjectRepository.delete(subject);
         return id;
+    }
+
+    @Override
+    public List<SubjectDto> getSubjectsByMentorSkill() {
+        User user = checkIsMentor();
+
+        MentorProfile mentorProfile = user.getMentorProfile();
+        List<SubjectDto> subjectDtoList = new ArrayList<>();
+
+        List<MentorSkill> skills = mentorProfile.getSkills();
+        List<Subject> skillList = skills.stream().map(MentorSkill::getSkill).collect(Collectors.toList());
+        skillList.forEach(subject -> {
+            subjectDtoList.add(convertSubjectToSubjectDto(subject));
+        });
+        return subjectDtoList;
     }
 
 

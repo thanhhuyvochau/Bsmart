@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateSubCourseRequest {
+public class CreateClassInforRequest {
 
     private ECourseLevel level;
 

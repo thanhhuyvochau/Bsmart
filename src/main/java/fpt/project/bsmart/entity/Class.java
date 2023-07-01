@@ -70,7 +70,7 @@ public class Class extends BaseEntity {
     private FeedbackTemplate feedbackTemplate;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id", referencedColumnName = "id")
-    private Image image;
+    private ClassImage classImage;
 
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimeInWeek> timeInWeeks = new ArrayList<>();
@@ -259,12 +259,12 @@ public class Class extends BaseEntity {
         this.feedbackTemplate = feedbackTemplate;
     }
 
-    public Image getImage() {
-        return image;
+    public ClassImage getClassImage() {
+        return classImage;
     }
 
-    public void setImage(Image image) {
-        this.image = image;
+    public void setClassImage(ClassImage classImage) {
+        this.classImage = classImage;
     }
 
     public List<TimeInWeek> getTimeInWeeks() {

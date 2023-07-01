@@ -1,45 +1,246 @@
-//package fpt.project.bsmart.service.Impl;
-//
-//import fpt.project.bsmart.entity.Class;
-//import fpt.project.bsmart.entity.*;
-//import fpt.project.bsmart.entity.common.ApiException;
-//import fpt.project.bsmart.entity.common.ApiPage;
-//import fpt.project.bsmart.entity.constant.EOrderStatus;
-//import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
-//import fpt.project.bsmart.entity.dto.ClassSectionDto;
-//import fpt.project.bsmart.entity.request.ClassFeedbackRequest;
-//import fpt.project.bsmart.entity.request.ClassFilterRequest;
-//import fpt.project.bsmart.entity.request.ClassSectionCreateRequest;
-//import fpt.project.bsmart.entity.request.ClassSectionUpdateRequest;
-//import fpt.project.bsmart.entity.request.category.CreateClassRequest;
-//import fpt.project.bsmart.entity.response.ClassResponse;
-//import fpt.project.bsmart.entity.response.SimpleClassResponse;
-//import fpt.project.bsmart.repository.*;
-//import fpt.project.bsmart.service.IClassService;
-//import fpt.project.bsmart.util.*;
-//import fpt.project.bsmart.util.specification.ClassSpecificationBuilder;
-//import fpt.project.bsmart.validator.ClassValidator;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.PageImpl;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.data.jpa.domain.Specification;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.stereotype.Service;
-//
-//import javax.transaction.Transactional;
-//import java.time.Instant;
-//import java.util.List;
-//import java.util.Objects;
-//import java.util.Optional;
-//import java.util.stream.Collectors;
-//
-//import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
-//import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_CLASS_ID;
-//import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_PARAMETER_VALUE;
-//
-//@Service
-//@Transactional
-//public class ClassServiceImpl implements IClassService {
+package fpt.project.bsmart.service.Impl;
+
+import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
+import fpt.project.bsmart.entity.request.CreateClassInforRequest;
+import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
+import fpt.project.bsmart.entity.request.TimeInWeekRequest;
+import fpt.project.bsmart.repository.*;
+import fpt.project.bsmart.service.IClassService;
+import fpt.project.bsmart.util.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+
+
+@Service
+@Transactional
+public class ClassServiceImpl implements IClassService {
+
+    private final MessageUtil messageUtil;
+    private final CategoryRepository categoryRepository;
+
+    private final ClassRepository classRepository;
+
+    private final DayOfWeekRepository dayOfWeekRepository;
+    private final SlotRepository slotRepository;
+
+
+    private final CourseRepository courseRepository;
+
+    private final ClassImageRepository classImageRepository;
+
+    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository) {
+        this.messageUtil = messageUtil;
+        this.categoryRepository = categoryRepository;
+        this.classRepository = classRepository;
+        this.dayOfWeekRepository = dayOfWeekRepository;
+        this.slotRepository = slotRepository;
+        this.courseRepository = courseRepository;
+        this.classImageRepository = classImageRepository;
+    }
+
+    /**
+     * mentor create class for course (private)
+     * Step 1 : create course information
+     * - load subject from skill of mentor to set value for course
+     * Step 2 : create class information and time in week
+     *
+     * @return List<Long> list id of class created
+     */
+    @Override
+    public List<Long> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest) {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        // Step 1
+        Course course = createCourseFromRequest(currentUserAccountLogin, mentorCreateClassRequest);
+        // Step 2
+        return createClassAndTimeInWeek(currentUserAccountLogin, course, mentorCreateClassRequest);
+    }
+
+    private Course createCourseFromRequest(User currentUserAccountLogin, MentorCreateClassRequest mentorCreateClassRequest) {
+        Long categoryId = mentorCreateClassRequest.getCategoryId();
+        if (categoryId == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE));
+        }
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + categoryId));
+
+        Long subjectId = mentorCreateClassRequest.getSubjectId();
+        if (subjectId == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE));
+        }
+        Optional<Subject> optionalSubject = category.getSubjects().stream().filter(s -> s.getId().equals(subjectId)).findFirst();
+        Subject subject = optionalSubject.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                .withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + subjectId));
+
+        Course course = new Course();
+        course.setName(mentorCreateClassRequest.getName());
+        course.setCode(CourseUtil.generateRandomCode(8));
+        course.setDescription(mentorCreateClassRequest.getDescription());
+        course.setSubject(subject);
+        course.setStatus(REQUESTING);
+        course.setCreator(currentUserAccountLogin);
+
+        return course;
+    }
+
+    private List<Long> createClassAndTimeInWeek(User currentUserAccountLogin, Course course, MentorCreateClassRequest mentorCreateClassRequest) {
+        // check mentor account is valid
+        MentorUtil.checkIsMentor();
+
+
+        List<Long> classIds = new ArrayList<>();
+        List<CreateClassInforRequest> createClassInformationRequests = mentorCreateClassRequest.getCreateClassRequest();
+        List<Class> classes = new ArrayList<>();
+        createClassInformationRequests.forEach(createClassInforRequest -> {
+            List<TimeInWeekRequest> timeInWeekRequests = createClassInforRequest.getTimeInWeekRequests();
+
+            // create time in week for subCourse
+            List<TimeInWeek> timeInWeeksFromRequest = createTimeInWeeksFromRequest(timeInWeekRequests);
+
+            // create subCourse for course
+            Class classFromRequest = createClassFromRequest(createClassInforRequest, currentUserAccountLogin, timeInWeeksFromRequest);
+            classFromRequest.setCourse(course);
+
+            classes.add(classFromRequest);
+
+        });
+        course.setClasses(classes);
+        courseRepository.save(course);
+        // ghi log
+        classes.forEach(aClass -> {
+                    classIds.add(aClass.getId());
+                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
+                }
+        );
+        return classIds;
+    }
+
+    private Class createClassFromRequest(CreateClassInforRequest subCourseRequest, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
+        if (subCourseRequest.getPrice() == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE));
+        }
+        Class aClass = new Class();
+        aClass.setNumberOfSlot(subCourseRequest.getNumberOfSlot());
+        aClass.setTypeLearn(subCourseRequest.getType());
+        aClass.setMinStudent(subCourseRequest.getMinStudent());
+        aClass.setMaxStudent(subCourseRequest.getMaxStudent());
+        aClass.setStartDateExpected(subCourseRequest.getStartDateExpected());
+        aClass.setStatus(REQUESTING);
+        aClass.setTitle(subCourseRequest.getSubCourseTile());
+        aClass.setPrice(subCourseRequest.getPrice());
+        aClass.setLevel(subCourseRequest.getLevel());
+        aClass.setMentor(currentUserAccountLogin);
+
+        Long imageId = subCourseRequest.getImageId();
+        ClassImage classImage = classImageRepository.findById(imageId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + imageId));
+        aClass.setClassImage(classImage);
+        aClass.setTimeInWeeks(timeInWeeks);
+
+        if (subCourseRequest.getEndDateExpected() != null) {
+            Instant endDateExpected = subCourseRequest.getEndDateExpected();
+            int numberOfSlot = calNumberOfSlotByEndDate(subCourseRequest.getStartDateExpected(), endDateExpected, timeInWeeks);
+            aClass.setNumberOfSlot(numberOfSlot);
+            aClass.setEndDateExpected(endDateExpected);
+        } else if (subCourseRequest.getNumberOfSlot() != null) {
+            Integer numberOfSlot = subCourseRequest.getNumberOfSlot();
+            Instant endDateExpected = calEndDateByNumberOfSlot(subCourseRequest.getStartDateExpected(), numberOfSlot, timeInWeeks);
+            aClass.setNumberOfSlot(numberOfSlot);
+            aClass.setEndDateExpected(endDateExpected);
+        } else {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Lỗi không tìm thấy số lượng slot học hoặc ngày kết thúc");
+        }
+        return aClass;
+    }
+
+    private List<TimeInWeek> createTimeInWeeksFromRequest(List<TimeInWeekRequest> timeInWeekRequests) {
+        TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
+        if (duplicateElement != null) {
+            throw ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED);
+        }
+
+        List<Long> slotIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
+        List<Long> dowIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getDayOfWeekId).collect(Collectors.toList());
+
+        Map<Long, Slot> slotMap = slotRepository.findAllById(slotIds).stream()
+                .collect(Collectors.toMap(Slot::getId, Function.identity()));
+        Map<Long, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAllById(dowIds).stream()
+                .collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
+
+        List<TimeInWeek> timeInWeeks = new ArrayList<>();
+        for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
+            TimeInWeek timeInWeek = new TimeInWeek();
+            DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(DAY_OF_WEEK_COULD_NOT_BE_FOUND));
+            timeInWeek.setDayOfWeek(dayOfWeek);
+
+            Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(SLOT_COULD_NOT_BE_FOUND));
+            timeInWeek.setSlot(slot);
+
+            timeInWeeks.add(timeInWeek);
+        }
+        return timeInWeeks;
+    }
+
+    private int calNumberOfSlotByEndDate(Instant startDate, Instant endDate, List<TimeInWeek> timeInWeeks) {
+        List<EDayOfWeekCode> availableDOW = timeInWeeks.stream().map(timeInWeek -> timeInWeek.getDayOfWeek().getCode()).distinct().collect(Collectors.toList());
+        Instant date = startDate;
+        int numberOfSlot = 0;
+        while (date.isBefore(endDate) || date.equals(endDate)) {
+            EDayOfWeekCode dayOfWeekCode = TimeUtil.getDayOfWeek(date);
+            if (availableDOW.contains(dayOfWeekCode)) {
+                List<TimeInWeek> dateOfWeeks = timeInWeeks.stream().filter(timeInWeek -> Objects.equals(timeInWeek.getDayOfWeek().getCode(), dayOfWeekCode)).collect(Collectors.toList());
+                numberOfSlot = numberOfSlot + dateOfWeeks.size();
+            }
+            date = date.plus(1, ChronoUnit.DAYS);
+        }
+        return numberOfSlot;
+    }
+
+    private Instant calEndDateByNumberOfSlot(Instant startDate, int numberOfSlot, List<TimeInWeek> timeInWeeks) {
+        List<EDayOfWeekCode> availableDOW = timeInWeeks.stream().map(timeInWeek -> timeInWeek.getDayOfWeek().getCode()).distinct().collect(Collectors.toList());
+        Instant endDate = startDate;
+        int i = numberOfSlot;
+        while (i > 0) {
+            EDayOfWeekCode dayOfWeekCode = TimeUtil.getDayOfWeek(endDate);
+            if (dayOfWeekCode == null) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không thể nhận diện thứ trong tuần, lỗi hệ thống vui lòng liên hệ Admin!");
+            }
+            if (availableDOW.contains(dayOfWeekCode)) {
+                List<TimeInWeek> dateOfWeeks = timeInWeeks.stream().filter(timeInWeek -> Objects.equals(timeInWeek.getDayOfWeek().getCode(), dayOfWeekCode)).collect(Collectors.toList());
+                for (TimeInWeek dow : dateOfWeeks) {
+                    if (i <= 0) break;
+                    i--;
+                }
+            }
+            endDate = endDate.plus(1, ChronoUnit.DAYS);
+        }
+        return endDate;
+    }
+}
 //    private final MessageUtil messageUtil;
 //    private final CourseRepository courseRepository;
 //    private final OrderDetailRepository orderDetailRepository;
@@ -218,4 +419,4 @@
 //        }
 //        return true;
 //    }
-//}
+
