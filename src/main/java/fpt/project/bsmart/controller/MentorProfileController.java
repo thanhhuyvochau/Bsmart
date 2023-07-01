@@ -92,4 +92,11 @@ public class MentorProfileController {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getCompletenessMentorProfile()));
     }
 
+    @Operation(summary = "mentor gửi yêu cầu phê duệt tài khoản")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/{id}/request-approval")
+    public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalCourse(@PathVariable Long id) throws Exception {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorRequestApprovalAccount(id)));
+    }
+
 }

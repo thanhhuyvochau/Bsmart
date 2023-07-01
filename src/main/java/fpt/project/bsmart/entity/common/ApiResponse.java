@@ -54,6 +54,14 @@ public class ApiResponse<T> {
         return ret;
     }
 
+    public static <T> ApiResponse<T> failed(String errorMessage , T data) {
+        ApiResponse<T> ret = new ApiResponse<>();
+        ret.statusCode = Constants.FAILED;
+        ret.errorMessage = errorMessage;
+        ret.data = data ;
+        return ret;
+    }
+
     public String getStatusCode() {
         return statusCode;
     }

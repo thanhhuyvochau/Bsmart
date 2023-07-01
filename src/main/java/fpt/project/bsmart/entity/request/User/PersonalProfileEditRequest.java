@@ -5,19 +5,19 @@ import fpt.project.bsmart.entity.constant.EGenderType;
 import java.time.Instant;
 
 public class PersonalProfileEditRequest {
-    private String fullname;
+    private String fullName;
     private Instant birthday;
     private String address;
     private String phone;
 
     private EGenderType gender ;
 
-    public String getFullname() {
-        return fullname;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setFullname(String fullname) {
-        this.fullname = fullname;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public Instant getBirthday() {

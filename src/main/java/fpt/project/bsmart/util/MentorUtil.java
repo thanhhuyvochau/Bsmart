@@ -159,9 +159,7 @@ public class MentorUtil {
             completionPercentage++;
         }
 
-        if (user.getIsVerified()) {
-            completionPercentage++;
-        }
+
         List<UserImage> userImages = user.getUserImages();
 
         if (userImages != null) {
@@ -201,6 +199,10 @@ public class MentorUtil {
                 completionPercentage++;
             }
 
+        } else {
+            completionPercentage++;
+            completionPercentage++;
+            completionPercentage++;
         }
 
 
@@ -233,6 +235,10 @@ public class MentorUtil {
                 completionPercentage++;
             }
 
+        } else {
+            completionPercentage++;
+            completionPercentage++;
+            completionPercentage++;
         }
 
         requiredInfo.setFields(requiredInfoFiled);
@@ -243,10 +249,13 @@ public class MentorUtil {
 
         // Tính % hoàn thành dựa trên số lượng trường thông tin có giá trị
         completionPercentage = (int) Math.round(((double) completionPercentage / totalFields) * 100);
+
         CompletenessMentorProfileResponse response = new CompletenessMentorProfileResponse();
         response.setPercentComplete(completionPercentage);
         response.setMissingInformation(missingInformations);
-        response.setAllowSendingApproval(false);
+        response.setAllowSendingApproval(completionPercentage == 100 && requiredInfo.getFields().isEmpty());
+
+
         return response;
     }
 }

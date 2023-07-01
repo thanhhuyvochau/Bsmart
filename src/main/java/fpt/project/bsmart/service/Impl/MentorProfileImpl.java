@@ -1,12 +1,12 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.MentorProfile;
-import fpt.project.bsmart.entity.MentorSkill;
-import fpt.project.bsmart.entity.Subject;
-import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.common.ValidationErrors;
+import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
+import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.*;
@@ -211,4 +211,63 @@ public class MentorProfileImpl implements IMentorProfileService {
 
         return MentorUtil.checkCompletenessMentorProfile();
     }
+
+    @Override
+    public Boolean mentorRequestApprovalAccount(Long id) throws Exception {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+
+        MentorProfile mentorProfile = mentorProfileRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + id));
+
+        if (!currentUserAccountLogin.getMentorProfile().equals(mentorProfile)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(MENTOR_PROFILE_NOT_FOUND_BY_USER) );
+
+        }
+
+        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
+        }
+
+        List<Role> roles = currentUserAccountLogin.getRoles();
+        List<Boolean> checkRoleTeacher = roles.stream().map(role -> role.getCode().equals(EUserRole.TEACHER)).collect(Collectors.toList());
+
+        if (checkRoleTeacher.isEmpty()) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
+        }
+
+
+        ValidationErrors vaErr = new ValidationErrors();
+
+        CompletenessMentorProfileResponse response = MentorUtil.checkCompletenessMentorProfile();
+        List<CompletenessMentorProfileResponse.MissingInformation.RequiredInfo> requiredInfoList
+                = response.getMissingInformation().stream().map(CompletenessMentorProfileResponse.MissingInformation::getRequiredInfo).collect(Collectors.toList());
+        ValidationErrors.ValidationError validationError = new ValidationErrors.ValidationError() ;
+
+        ArrayList<String> invalidParams = new ArrayList<String>();
+
+        requiredInfoList.forEach(requiredInfo -> {
+            requiredInfo.getFields().stream()
+                    .map(CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field::getField)
+                    .findFirst()
+                    .ifPresent(invalidParams::add);
+
+        });
+        validationError.setMessage("Vui lòng cập nhật đây đủ thông tin trước khi yêu cầu phê duyệt tài khoản");
+        validationError.setInvalidParams(invalidParams);
+        vaErr.setError(validationError);
+
+        if (!invalidParams.isEmpty()) {
+            throw new ValidationErrorsException(vaErr.getError().getInvalidParams(), vaErr.getError().getMessage());
+        }
+
+        mentorProfile.setStatus(EMentorProfileStatus.WAITING);
+        mentorProfileRepository.save(mentorProfile) ;
+        return true ;
+    }
+
+
 }

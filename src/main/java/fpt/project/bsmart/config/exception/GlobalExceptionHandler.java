@@ -2,6 +2,7 @@ package fpt.project.bsmart.config.exception;
 
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -31,6 +32,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> handleCommonException(Exception e) {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failed(e.getMessage() == null ? defaultErrorMessage : e.getMessage()));
+    }
+
+
+
+
+    @ExceptionHandler(ValidationErrorsException.class)
+    @ResponseBody
+    public ResponseEntity<ApiResponse> handleValidationErrorsException(ValidationErrorsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.failed(ex.getErrorMessage() , ex.getInvalidFields()));
     }
 
 

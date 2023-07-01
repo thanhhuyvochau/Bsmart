@@ -304,8 +304,8 @@ public class UserServiceImpl implements IUserService {
         }
 
 
-        if (personalProfileEditRequest.getFullname() != null) {
-            user.setFullName(personalProfileEditRequest.getFullname());
+        if (personalProfileEditRequest.getFullName() != null) {
+            user.setFullName(personalProfileEditRequest.getFullName());
         }
 
         if (personalProfileEditRequest.getAddress() != null) {
