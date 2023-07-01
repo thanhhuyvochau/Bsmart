@@ -1,6 +1,13 @@
 package fpt.project.bsmart.entity.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
+import fpt.project.bsmart.entity.constant.EGenderType;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,23 +22,24 @@ public class UserDto {
     private String fullName;
 
     private String email;
-
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private Instant birthday;
+
 
     private String address;
 
     private String phone;
 
     private Boolean status;
-
+    private EGenderType gender;
 
     List<RoleDto> roles = new ArrayList<>();
 
-    private String twitterLink;
+
+
+    private String linkedinLink;
 
     private String facebookLink;
-
-    private String instagramLink;
 
 
     private List<ImageDto> userImages = new ArrayList<>();
@@ -116,13 +124,6 @@ public class UserDto {
     }
 
 
-    public String getTwitterLink() {
-        return twitterLink;
-    }
-
-    public void setTwitterLink(String twitterLink) {
-        this.twitterLink = twitterLink;
-    }
 
     public String getFacebookLink() {
         return facebookLink;
@@ -132,12 +133,20 @@ public class UserDto {
         this.facebookLink = facebookLink;
     }
 
-    public String getInstagramLink() {
-        return instagramLink;
+    public EGenderType getGender() {
+        return gender;
     }
 
-    public void setInstagramLink(String instagramLink) {
-        this.instagramLink = instagramLink;
+    public void setGender(EGenderType gender) {
+        this.gender = gender;
+    }
+
+    public String getLinkedinLink() {
+        return linkedinLink;
+    }
+
+    public void setLinkedinLink(String linkedinLink) {
+        this.linkedinLink = linkedinLink;
     }
 
     public WalletDto getWallet() {

@@ -1,5 +1,6 @@
 package fpt.project.bsmart.entity.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import fpt.project.bsmart.entity.constant.EActivityAction;
 import fpt.project.bsmart.entity.constant.EActivityType;
 
@@ -14,6 +15,7 @@ public class ActivityHistoryResponse {
     private EActivityType type;
 
     private EActivityAction action;
+
 
     private LocalDateTime activityTime;
 

@@ -2,6 +2,7 @@ package fpt.project.bsmart.config;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import net.sourceforge.tess4j.Tesseract;
 import org.modelmapper.ModelMapper;
@@ -45,6 +46,7 @@ public class AppConfig {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
         objectMapper.registerModule(new JavaTimeModule()) ;
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return objectMapper;
     }
 }
