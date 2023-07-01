@@ -2,7 +2,6 @@ package fpt.project.bsmart.entity;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.ETypeLearn;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -41,9 +40,6 @@ public class Class extends BaseEntity {
     @Column(name = "price")
     private BigDecimal price;
 
-    @Column(name = "learn_type")
-    @Enumerated(EnumType.STRING)
-    private ETypeLearn typeLearn;
 
     @Column(name = "min_student")
     private Integer minStudent;
@@ -70,7 +66,7 @@ public class Class extends BaseEntity {
     private FeedbackTemplate feedbackTemplate;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id", referencedColumnName = "id")
-    private Image image;
+    private ClassImage classImage;
 
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimeInWeek> timeInWeeks = new ArrayList<>();
@@ -195,13 +191,7 @@ public class Class extends BaseEntity {
         this.price = price;
     }
 
-    public ETypeLearn getTypeLearn() {
-        return typeLearn;
-    }
 
-    public void setTypeLearn(ETypeLearn typeLearn) {
-        this.typeLearn = typeLearn;
-    }
 
     public Integer getMinStudent() {
         return minStudent;
@@ -259,12 +249,12 @@ public class Class extends BaseEntity {
         this.feedbackTemplate = feedbackTemplate;
     }
 
-    public Image getImage() {
-        return image;
+    public ClassImage getClassImage() {
+        return classImage;
     }
 
-    public void setImage(Image image) {
-        this.image = image;
+    public void setClassImage(ClassImage classImage) {
+        this.classImage = classImage;
     }
 
     public List<TimeInWeek> getTimeInWeeks() {

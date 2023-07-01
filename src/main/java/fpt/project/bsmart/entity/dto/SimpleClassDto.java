@@ -1,12 +1,10 @@
 package fpt.project.bsmart.entity.dto;
 
-import fpt.project.bsmart.entity.constant.ETypeLearn;
-
 
 public class SimpleClassDto {
     private Long id;
     private String code;
-    private ETypeLearn typeLearn;
+
 
     public Long getId() {
         return id;
@@ -24,11 +22,5 @@ public class SimpleClassDto {
         this.code = code;
     }
 
-    public ETypeLearn getTypeLearn() {
-        return typeLearn;
-    }
 
-    public void setTypeLearn(ETypeLearn typeLearn) {
-        this.typeLearn = typeLearn;
-    }
 }

@@ -1,18 +1,5 @@
 package fpt.project.bsmart.util.specification;
 
-import fpt.project.bsmart.entity.*;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.ETypeLearn;
-import fpt.project.bsmart.util.SpecificationUtil;
-import org.springframework.data.jpa.domain.Specification;
-
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 public class SubCourseSpecificationBuilder {
 
     public static SubCourseSpecificationBuilder specifications() {

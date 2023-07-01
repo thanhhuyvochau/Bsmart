@@ -1,7 +1,5 @@
 package fpt.project.bsmart.entity.dto;
 
-import fpt.project.bsmart.entity.constant.ETypeLearn;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -17,7 +15,7 @@ public class ClassDto {
     private Integer maxStudentNumber = 0;
     private Integer numberOfStudent = 0;
     private BigDecimal price;
-    private ETypeLearn typeLearn;
+
     public Long getId() {
         return id;
     }
@@ -77,13 +75,7 @@ public class ClassDto {
         this.price = price;
     }
 
-    public ETypeLearn getTypeLearn() {
-        return typeLearn;
-    }
 
-    public void setTypeLearn(ETypeLearn typeLearn) {
-        this.typeLearn = typeLearn;
-    }
 
     public CourseDto getCourse() {
         return course;

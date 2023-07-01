@@ -3,7 +3,6 @@ package fpt.project.bsmart.entity.response;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.UserDto;
 
@@ -26,7 +25,7 @@ public class SubCourseCartResponse {
     private BigDecimal price;
 
 
-    private ETypeLearn typeLearn;
+
 
     private boolean isChosen = false;
     private UserDto mentor;
@@ -89,13 +88,7 @@ public class SubCourseCartResponse {
         this.price = price;
     }
 
-    public ETypeLearn getTypeLearn() {
-        return typeLearn;
-    }
 
-    public void setTypeLearn(ETypeLearn typeLearn) {
-        this.typeLearn = typeLearn;
-    }
 
     public boolean getIsChosen() {
         return isChosen;

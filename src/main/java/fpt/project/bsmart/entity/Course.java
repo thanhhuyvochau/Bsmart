@@ -39,6 +39,13 @@ public class Course {
     @Enumerated(EnumType.STRING)
     private ECourseType type;
 
+    @OneToOne
+    @JoinColumn(name = "creator_id")
+    private User creator;
+
+
+
+
     public Long getId() {
         return id;
     }
@@ -94,5 +101,29 @@ public class Course {
 
     public void setType(ECourseType type) {
         this.type = type;
+    }
+
+    public List<Class> getClasses() {
+        return classes;
+    }
+
+    public void setClasses(List<Class> classes) {
+        this.classes = classes;
+    }
+
+    public List<Activity> getActivities() {
+        return activities;
+    }
+
+    public void setActivities(List<Activity> activities) {
+        this.activities = activities;
+    }
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
     }
 }

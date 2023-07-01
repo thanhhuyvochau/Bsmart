@@ -1,73 +1,45 @@
-//package fpt.project.bsmart.service.Impl;
-//
-//
-//import com.fasterxml.jackson.core.JsonProcessingException;
-//import fpt.project.bsmart.entity.*;
-//import fpt.project.bsmart.entity.Module;
-//import fpt.project.bsmart.entity.common.ApiException;
-//import fpt.project.bsmart.entity.common.ApiPage;
-//import fpt.project.bsmart.entity.constant.ECourseStatus;
-//import fpt.project.bsmart.entity.constant.ECourseType;
-//
-//import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
-//import fpt.project.bsmart.entity.dto.CourseDto;
-//import fpt.project.bsmart.entity.dto.course.CourseContentDto;
-//import fpt.project.bsmart.entity.dto.module.ModuleDto;
-//import fpt.project.bsmart.entity.dto.section.SectionDto;
-//import fpt.project.bsmart.entity.request.*;
-//import fpt.project.bsmart.entity.response.CourseResponse;
-//import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
-//import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
-//import fpt.project.bsmart.entity.response.SubCourseDetailResponse;
-//import fpt.project.bsmart.repository.*;
-//import fpt.project.bsmart.service.ICourseService;
-//import fpt.project.bsmart.util.*;
-//import fpt.project.bsmart.util.specification.CourseSpecificationBuilder;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.PageImpl;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.stereotype.Service;
-//
-//import javax.transaction.Transactional;
-//import java.time.Instant;
-//import java.time.temporal.ChronoUnit;
-//import java.util.*;
-//import java.util.function.Function;
-//import java.util.stream.Collectors;
-//
-//import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
-//import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
-//import static fpt.project.bsmart.util.ConvertUtil.convertCourseSubCourseToCourseSubCourseDetailResponse;
-//
-//
-//@Service
-//public class CourseServiceImpl implements ICourseService {
-//    private final CategoryRepository categoryRepository;
+
+package fpt.project.bsmart.service.Impl;
+import fpt.project.bsmart.entity.Course;
+import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.request.CourseSearchRequest;
+import fpt.project.bsmart.entity.response.CourseResponse;
+import fpt.project.bsmart.repository.CourseRepository;
+import fpt.project.bsmart.service.ICourseService;
+import fpt.project.bsmart.util.ConvertUtil;
+import fpt.project.bsmart.util.PageUtil;
+import fpt.project.bsmart.util.specification.CourseSpecificationBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+
+@Service
+public class CourseServiceImpl implements ICourseService {
+    //    private final CategoryRepository categoryRepository;
 //    private final MessageUtil messageUtil;
 //
-//    private final CourseRepository courseRepository;
-//    private final SubCourseRepository subCourseRepository;
-//
-//
-//    private final SubjectRepository subjectRepository;
-//
-//    private final ImageRepository imageRepository;
-//
-//    private final DayOfWeekRepository dayOfWeekRepository;
-//    private final SlotRepository slotRepository;
-//
-//
-//    public CourseServiceImpl(CategoryRepository categoryRepository, MessageUtil messageUtil, CourseRepository courseRepository, SubCourseRepository subCourseRepository, SubjectRepository subjectRepository, ImageRepository imageRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository) {
-//        this.categoryRepository = categoryRepository;
-//        this.messageUtil = messageUtil;
-//        this.courseRepository = courseRepository;
-//        this.subCourseRepository = subCourseRepository;
-//        this.subjectRepository = subjectRepository;
-//        this.imageRepository = imageRepository;
-//        this.dayOfWeekRepository = dayOfWeekRepository;
-//        this.slotRepository = slotRepository;
-//    }
+    private final CourseRepository courseRepository;
+
+    public CourseServiceImpl(CourseRepository courseRepository) {
+        this.courseRepository = courseRepository;
+    }
+
+
+    @Override
+    public ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest query, Pageable pageable) {
+
+        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
+                .queryLike(query.getQ())
+                .queryByCourseStatus(ECourseStatus.NOTSTART)
+                .queryBySubjectId(query.getSubjectId())
+                .queryByCategoryId(query.getCategoryId());
+
+        Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
+        return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
+    }
+}
 //
 //    @Override
 //    public List<CourseDto> getCoursesBySubject(Long subjectId) {
@@ -299,19 +271,7 @@
 //    }
 //
 //
-//    @Override
-//    public ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest query, Pageable pageable) {
-//
-//        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
-//                .queryLike(query.getQ())
-//                .queryByCourseStatus(ECourseStatus.NOTSTART)
-//                .queryBySubCourseType(query.getTypes())
-//                .queryBySubjectId(query.getSubjectId())
-//                .queryByCategoryId(query.getCategoryId());
-//
-//        Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
-//        return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
-//    }
+
 //
 //
 //    @Override

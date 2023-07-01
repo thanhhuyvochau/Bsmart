@@ -16,4 +16,6 @@ public interface ISubjectService {
     Long updateSubject(Long id, SubjectRequest subjectRequest);
 
     Long deleteSubject(Long id);
+
+    List<SubjectDto> getSubjectsByMentorSkill();
 }

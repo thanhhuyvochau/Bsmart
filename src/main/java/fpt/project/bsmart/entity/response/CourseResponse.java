@@ -1,7 +1,6 @@
 package fpt.project.bsmart.entity.response;
 
 
-import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 
@@ -25,12 +24,8 @@ public class CourseResponse {
 
     private String courseDescription;
 
-    private int totalSubCourse;
-
-    private List<ETypeLearn> learns;
-
+    private int totalClass;
     private List<String> mentorName;
-
 
     public Long getId() {
         return id;
@@ -97,21 +92,15 @@ public class CourseResponse {
         this.courseDescription = courseDescription;
     }
 
-    public int getTotalSubCourse() {
-        return totalSubCourse;
+    public int getTotalClass() {
+        return totalClass;
     }
 
-    public void setTotalSubCourse(int totalSubCourse) {
-        this.totalSubCourse = totalSubCourse;
+    public void setTotalClass(int totalClass) {
+        this.totalClass = totalClass;
     }
 
-    public List<ETypeLearn> getLearns() {
-        return learns;
-    }
 
-    public void setLearns(List<ETypeLearn> learns) {
-        this.learns = learns;
-    }
 
     public List<String> getMentorName() {
         return mentorName;

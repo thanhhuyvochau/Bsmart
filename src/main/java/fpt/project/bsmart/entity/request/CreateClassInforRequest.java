@@ -1,21 +1,17 @@
 package fpt.project.bsmart.entity.request;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
-import fpt.project.bsmart.entity.constant.ETypeLearn;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateSubCourseRequest {
+public class CreateClassInforRequest {
 
     private ECourseLevel level;
 
     private Long imageId;
-
-
-    private ETypeLearn type;
 
     private BigDecimal price;
 
@@ -26,7 +22,6 @@ public class CreateSubCourseRequest {
     private Instant startDateExpected  ;
 
     private Instant endDateExpected  ;
-
 
     private String subCourseTile ;
     private Integer  numberOfSlot ;
@@ -49,15 +44,6 @@ public class CreateSubCourseRequest {
         this.imageId = imageId;
     }
 
-
-
-    public ETypeLearn getType() {
-        return type;
-    }
-
-    public void setType(ETypeLearn type) {
-        this.type = type;
-    }
 
     public BigDecimal getPrice() {
         return price;

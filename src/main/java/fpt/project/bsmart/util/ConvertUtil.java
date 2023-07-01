@@ -6,15 +6,12 @@ import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EQuestionType;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
-import fpt.project.bsmart.entity.constant.ETypeLearn;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.response.*;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -307,48 +304,47 @@ public class ConvertUtil {
 //        return response;
 //    }
 
-//    public static CourseResponse convertCourseCourseResponsePage(Course course) {
-//
-//
-//        CourseResponse courseResponse = new CourseResponse();
-//        courseResponse.setId(course.getId());
-//        courseResponse.setCourseName(course.getName());
-//        courseResponse.setCourseCode(course.getCode());
-//        courseResponse.setCourseDescription(course.getDescription());
-//
-//
-//        List<String> mentorName = new ArrayList<>();
-//        List<ETypeLearn> learns = new ArrayList<>();
-//        List<SubCourse> subCourses = course.getSubCourses();
-//        List<ImageDto> images = new ArrayList<>();
-//        subCourses.forEach(subCourse -> {
-//            if (subCourse.getMentor() != null) {
-//                mentorName.add(subCourse.getMentor().getFullName());
-//            }
-//            learns.add(subCourse.getTypeLearn());
-//            if (subCourse.getImage() != null) {
-//                images.add(ObjectUtil.copyProperties(subCourse.getImage(), new ImageDto(), ImageDto.class));
-//            }
-//        });
-//        courseResponse.setMentorName(mentorName);
-//        courseResponse.setImages(images);
-//        courseResponse.setLearns(learns);
-//
-//
-//        Subject subject = course.getSubject();
-//        if (subject != null) {
-//            courseResponse.setSubjectId(subject.getId());
-//            courseResponse.setSubjectName(subject.getName());
-//            Set<Category> categories = subject.getCategories();
-//            if (!categories.isEmpty()) {
-//                for (Category category : categories) {
-//                    CategoryDto categoryDto = convertCategoryToCategoryDto(category);
-//                    courseResponse.getCategoryDtoList().add(categoryDto);
-//                }
-//            }
-//        }
-//        return courseResponse;
-//    }
+    public static CourseResponse convertCourseCourseResponsePage(Course course) {
+
+
+        CourseResponse courseResponse = new CourseResponse();
+        courseResponse.setId(course.getId());
+        courseResponse.setCourseName(course.getName());
+        courseResponse.setCourseCode(course.getCode());
+        courseResponse.setCourseDescription(course.getDescription());
+
+
+        List<String> mentorName = new ArrayList<>();
+
+        List<Class> classes = course.getClasses();
+        List<ImageDto> images = new ArrayList<>();
+        classes.forEach(clazz -> {
+            if (clazz.getMentor() != null) {
+                mentorName.add(clazz.getMentor().getFullName());
+            }
+            if (clazz.getClassImage() != null) {
+                images.add(ObjectUtil.copyProperties(clazz.getClassImage(), new ImageDto(), ImageDto.class));
+            }
+        });
+        courseResponse.setMentorName(mentorName);
+        courseResponse.setImages(images);
+
+
+
+        Subject subject = course.getSubject();
+        if (subject != null) {
+            courseResponse.setSubjectId(subject.getId());
+            courseResponse.setSubjectName(subject.getName());
+            Set<Category> categories = subject.getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+                    CategoryDto categoryDto = convertCategoryToCategoryDto(category);
+                    courseResponse.getCategoryDtoList().add(categoryDto);
+                }
+            }
+        }
+        return courseResponse;
+    }
 
     public static TransactionDto convertTransactionToDto(Transaction transaction) {
         TransactionDto transactionDto = ObjectUtil.copyProperties(transaction, new TransactionDto(), TransactionDto.class, true);
