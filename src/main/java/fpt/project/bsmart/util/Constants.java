@@ -27,6 +27,7 @@ public class Constants {
         public static final String IMAGE_NOT_FOUND_BY_ID = "IMAGE_NOT_FOUND_BY_ID";
         public static final String SKILL_NOT_FOUND_BY_ID = "SKILL_NOT_FOUND_BY_ID";
         public static final String MENTOR_PROFILE_NOT_FOUND_BY_USER = "MENTOR_PROFILE_NOT_FOUND_BY_USER";
+        public static final String MENTOR_PROFILE_NOT_FOUND_BY_ID = "MENTOR_PROFILE_NOT_FOUND_BY_ID";
         public static final String SUB_COURSE_STATUS_NOT_ALLOW = "SUB_COURSE_STATUS_NOT_ALLOW";
         public static final String SECTION_NOT_FOUND_BY_ID = "SECTION_NOT_FOUND_BY_ID";
         public static final String ACTIVITY_TYPE_NOT_FOUND_BY_ID = "ACTIVITY_TYPE_NOT_FOUND_BY_ID";
@@ -36,10 +37,20 @@ public class Constants {
         public static final String FEEDBACK_QUESTION_NOT_FOUND_BY_ID = "FEEDBACK_QUESTION_NOT_FOUND_BY_ID";
         public static final String FEEDBACK_TEMPLATE_NOT_FOUND_BY_ID = "FEEDBACK_TEMPLATE_NOT_FOUND_BY_ID";
         public static final String CLASS_NOT_FOUND_BY_ID = "CLASS_NOT_FOUND_BY_ID";
-
+        public static final String TIME_TABLE_NOT_FOUND_BY_ID = "TIME_TABLE_NOT_FOUND_BY_ID";
+        public static final String STUDENT_ATTENDANCE_NOT_FOUND_BY_ID = "STUDENT_ATTENDANCE_NOT_FOUND_BY_ID";
+        public static final String ANNOUNCEMENT_NOT_FOUND_BY_ID = "ANNOUNCEMENT_NOT_FOUND_BY_ID";
         public static final String ACCOUNT_IS_NOT_MENTOR = "ACCOUNT_IS_NOT_MENTOR";
-
-
+        public static final String CLASS_SECTION_NOT_FOUND_BY_ID = "CLASS_SECTION_NOT_FOUND_BY_ID";
+        public static final String SLOT_NOT_FOUND_BY_ID = "SLOT_NOT_FOUND_BY_ID";
+        public static final String QUESTION_NOT_FOUND_BY_ID = "QUESTION_NOT_FOUND_BY_ID";
+        public static final String TIME_OF_WEEK_NOT_FOUND_BY_ID = "TIME_OF_WEEK_NOT_FOUND_BY_ID";
+        public static final String BANK_NOT_FOUND_BY_ID = "BANK_NOT_FOUND_BY_ID";
+        public static final String TRANSACTION_NOT_FOUND_BY_ID = "TRANSACTION_NOT_FOUND_BY_ID";
+        public static final String ROLE_NOT_FOUND_BY_CODE = "ROLE_NOT_FOUND_BY_CODE";
+        public static final String VERIFY_CODE_NOT_FOUND_BY_CODE = "VERIFY_CODE_NOT_FOUND_BY_CODE";
+        public static final String NAME_NOT_FOUND_FROM_OAUTH2_PROVIDER = "NAME_NOT_FOUND_FROM_OAUTH2_PROVIDER";
+        public static final String EMAIL_NOT_FOUND_FROM_OAUTH2_PROVIDER = "EMAIL_NOT_FOUND_FROM_OAUTH2_PROVIDER";
         public static final String COURSE_CODE_ALREADY_EXISTS = "COURSE_CODE_ALREADY_EXISTS";
 
         public static final String COURSE_STATUS_NOT_ALLOW = "COURSE_STATUS_NOT_ALLOW";
@@ -79,6 +90,12 @@ public class Constants {
             public static final String INVALID_FEEDBACK_TIME = "INVALID_FEEDBACK_TIME";
             public static final String INVALID_FEEDBACK_TYPE = "INVALID_FEEDBACK_TYPE";
             public static final String INVALID_ASSIGNMENT_DATE = "INVALID_ASSIGNMENT_DATE";
+            public static final String INVALID_ATTENDANCE_DAY = "INVALID_ATTENDANCE_DAY";
+            public static final String INVALID_CLASS_ID = "INVALID_CLASS_ID";
+            public static final String INVALID_PARAMETER_VALUE = "INVALID_PARAMETER_VALUE";
+            public static final String INVALID_QUESTION_TYPE = "INVALID_QUESTION_TYPE";
+            public static final String INVALID_ITEM_IN_CART = "INVALID_ITEM_IN_CART";
+            public static final String INVALID_COURSE_STATUS_TO_PURCHASE = "INVALID_COURSE_STATUS_TO_PURCHASE";
         }
 
         public static class Empty {
@@ -104,11 +121,27 @@ public class Constants {
         public static final String NEW_PASSWORD_DUPLICATE = "NEW_PASSWORD_DUPLICATE";
         public static final String SUBJECT_ID_DUPLICATE = "SUBJECT_ID_DUPLICATE";
         public static final String FORBIDDEN = "FORBIDDEN";
+        public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
         public static final String ANSWER_FORMAT_EXCEPTION = "ANSWER_FORMAT_EXCEPTION";
         public static final String CAN_NOT_UPLOAD_ASSIGNMENT = "CAN_NOT_UPLOAD_ASSIGNMENT";
         public static final String STUDENT_NOT_BELONG_TO_CLASS = "STUDENT_NOT_BELONG_TO_CLASS";
+        public static final String MENTOR_NOT_BELONG_TO_CLASS = "MENTOR_NOT_BELONG_TO_CLASS";
         public static final String STUDENT_ALREADY_FEEDBACK = "STUDENT_ALREADY_FEEDBACK";
         public static final String FEEDBACK_TEMPLATE_ATTACHED_TO_SUB_COURSE = "FEEDBACK_TEMPLATE_ATTACHED_TO_SUB_COURSE";
+        public static final String DUPLICATE_STUDENT_ATTENDANCE = "DUPLICATE_STUDENT_ATTENDANCE";
+        public static final String BEFORE_CLASS_START_TIME = "BEFORE_CLASS_START_TIME";
+        public static final String MULTIPLE_RIGHT_ANSWER_IN_SINGLE_TYPE_QUESTION = "MULTIPLE_RIGHT_ANSWER_IN_SINGLE_TYPE_QUESTION";
+        public static final String MISSING_RIGHT_ANSWER_IN_QUESTION = "MISSING_RIGHT_ANSWER_IN_QUESTION";
+        public static final String SUB_COURSE_CAN_NOT_CREATE_TIME_IN_WEEK = "SUB_COURSE_CAN_NOT_CREATE_TIME_IN_WEEK";
+        public static final String DUPLICATE_SLOT_AND_TIME_IN_WEEK = "DUPLICATE_SLOT_AND_TIME_IN_WEEK";
+        public static final String BELOW_MIN_MONEY_AMOUNT_IN_TRANSACTION = "BELOW_MIN_MONEY_AMOUNT_IN_TRANSACTION";
+        public static final String SUB_COURSE_IS_PAID = "SUB_COURSE_IS_PAID";
+        public static final String MAX_STUDENT_IN_CLASS = "MAX_STUDENT_IN_CLASS";
+        public static final String REGISTERED_EMAIL = "REGISTERED_EMAIL";
+        public static final String REGISTERED_PHONE_NUMBER = "REGISTERED_PHONE_NUMBER";
+        public static final String REGISTERED_USER_ID = "REGISTERED_USER_ID";
+        public static final String VERIFIED_ACCOUNT = "VERIFIED_ACCOUNT";
+        public static final String INCORRECT_PROVIDER_LOGIN = "INCORRECT_PROVIDER_LOGIN";
     }
 
     public static class DefaultData {

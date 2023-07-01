@@ -22,6 +22,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static fpt.project.bsmart.util.Constants.ErrorMessage.IMAGE_NOT_FOUND_BY_ID;
+
 @Service
 @Transactional
 public class ImageServiceImpl implements ImageService {
@@ -66,7 +68,7 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public ImageDto getImageById(Long id) {
         Image image = imageRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("not found" + id));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + id));
         return ObjectUtil.copyProperties(image, new ImageDto(), ImageDto.class);
     }
 }

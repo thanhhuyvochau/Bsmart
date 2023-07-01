@@ -33,6 +33,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_COURSE_STATUS_TO_PURCHASE;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_ITEM_IN_CART;
+
 @Service
 @Transactional
 public class TransactionService implements ITransactionService {
@@ -82,7 +86,7 @@ public class TransactionService implements ITransactionService {
     @Override
     public ApiPage<TransactionDto> getUserTransactions(Pageable pageable, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                .withMessage(messageUtil.getLocalMessage("Không tìm thấy người dùng hiện tại với id:") + userId));
+                .withMessage(messageUtil.getLocalMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID)) + userId));
         Wallet wallet = user.getWallet();
         Page<Transaction> transactionsPages = transactionRepository.findAllByWallet(wallet, pageable);
         return PageUtil.convert(transactionsPages.map(ConvertUtil::convertTransactionToDto));
@@ -94,7 +98,7 @@ public class TransactionService implements ITransactionService {
         BigDecimal amount = request.getAmount();
         // Nạp từ 10 nghìn trở lên
         if (amount.compareTo(BigDecimal.valueOf(10000)) <= 0) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Bạn phải nạp từ 10.000 VNĐ trờ lên!");
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(BELOW_MIN_MONEY_AMOUNT_IN_TRANSACTION));
         }
         Transaction transaction = Transaction.build(amount, null, null, null, wallet, ETransactionType.DEPOSIT);
         wallet.setBalance(wallet.getBalance().add(amount));
@@ -109,7 +113,7 @@ public class TransactionService implements ITransactionService {
         if (amount.compareTo(BigDecimal.ZERO) <= 0 || amount.compareTo(wallet.getBalance()) > 0) {
             return false;
         }
-        Bank bank = bankRepository.findById(request.getBankId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy ngân hàng hỗ trợ xin thử lại!"));
+        Bank bank = bankRepository.findById(request.getBankId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(BANK_NOT_FOUND_BY_ID) + request.getBankId()));
         Transaction transaction = Transaction.build(amount, request.getBankAccount(), request.getBankAccountOwner(), bank, wallet, ETransactionType.WITHDRAW);
         wallet.setBalance(wallet.getBalance().subtract(amount));
         transactionRepository.save(transaction);
@@ -193,7 +197,7 @@ public class TransactionService implements ITransactionService {
         List<Long> cartItemIds = request.stream().map(PayCourseRequest::getCartItemId).collect(Collectors.toList());
         List<CartItem> boughtCartItems = cartItemRepository.findAllById(cartItemIds);
         if (!Objects.equals(boughtCartItems.size(), cartItemIds.size())) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Có lỗi đã xảy ra, có thể do khóa học trong giỏ hàng không hợp lệ!");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(INVALID_ITEM_IN_CART));
         }
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         Transaction transaction = new Transaction();
@@ -207,7 +211,7 @@ public class TransactionService implements ITransactionService {
             SubCourse subCourse = cartItem.getSubCourse();
             boolean isPaidSubCourse = CourseUtil.isPaidCourse(subCourse, user);
             if (isPaidSubCourse) {
-                throw ApiException.create(HttpStatus.CONFLICT).withMessage("Sub course was paid, try other class!");
+                throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(SUB_COURSE_IS_PAID));
             }
             BigDecimal price = subCourse.getPrice();
             OrderDetail orderDetail = new OrderDetail();
@@ -227,17 +231,17 @@ public class TransactionService implements ITransactionService {
     public VnPayResponse payQuickCourse(HttpServletRequest req, VpnPayRequest request) throws UnsupportedEncodingException {
         SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage("Subcourse not found with id:" + request.getSubCourseId()));
+                        .withMessage(messageUtil.getLocalMessage(SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
         if (!subCourse.getStatus().equals(ECourseStatus.NOTSTART)) {
-            throw ApiException.create(HttpStatus.METHOD_NOT_ALLOWED).withMessage("You cannot buy this course because status is invalid!");
+            throw ApiException.create(HttpStatus.METHOD_NOT_ALLOWED).withMessage(messageUtil.getLocalMessage(INVALID_COURSE_STATUS_TO_PURCHASE));
         }
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         boolean isPaidSubCourse = CourseUtil.isPaidCourse(subCourse, user);
         if (isPaidSubCourse) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Sub course was paid, try other class!");
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(SUB_COURSE_IS_PAID));
         }
         if (CourseUtil.isFullMemberOfSubCourse(subCourse)) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Sub Course got maximum number of student :(( !");
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(MAX_STUDENT_IN_CLASS));
         }
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setSubCourse(subCourse);
@@ -341,7 +345,7 @@ public class TransactionService implements ITransactionService {
         String transactionId = referenceValues;
         Transaction transaction = transactionRepository
                 .findById(Long.valueOf(transactionId)).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage("Transaction not found with id:" + transactionId));
+                        .withMessage(messageUtil.getLocalMessage(TRANSACTION_NOT_FOUND_BY_ID) + transactionId));
         if (transactionStatus.equals("00") && responseCode.equals("00")) {
             transaction.getOrder().setStatus(EOrderStatus.SUCCESS);
             transaction.setStatus(ETransactionStatus.SUCCESS);

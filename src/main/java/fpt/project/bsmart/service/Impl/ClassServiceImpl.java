@@ -34,6 +34,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_CLASS_ID;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_PARAMETER_VALUE;
+
 @Service
 @Transactional
 public class ClassServiceImpl implements IClassService {
@@ -57,7 +61,7 @@ public class ClassServiceImpl implements IClassService {
     @Override
     public Boolean createClass(CreateClassRequest request) {
         SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm khóa học cần tạo lịch!"));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
         Integer numberOfSlot = subCourse.getNumberOfSlot();
         Instant startDate = request.getNowIsStartDate() ? Instant.now() : request.getStartDate();
         Class clazz = new Class();
@@ -108,21 +112,21 @@ public class ClassServiceImpl implements IClassService {
 
     @Override
     public ClassProgressTimeDto getClassProgression(Long clazzId) {
-        Class clazz = classRepository.findById(clazzId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy lớp với id:" + clazzId));
+        Class clazz = classRepository.findById(clazzId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + clazzId));
         if (clazz.getStartDate().isBefore(Instant.now())) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Lớp học chưa tới thời gian bắt đầu!");
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(BEFORE_CLASS_START_TIME));
         }
-        return Optional.ofNullable(ClassUtil.getPercentageOfClassTime(clazz)).orElseThrow(() -> ApiException.create(HttpStatus.CONFLICT).withMessage("Đã có lỗi xảy ra vui lòng thử lại"));
+        return Optional.ofNullable(ClassUtil.getPercentageOfClassTime(clazz)).orElseThrow(() -> ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(INTERNAL_SERVER_ERROR)));
     }
 
     @Override
     public ClassResponse getDetailClass(Long id) {
-        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy lớp với id:" + id));
+        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
         User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         if (ClassValidator.isMentorOfClass(currentUser, clazz) || ClassValidator.isStudentOfClass(clazz, currentUser)) {
             return ConvertUtil.convertClassToClassResponse(clazz);
         }
-        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Bạn không thuộc về lớp này!");
+        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
     }
 
     @Override
@@ -152,11 +156,11 @@ public class ClassServiceImpl implements IClassService {
         if (optionalClass.isPresent()) {
             Class clazz = optionalClass.get();
             if (!ClassValidator.isMentorOfClass(SecurityUtil.getCurrentUser(), clazz)) {
-                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not the mentor of class");
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
             }
             classSection.setClazz(clazz);
         } else {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Invalid classId: " + classId);
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(INVALID_CLASS_ID) + classId);
         }
         ClassSection savedClassSection = classSectionRepository.save(classSection);
         return ConvertUtil.convertClassSectionToDto(savedClassSection);
@@ -169,13 +173,13 @@ public class ClassServiceImpl implements IClassService {
             ClassSection classSection = optionalClassSection.get();
             Class clazz = classSection.getClazz();
             if (!Objects.equals(clazz.getId(), classId)) {
-                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("The parameters is not match between classId parameter and class own section!");
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(INVALID_PARAMETER_VALUE));
             } else if (!ClassValidator.isMentorOfClass(SecurityUtil.getCurrentUser(), clazz)) {
-                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not the mentor of class");
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
             }
             return ConvertUtil.convertClassSectionToDto(classSection);
         } else {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("ClassSection not found with id: " + classSectionId);
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_SECTION_NOT_FOUND_BY_ID) + classSectionId);
         }
     }
 
@@ -187,14 +191,14 @@ public class ClassServiceImpl implements IClassService {
             classSection.setName(request.getName());
             Class clazz = classSection.getClazz();
             if (!Objects.equals(clazz.getId(), classId)) {
-                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("The parameters is not match between classId parameter and class own section!");
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(INVALID_PARAMETER_VALUE));
             } else if (!ClassValidator.isMentorOfClass(SecurityUtil.getCurrentUser(), clazz)) {
-                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not the mentor of class");
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
             }
             ClassSection updatedClassSection = classSectionRepository.save(classSection);
             return ConvertUtil.convertClassSectionToDto(updatedClassSection);
         } else {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("ClassSection not found with classSectionId: " + classSectionId);
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_SECTION_NOT_FOUND_BY_ID) + classSectionId);
         }
     }
 
@@ -205,13 +209,13 @@ public class ClassServiceImpl implements IClassService {
             ClassSection classSection = optionalClassSection.get();
             Class clazz = classSection.getClazz();
             if (!Objects.equals(clazz.getId(), classId)) {
-                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("The parameters is not match between classId parameter and class own section!");
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(INVALID_PARAMETER_VALUE));
             } else if (!ClassValidator.isMentorOfClass(SecurityUtil.getCurrentUser(), clazz)) {
-                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("You are not the mentor of class");
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
             }
             classSectionRepository.delete(classSection);
         } else {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("ClassSection not found with id: " + classSectionId);
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_SECTION_NOT_FOUND_BY_ID) + classSectionId);
         }
         return true;
     }

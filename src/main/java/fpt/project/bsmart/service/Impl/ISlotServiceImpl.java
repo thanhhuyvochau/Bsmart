@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.dto.SlotDto;
 import fpt.project.bsmart.repository.SlotRepository;
 import fpt.project.bsmart.service.ISlotService;
 import fpt.project.bsmart.util.ConvertUtil;
+import fpt.project.bsmart.util.MessageUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -13,14 +14,17 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static fpt.project.bsmart.util.Constants.ErrorMessage.SLOT_NOT_FOUND_BY_ID;
+
 @Service
 @Transactional
 public class ISlotServiceImpl implements ISlotService {
 
-
+    private final MessageUtil messageUtil;
     private final SlotRepository slotRepository;
 
-    public ISlotServiceImpl(SlotRepository slotRepository) {
+    public ISlotServiceImpl(MessageUtil messageUtil, SlotRepository slotRepository) {
+        this.messageUtil = messageUtil;
         this.slotRepository = slotRepository;
     }
 
@@ -34,14 +38,14 @@ public class ISlotServiceImpl implements ISlotService {
     @Override
     public SlotDto getSlotById(Long id) {
         Slot slot = slotRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Slot not found with id " + id));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SLOT_NOT_FOUND_BY_ID) + id));
         return ConvertUtil.convertSlotToSlotDto(slot);
     }
 
     @Override
     public SlotDto updateSlot(SlotDto slotDto) {
         Slot slot = slotRepository.findById(slotDto.getId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Slot not found with id " + slotDto.getId()));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SLOT_NOT_FOUND_BY_ID) + slotDto.getId()));
         slot.setName(slotDto.getName());
         slot.setCode(slotDto.getCode());
         slot.setStartTime(slotDto.getStartTime());
@@ -53,7 +57,7 @@ public class ISlotServiceImpl implements ISlotService {
     @Override
     public Boolean deleteSlot(Long id) {
         Slot slot = slotRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Slot not found with id " + id));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SLOT_NOT_FOUND_BY_ID) + id));
         slotRepository.delete(slot);
         return true;
     }

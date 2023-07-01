@@ -362,14 +362,14 @@ public class UserServiceImpl implements IUserService {
         User user = new User();
         if (Boolean.TRUE.equals(userRepository.existsByEmail(createAccountRequest.getEmail()))) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Email : " + createAccountRequest.getEmail() + "đã được đăng ký"));
+                    .withMessage(messageUtil.getLocalMessage(REGISTERED_EMAIL) + createAccountRequest.getEmail());
         }
 
         if (Boolean.TRUE.equals(userRepository.existsByPhone(createAccountRequest.getPhone()))) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Số điện thoại : " + createAccountRequest.getPhone() + "đã được đăng ký"));
+                    .withMessage(messageUtil.getLocalMessage(REGISTERED_PHONE_NUMBER) + createAccountRequest.getPhone());
         }
-        Role role = roleRepository.findRoleByCode(createAccountRequest.getRole()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Role không tìm thấy!"));
+        Role role = roleRepository.findRoleByCode(createAccountRequest.getRole()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ROLE_NOT_FOUND_BY_CODE) + createAccountRequest.getRole()));
         user.setEmail(createAccountRequest.getEmail());
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());
@@ -399,7 +399,7 @@ public class UserServiceImpl implements IUserService {
     public VerifyResponse verifyAccount(String code) {
         Verification verification = verificationRepository.findByCode(code)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage("Không tìm thấy code của mail xác thực:" + code));
+                        .withMessage(messageUtil.getLocalMessage(VERIFY_CODE_NOT_FOUND_BY_CODE) + code));
         User user = verification.getUser();
         Instant createdDate = verification.getCreated();
         EVerifyStatus status = null;
@@ -423,7 +423,7 @@ public class UserServiceImpl implements IUserService {
     public Boolean resendVerifyEmail() {
         User currentUser = SecurityUtil.getCurrentUser();
         if (currentUser.getIsVerified()) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Tài khoản đã được xác thực");
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(VERIFIED_ACCOUNT));
         } else {
             emailUtil.sendVerifyEmailTo(currentUser);
         }
@@ -434,16 +434,15 @@ public class UserServiceImpl implements IUserService {
     public LocalUser processUserRegistration(String registrationId, Map<String, Object> attributes, OidcIdToken idToken, OidcUserInfo userInfo) {
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, attributes);
         if (StringUtils.isEmpty(oAuth2UserInfo.getName())) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Name not found from OAuth2 provider");
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(NAME_NOT_FOUND_FROM_OAUTH2_PROVIDER));
         } else if (StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Email not found from OAuth2 provider");
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(EMAIL_NOT_FOUND_FROM_OAUTH2_PROVIDER));
         }
         SignUpRequest userDetails = toUserRegistrationObject(registrationId, oAuth2UserInfo);
         User user = getUserByEmail(oAuth2UserInfo.getEmail());
         if (user != null) {
             if (!user.getProvider().equals(registrationId) && !user.getProvider().equals(SocialProvider.LOCAL.getProviderType())) {
-                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(
-                        "Looks like you're signed up with " + user.getProvider() + " account. Please use your " + user.getProvider() + " account to login.");
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(String.format(messageUtil.getLocalMessage(INCORRECT_PROVIDER_LOGIN), user.getProvider(), user.getProvider()));
             }
             user = updateExistingUser(user, oAuth2UserInfo);
         } else {
@@ -473,9 +472,9 @@ public class UserServiceImpl implements IUserService {
     @Override
     public User registerNewUser(final SignUpRequest signUpRequest) {
         if (signUpRequest.getUserID() != null && userRepository.existsById(signUpRequest.getUserID())) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("User with User id " + signUpRequest.getUserID() + " already exist");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(REGISTERED_USER_ID) + signUpRequest.getUserID());
         } else if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("User with email id " + signUpRequest.getEmail() + " already exist");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(REGISTERED_EMAIL) + signUpRequest.getEmail());
         }
         User user = buildUser(signUpRequest);
         user = userRepository.save(user);
