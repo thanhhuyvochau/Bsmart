@@ -50,6 +50,7 @@ public class User extends BaseEntity {
     @Column(name = "facebook_link")
     private String facebookLink;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "gender")
     private EGenderType gender;
 
