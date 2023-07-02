@@ -17,8 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CourseServiceImpl implements ICourseService {
-    //    private final CategoryRepository categoryRepository;
-//    private final MessageUtil messageUtil;
+
 //
     private final CourseRepository courseRepository;
 

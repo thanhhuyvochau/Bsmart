@@ -15,14 +15,15 @@ public class Class extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "code")
+    private String code;
     @Column(name = "start_date")
     private Instant startDate;
     @Column(name = "end_date")
     private Instant endDate;
     @Column(name = "student_number")
     private Integer numberOfStudent = 0;
-    @Column(name = "title")
-    private String title;
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
     private ECourseLevel level;
@@ -95,6 +96,14 @@ public class Class extends BaseEntity {
         this.id = id;
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     public Instant getStartDate() {
         return startDate;
     }
@@ -143,13 +152,6 @@ public class Class extends BaseEntity {
         this.classAnnouncements = classAnnouncements;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
 
     public ECourseLevel getLevel() {
         return level;
@@ -190,7 +192,6 @@ public class Class extends BaseEntity {
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
-
 
 
     public Integer getMinStudent() {

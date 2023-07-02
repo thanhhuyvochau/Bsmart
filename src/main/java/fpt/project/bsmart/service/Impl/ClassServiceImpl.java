@@ -4,7 +4,7 @@ import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
-import fpt.project.bsmart.entity.request.CreateClassInforRequest;
+import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import fpt.project.bsmart.repository.*;
@@ -106,16 +106,16 @@ public class ClassServiceImpl implements IClassService {
 
 
         List<Long> classIds = new ArrayList<>();
-        List<CreateClassInforRequest> createClassInformationRequests = mentorCreateClassRequest.getCreateClassRequest();
+        List<CreateClassInformationRequest> createClassInformationRequests = mentorCreateClassRequest.getCreateClassRequest();
         List<Class> classes = new ArrayList<>();
-        createClassInformationRequests.forEach(createClassInforRequest -> {
-            List<TimeInWeekRequest> timeInWeekRequests = createClassInforRequest.getTimeInWeekRequests();
+        createClassInformationRequests.forEach(createClassInformationRequest -> {
+            List<TimeInWeekRequest> timeInWeekRequests = createClassInformationRequest.getTimeInWeekRequests();
 
             // create time in week for subCourse
             List<TimeInWeek> timeInWeeksFromRequest = createTimeInWeeksFromRequest(timeInWeekRequests);
 
             // create subCourse for course
-            Class classFromRequest = createClassFromRequest(createClassInforRequest, currentUserAccountLogin, timeInWeeksFromRequest);
+            Class classFromRequest = createClassFromRequest(createClassInformationRequest, course , currentUserAccountLogin, timeInWeeksFromRequest);
             classFromRequest.setCourse(course);
 
             classes.add(classFromRequest);
@@ -132,7 +132,7 @@ public class ClassServiceImpl implements IClassService {
         return classIds;
     }
 
-    private Class createClassFromRequest(CreateClassInforRequest subCourseRequest, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
+    private Class createClassFromRequest(CreateClassInformationRequest subCourseRequest,Course course , User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
         if (subCourseRequest.getPrice() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE));
@@ -143,10 +143,11 @@ public class ClassServiceImpl implements IClassService {
         aClass.setMaxStudent(subCourseRequest.getMaxStudent());
         aClass.setStartDateExpected(subCourseRequest.getStartDateExpected());
         aClass.setStatus(REQUESTING);
-        aClass.setTitle(subCourseRequest.getSubCourseTile());
         aClass.setPrice(subCourseRequest.getPrice());
         aClass.setLevel(subCourseRequest.getLevel());
         aClass.setMentor(currentUserAccountLogin);
+        String codeRandom = ClassUtil.generateCode(course.getSubject().getCode());
+        aClass.setCode(codeRandom);
 
         Long imageId = subCourseRequest.getImageId();
         ClassImage classImage = classImageRepository.findById(imageId)

@@ -9,7 +9,7 @@ public class MentorCreateClassRequest {
     private Long subjectId;
     private String description;
 
-    private List<CreateClassInforRequest> createClassRequest ;
+    private List<CreateClassInformationRequest> createClassRequest ;
 
 
     public String getName() {
@@ -44,11 +44,11 @@ public class MentorCreateClassRequest {
         this.description = description;
     }
 
-    public List<CreateClassInforRequest> getCreateClassRequest() {
+    public List<CreateClassInformationRequest> getCreateClassRequest() {
         return createClassRequest;
     }
 
-    public void setCreateClassRequest(List<CreateClassInforRequest> createClassRequest) {
+    public void setCreateClassRequest(List<CreateClassInformationRequest> createClassRequest) {
         this.createClassRequest = createClassRequest;
     }
 }

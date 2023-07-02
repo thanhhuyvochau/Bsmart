@@ -40,7 +40,7 @@ public class ActivityHistoryUtil {
         activityHistory.setAction(action);
         activityHistory.setActivityTime(LocalDateTime.now());
         activityHistory.setActivityId(clazz.getId());
-        activityHistory.setActivityName(clazz.getTitle());
+        activityHistory.setActivityName(clazz.getCode());
         activityHistory.setUserId(userId);
         activityHistory.setDetail(detail);
         staticActivityHistoryRepository.save(activityHistory);
