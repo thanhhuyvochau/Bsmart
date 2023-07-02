@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 public class ClassUtil {
     public static double CLASS_PERCENTAGE_FOR_FIRST_FEEDBACK = 0.5f;
@@ -32,5 +33,18 @@ public class ClassUtil {
 //            return new ClassProgressTimeDto(currentSlotNums, BigDecimal.valueOf(percentage).setScale(2, RoundingMode.UP).doubleValue());
         }
         return null;
+    }
+
+    public static String generateCode(String code ) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        int codeLength = 4;
+        for (int i = 0; i < codeLength; i++) {
+            int randomIndex = random.nextInt(characters.length());
+            char randomChar = characters.charAt(randomIndex);
+            sb.append(randomChar);
+        }
+        return code + sb.toString();
     }
 }

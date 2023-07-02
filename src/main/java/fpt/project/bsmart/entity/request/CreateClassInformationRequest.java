@@ -7,7 +7,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateClassInforRequest {
+public class CreateClassInformationRequest {
 
     private ECourseLevel level;
 
@@ -23,7 +23,6 @@ public class CreateClassInforRequest {
 
     private Instant endDateExpected  ;
 
-    private String subCourseTile ;
     private Integer  numberOfSlot ;
 
     private List<TimeInWeekRequest> timeInWeekRequests = new ArrayList<>();
@@ -85,13 +84,7 @@ public class CreateClassInforRequest {
         this.endDateExpected = endDateExpected;
     }
 
-    public String getSubCourseTile() {
-        return subCourseTile;
-    }
 
-    public void setSubCourseTile(String subCourseTile) {
-        this.subCourseTile = subCourseTile;
-    }
 
     public Integer getNumberOfSlot() {
         return numberOfSlot;

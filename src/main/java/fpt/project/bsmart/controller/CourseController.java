@@ -44,6 +44,13 @@ public class CourseController {
         this.iCourseService = iCourseService;
     }
 
+    @Operation(summary = "Get all courses for course page")
+    @GetMapping
+    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(
+            @Nullable CourseSearchRequest query, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(query, pageable)));
+    }
+
 //    @Operation(summary = "lấy tất cả các course theo subject id")
 //    @GetMapping("/subject/{subjectId}")
 //    public ResponseEntity<ApiResponse<List<CourseDto>>> getCoursesBySubject(@PathVariable Long subjectId) {
@@ -53,12 +60,7 @@ public class CourseController {
 //
 //    }
 
-    @Operation(summary = "Get all courses for course page")
-    @GetMapping
-    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(
-            @Nullable CourseSearchRequest query, Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(query, pageable)));
-    }
+
 //
 //    @Operation(summary = "lấy tất cả các subcourse theo course đô lên trang khoa học")
 //    @GetMapping("{id}/sub-courses")
@@ -127,7 +129,6 @@ public class CourseController {
 //    public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalCourse(@PathVariable Long subCourseId) {
 //        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorRequestApprovalCourse(subCourseId)));
 //    }
-
 
 
 //    @Operation(summary = "mentor tao nội dung khoá học ")
