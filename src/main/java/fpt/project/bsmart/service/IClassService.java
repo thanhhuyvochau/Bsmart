@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ClassSectionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.category.CreateClassRequest;
+import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface IClassService {
-    List<Long> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest);
+    List<String> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest);
+
+   ApiPage<ClassDetailResponse> getAllSubCourseOfCourse(Long id, Pageable pageable);
 
 //    Boolean createClass(CreateClassRequest request);
 //
