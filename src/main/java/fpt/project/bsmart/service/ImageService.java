@@ -9,6 +9,9 @@ import java.util.List;
 public interface ImageService {
     ImageDto uploadImage( ImageRequest ImageRequest);
 
+    ImageDto uploadImageForClass( ImageRequest ImageRequest);
+
+
     List<ImageDto> getAllImage();
 
     ImageDto getImageById(Long id);

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "class")
+@Table(name = "class", indexes = @Index(name = "idx_class_code", columnList = "code", unique = true))
 public class Class extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,11 +32,6 @@ public class Class extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ECourseStatus status;
 
-    @Column(name = "start_date_expected")
-    private Instant startDateExpected;
-
-    @Column(name = "end_date_expected")
-    private Instant endDateExpected;
 
     @Column(name = "price")
     private BigDecimal price;
@@ -65,8 +60,7 @@ public class Class extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "feedback_template_id")
     private FeedbackTemplate feedbackTemplate;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "image_id", referencedColumnName = "id")
+    @OneToOne(mappedBy = "aClass")
     private ClassImage classImage;
 
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -169,21 +163,7 @@ public class Class extends BaseEntity {
         this.status = status;
     }
 
-    public Instant getStartDateExpected() {
-        return startDateExpected;
-    }
 
-    public void setStartDateExpected(Instant startDateExpected) {
-        this.startDateExpected = startDateExpected;
-    }
-
-    public Instant getEndDateExpected() {
-        return endDateExpected;
-    }
-
-    public void setEndDateExpected(Instant endDateExpected) {
-        this.endDateExpected = endDateExpected;
-    }
 
     public BigDecimal getPrice() {
         return price;

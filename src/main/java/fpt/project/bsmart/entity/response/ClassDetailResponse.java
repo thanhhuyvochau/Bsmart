@@ -11,11 +11,17 @@ import java.time.Instant;
 import java.util.List;
 
 
-public class SubCourseDetailResponse {
+public class ClassDetailResponse {
 
     private Long id;
 
-    private String title ;
+    private String code ;
+
+    private Instant startDate;
+
+    private Instant endDate;
+
+    private Integer numberOfStudent = 0;
 
     private ECourseLevel level;
 
@@ -23,21 +29,14 @@ public class SubCourseDetailResponse {
 
     private BigDecimal price;
 
-    private Instant startDateExpected ;
+    private int minStudent;
 
-    private Instant endDateExpected ;
+    private int maxStudent;
 
+    private ImageDto image;
+    private List<TimeInWeekDTO> timeInWeeks;
 
-
-    private int minStudent ;
-
-    private  int maxStudent ;
-
-    private ImageDto image ;
-    private List<TimeInWeekDTO> timeInWeeks ;
-
-    private Boolean purchase ;
-
+    private Boolean purchase;
 
     public Long getId() {
         return id;
@@ -47,20 +46,36 @@ public class SubCourseDetailResponse {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getCode() {
+        return code;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public ImageDto getImage() {
-        return image;
+    public Instant getStartDate() {
+        return startDate;
     }
 
-    public void setImage(ImageDto image) {
-        this.image = image;
+    public void setStartDate(Instant startDate) {
+        this.startDate = startDate;
+    }
+
+    public Instant getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Instant endDate) {
+        this.endDate = endDate;
+    }
+
+    public Integer getNumberOfStudent() {
+        return numberOfStudent;
+    }
+
+    public void setNumberOfStudent(Integer numberOfStudent) {
+        this.numberOfStudent = numberOfStudent;
     }
 
     public ECourseLevel getLevel() {
@@ -87,24 +102,6 @@ public class SubCourseDetailResponse {
         this.price = price;
     }
 
-    public Instant getStartDateExpected() {
-        return startDateExpected;
-    }
-
-    public void setStartDateExpected(Instant startDateExpected) {
-        this.startDateExpected = startDateExpected;
-    }
-
-    public Instant getEndDateExpected() {
-        return endDateExpected;
-    }
-
-    public void setEndDateExpected(Instant endDateExpected) {
-        this.endDateExpected = endDateExpected;
-    }
-
-
-
     public int getMinStudent() {
         return minStudent;
     }
@@ -119,6 +116,14 @@ public class SubCourseDetailResponse {
 
     public void setMaxStudent(int maxStudent) {
         this.maxStudent = maxStudent;
+    }
+
+    public ImageDto getImage() {
+        return image;
+    }
+
+    public void setImage(ImageDto image) {
+        this.image = image;
     }
 
     public List<TimeInWeekDTO> getTimeInWeeks() {

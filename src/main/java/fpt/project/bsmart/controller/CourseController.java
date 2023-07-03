@@ -4,32 +4,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.common.SimpleResult;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.dto.CourseDto;
-import fpt.project.bsmart.entity.dto.course.CourseContentDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.CourseResponse;
-import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
-import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
-import fpt.project.bsmart.entity.response.SubCourseDetailResponse;
 import fpt.project.bsmart.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 
 import javax.annotation.Nullable;
-import javax.validation.Valid;
-import java.util.List;
 
-import static fpt.project.bsmart.util.Constants.CustomFilterConstants.CONTENT_FILTER;
-import static fpt.project.bsmart.util.Constants.CustomFilterConstants.COURSE_CONTENT_FILTER_PROP;
 import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_COURSES;
 import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_ROOT;
 

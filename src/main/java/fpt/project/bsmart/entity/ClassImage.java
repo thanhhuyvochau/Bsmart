@@ -22,9 +22,10 @@ public class ClassImage extends BaseEntity {
     @Column(name = "status")
     private boolean status;
 
-    @OneToOne(mappedBy = "classImage")
-    private Class aClass;
 
+    @OneToOne
+    @JoinColumn(name = "class_id")
+    private Class aClass;
 
     public Long getId() {
         return id;
