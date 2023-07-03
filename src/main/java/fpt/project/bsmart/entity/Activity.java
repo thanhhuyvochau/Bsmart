@@ -43,6 +43,15 @@ public class Activity extends BaseEntity {
     @JoinColumn(name = "course_id")
     private Course course;
 
+    public Activity(String name, ECourseActivityType type, Boolean visible, Activity parent, List<ActivityAuthorize> activityAuthorizes, Course course) {
+        this.name = name;
+        this.type = type;
+        this.visible = visible;
+        this.parent = parent;
+        this.activityAuthorizes = activityAuthorizes;
+        this.course = course;
+    }
+
     public Activity() {
     }
 

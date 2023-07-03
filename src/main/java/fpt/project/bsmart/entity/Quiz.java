@@ -44,6 +44,27 @@ public class Quiz extends BaseEntity {
     private boolean isUnlimitedAttempt = false;
     @Column(name = "attempt_number")
     private int attemptNumber = 1;
+
+    public Quiz() {
+    }
+
+    public Quiz(String code, Instant startDate, Instant endDate, Integer time, QuizStatus status, Float defaultPoint, Boolean isSuffleQuestion, Boolean isAllowReview, Integer allowReviewAfterMin, String password, Activity activity, List<QuizQuestion> quizQuestions, boolean isUnlimitedAttempt, int attemptNumber) {
+        this.code = code;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.time = time;
+        this.status = status;
+        this.defaultPoint = defaultPoint;
+        this.isSuffleQuestion = isSuffleQuestion;
+        this.isAllowReview = isAllowReview;
+        this.allowReviewAfterMin = allowReviewAfterMin;
+        this.password = password;
+        this.activity = activity;
+        this.quizQuestions = quizQuestions;
+        this.isUnlimitedAttempt = isUnlimitedAttempt;
+        this.attemptNumber = attemptNumber;
+    }
+
     public Long getId() {
         return id;
     }

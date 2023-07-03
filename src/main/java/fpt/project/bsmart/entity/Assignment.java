@@ -36,6 +36,22 @@ public class Assignment extends BaseEntity {
     @Column(name = "pass_point")
     private Long passPoint = 5L; // Default 5
 
+    public Assignment(String description, Instant startDate, Instant endDate, Integer editBeForSubmitMin, Integer maxFileSubmit, Integer maxFileSize, EAssignmentStatus status, Activity activity, List<AssignmentFile> assignmentFiles, Long passPoint) {
+        this.description = description;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.editBeForSubmitMin = editBeForSubmitMin;
+        this.maxFileSubmit = maxFileSubmit;
+        this.maxFileSize = maxFileSize;
+        this.status = status;
+        this.activity = activity;
+        this.assignmentFiles = assignmentFiles;
+        this.passPoint = passPoint;
+    }
+
+    public Assignment() {
+    }
+
     public Long getId() {
         return id;
     }

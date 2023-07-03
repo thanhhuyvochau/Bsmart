@@ -1,10 +1,16 @@
 package fpt.project.bsmart.entity.request;
 
+import fpt.project.bsmart.entity.constant.EActivityType;
+import fpt.project.bsmart.entity.constant.ECourseActivityType;
+
+import java.util.List;
+
 public class ActivityRequest {
     private String name;
-    private Long activityTypeId;
-    private Boolean isVisible;
-    private Long classSectionId;
+    private ECourseActivityType type;
+    private Boolean visible;
+    private Long sectionActivityId;
+    private List<Long> authorizeClasses;
 
     public String getName() {
         return name;
@@ -14,27 +20,35 @@ public class ActivityRequest {
         this.name = name;
     }
 
-    public Long getActivityTypeId() {
-        return activityTypeId;
+    public ECourseActivityType getType() {
+        return type;
     }
 
-    public void setActivityTypeId(Long activityTypeId) {
-        this.activityTypeId = activityTypeId;
+    public void setType(ECourseActivityType type) {
+        this.type = type;
     }
 
-    public Boolean getIsVisible() {
-        return isVisible;
+    public Boolean getVisible() {
+        return visible;
     }
 
-    public void setIsVisible(Boolean visible) {
-        isVisible = visible;
+    public void setVisible(Boolean visible) {
+        this.visible = visible;
     }
 
-    public Long getClassSectionId() {
-        return classSectionId;
+    public Long getSectionActivityId() {
+        return sectionActivityId;
     }
 
-    public void setClassSectionId(Long classSectionId) {
-        this.classSectionId = classSectionId;
+    public void setSectionActivityId(Long sectionActivityId) {
+        this.sectionActivityId = sectionActivityId;
+    }
+
+    public List<Long> getAuthorizeClasses() {
+        return authorizeClasses;
+    }
+
+    public void setAuthorizeClasses(List<Long> authorizeClasses) {
+        this.authorizeClasses = authorizeClasses;
     }
 }
