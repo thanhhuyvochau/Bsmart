@@ -16,7 +16,6 @@ public class ImageDto implements Serializable {
     @Schema(description = "URL ảnh đại diện")
     private String url;
 
-
     private boolean status;
 
     private EImageType type;

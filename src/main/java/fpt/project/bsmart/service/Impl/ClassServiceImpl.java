@@ -3,13 +3,19 @@ package fpt.project.bsmart.service.Impl;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
+import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.util.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -37,17 +43,18 @@ public class ClassServiceImpl implements IClassService {
     private final DayOfWeekRepository dayOfWeekRepository;
     private final SlotRepository slotRepository;
 
-
+    private final TimeInWeekRepository timeInWeekRepository;
     private final CourseRepository courseRepository;
 
     private final ClassImageRepository classImageRepository;
 
-    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository) {
+    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository) {
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.classRepository = classRepository;
         this.dayOfWeekRepository = dayOfWeekRepository;
         this.slotRepository = slotRepository;
+        this.timeInWeekRepository = timeInWeekRepository;
         this.courseRepository = courseRepository;
         this.classImageRepository = classImageRepository;
     }
@@ -61,13 +68,30 @@ public class ClassServiceImpl implements IClassService {
      * @return List<Long> list id of class created
      */
     @Override
-    public List<Long> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest) {
+    public List<String> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
         // Step 1
         Course course = createCourseFromRequest(currentUserAccountLogin, mentorCreateClassRequest);
         // Step 2
         return createClassAndTimeInWeek(currentUserAccountLogin, course, mentorCreateClassRequest);
     }
+
+    @Override
+    public ApiPage<ClassDetailResponse> getAllSubCourseOfCourse(Long id, Pageable pageable) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+
+        User currentUser = SecurityUtil.getCurrentUser();
+        Page<Class> classPage = classRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART, pageable);
+
+        List<ClassDetailResponse> classResponses = classPage.getContent().stream()
+                .map(subCourse -> ClassUtil.convertClassToClassDetailResponse(currentUser, subCourse))
+                .collect(Collectors.toList());
+
+        return PageUtil.convert(new PageImpl<>(classResponses, pageable, classPage.getTotalElements()));
+    }
+
 
     private Course createCourseFromRequest(User currentUserAccountLogin, MentorCreateClassRequest mentorCreateClassRequest) {
         Long categoryId = mentorCreateClassRequest.getCategoryId();
@@ -89,6 +113,15 @@ public class ClassServiceImpl implements IClassService {
         Subject subject = optionalSubject.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                 .withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + subjectId));
 
+        // check skill of mentor is match with subject input
+        List<Subject> skillOfMentor = currentUserAccountLogin.getMentorProfile().getSkills().stream().map(MentorSkill::getSkill).collect(Collectors.toList());
+
+        if (skillOfMentor.contains(subject)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT));
+        }
+
+
         Course course = new Course();
         course.setName(mentorCreateClassRequest.getName());
         course.setCode(CourseUtil.generateRandomCode(8));
@@ -100,39 +133,42 @@ public class ClassServiceImpl implements IClassService {
         return course;
     }
 
-    private List<Long> createClassAndTimeInWeek(User currentUserAccountLogin, Course course, MentorCreateClassRequest mentorCreateClassRequest) {
+
+    private List<String> createClassAndTimeInWeek(User currentUserAccountLogin, Course course, MentorCreateClassRequest mentorCreateClassRequest) {
         // check mentor account is valid
         MentorUtil.checkIsMentor();
 
 
-        List<Long> classIds = new ArrayList<>();
+        List<String> classCodes = new ArrayList<>();
         List<CreateClassInformationRequest> createClassInformationRequests = mentorCreateClassRequest.getCreateClassRequest();
         List<Class> classes = new ArrayList<>();
         createClassInformationRequests.forEach(createClassInformationRequest -> {
+
             List<TimeInWeekRequest> timeInWeekRequests = createClassInformationRequest.getTimeInWeekRequests();
 
             // create time in week for subCourse
             List<TimeInWeek> timeInWeeksFromRequest = createTimeInWeeksFromRequest(timeInWeekRequests);
 
             // create subCourse for course
-            Class classFromRequest = createClassFromRequest(createClassInformationRequest, course , currentUserAccountLogin, timeInWeeksFromRequest);
+            Class classFromRequest = createClassFromRequest(createClassInformationRequest, course, currentUserAccountLogin, timeInWeeksFromRequest);
             classFromRequest.setCourse(course);
 
             classes.add(classFromRequest);
 
         });
+
         course.setClasses(classes);
         courseRepository.save(course);
         // ghi log
         classes.forEach(aClass -> {
-                    classIds.add(aClass.getId());
+                    classCodes.add(aClass.getCode());
                     ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
                 }
         );
-        return classIds;
+        return classCodes;
     }
 
-    private Class createClassFromRequest(CreateClassInformationRequest subCourseRequest,Course course , User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
+    private Class createClassFromRequest(CreateClassInformationRequest subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
         if (subCourseRequest.getPrice() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE));
@@ -141,7 +177,8 @@ public class ClassServiceImpl implements IClassService {
         aClass.setNumberOfSlot(subCourseRequest.getNumberOfSlot());
         aClass.setMinStudent(subCourseRequest.getMinStudent());
         aClass.setMaxStudent(subCourseRequest.getMaxStudent());
-        aClass.setStartDateExpected(subCourseRequest.getStartDateExpected());
+        aClass.setStartDate(subCourseRequest.getStartDate());
+        aClass.setEndDate(subCourseRequest.getEndDate());
         aClass.setStatus(REQUESTING);
         aClass.setPrice(subCourseRequest.getPrice());
         aClass.setLevel(subCourseRequest.getLevel());
@@ -153,22 +190,29 @@ public class ClassServiceImpl implements IClassService {
         ClassImage classImage = classImageRepository.findById(imageId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + imageId));
-        aClass.setClassImage(classImage);
-        aClass.setTimeInWeeks(timeInWeeks);
+        classImage.setaClass(aClass);
+        classImageRepository.save(classImage);
+//        aClass.setClassImage(classImage);
 
-        if (subCourseRequest.getEndDateExpected() != null) {
-            Instant endDateExpected = subCourseRequest.getEndDateExpected();
-            int numberOfSlot = calNumberOfSlotByEndDate(subCourseRequest.getStartDateExpected(), endDateExpected, timeInWeeks);
-            aClass.setNumberOfSlot(numberOfSlot);
-            aClass.setEndDateExpected(endDateExpected);
-        } else if (subCourseRequest.getNumberOfSlot() != null) {
-            Integer numberOfSlot = subCourseRequest.getNumberOfSlot();
-            Instant endDateExpected = calEndDateByNumberOfSlot(subCourseRequest.getStartDateExpected(), numberOfSlot, timeInWeeks);
-            aClass.setNumberOfSlot(numberOfSlot);
-            aClass.setEndDateExpected(endDateExpected);
-        } else {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Lỗi không tìm thấy số lượng slot học hoặc ngày kết thúc");
-        }
+        aClass.setTimeInWeeks(timeInWeeks);
+        timeInWeeks.forEach(timeInWeek -> {
+            timeInWeek.setClazz(aClass);
+            timeInWeekRepository.save(timeInWeek) ;
+        });
+
+//        if (subCourseRequest.getEndDate() != null) {
+//            Instant endDateExpected = subCourseRequest.getEndDate();
+//            int numberOfSlot = calNumberOfSlotByEndDate(subCourseRequest.getStartDate(), endDateExpected, timeInWeeks);
+//            aClass.setNumberOfSlot(numberOfSlot);
+//            aClass.setEndDate(endDateExpected);
+//        } else if (subCourseRequest.getNumberOfSlot() != null) {
+//            Integer numberOfSlot = subCourseRequest.getNumberOfSlot();
+//            Instant endDateExpected = calEndDateByNumberOfSlot(subCourseRequest.getStartDate(), numberOfSlot, timeInWeeks);
+//            aClass.setNumberOfSlot(numberOfSlot);
+//            aClass.setEndDate(endDateExpected);
+//        } else {
+//            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Lỗi không tìm thấy số lượng slot học hoặc ngày kết thúc");
+//        }
         return aClass;
     }
 

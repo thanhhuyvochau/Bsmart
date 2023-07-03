@@ -1,11 +1,13 @@
 package fpt.project.bsmart.controller;
 
 
+import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.*;
-import fpt.project.bsmart.entity.response.AttendanceStudentResponse;
+import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +30,15 @@ public class ClassController {
     @Operation(summary = "mentor tao khoá học của riêng mình ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping
-    public ResponseEntity<ApiResponse<List<Long>>> mentorCreateCoursePrivate(@Valid @RequestBody MentorCreateClassRequest mentorCreateClassRequest) {
+    public ResponseEntity<ApiResponse<List<String>>> mentorCreateCoursePrivate(@Valid @RequestBody MentorCreateClassRequest mentorCreateClassRequest) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateCoursePrivate(mentorCreateClassRequest)));
+    }
+
+
+    @Operation(summary = "lấy tất cả các class của  course load lên trang khoa học")
+    @GetMapping("/course/{id}")
+    public ResponseEntity<ApiResponse<ApiPage<ClassDetailResponse>>> getAllSubCourseOfCourse(@PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllSubCourseOfCourse(id, pageable)));
     }
 
 //    @Operation(summary = "mentor tao lớp học")

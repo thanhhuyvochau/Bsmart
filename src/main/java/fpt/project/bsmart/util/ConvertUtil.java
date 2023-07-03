@@ -86,6 +86,11 @@ public class ConvertUtil {
         return imageDto;
     }
 
+    public static ImageDto convertClassImageToImageDto(ClassImage classImage) {
+        ImageDto imageDto = ObjectUtil.copyProperties(classImage, new ImageDto(), ImageDto.class);
+        return imageDto;
+    }
+
     public static RoleDto convertRoleToRoleDto(Role role) {
         RoleDto roleDto = ObjectUtil.copyProperties(role, new RoleDto(), RoleDto.class);
         roleDto.setName(role.getCode().getName());

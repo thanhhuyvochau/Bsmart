@@ -24,6 +24,12 @@ public class ImageController {
         return ResponseEntity.ok(ApiResponse.success(imageService.uploadImage(ImageRequest)));
     }
 
+    @PostMapping("/class/upload")
+    public ResponseEntity<ApiResponse<ImageDto>> uploadImageForClass(@ModelAttribute ImageRequest ImageRequest) {
+        return ResponseEntity.ok(ApiResponse.success(imageService.uploadImageForClass(ImageRequest)));
+    }
+
+
     @GetMapping
     public ResponseEntity<ApiResponse<List<ImageDto>>> getAllImage() {
         return ResponseEntity.ok(ApiResponse.success(imageService.getAllImage()));

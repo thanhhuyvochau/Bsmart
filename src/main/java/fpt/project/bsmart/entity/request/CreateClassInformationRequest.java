@@ -19,9 +19,9 @@ public class CreateClassInformationRequest {
 
     private Integer maxStudent ;
 
-    private Instant startDateExpected  ;
+    private Instant startDate ;
 
-    private Instant endDateExpected  ;
+    private Instant endDate ;
 
     private Integer  numberOfSlot ;
 
@@ -68,23 +68,21 @@ public class CreateClassInformationRequest {
         this.maxStudent = maxStudent;
     }
 
-    public Instant getStartDateExpected() {
-        return startDateExpected;
+    public Instant getStartDate() {
+        return startDate;
     }
 
-    public void setStartDateExpected(Instant startDateExpected) {
-        this.startDateExpected = startDateExpected;
+    public void setStartDate(Instant startDate) {
+        this.startDate = startDate;
     }
 
-    public Instant getEndDateExpected() {
-        return endDateExpected;
+    public Instant getEndDate() {
+        return endDate;
     }
 
-    public void setEndDateExpected(Instant endDateExpected) {
-        this.endDateExpected = endDateExpected;
+    public void setEndDate(Instant endDate) {
+        this.endDate = endDate;
     }
-
-
 
     public Integer getNumberOfSlot() {
         return numberOfSlot;

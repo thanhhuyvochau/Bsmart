@@ -1,19 +1,10 @@
 package fpt.project.bsmart.service;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.dto.CourseDto;
-import fpt.project.bsmart.entity.dto.course.CourseContentDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.CourseResponse;
-import fpt.project.bsmart.entity.response.CourseSubCourseDetailResponse;
-import fpt.project.bsmart.entity.response.CourseSubCourseResponse;
-import fpt.project.bsmart.entity.response.SubCourseDetailResponse;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 public interface ICourseService {
     ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest , Pageable pageable);

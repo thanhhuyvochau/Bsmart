@@ -1,21 +1,22 @@
 package fpt.project.bsmart.util;
 
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.TimeTable;
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
+import fpt.project.bsmart.entity.dto.ImageDto;
+import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
+import fpt.project.bsmart.entity.response.ClassDetailResponse;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public class ClassUtil {
     public static double CLASS_PERCENTAGE_FOR_FIRST_FEEDBACK = 0.5f;
     public static double CLASS_PERCENTAGE_FOR_SECOND_FEEDBACK = 0.8f;
     public static double PERCENTAGE_RANGE = 0.1f;
+
     public static ClassProgressTimeDto getPercentageOfClassTime(Class clazz) {
         List<TimeTable> timeTables = clazz.getTimeTables();
         Instant now = Instant.now();
@@ -35,7 +36,7 @@ public class ClassUtil {
         return null;
     }
 
-    public static String generateCode(String code ) {
+    public static String generateCode(String code) {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder sb = new StringBuilder();
         Random random = new Random();
@@ -47,4 +48,31 @@ public class ClassUtil {
         }
         return code + sb.toString();
     }
+
+    public static ClassDetailResponse convertClassToClassDetailResponse(User userLogin, Class clazz) {
+        ClassDetailResponse subCourseDetailResponse = ObjectUtil.copyProperties(clazz, new ClassDetailResponse(), ClassDetailResponse.class);
+
+        ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
+        List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>();
+        clazz.getTimeInWeeks().forEach(timeInWeek -> {
+            timeInWeekDTOS.add(ConvertUtil.convertTimeInWeekToDto(timeInWeek));
+        });
+        subCourseDetailResponse.setTimeInWeeks(timeInWeekDTOS);
+        subCourseDetailResponse.setImage(imageDto);
+        if (userLogin != null) {
+            List<Order> orders = userLogin.getOrder();
+            orders.forEach(order -> {
+                List<OrderDetail> orderDetails = order.getOrderDetails();
+                orderDetails.forEach(orderDetail -> {
+                    Class aClass = orderDetail.getClazz();
+                    if (aClass.equals(clazz)) {
+                        subCourseDetailResponse.setPurchase(true);
+                    }
+                });
+            });
+        }
+
+        return subCourseDetailResponse;
+    }
 }
+

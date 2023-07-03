@@ -1,9 +1,11 @@
 package fpt.project.bsmart.service.Impl;
 
+import fpt.project.bsmart.entity.ClassImage;
 import fpt.project.bsmart.entity.Image;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.request.ImageRequest;
+import fpt.project.bsmart.repository.ClassImageRepository;
 import fpt.project.bsmart.repository.ImageRepository;
 import fpt.project.bsmart.service.ImageService;
 import fpt.project.bsmart.util.MessageUtil;
@@ -33,17 +35,21 @@ public class ImageServiceImpl implements ImageService {
 
     private final ImageRepository imageRepository;
 
+    private final ClassImageRepository classImageRepository;
+
     private final MinioAdapter minioAdapter;
     private final MessageUtil messageUtil;
 
-    public ImageServiceImpl(ImageRepository imageRepository, MinioAdapter minioAdapter, MessageUtil messageUtil) {
+    public ImageServiceImpl(ImageRepository imageRepository, ClassImageRepository classImageRepository, MinioAdapter minioAdapter, MessageUtil messageUtil) {
         this.imageRepository = imageRepository;
+        this.classImageRepository = classImageRepository;
+
         this.minioAdapter = minioAdapter;
         this.messageUtil = messageUtil;
     }
 
     @Override
-    public ImageDto uploadImage( ImageRequest imageRequest) {
+    public ImageDto uploadImage(ImageRequest imageRequest) {
         try {
             MultipartFile file = imageRequest.getFile();
             String name = file.getOriginalFilename() + "_" + Instant.now().toString();
@@ -58,6 +64,26 @@ public class ImageServiceImpl implements ImageService {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public ImageDto uploadImageForClass(ImageRequest imageRequest) {
+        try {
+            MultipartFile file = imageRequest.getFile();
+            String name = file.getOriginalFilename() + "_" + Instant.now().toString();
+            ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file.getContentType(), file.getInputStream(), file.getSize());
+            ClassImage image = new ClassImage();
+            image.setName(objectWriteResponse.object());
+            image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
+            image.setStatus(true);
+            ClassImage persistedImage = classImageRepository.save(image);
+
+            image.setType(imageRequest.getType());
+            return ObjectUtil.copyProperties(persistedImage, new ImageDto(), ImageDto.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @Override
     public List<ImageDto> getAllImage() {
