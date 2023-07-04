@@ -13,7 +13,6 @@ import fpt.project.bsmart.repository.QuizSubmissionRepository;
 import fpt.project.bsmart.service.IActivityService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.adapter.MinioAdapter;
-import fpt.project.bsmart.validator.ActivityValidator;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -86,16 +85,25 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     }
 
     private boolean createDetailActivity(ActivityRequest activityRequest, ECourseActivityType type, Activity activity) throws IOException {
-        switch (type.name()) {
-            case "QUIZ":
+        switch (type) {
+            case QUIZ:
                 Quiz quiz = addQuiz((AddQuizRequest) activityRequest, activity);
                 activity.setQuiz(quiz);
                 activityRepository.save(activity);
                 break;
-            case "ASSIGNMENT":
+            case ASSIGNMENT:
                 Assignment assignment = addAssignment((AssignmentRequest) activityRequest, activity);
                 activity.setAssignment(assignment);
                 activityRepository.save(activity);
+                return true;
+            case SECTION:
+                // Just return for section -> section work as folder for others activities with no content inside
+                return true;
+            case RESOURCE:
+                return true;
+            case ANNOUNCEMENT:
+                return true;
+            case LESSON:
                 return true;
             default:
                 throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE) + type);
