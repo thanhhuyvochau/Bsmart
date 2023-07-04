@@ -1,6 +1,5 @@
 package fpt.project.bsmart.entity.request;
 
-import fpt.project.bsmart.entity.constant.EActivityType;
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
 
 import java.util.List;
@@ -9,8 +8,9 @@ public class ActivityRequest {
     private String name;
     private ECourseActivityType type;
     private Boolean visible;
-    private Long sectionActivityId;
+    private Long parentActivityId;
     private List<Long> authorizeClasses;
+    private Long courseId;
 
     public String getName() {
         return name;
@@ -36,12 +36,12 @@ public class ActivityRequest {
         this.visible = visible;
     }
 
-    public Long getSectionActivityId() {
-        return sectionActivityId;
+    public Long getParentActivityId() {
+        return parentActivityId;
     }
 
-    public void setSectionActivityId(Long sectionActivityId) {
-        this.sectionActivityId = sectionActivityId;
+    public void setParentActivityId(Long parentActivityId) {
+        this.parentActivityId = parentActivityId;
     }
 
     public List<Long> getAuthorizeClasses() {
@@ -50,5 +50,13 @@ public class ActivityRequest {
 
     public void setAuthorizeClasses(List<Long> authorizeClasses) {
         this.authorizeClasses = authorizeClasses;
+    }
+
+    public Long getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(Long courseId) {
+        this.courseId = courseId;
     }
 }

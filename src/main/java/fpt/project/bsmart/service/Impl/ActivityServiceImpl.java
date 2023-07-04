@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.QuizSubmittionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.repository.ActivityRepository;
+import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.repository.QuizRepository;
 import fpt.project.bsmart.repository.QuizSubmissionRepository;
 import fpt.project.bsmart.service.IActivityService;
@@ -37,58 +38,72 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
 
     @Value("${minio.endpoint}")
     String minioUrl;
-    //    private final ActivityTypeRepository activityTypeRepository;
+
     private final ActivityRepository activityRepository;
     private final QuizRepository quizRepository;
     private final QuizSubmissionRepository quizSubmissionRepository;
-    //    private final ClassSectionRepository classSectionRepository;
+
     private final MinioAdapter minioAdapter;
     private final MessageUtil messageUtil;
     private final PasswordEncoder encoder;
+    private final CourseRepository courseRepository;
 
-    public ActivityServiceImpl(ActivityRepository activityRepository, QuizRepository quizRepository, QuizSubmissionRepository quizSubmissionRepository, MinioAdapter minioAdapter, MessageUtil messageUtil, PasswordEncoder encoder) {
+    public ActivityServiceImpl(ActivityRepository activityRepository, QuizRepository quizRepository, QuizSubmissionRepository quizSubmissionRepository, MinioAdapter minioAdapter, MessageUtil messageUtil, PasswordEncoder encoder, CourseRepository courseRepository) {
         this.activityRepository = activityRepository;
         this.quizRepository = quizRepository;
         this.quizSubmissionRepository = quizSubmissionRepository;
         this.minioAdapter = minioAdapter;
         this.messageUtil = messageUtil;
         this.encoder = encoder;
+        this.courseRepository = courseRepository;
     }
 
 
     @Override
     public Boolean addActivity(ActivityRequest activityRequest) throws IOException {
         User currentUser = SecurityUtil.getCurrentUser();
-        Activity parentActivity = activityRepository.findByIdAndType(activityRequest.getSectionActivityId(), ECourseActivityType.SECTION).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SECTION_NOT_FOUND_BY_ID) + activityRequest.getSectionActivityId()));
-
-        Course course = parentActivity.getCourse();
+        Course course = courseRepository.findById(activityRequest.getCourseId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID) + activityRequest.getCourseId()));
         User mentor = course.getCreator();
         if (!SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER) && !Objects.equals(currentUser.getId(), mentor.getId())) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
         ECourseActivityType type = activityRequest.getType();
-        Activity activity = ActivityBuilder.getBuilder()
+        ActivityBuilder activityBuilder = ActivityBuilder.getBuilder()
                 .withName(activityRequest.getName())
                 .withVisible(activityRequest.getVisible())
                 .withCourse(course)
-                .withType(type)
-                .withParent(parentActivity)
-                .build();
+                .withType(type);
+        if (Objects.equals(activityRequest.getType(), ECourseActivityType.SECTION)) {
+            Activity parentActivity = activityRepository.findByIdAndType(activityRequest.getParentActivityId(), ECourseActivityType.SECTION).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SECTION_NOT_FOUND_BY_ID) + activityRequest.getParentActivityId()));
+            activityBuilder.withParent(parentActivity);
+        }
+        Activity activity = activityBuilder.build();
         return createDetailActivity(activityRequest, type, activity);
     }
 
     private boolean createDetailActivity(ActivityRequest activityRequest, ECourseActivityType type, Activity activity) throws IOException {
-        switch (type.name()) {
-            case "QUIZ":
+        switch (type) {
+            case QUIZ:
                 Quiz quiz = addQuiz((AddQuizRequest) activityRequest, activity);
                 activity.setQuiz(quiz);
                 activityRepository.save(activity);
                 break;
-            case "ASSIGNMENT":
+            case ASSIGNMENT:
                 Assignment assignment = addAssignment((AssignmentRequest) activityRequest, activity);
                 activity.setAssignment(assignment);
                 activityRepository.save(activity);
+                return true;
+            case SECTION:
+                // Just return for section -> section work as folder for others activities with no content inside
+                return true;
+            case RESOURCE:
+                return true;
+            case ANNOUNCEMENT:
+                return true;
+            case LESSON:
                 return true;
             default:
                 throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE) + type);

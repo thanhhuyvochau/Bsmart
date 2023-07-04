@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.ActivityAuthorize;
 import fpt.project.bsmart.entity.Course;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
+import fpt.project.bsmart.validator.ActivityValidator;
 import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
@@ -61,6 +62,8 @@ public class ActivityBuilder {
             throw ApiException.create(HttpStatus.CONFLICT).withMessage("Khóa học không thể tạo độc lập");
         } else if (parent != null && Objects.equals(type, ECourseActivityType.SECTION)) {
             throw ApiException.create(HttpStatus.CONFLICT).withMessage("Section không thể tạo dưới một section khác");
+        } else if (parent != null && !ActivityValidator.isActivityBelongCourse(parent, course)) {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Parent activity không thuộc về khóa học");
         }
         return new Activity(name, type, visible, parent, activityAuthorizes, course);
     }

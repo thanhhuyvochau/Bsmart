@@ -32,7 +32,6 @@ public class AssignmentValidator {
         for (MultipartFile file : submitFiles) {
             if (!file.isEmpty()) {
                 if (!validFileTypes.contains(file.getContentType())) {
-//                    ApiException.create(HttpStatus.CONFLICT).withMessage("Invalid file type for file: " + file.getOriginalFilename());
                     return false;
                 }
             }
