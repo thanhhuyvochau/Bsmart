@@ -27,26 +27,17 @@ public class Class extends BaseEntity {
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
     private ECourseLevel level;
-
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private ECourseStatus status;
-
-
     @Column(name = "price")
     private BigDecimal price;
-
-
     @Column(name = "min_student")
     private Integer minStudent;
-
     @Column(name = "max_student")
     private Integer maxStudent;
-
     @Column(name = "number_of_slot")
     private Integer numberOfSlot = 0;
-
-
     @Column(name = "has_referral_code")
     private boolean hasReferralCode;
 
