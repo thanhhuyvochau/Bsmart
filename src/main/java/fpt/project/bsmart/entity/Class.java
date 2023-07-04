@@ -76,9 +76,6 @@ public class Class extends BaseEntity {
     private List<TimeTable> timeTables = new ArrayList<>();
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudentClass> studentClasses = new ArrayList<>();
-
-    @OneToMany(mappedBy = "announcementClass", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ClassAnnouncement> classAnnouncements = new ArrayList<>();
     @OneToMany(mappedBy = "authorizeClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ActivityAuthorize> activityAuthorizes = new ArrayList<>();
 
@@ -137,15 +134,6 @@ public class Class extends BaseEntity {
     public void setStudentClasses(List<StudentClass> studentClasses) {
         this.studentClasses = studentClasses;
     }
-
-    public List<ClassAnnouncement> getClassAnnouncements() {
-        return classAnnouncements;
-    }
-
-    public void setClassAnnouncements(List<ClassAnnouncement> classAnnouncements) {
-        this.classAnnouncements = classAnnouncements;
-    }
-
 
     public ECourseLevel getLevel() {
         return level;
