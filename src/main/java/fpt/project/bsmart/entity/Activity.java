@@ -29,8 +29,9 @@ public class Activity extends BaseEntity {
     private Resource resource;
     @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
     private ClassAnnouncement announcement;
-    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
-    private Section section;
+
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL)
+    private List<Section> sections;
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Activity parent;
@@ -104,12 +105,12 @@ public class Activity extends BaseEntity {
         this.type = type;
     }
 
-    public Section getSection() {
-        return section;
+    public List<Section> getSections() {
+        return sections;
     }
 
-    public void setSection(Section section) {
-        this.section = section;
+    public void setSections(List<Section> sections) {
+        this.sections = sections;
     }
 
     public Activity getParent() {

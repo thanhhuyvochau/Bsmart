@@ -6,7 +6,10 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.QuizSubmittionDto;
 import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.request.activity.MentorCreateLessonForCourse;
+import fpt.project.bsmart.entity.request.activity.MentorCreateSectionForCourse;
 import fpt.project.bsmart.repository.ActivityRepository;
+import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.repository.QuizRepository;
 import fpt.project.bsmart.repository.QuizSubmissionRepository;
 import fpt.project.bsmart.service.IActivityService;
@@ -30,6 +33,9 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_CLASS_FOR_THIS_COURSE;
+
 @Service
 @Transactional
 public class ActivityServiceImpl implements IActivityService, Cloneable {
@@ -37,16 +43,18 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
 
     @Value("${minio.endpoint}")
     String minioUrl;
-    //    private final ActivityTypeRepository activityTypeRepository;
+    private final CourseRepository courseRepository;
     private final ActivityRepository activityRepository;
+
     private final QuizRepository quizRepository;
     private final QuizSubmissionRepository quizSubmissionRepository;
-    //    private final ClassSectionRepository classSectionRepository;
+
     private final MinioAdapter minioAdapter;
     private final MessageUtil messageUtil;
     private final PasswordEncoder encoder;
 
-    public ActivityServiceImpl(ActivityRepository activityRepository, QuizRepository quizRepository, QuizSubmissionRepository quizSubmissionRepository, MinioAdapter minioAdapter, MessageUtil messageUtil, PasswordEncoder encoder) {
+    public ActivityServiceImpl(CourseRepository courseRepository, ActivityRepository activityRepository, QuizRepository quizRepository, QuizSubmissionRepository quizSubmissionRepository, MinioAdapter minioAdapter, MessageUtil messageUtil, PasswordEncoder encoder) {
+        this.courseRepository = courseRepository;
         this.activityRepository = activityRepository;
         this.quizRepository = quizRepository;
         this.quizSubmissionRepository = quizSubmissionRepository;
@@ -76,6 +84,48 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                 .withParent(parentActivity)
                 .build();
         return createDetailActivity(activityRequest, type, activity);
+    }
+
+    @Override
+    public List<Long> mentorCreateSectionForCourse(Long id, List<MentorCreateSectionForCourse> sessions) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+
+
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+
+        User creator = course.getCreator();
+        if (!creator.equals(currentUserAccountLogin)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_CLASS_FOR_THIS_COURSE));
+        }
+
+        return mentorCreateSectionForCourse(sessions);
+    }
+
+    private List<Long> mentorCreateSectionForCourse( List<MentorCreateSectionForCourse> sessions) {
+        List<Activity> activityList = new ArrayList<>( );
+        sessions.forEach(createSectionForCourse -> {
+            Activity activitySection = new Activity();
+            activitySection.setName(createSectionForCourse.getName());
+            activitySection.setType(ECourseActivityType.SECTION);
+
+            List<MentorCreateLessonForCourse> lessons = createSectionForCourse.getLessons();
+
+            lessons.forEach(mentorCreateLessonForCourse -> {
+                Activity activityLesson = new Activity();
+                activityLesson.setParent(activitySection);
+                Lesson lesson = new Lesson();
+                lesson.setDescription(mentorCreateLessonForCourse.getDescription());
+                activityLesson.setLesson(lesson);
+            });
+            activityList.add(activitySection);
+
+        });
+
+        List<Activity> activityListSaved = activityRepository.saveAll(activityList);
+      return  activityListSaved.stream().map(Activity::getId).collect(Collectors.toList());
     }
 
     private boolean createDetailActivity(ActivityRequest activityRequest, ECourseActivityType type, Activity activity) throws IOException {

@@ -1,8 +1,6 @@
 package fpt.project.bsmart.entity.request;
 
-import java.util.List;
-
-public class CreateCoursePublicRequest {
+public class CreateCourseRequest {
     private String code;
     private String name;
     private Long categoryId;

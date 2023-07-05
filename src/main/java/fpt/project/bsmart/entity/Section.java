@@ -11,9 +11,11 @@ public class Section {
     private Long id;
     @Column(name = "name")
     private String name;
-    @OneToOne
+
+    @ManyToOne
     @JoinColumn(name = "activity_id")
     private Activity activity;
+
 
     public Long getId() {
         return id;

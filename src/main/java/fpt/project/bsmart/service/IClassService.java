@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ClassSectionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.category.CreateClassRequest;
+import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
@@ -16,6 +17,8 @@ public interface IClassService {
     List<String> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest);
 
    ApiPage<ClassDetailResponse> getAllSubCourseOfCourse(Long id, Pageable pageable);
+
+    List<Long> mentorCreateClassForCourse( Long id  ,List<MentorCreateClass> mentorCreateClassRequest);
 
 //    Boolean createClass(CreateClassRequest request);
 //

@@ -35,7 +35,6 @@ public class CourseUtil {
 //    }
 
 
-
     public static String generateRandomCode(int length) {
         String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder sb = new StringBuilder(length);

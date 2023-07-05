@@ -1,28 +1,45 @@
 
 package fpt.project.bsmart.service.Impl;
-import fpt.project.bsmart.entity.Course;
+import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
+import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
+import fpt.project.bsmart.repository.CategoryRepository;
 import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.service.ICourseService;
-import fpt.project.bsmart.util.ConvertUtil;
-import fpt.project.bsmart.util.PageUtil;
+import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.CourseSpecificationBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 
 @Service
 public class CourseServiceImpl implements ICourseService {
 
-//
     private final CourseRepository courseRepository;
 
-    public CourseServiceImpl(CourseRepository courseRepository) {
+    private final MessageUtil messageUtil;
+
+    private final CategoryRepository categoryRepository;
+
+
+
+    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository) {
         this.courseRepository = courseRepository;
+        this.messageUtil = messageUtil;
+        this.categoryRepository = categoryRepository;
     }
 
 
@@ -37,6 +54,49 @@ public class CourseServiceImpl implements ICourseService {
 
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
+    }
+
+    @Override
+    public Long mentorCreateCourse(CreateCourseRequest createCourseRequest) {
+
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+
+        Long categoryId = createCourseRequest.getCategoryId();
+        if (categoryId == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE));
+        }
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + categoryId));
+
+        Long subjectId = createCourseRequest.getSubjectId();
+        if (subjectId == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE));
+        }
+        Optional<Subject> optionalSubject = category.getSubjects().stream().filter(s -> s.getId().equals(subjectId)).findFirst();
+        Subject subject = optionalSubject.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                .withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + subjectId));
+
+        // check skill of mentor is match with subject input
+        List<Subject> skillOfMentor = currentUserAccountLogin.getMentorProfile().getSkills().stream().map(MentorSkill::getSkill).collect(Collectors.toList());
+
+        if (skillOfMentor.contains(subject)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT));
+        }
+
+        Course course = new Course();
+        course.setName(createCourseRequest.getName());
+        course.setCode(CourseUtil.generateRandomCode(8));
+        course.setDescription(createCourseRequest.getDescription());
+        course.setSubject(subject);
+        course.setStatus(REQUESTING);
+        course.setCreator(currentUserAccountLogin);
+        Course courseSaved = courseRepository.save(course);
+        return courseSaved.getId();
     }
 }
 //
