@@ -74,7 +74,9 @@ public class Constants {
         public static final String ACCOUNT_STATUS_NOT_ALLOW = "ACCOUNT_STATUS_NOT_ALLOW";
 
         public static class Invalid {
-
+            public static final String INVALID_EMAIL = "INVALID_EMAIL";
+            public static final String INVALID_BIRTH_DAY = "INVALID_BIRTH_DAY";
+            public static final String INVALID_GENDER = "INVALID_GENDER";
             public static final String USERNAME_PASSWORD_INCORRECT = "USERNAME_PASSWORD_INCORRECT";
             public static final String INVALID_FACEBOOK_LINK = "INVALID_FACEBOOK_LINK";
             public static final String INVALID_INSTAGRAM_LINK = "INVALID_INSTAGRAM_LINK";
@@ -101,6 +103,7 @@ public class Constants {
         }
 
         public static class Empty {
+            public static final String EMPTY_EMAIL = "EMPTY_EMAIL";
             public static final String EMPTY_FULL_NAME = "EMPTY_FULL_NAME";
             public static final String EMPTY_ADDRESS = "EMPTY_ADDRESS";
             public static final String EMPTY_PASSWORD = "EMPTY_PASSWORD";
