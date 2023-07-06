@@ -11,18 +11,16 @@ import java.util.List;
 public interface IActivityService {
     Boolean addActivity(ActivityRequest activityRequest) throws IOException;
 
-    List<Long> mentorCreateSectionForCourse(Long id, List<MentorCreateSectionForCourse>sessions );
-//    Boolean addActivity(ActivityRequest activityRequest) throws IOException;
-//
-//    Boolean deleteActivity(Long id);
-//
-//    Boolean changeActivityVisible(Long id);
-//
-//    Boolean editActivity(Long id, ActivityRequest activityRequest) throws IOException;
-//
-//    ActivityDto getDetailActivity(Long id);
-//
-//    Boolean submitAssignment(Long id, SubmitAssignmentRequest request);
+    List<Long> mentorCreateSectionForCourse(Long id, List<MentorCreateSectionForCourse> sessions);
+
+    Boolean deleteActivity(Long id);
+
+    Boolean changeActivityVisible(Long id);
+
+    //    Boolean editActivity(Long id, ActivityRequest activityRequest) throws IOException;
+    ActivityDto getDetailActivity(Long id);
+
+    Boolean submitAssignment(Long id, SubmitAssignmentRequest request);
 
 
 }
