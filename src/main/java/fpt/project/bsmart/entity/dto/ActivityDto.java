@@ -1,15 +1,16 @@
 package fpt.project.bsmart.entity.dto;
 
 import fpt.project.bsmart.entity.BaseEntity;
+import fpt.project.bsmart.entity.constant.ECourseActivityType;
 
 
 public class ActivityDto<T> extends BaseEntity {
     private Long id;
     private String name;
-    private ActivityTypeDto type;
+    private ECourseActivityType type;
     private Boolean isVisible;
 
-    private T activityDetail;
+    private T detail;
 
     public ActivityDto() {
     }
@@ -38,19 +39,27 @@ public class ActivityDto<T> extends BaseEntity {
         isVisible = visible;
     }
 
-    public ActivityTypeDto getType() {
+    public ECourseActivityType getType() {
         return type;
     }
 
-    public void setType(ActivityTypeDto type) {
+    public void setType(ECourseActivityType type) {
         this.type = type;
     }
 
-    public T getActivityDetail() {
-        return activityDetail;
+    public Boolean getVisible() {
+        return isVisible;
     }
 
-    public void setActivityDetail(T activityDetail) {
-        this.activityDetail = activityDetail;
+    public void setVisible(Boolean visible) {
+        isVisible = visible;
+    }
+
+    public T getDetail() {
+        return detail;
+    }
+
+    public void setDetail(T detail) {
+        this.detail = detail;
     }
 }

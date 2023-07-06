@@ -81,7 +81,6 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             activityBuilder.withParent(parentActivity);
         }
         Activity activity = activityBuilder.build();
-        activity = activityRepository.save(activity);
         return createDetailActivity(activityRequest, type, activity);
     }
 

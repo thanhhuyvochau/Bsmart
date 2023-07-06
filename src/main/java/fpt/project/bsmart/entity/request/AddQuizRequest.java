@@ -14,7 +14,6 @@ public class AddQuizRequest extends ActivityRequest{
     private Boolean isAllowReview = true;
     private Integer allowReviewAfterMin = 0;
     private String password;
-    private Long activityId;
     private List<QuizQuestionRequest> quizQuestions = new ArrayList<>();
 
     public String getCode() {
@@ -86,14 +85,6 @@ public class AddQuizRequest extends ActivityRequest{
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public Long getActivityId() {
-        return activityId;
-    }
-
-    public void setActivityId(Long activityId) {
-        this.activityId = activityId;
     }
 
     public List<QuizQuestionRequest> getQuizQuestions() {
