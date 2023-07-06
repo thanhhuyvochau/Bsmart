@@ -4,6 +4,7 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,12 +34,26 @@ public class ClassController {
     public ResponseEntity<ApiResponse<List<String>>> mentorCreateCoursePrivate(@Valid @RequestBody MentorCreateClassRequest mentorCreateClassRequest) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateCoursePrivate(mentorCreateClassRequest)));
     }
-
+    @Operation(summary = "mentor tao class cho course (step 3 ) ")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PostMapping("course/{courseId}")
+    public ResponseEntity<ApiResponse<List<Long>>> mentorCreateClassForCourse(@PathVariable Long courseId ,
+            @Valid @RequestBody List<MentorCreateClass> mentorCreateClassRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClassForCourse(courseId,mentorCreateClassRequest)));
+    }
 
     @Operation(summary = "lấy tất cả các class của  course load lên trang khoa học")
     @GetMapping("/course/{id}")
     public ResponseEntity<ApiResponse<ApiPage<ClassDetailResponse>>> getAllSubCourseOfCourse(@PathVariable Long id, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getAllSubCourseOfCourse(id, pageable)));
+    }
+
+    @Operation(summary = "mentor update class cho course")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> mentorUpdateClassForCourse(@PathVariable Long id ,
+                                                                              @Valid @RequestBody  MentorCreateClass mentorCreateClassRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorUpdateClassForCourse(id,mentorCreateClassRequest)));
     }
 
 //    @Operation(summary = "mentor tao lớp học")

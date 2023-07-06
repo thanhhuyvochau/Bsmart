@@ -67,6 +67,10 @@ public class Class extends BaseEntity {
     private List<TimeTable> timeTables = new ArrayList<>();
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudentClass> studentClasses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClassAnnouncement> classAnnouncements = new ArrayList<>();
+
     @OneToMany(mappedBy = "authorizeClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ActivityAuthorize> activityAuthorizes = new ArrayList<>();
 

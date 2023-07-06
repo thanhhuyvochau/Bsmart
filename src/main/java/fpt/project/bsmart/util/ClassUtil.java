@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
+import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 
 import java.math.BigDecimal;
@@ -13,6 +14,8 @@ import java.time.Instant;
 import java.util.*;
 
 public class ClassUtil {
+
+
     public static double CLASS_PERCENTAGE_FOR_FIRST_FEEDBACK = 0.5f;
     public static double CLASS_PERCENTAGE_FOR_SECOND_FEEDBACK = 0.8f;
     public static double PERCENTAGE_RANGE = 0.1f;
@@ -50,15 +53,15 @@ public class ClassUtil {
     }
 
     public static ClassDetailResponse convertClassToClassDetailResponse(User userLogin, Class clazz) {
-        ClassDetailResponse subCourseDetailResponse = ObjectUtil.copyProperties(clazz, new ClassDetailResponse(), ClassDetailResponse.class);
+        ClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ClassDetailResponse(), ClassDetailResponse.class);
 
         ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
         List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>();
         clazz.getTimeInWeeks().forEach(timeInWeek -> {
             timeInWeekDTOS.add(ConvertUtil.convertTimeInWeekToDto(timeInWeek));
         });
-        subCourseDetailResponse.setTimeInWeeks(timeInWeekDTOS);
-        subCourseDetailResponse.setImage(imageDto);
+        classDetailResponse.setTimeInWeeks(timeInWeekDTOS);
+        classDetailResponse.setImage(imageDto);
         if (userLogin != null) {
             List<Order> orders = userLogin.getOrder();
             orders.forEach(order -> {
@@ -66,13 +69,17 @@ public class ClassUtil {
                 orderDetails.forEach(orderDetail -> {
                     Class aClass = orderDetail.getClazz();
                     if (aClass.equals(clazz)) {
-                        subCourseDetailResponse.setPurchase(true);
+                        classDetailResponse.setPurchase(true);
                     }
                 });
             });
         }
+        ActivityUtil.setSectionForCourse(clazz, classDetailResponse);
 
-        return subCourseDetailResponse;
+
+        return classDetailResponse;
     }
+
+
 }
 

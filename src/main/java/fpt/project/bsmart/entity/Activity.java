@@ -31,6 +31,7 @@ public class Activity extends BaseEntity {
     private Section section;
     @Column(name = "is_fixed")
     private Boolean fixed = false;
+
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Activity parent;

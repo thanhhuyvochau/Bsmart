@@ -4,11 +4,15 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.AssignmentRequest;
 import fpt.project.bsmart.service.IActivityService;
+import fpt.project.bsmart.entity.request.activity.MentorCreateSectionForCourse;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/activity")
@@ -24,6 +28,19 @@ public class ActivityController {
     public ResponseEntity<ApiResponse<Boolean>> addAssignmentActivity(@ModelAttribute AssignmentRequest request) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request)));
     }
+    @Operation(summary = "mentor tao class cho course (step 2) ")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PostMapping("course/{id}")
+    public ResponseEntity<ApiResponse<List<Long>>> mentorCreateSectionForCourse(@PathVariable Long id,
+                                                                                @Valid @RequestBody List<MentorCreateSectionForCourse> sessions) {
+        return ResponseEntity.ok(ApiResponse.success(activityService.mentorCreateSectionForCourse(id, sessions)));
+    }
+//
+//    @PostMapping("/assignment")
+//    @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
+//    public ResponseEntity<ApiResponse<Boolean>> addAssignmentActivity(@ModelAttribute AssignmentRequest request) throws IOException {
+//        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request)));
+//    }
 //    @PutMapping("/assignment/{id}")
 //    @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
 //    public ResponseEntity<ApiResponse<Boolean>> editAssignmentActivity(@ModelAttribute AssignmentRequest request, @PathVariable("id") Long id) throws IOException {

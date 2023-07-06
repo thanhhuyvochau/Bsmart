@@ -6,6 +6,8 @@ import fpt.project.bsmart.entity.response.ActivityHistoryResponse;
 import fpt.project.bsmart.service.ActivityHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +31,7 @@ public class ActivityHistoryController {
     @Operation(summary = "lấy lịch sử hoạt động")
     @PreAuthorize("hasAnyRole('TEACHER' , 'STUDENT')")
     @GetMapping
-    public ResponseEntity<ApiResponse<ApiPage<ActivityHistoryResponse>>> getHistory(Pageable pageable) {
+    public ResponseEntity<ApiResponse<ApiPage<ActivityHistoryResponse>>> getHistory(@PageableDefault(sort = "created", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(activityHistoryService.getHistory(pageable)));
     }
 

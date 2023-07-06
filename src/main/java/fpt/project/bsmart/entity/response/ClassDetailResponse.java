@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
+import fpt.project.bsmart.entity.dto.activity.SectionDto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -15,7 +16,7 @@ public class ClassDetailResponse {
 
     private Long id;
 
-    private String code ;
+    private String code;
 
     private Instant startDate;
 
@@ -35,6 +36,8 @@ public class ClassDetailResponse {
 
     private ImageDto image;
     private List<TimeInWeekDTO> timeInWeeks;
+
+    private List<SectionDto> sections;
 
     private Boolean purchase;
 
@@ -134,6 +137,14 @@ public class ClassDetailResponse {
         this.timeInWeeks = timeInWeeks;
     }
 
+    public List<SectionDto> getSections() {
+        return sections;
+    }
+
+    public void setSections(List<SectionDto> sections) {
+        this.sections = sections;
+    }
+
     public Boolean getPurchase() {
         return purchase;
     }
@@ -141,4 +152,5 @@ public class ClassDetailResponse {
     public void setPurchase(Boolean purchase) {
         this.purchase = purchase;
     }
+
 }
