@@ -8,17 +8,21 @@ import java.io.IOException;
 
 public interface IActivityService {
     Boolean addActivity(ActivityRequest activityRequest) throws IOException;
-//    Boolean addActivity(ActivityRequest activityRequest) throws IOException;
+
+    //    Boolean addActivity(ActivityRequest activityRequest) throws IOException;
 //
-//    Boolean deleteActivity(Long id);
-//
-//    Boolean changeActivityVisible(Long id);
-//
+    Boolean deleteActivity(Long id);
+
+    //
+    Boolean changeActivityVisible(Long id);
+
+    //
 //    Boolean editActivity(Long id, ActivityRequest activityRequest) throws IOException;
 //
-//    ActivityDto getDetailActivity(Long id);
-//
-//    Boolean submitAssignment(Long id, SubmitAssignmentRequest request);
+    ActivityDto getDetailActivity(Long id);
+
+    //
+    Boolean submitAssignment(Long id, SubmitAssignmentRequest request);
 
 
 }

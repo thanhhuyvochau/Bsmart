@@ -17,8 +17,6 @@ public class Activity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @JoinColumn(name = "type")
     private ECourseActivityType type;
-    @Column(name = "is_visible")
-    private Boolean visible;
     @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
     private Quiz quiz;
     @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
@@ -31,9 +29,12 @@ public class Activity extends BaseEntity {
     private ClassAnnouncement announcement;
     @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
     private Section section;
+    @Column(name = "is_fixed")
+    private Boolean fixed = false;
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Activity parent;
+
     @OneToMany(mappedBy = "parent")
     private List<Activity> children = new ArrayList<>();
     @OneToMany(mappedBy = "authorizeClass", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -42,11 +43,12 @@ public class Activity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
+    @Column(name = "is_visible")
+    private boolean visible = false;
 
     public Activity(String name, ECourseActivityType type, Boolean visible, Activity parent, List<ActivityAuthorize> activityAuthorizes, Course course) {
         this.name = name;
         this.type = type;
-        this.visible = visible;
         this.parent = parent;
         this.activityAuthorizes = activityAuthorizes;
         this.course = course;
@@ -69,15 +71,6 @@ public class Activity extends BaseEntity {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-
-    public Boolean getVisible() {
-        return visible;
-    }
-
-    public void setVisible(Boolean visible) {
-        this.visible = visible;
     }
 
     public Quiz getQuiz() {
@@ -166,5 +159,21 @@ public class Activity extends BaseEntity {
 
     public void setCourse(Course course) {
         this.course = course;
+    }
+
+    public Boolean getFixed() {
+        return fixed;
+    }
+
+    public void setFixed(Boolean fixed) {
+        this.fixed = fixed;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 }

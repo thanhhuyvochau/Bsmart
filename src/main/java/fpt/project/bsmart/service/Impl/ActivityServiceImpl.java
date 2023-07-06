@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.builder.ActivityBuilder;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.*;
+import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.dto.QuizSubmittionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.repository.ActivityRepository;
@@ -238,31 +239,42 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         return assignmentFile;
     }
 
-//    @Override
-//    public Boolean deleteActivity(Long id) {
-//        Activity activity = activityRepository.findById(id)
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
-//        User subCourseMentor = activity.getClassSection().getClazz().getSubCourse().getMentor();
-//        User currentUser = SecurityUtil.getCurrentUser();
-//        if (!Objects.equals(subCourseMentor.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
-//            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
-//        }
-//        activityRepository.delete(activity);
-//        return true;
-//    }
+    @Override
+    public Boolean deleteActivity(Long id) {
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
+        if (activity.getFixed()) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Could not delete fixed activity");
+        }
+        User subCourseMentor = activity.getCourse().getCreator();
+        User currentUser = SecurityUtil.getCurrentUser();
+        if (!Objects.equals(subCourseMentor.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
+        }
+        activityRepository.delete(activity);
+        return true;
+    }
 
-//    @Override
-//    public Boolean changeActivityVisible(Long id) {
-//        Activity activity = activityRepository.findById(id)
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
-//        User subCourseMentor = activity.getClassSection().getClazz().getSubCourse().getMentor();
-//        User currentUser = SecurityUtil.getCurrentUser();
-//        if (!Objects.equals(subCourseMentor.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
-//            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
-//        }
-//        activity.setVisible(!activity.getVisible());
-//        return true;
-//    }
+    @Override
+    public Boolean changeActivityVisible(Long id) {
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
+        User subCourseMentor = activity.getCourse().getCreator();
+        User currentUser = SecurityUtil.getCurrentUser();
+        if (activity.getFixed()) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Could not edit fixed activity");
+        }
+        if (!Objects.equals(subCourseMentor.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
+        }
+        activity.setVisible(activity.isVisible());
+        return true;
+    }
+
+    @Override
+    public Boolean submitAssignment(Long id, SubmitAssignmentRequest request) {
+        return null;
+    }
 
 //    @Override
 //    public Boolean editActivity(Long id, ActivityRequest activityRequest) throws IOException {
@@ -334,11 +346,11 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         return assignment;
     }
 
-//    @Override
-//    public ActivityDto getDetailActivity(Long id) {
+    @Override
+    public ActivityDto getDetailActivity(Long id) {
 //        Activity activity = activityRepository.findById(id)
 //                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
-//        Class clazz = activity.getClassSection().getClazz();
+//        Course course = activity.getCourse();
 //        User currentUser = SecurityUtil.getCurrentUser();
 //
 //        if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
@@ -346,7 +358,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
 //        }
 //
 //        ActivityDto activityDto = ConvertUtil.convertActivityToDto(activity);
-//        if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.TEACHER) && Objects.equals(clazz.getSubCourse().getMentor().getId(), currentUser.getId())) {
+//        if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.TEACHER) && Objects.equals(course.getCreator().getId(), currentUser.getId())) {
 //            return activityDto;
 //        }
 //
@@ -356,7 +368,8 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
 //        } else {
 //            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
 //        }
-//    }
+        return null;
+    }
 
 //    private Quiz findQuizById(Long id) {
 //        return quizRepository.findById(id)
