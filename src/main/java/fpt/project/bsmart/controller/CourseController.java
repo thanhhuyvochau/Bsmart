@@ -1,10 +1,10 @@
 package fpt.project.bsmart.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.request.CourseSearchRequest;
+import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,8 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-
 import javax.annotation.Nullable;
+import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 
 import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_COURSES;
 import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_ROOT;
@@ -36,6 +37,19 @@ public class CourseController {
             @Nullable CourseSearchRequest query, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(query, pageable)));
     }
+
+    @Operation(summary = "mentor tao khoá học (step 1 : course) ")
+    @PostMapping()
+    public ResponseEntity<ApiResponse<Long>> mentorCreateCoursePublic(@Valid @RequestBody CreateCourseRequest createCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createCourseRequest)));
+    }
+
+    @Operation(summary = "mentor tao khoá học (step 1 : course) ")
+    @PutMapping("{/id}")
+    public ResponseEntity<ApiResponse<Long>> mentorUpdateCourse(@PathVariable Long id , @Valid @RequestBody CreateCourseRequest createCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUpdateCourse(id, createCourseRequest)));
+    }
+
 
 //    @Operation(summary = "lấy tất cả các course theo subject id")
 //    @GetMapping("/subject/{subjectId}")

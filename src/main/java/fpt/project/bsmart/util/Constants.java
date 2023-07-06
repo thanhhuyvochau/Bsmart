@@ -72,7 +72,9 @@ public class Constants {
         public static final String INVALID_COURSE_APPROVAL_STATUS = "INVALID_COURSE_APPROVAL_STATUS";
 
         public static final String ACCOUNT_STATUS_NOT_ALLOW = "ACCOUNT_STATUS_NOT_ALLOW";
+        public static final String YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_CLASS_FOR_THIS_COURSE = "YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_CLASS_FOR_THIS_COURSE";
 
+        public static final String YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_SECTION_FOR_THIS_COURSE = "YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_SECTION_FOR_THIS_COURSE";
         public static class Invalid {
             public static final String INVALID_EMAIL = "INVALID_EMAIL";
             public static final String INVALID_BIRTH_DAY = "INVALID_BIRTH_DAY";
