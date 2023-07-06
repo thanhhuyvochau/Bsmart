@@ -1,19 +1,11 @@
 package fpt.project.bsmart.entity.request;
 
 public class CreateCourseRequest {
-    private String code;
     private String name;
     private Long categoryId;
     private Long subjectId;
     private String description;
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
 
     public String getName() {
         return name;

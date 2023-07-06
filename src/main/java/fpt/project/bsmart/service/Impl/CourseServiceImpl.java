@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.CourseUtil.checkCourseOwnership;
 
 
 @Service
@@ -97,6 +98,47 @@ public class CourseServiceImpl implements ICourseService {
         course.setCreator(currentUserAccountLogin);
         Course courseSaved = courseRepository.save(course);
         return courseSaved.getId();
+    }
+
+    @Override
+    public Long mentorUpdateCourse(Long id , CreateCourseRequest createCourseRequest) {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+
+        Long categoryId = createCourseRequest.getCategoryId();
+        if (categoryId == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE));
+        }
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + categoryId));
+
+        Long subjectId = createCourseRequest.getSubjectId();
+        if (subjectId == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE));
+        }
+        Optional<Subject> optionalSubject = category.getSubjects().stream().filter(s -> s.getId().equals(subjectId)).findFirst();
+        Subject subject = optionalSubject.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                .withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + subjectId));
+
+        // check skill of mentor is match with subject input
+        List<Subject> skillOfMentor = currentUserAccountLogin.getMentorProfile().getSkills().stream().map(MentorSkill::getSkill).collect(Collectors.toList());
+
+        if (skillOfMentor.contains(subject)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT));
+        }
+
+        checkCourseOwnership(course,currentUserAccountLogin) ;
+        course.setName(createCourseRequest.getName());
+        course.setDescription(createCourseRequest.getDescription());
+        course.setSubject(subject);
+        course.setStatus(REQUESTING);
+        return courseRepository.save(course).getId();
     }
 }
 //

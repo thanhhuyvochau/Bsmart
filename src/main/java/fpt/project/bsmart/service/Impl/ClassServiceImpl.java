@@ -112,6 +112,95 @@ public class ClassServiceImpl implements IClassService {
         });
         return null;
     }
+
+    @Override
+    public Boolean mentorUpdateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) {
+        Class aClass = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                .withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+
+        Course course = aClass.getCourse();
+        List<TimeInWeekRequest> timeInWeekRequests = mentorCreateClassRequest.getTimeInWeekRequests();
+
+        // create time in week for subCourse
+        aClass.getTimeInWeeks().clear();
+        List<TimeInWeek> timeInWeeksFromRequest = updateTimeInWeeksFromRequest(timeInWeekRequests);
+
+        // create subCourse for course
+        updateClassFromRequest(mentorCreateClassRequest, course, currentUserAccountLogin, timeInWeeksFromRequest);
+        return true;
+    }
+    private Class updateClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
+        if (subCourseRequest.getPrice() == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE));
+        }
+        Class aClass = new Class();
+        aClass.setNumberOfSlot(subCourseRequest.getNumberOfSlot());
+        aClass.setMinStudent(subCourseRequest.getMinStudent());
+        aClass.setMaxStudent(subCourseRequest.getMaxStudent());
+        aClass.setStartDate(subCourseRequest.getStartDate());
+        aClass.setEndDate(subCourseRequest.getEndDate());
+        aClass.setStatus(REQUESTING);
+        aClass.setPrice(subCourseRequest.getPrice());
+        aClass.setLevel(subCourseRequest.getLevel());
+        aClass.setMentor(currentUserAccountLogin);
+        String codeRandom = ClassUtil.generateCode(course.getSubject().getCode());
+        aClass.setCode(codeRandom);
+
+        Long imageId = subCourseRequest.getImageId();
+        ClassImage classImage = classImageRepository.findById(imageId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + imageId));
+        classImage.setaClass(aClass);
+        classImageRepository.save(classImage);
+
+        aClass.setTimeInWeeks(timeInWeeks);
+        timeInWeeks.forEach(timeInWeek -> {
+            timeInWeek.setClazz(aClass);
+            timeInWeekRepository.save(timeInWeek) ;
+        });
+
+
+        return aClass;
+    }
+    private List<TimeInWeek> updateTimeInWeeksFromRequest(List<TimeInWeekRequest> timeInWeekRequests) {
+
+
+
+        TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
+        if (duplicateElement != null) {
+            throw ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED);
+        }
+
+        List<Long> slotIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getSlotId).collect(Collectors.toList());
+        List<Long> dowIds = timeInWeekRequests.stream().map(TimeInWeekRequest::getDayOfWeekId).collect(Collectors.toList());
+
+        Map<Long, Slot> slotMap = slotRepository.findAllById(slotIds).stream()
+                .collect(Collectors.toMap(Slot::getId, Function.identity()));
+        Map<Long, DayOfWeek> dayOfWeekMap = dayOfWeekRepository.findAllById(dowIds).stream()
+                .collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
+
+        List<TimeInWeek> timeInWeeks = new ArrayList<>();
+        for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
+            TimeInWeek timeInWeek = new TimeInWeek();
+            DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(DAY_OF_WEEK_COULD_NOT_BE_FOUND));
+            timeInWeek.setDayOfWeek(dayOfWeek);
+
+            Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(SLOT_COULD_NOT_BE_FOUND));
+            timeInWeek.setSlot(slot);
+
+            timeInWeeks.add(timeInWeek);
+        }
+        return timeInWeeks;
+    }
+
+
     private List<String> createClassAndTimeInWeek(User currentUserAccountLogin, Course course, List<MentorCreateClass> mentorCreateClassRequest) {
         // check mentor account is valid
         MentorUtil.checkIsMentor();

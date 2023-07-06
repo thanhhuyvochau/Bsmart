@@ -1,6 +1,7 @@
 package fpt.project.bsmart.util;
 
 
+import fpt.project.bsmart.entity.Course;
 import fpt.project.bsmart.entity.MentorProfile;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
@@ -22,17 +23,17 @@ public class CourseUtil {
 
     private static String failIcon;
 
-//    public static void checkCourseOwnership(SubCourse subCourse, MentorProfile mentorProfile) {
-//        if (!subCourse.getMentor().getMentorProfile().equals(mentorProfile)) {
-//            throw ApiException.create(HttpStatus.BAD_REQUEST)
-//                    .withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
-//        }
-//
-//        if (!subCourse.getStatus().equals(EDITREQUEST) && !subCourse.getStatus().equals(REQUESTING)) {
-//            throw ApiException.create(HttpStatus.BAD_REQUEST)
-//                    .withMessage(messageUtil.getLocalMessage(SUB_COURSE_STATUS_NOT_ALLOW));
-//        }
-//    }
+    public static void checkCourseOwnership(Course course, User user) {
+        if (!course.getCreator().equals(user)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
+        }
+
+        if (!course.getStatus().equals(EDITREQUEST) && !course.getStatus().equals(REQUESTING)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(SUB_COURSE_STATUS_NOT_ALLOW));
+        }
+    }
 
 
     public static String generateRandomCode(int length) {

@@ -8,10 +8,7 @@ import fpt.project.bsmart.entity.dto.QuizSubmittionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.activity.MentorCreateLessonForCourse;
 import fpt.project.bsmart.entity.request.activity.MentorCreateSectionForCourse;
-import fpt.project.bsmart.repository.ActivityRepository;
-import fpt.project.bsmart.repository.CourseRepository;
-import fpt.project.bsmart.repository.QuizRepository;
-import fpt.project.bsmart.repository.QuizSubmissionRepository;
+import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IActivityService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.adapter.MinioAdapter;
@@ -46,17 +43,18 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     private final CourseRepository courseRepository;
     private final ActivityRepository activityRepository;
 
-    private final QuizRepository quizRepository;
+    private final LessonRepository lessonRepository;
     private final QuizSubmissionRepository quizSubmissionRepository;
 
     private final MinioAdapter minioAdapter;
     private final MessageUtil messageUtil;
     private final PasswordEncoder encoder;
 
-    public ActivityServiceImpl(CourseRepository courseRepository, ActivityRepository activityRepository, QuizRepository quizRepository, QuizSubmissionRepository quizSubmissionRepository, MinioAdapter minioAdapter, MessageUtil messageUtil, PasswordEncoder encoder) {
+    public ActivityServiceImpl(CourseRepository courseRepository, ActivityRepository activityRepository,  LessonRepository lessonRepository, QuizSubmissionRepository quizSubmissionRepository, MinioAdapter minioAdapter, MessageUtil messageUtil, PasswordEncoder encoder) {
         this.courseRepository = courseRepository;
         this.activityRepository = activityRepository;
-        this.quizRepository = quizRepository;
+        this.lessonRepository = lessonRepository;
+
         this.quizSubmissionRepository = quizSubmissionRepository;
         this.minioAdapter = minioAdapter;
         this.messageUtil = messageUtil;
@@ -101,31 +99,37 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                     .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_CLASS_FOR_THIS_COURSE));
         }
 
-        return mentorCreateSectionForCourse(sessions);
+        return mentorCreateSectionForCourse(sessions, course);
     }
 
-    private List<Long> mentorCreateSectionForCourse( List<MentorCreateSectionForCourse> sessions) {
-        List<Activity> activityList = new ArrayList<>( );
+    private List<Long> mentorCreateSectionForCourse(List<MentorCreateSectionForCourse> sessions, Course course) {
+        List<Activity> activityList = new ArrayList<>();
+        List<Lesson> lessonList = new ArrayList<>();
         sessions.forEach(createSectionForCourse -> {
             Activity activitySection = new Activity();
             activitySection.setName(createSectionForCourse.getName());
             activitySection.setType(ECourseActivityType.SECTION);
+            activitySection.setCourse(course);
+
 
             List<MentorCreateLessonForCourse> lessons = createSectionForCourse.getLessons();
-
             lessons.forEach(mentorCreateLessonForCourse -> {
                 Activity activityLesson = new Activity();
                 activityLesson.setParent(activitySection);
+                activityLesson.setType(ECourseActivityType.LESSON);
+                activityLesson.setCourse(course);
                 Lesson lesson = new Lesson();
                 lesson.setDescription(mentorCreateLessonForCourse.getDescription());
-                activityLesson.setLesson(lesson);
+                lesson.setActivity(activityLesson);
+                lessonList.add(lesson) ;
+                activityList.add(activityLesson);
             });
             activityList.add(activitySection);
 
         });
-
+        lessonRepository.saveAll(lessonList) ;
         List<Activity> activityListSaved = activityRepository.saveAll(activityList);
-      return  activityListSaved.stream().map(Activity::getId).collect(Collectors.toList());
+        return activityListSaved.stream().map(Activity::getId).collect(Collectors.toList());
     }
 
     private boolean createDetailActivity(ActivityRequest activityRequest, ECourseActivityType type, Activity activity) throws IOException {

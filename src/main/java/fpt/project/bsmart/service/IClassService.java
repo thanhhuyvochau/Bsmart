@@ -20,6 +20,8 @@ public interface IClassService {
 
     List<Long> mentorCreateClassForCourse( Long id  ,List<MentorCreateClass> mentorCreateClassRequest);
 
+    Boolean mentorUpdateClassForCourse(Long id,  MentorCreateClass mentorCreateClassRequest);
+
 //    Boolean createClass(CreateClassRequest request);
 //
 //    ApiPage<SimpleClassResponse> getClassFeedbacks(ClassFeedbackRequest classFeedbackRequest, Pageable pageable);

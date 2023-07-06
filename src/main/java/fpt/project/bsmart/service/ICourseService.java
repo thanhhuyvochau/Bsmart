@@ -11,6 +11,8 @@ public interface ICourseService {
     ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest , Pageable pageable);
 
     Long mentorCreateCourse(CreateCourseRequest mentorCreateClassRequest);
+
+    Long  mentorUpdateCourse(Long id  ,CreateCourseRequest createCourseRequest);
 //
 //    List<CourseDto> getCoursesBySubject(Long subjectId);
 //    List<Long> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest);

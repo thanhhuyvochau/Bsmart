@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 
 import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_COURSES;
 import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_ROOT;
@@ -41,6 +42,12 @@ public class CourseController {
     @PostMapping()
     public ResponseEntity<ApiResponse<Long>> mentorCreateCoursePublic(@Valid @RequestBody CreateCourseRequest createCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createCourseRequest)));
+    }
+
+    @Operation(summary = "mentor tao khoá học (step 1 : course) ")
+    @PutMapping("{/id}")
+    public ResponseEntity<ApiResponse<Long>> mentorUpdateCourse(@PathVariable Long id , @Valid @RequestBody CreateCourseRequest createCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUpdateCourse(id, createCourseRequest)));
     }
 
 

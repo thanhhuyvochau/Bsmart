@@ -36,16 +36,24 @@ public class ClassController {
     }
     @Operation(summary = "mentor tao class cho course (step 3 ) ")
     @PreAuthorize("hasAnyRole('TEACHER')")
-    @PostMapping("course/{id}")
-    public ResponseEntity<ApiResponse<List<Long>>> mentorCreateClassForCourse(@PathVariable Long id ,
+    @PostMapping("course/{courseId}")
+    public ResponseEntity<ApiResponse<List<Long>>> mentorCreateClassForCourse(@PathVariable Long courseId ,
             @Valid @RequestBody List<MentorCreateClass> mentorCreateClassRequest) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClassForCourse(id,mentorCreateClassRequest)));
+        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClassForCourse(courseId,mentorCreateClassRequest)));
     }
 
     @Operation(summary = "lấy tất cả các class của  course load lên trang khoa học")
     @GetMapping("/course/{id}")
     public ResponseEntity<ApiResponse<ApiPage<ClassDetailResponse>>> getAllSubCourseOfCourse(@PathVariable Long id, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getAllSubCourseOfCourse(id, pageable)));
+    }
+
+    @Operation(summary = "mentor update class cho course")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> mentorUpdateClassForCourse(@PathVariable Long id ,
+                                                                              @Valid @RequestBody  MentorCreateClass mentorCreateClassRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorUpdateClassForCourse(id,mentorCreateClassRequest)));
     }
 
 //    @Operation(summary = "mentor tao lớp học")
