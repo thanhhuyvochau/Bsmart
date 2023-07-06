@@ -37,7 +37,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.EMPTY_PASSWORD;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
@@ -359,6 +359,7 @@ public class UserServiceImpl implements IUserService {
 
 
     public Long registerAccount(CreateAccountRequest createAccountRequest) {
+        validateCreateAccountRequest(createAccountRequest);
         User user = new User();
         if (Boolean.TRUE.equals(userRepository.existsByEmail(createAccountRequest.getEmail()))) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
@@ -369,7 +370,8 @@ public class UserServiceImpl implements IUserService {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(REGISTERED_PHONE_NUMBER) + createAccountRequest.getPhone());
         }
-        Role role = roleRepository.findRoleByCode(createAccountRequest.getRole()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ROLE_NOT_FOUND_BY_CODE) + createAccountRequest.getRole()));
+        Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ROLE_NOT_FOUND_BY_CODE) + createAccountRequest.getRole()));
         user.setEmail(createAccountRequest.getEmail());
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());
@@ -393,6 +395,31 @@ public class UserServiceImpl implements IUserService {
         emailUtil.sendVerifyEmailTo(savedUser);
         notificationUtil.sendNotification("thanh cong", "thanh cong", createAccountRequest.getEmail(), user);
         return savedUser.getId();
+    }
+
+    public void validateCreateAccountRequest(CreateAccountRequest request){
+        if(StringUtil.isNullOrEmpty(request.getEmail())){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_EMAIL));
+        }
+        if(!StringUtil.isValidEmailAddress(request.getEmail())){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_EMAIL));
+        }
+        if(!TimeUtil.isValidBirthday(request.getBirthDay())){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_BIRTH_DAY));
+        }
+        if(!StringUtil.isValidVietnameseMobilePhoneNumber(request.getPhone())){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
+        }
+        if(StringUtil.isNullOrEmpty(request.getFullName())){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_FULL_NAME));
+        }
+        boolean isValidGender = request.getGender().equals(EGenderType.MALE) || request.getGender().equals(EGenderType.FEMALE);
+        if(!isValidGender){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_GENDER));
+        }
+        if(!PasswordUtil.validationPassword(request.getPassword())){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
+        }
     }
 
     @Override

@@ -84,7 +84,7 @@ public class CourseServiceImpl implements ICourseService {
         // check skill of mentor is match with subject input
         List<Subject> skillOfMentor = currentUserAccountLogin.getMentorProfile().getSkills().stream().map(MentorSkill::getSkill).collect(Collectors.toList());
 
-        if (skillOfMentor.contains(subject)) {
+        if (!skillOfMentor.contains(subject)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT));
         }
