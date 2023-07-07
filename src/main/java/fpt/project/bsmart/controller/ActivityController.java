@@ -36,7 +36,7 @@ public class ActivityController {
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping("course/{id}")
     public ResponseEntity<ApiResponse<List<Long>>> mentorCreateSectionForCourse(@PathVariable Long id,
-                                                                                @Valid @RequestBody List<MentorCreateSectionForCourse> sessions) {
+                                                                                @Valid @RequestBody MentorCreateSectionForCourse sessions) {
         return ResponseEntity.ok(ApiResponse.success(activityService.mentorCreateSectionForCourse(id, sessions)));
     }
 //

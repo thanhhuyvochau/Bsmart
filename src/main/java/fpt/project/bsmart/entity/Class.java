@@ -44,14 +44,14 @@ public class Class extends BaseEntity {
     @Column(name = "number_referral_code")
     private Integer numberReferralCode;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "course_id")
     private Course course;
 
     @OneToOne
     @JoinColumn(name = "feedback_template_id")
     private FeedbackTemplate feedbackTemplate;
-    @OneToOne(mappedBy = "aClass")
+    @OneToOne(mappedBy = "aClass", cascade = CascadeType.ALL)
     private ClassImage classImage;
 
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -251,5 +251,13 @@ public class Class extends BaseEntity {
 
     public void setActivityAuthorizes(List<ActivityAuthorize> activityAuthorizes) {
         this.activityAuthorizes = activityAuthorizes;
+    }
+
+    public List<ClassAnnouncement> getClassAnnouncements() {
+        return classAnnouncements;
+    }
+
+    public void setClassAnnouncements(List<ClassAnnouncement> classAnnouncements) {
+        this.classAnnouncements = classAnnouncements;
     }
 }

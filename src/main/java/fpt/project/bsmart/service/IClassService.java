@@ -18,7 +18,7 @@ public interface IClassService {
 
    ApiPage<ClassDetailResponse> getAllSubCourseOfCourse(Long id, Pageable pageable);
 
-    List<Long> mentorCreateClassForCourse( Long id  ,List<MentorCreateClass> mentorCreateClassRequest);
+    Long mentorCreateClassForCourse( Long id  ,MentorCreateClass mentorCreateClassRequest);
 
     Boolean mentorUpdateClassForCourse(Long id,  MentorCreateClass mentorCreateClassRequest);
 

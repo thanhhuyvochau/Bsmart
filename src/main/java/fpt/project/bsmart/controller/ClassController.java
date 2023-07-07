@@ -37,8 +37,8 @@ public class ClassController {
     @Operation(summary = "mentor tao class cho course (step 3 ) ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping("course/{courseId}")
-    public ResponseEntity<ApiResponse<List<Long>>> mentorCreateClassForCourse(@PathVariable Long courseId ,
-            @Valid @RequestBody List<MentorCreateClass> mentorCreateClassRequest) {
+    public ResponseEntity<ApiResponse<Long>> mentorCreateClassForCourse(@PathVariable Long courseId ,
+            @Valid @RequestBody MentorCreateClass mentorCreateClassRequest) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClassForCourse(courseId,mentorCreateClassRequest)));
     }
 

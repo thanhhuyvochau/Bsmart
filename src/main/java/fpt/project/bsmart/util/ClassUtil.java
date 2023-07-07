@@ -41,12 +41,15 @@ public class ClassUtil {
 
     public static String generateCode(String code) {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+
         StringBuilder sb = new StringBuilder();
         Random random = new Random();
         int codeLength = 4;
         for (int i = 0; i < codeLength; i++) {
             int randomIndex = random.nextInt(characters.length());
             char randomChar = characters.charAt(randomIndex);
+
             sb.append(randomChar);
         }
         return code + sb.toString();

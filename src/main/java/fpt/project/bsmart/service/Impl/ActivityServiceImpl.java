@@ -97,7 +97,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     }
 
     @Override
-    public List<Long> mentorCreateSectionForCourse(Long id, List<MentorCreateSectionForCourse> sessions) {
+    public List<Long> mentorCreateSectionForCourse(Long id,MentorCreateSectionForCourse sessions) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
@@ -114,17 +114,17 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         return mentorCreateSectionForCourse(sessions, course);
     }
 
-    private List<Long> mentorCreateSectionForCourse(List<MentorCreateSectionForCourse> sessions, Course course) {
+    private List<Long> mentorCreateSectionForCourse(MentorCreateSectionForCourse session, Course course) {
         List<Activity> activityList = new ArrayList<>();
         List<Lesson> lessonList = new ArrayList<>();
-        sessions.forEach(createSectionForCourse -> {
+
             Activity activitySection = new Activity();
-            activitySection.setName(createSectionForCourse.getName());
+            activitySection.setName(session.getName());
             activitySection.setType(ECourseActivityType.SECTION);
             activitySection.setCourse(course);
 
 
-            List<MentorCreateLessonForCourse> lessons = createSectionForCourse.getLessons();
+            List<MentorCreateLessonForCourse> lessons = session.getLessons();
             lessons.forEach(mentorCreateLessonForCourse -> {
                 Activity activityLesson = new Activity();
                 activityLesson.setParent(activitySection);
@@ -138,7 +138,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             });
             activityList.add(activitySection);
 
-        });
+
         lessonRepository.saveAll(lessonList) ;
         List<Activity> activityListSaved = activityRepository.saveAll(activityList);
         return activityListSaved.stream().map(Activity::getId).collect(Collectors.toList());
