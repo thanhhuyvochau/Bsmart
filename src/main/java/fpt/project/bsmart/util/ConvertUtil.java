@@ -385,7 +385,7 @@ public class ConvertUtil {
         List<ClassDetailResponse>classDetailResponses = new ArrayList<>( );
         List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseStatus.WAITING);
         classes.forEach(aClass -> {
-            classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(aClass)) ;
+            classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(course.getCreator(),aClass)) ;
         });
         courseResponse.setClasses(classDetailResponses);
         return courseResponse;

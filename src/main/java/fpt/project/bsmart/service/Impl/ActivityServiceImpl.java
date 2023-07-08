@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.request.*;
 
 import fpt.project.bsmart.entity.request.activity.MentorCreateLessonForCourse;
 import fpt.project.bsmart.entity.request.activity.MentorCreateSectionForCourse;
+import fpt.project.bsmart.entity.response.Avtivity.*;
 import fpt.project.bsmart.repository.*;
 
 import fpt.project.bsmart.repository.ActivityRepository;
@@ -30,15 +31,11 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_CLASS_FOR_THIS_COURSE;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 @Service
 @Transactional
@@ -97,7 +94,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     }
 
     @Override
-    public List<Long> mentorCreateSectionForCourse(Long id,MentorCreateSectionForCourse sessions) {
+    public List<Long> mentorCreateSectionForCourse(Long id, MentorCreateSectionForCourse sessions) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
@@ -118,28 +115,28 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         List<Activity> activityList = new ArrayList<>();
         List<Lesson> lessonList = new ArrayList<>();
 
-            Activity activitySection = new Activity();
-            activitySection.setName(session.getName());
-            activitySection.setType(ECourseActivityType.SECTION);
-            activitySection.setCourse(course);
+        Activity activitySection = new Activity();
+        activitySection.setName(session.getName());
+        activitySection.setType(ECourseActivityType.SECTION);
+        activitySection.setCourse(course);
 
 
-            List<MentorCreateLessonForCourse> lessons = session.getLessons();
-            lessons.forEach(mentorCreateLessonForCourse -> {
-                Activity activityLesson = new Activity();
-                activityLesson.setParent(activitySection);
-                activityLesson.setType(ECourseActivityType.LESSON);
-                activityLesson.setCourse(course);
-                Lesson lesson = new Lesson();
-                lesson.setDescription(mentorCreateLessonForCourse.getDescription());
-                lesson.setActivity(activityLesson);
-                lessonList.add(lesson) ;
-                activityList.add(activityLesson);
-            });
-            activityList.add(activitySection);
+        List<MentorCreateLessonForCourse> lessons = session.getLessons();
+        lessons.forEach(mentorCreateLessonForCourse -> {
+            Activity activityLesson = new Activity();
+            activityLesson.setParent(activitySection);
+            activityLesson.setType(ECourseActivityType.LESSON);
+            activityLesson.setCourse(course);
+            Lesson lesson = new Lesson();
+            lesson.setDescription(mentorCreateLessonForCourse.getDescription());
+            lesson.setActivity(activityLesson);
+            lessonList.add(lesson);
+            activityList.add(activityLesson);
+        });
+        activityList.add(activitySection);
 
 
-        lessonRepository.saveAll(lessonList) ;
+        lessonRepository.saveAll(lessonList);
         List<Activity> activityListSaved = activityRepository.saveAll(activityList);
         return activityListSaved.stream().map(Activity::getId).collect(Collectors.toList());
     }
@@ -333,6 +330,78 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     @Override
     public Boolean submitAssignment(Long id, SubmitAssignmentRequest request) {
         return null;
+    }
+
+    @Override
+    public List<MentorGetSectionForCourse> mentorGetSectionOfCourse(Long id) {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        if (!course.getCreator().equals(currentUserAccountLogin)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
+        }
+
+        List<MentorGetSectionForCourse> sectionForCourses = ActivityUtil.mentorGetSectionOfCourse(course);
+
+        return sectionForCourses;
+    }
+
+    @Override
+    public Boolean mentorUpdateSectionForCourse(Long id, MentorUpdateSectionForCourse updateRequest) {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        if (!course.getCreator().equals(currentUserAccountLogin)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
+        }
+        ActivityUtil.checkCourseIsAllowedUpdateOrDelete(course);
+
+
+        Activity activity = activityRepository.findByIdAndCourse(updateRequest.getId(), course)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + id));
+        activity.setName(updateRequest.getName());
+
+        List<MentorGetLessonForCourse> lessons = updateRequest.getLessons();
+        List<Lesson> lessonList = new ArrayList<>();
+        for (MentorGetLessonForCourse lessonUpdate : lessons) {
+            Lesson lesson = lessonRepository.findById(lessonUpdate.getId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(LESSON_NOT_FOUND_BY_ID) + id));
+            lesson.setDescription(lessonUpdate.getDescription());
+            lessonList.add(lesson);
+        }
+        lessonRepository.saveAll(lessonList);
+        activityRepository.save(activity);
+        return true;
+    }
+
+    @Override
+    public Boolean mentorDeleteSectionForCourse(Long id, MentorDeleteSectionForCourse deleteRequest) {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        if (!course.getCreator().equals(currentUserAccountLogin)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
+        }
+        ActivityUtil.checkCourseIsAllowedUpdateOrDelete(course);
+
+        List<Activity> activityDeleteList = new ArrayList<>();
+        Activity activity = activityRepository.findByIdAndCourse(deleteRequest.getId(), course)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + deleteRequest.getId()));
+        List<MentorDeleteLessonForCourse> lessons = deleteRequest.getLessons();
+        List<Lesson> lessonList = new ArrayList<>();
+        for (MentorDeleteLessonForCourse lessonDelete : lessons) {
+            Lesson lesson = lessonRepository.findById(lessonDelete.getId())
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(LESSON_NOT_FOUND_BY_ID) + lessonDelete.getId()));
+            Activity activityLesson = lesson.getActivity();
+            activityLesson.setParent(null);
+            activityDeleteList.add(activityLesson);
+//            lessonList.add(lesson);
+        }
+//        lessonRepository.deleteAll(lessonList);
+        if (activity.getChildren().size() == 0) {
+            activityDeleteList.add(activity);
+        }
+        activityRepository.deleteAll(activityDeleteList);
+        return true;
     }
 
 //    @Override

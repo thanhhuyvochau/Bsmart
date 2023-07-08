@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
+import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IClassService;
@@ -78,7 +79,7 @@ public class ClassServiceImpl implements IClassService {
     }
 
     @Override
-    public ApiPage<ClassDetailResponse> getAllSubCourseOfCourse(Long id, Pageable pageable) {
+    public ApiPage<ClassDetailResponse> getAllClassOfCourse(Long id, Pageable pageable) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
@@ -92,6 +93,26 @@ public class ClassServiceImpl implements IClassService {
 
         return PageUtil.convert(new PageImpl<>(classResponses, pageable, classPage.getTotalElements()));
     }
+
+    @Override
+    public ApiPage<MentorGetClassDetailResponse> mentorGetClassOfCourse(Long id, Pageable pageable) {
+        User currentUser = SecurityUtil.getCurrentUser();
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+
+        if (!course.getCreator().equals(currentUser)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_VIEW_CLASS_FOR_THIS_COURSE));
+        }
+        Page<Class> classPage = classRepository.findByCourse(course, pageable);
+        List<MentorGetClassDetailResponse> classResponses = classPage.getContent().stream()
+                .map(ClassUtil::convertClassToMentorClassDetailResponse)
+                .collect(Collectors.toList());
+        return PageUtil.convert(new PageImpl<>(classResponses, pageable, classPage.getTotalElements()));
+
+    }
+
 
     @Override
     public Long mentorCreateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) {
@@ -130,6 +151,7 @@ public class ClassServiceImpl implements IClassService {
         updateClassFromRequest(mentorCreateClassRequest, course, currentUserAccountLogin, timeInWeeksFromRequest);
         return true;
     }
+
 
     private Class updateClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
         if (subCourseRequest.getPrice() == null) {

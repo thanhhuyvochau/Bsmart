@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 import fpt.project.bsmart.entity.dto.activity.SectionDto;
+import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 
 import java.math.BigDecimal;
@@ -84,8 +85,8 @@ public class ClassUtil {
     }
 
 
-    public static ClassDetailResponse convertClassToClassDetailResponse( Class clazz) {
-        ClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ClassDetailResponse(), ClassDetailResponse.class);
+    public static MentorGetClassDetailResponse convertClassToMentorClassDetailResponse(Class clazz) {
+        MentorGetClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new MentorGetClassDetailResponse(), MentorGetClassDetailResponse.class);
 
         ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
         List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>();
@@ -95,7 +96,7 @@ public class ClassUtil {
         classDetailResponse.setTimeInWeeks(timeInWeekDTOS);
         classDetailResponse.setImage(imageDto);
 
-        ActivityUtil.setSectionForCourse(clazz, classDetailResponse);
+
 
 
         return classDetailResponse;

@@ -166,7 +166,6 @@ public class CourseServiceImpl implements ICourseService {
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
 
-
     }
 
     @Override
@@ -186,7 +185,7 @@ public class CourseServiceImpl implements ICourseService {
         List<ECourseStatus> statusClasses = classes.stream().map(Class::getStatus).collect(Collectors.toList());
         if (statusClasses.contains(ECourseStatus.NOTSTART) || statusClasses.contains(STARTING) || statusClasses.contains(WAITING)){
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE));
+                    .withMessage(messageUtil.getLocalMessage(CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_DELETE));
         }
         List<Activity> activities = course.getActivities();
         activityRepository.deleteAll(activities);
