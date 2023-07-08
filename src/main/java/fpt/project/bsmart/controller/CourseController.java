@@ -3,19 +3,21 @@ package fpt.project.bsmart.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
+import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 
 import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_COURSES;
 import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_ROOT;
@@ -39,15 +41,32 @@ public class CourseController {
     }
 
     @Operation(summary = "mentor tao khoá học (step 1 : course) ")
-    @PostMapping()
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PostMapping
     public ResponseEntity<ApiResponse<Long>> mentorCreateCoursePublic(@Valid @RequestBody CreateCourseRequest createCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorCreateCourse(createCourseRequest)));
     }
 
-    @Operation(summary = "mentor tao khoá học (step 1 : course) ")
-    @PutMapping("{/id}")
-    public ResponseEntity<ApiResponse<Long>> mentorUpdateCourse(@PathVariable Long id , @Valid @RequestBody CreateCourseRequest createCourseRequest) {
+    @Operation(summary = "mentor sửa khoá học")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<Long>> mentorUpdateCourse(@PathVariable Long id, @Valid @RequestBody CreateCourseRequest createCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorUpdateCourse(id, createCourseRequest)));
+    }
+
+    @Operation(summary = "mentor xóa  khoá học")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> mentorDeleteCourse(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorDeleteCourse(id)));
+    }
+
+    @Operation(summary = "Lấy tất cả khóa học của mentor")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("/mentor")
+    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseOfMentor(
+            @Nullable CourseSearchRequest query, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseOfMentor(query, pageable)));
     }
 
 
@@ -155,14 +174,14 @@ public class CourseController {
 //    }
 
 
-    // ################################## Manager ##########################################
+//     ################################## Manager ##########################################
 
-//    @Operation(summary = "Manager get tất cả yêu cầu mở khóa học của mentor")
-//    @PreAuthorize("hasAnyRole('MANAGER')")
-//    @GetMapping("/pending")
-//    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> coursePendingToApprove(ECourseStatus status, Pageable pageable) {
-//        return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(status, pageable)));
-//    }
+    @Operation(summary = "Manager get tất cả yêu cầu mở khóa học của mentor")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @GetMapping("/pending")
+    public ResponseEntity<ApiResponse<ApiPage<CourseClassResponse>>> coursePendingToApprove( Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(pageable)));
+    }
 //
 //    @Operation(summary = "Manager phê duyêt / từ chối / yêu cầu thay đổi khoá học của mentor  ")
 //    @PreAuthorize("hasAnyRole('MANAGER')")

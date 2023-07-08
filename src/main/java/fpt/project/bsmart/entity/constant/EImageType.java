@@ -7,7 +7,9 @@ public enum EImageType {
     FRONTCI("Mặt trước Căn cước công dân") ,
     BACKCI("Mặt sau ăn cước công dân"),
 
-    DEGREE("bằng cấp") ;
+    DEGREE("bằng cấp") ,
+
+    CLASS("Ảnh lớp học") ;
     private final String name;
 
     EImageType(String name) {

@@ -11,7 +11,9 @@ import java.util.List;
 public interface IActivityService {
     Boolean addActivity(ActivityRequest activityRequest) throws IOException;
 
-    List<Long> mentorCreateSectionForCourse(Long id, List<MentorCreateSectionForCourse> sessions);
+
+    List<Long> mentorCreateSectionForCourse(Long id, MentorCreateSectionForCourse sessions );
+
 
     Boolean deleteActivity(Long id);
 
@@ -21,6 +23,7 @@ public interface IActivityService {
     ActivityDto getDetailActivity(Long id);
 
     Boolean submitAssignment(Long id, SubmitAssignmentRequest request);
+
 
 
 }

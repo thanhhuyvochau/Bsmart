@@ -41,12 +41,15 @@ public class ClassUtil {
 
     public static String generateCode(String code) {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+
         StringBuilder sb = new StringBuilder();
         Random random = new Random();
         int codeLength = 4;
         for (int i = 0; i < codeLength; i++) {
             int randomIndex = random.nextInt(characters.length());
             char randomChar = characters.charAt(randomIndex);
+
             sb.append(randomChar);
         }
         return code + sb.toString();
@@ -80,6 +83,23 @@ public class ClassUtil {
         return classDetailResponse;
     }
 
+
+    public static ClassDetailResponse convertClassToClassDetailResponse( Class clazz) {
+        ClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ClassDetailResponse(), ClassDetailResponse.class);
+
+        ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
+        List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>();
+        clazz.getTimeInWeeks().forEach(timeInWeek -> {
+            timeInWeekDTOS.add(ConvertUtil.convertTimeInWeekToDto(timeInWeek));
+        });
+        classDetailResponse.setTimeInWeeks(timeInWeekDTOS);
+        classDetailResponse.setImage(imageDto);
+
+        ActivityUtil.setSectionForCourse(clazz, classDetailResponse);
+
+
+        return classDetailResponse;
+    }
 
 }
 

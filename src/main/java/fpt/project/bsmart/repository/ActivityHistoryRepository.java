@@ -8,10 +8,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Random;
 
 @Repository
 public interface ActivityHistoryRepository extends JpaRepository<ActivityHistory, Long> {
     List<ActivityHistory> findByUserId(Long userId);
 
     Page<ActivityHistory> findByUserId(Long userId, Pageable pageable);
+
+
+
 }

@@ -2,17 +2,27 @@ package fpt.project.bsmart.service;
 
 
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
+import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface ICourseService {
+
+
     ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest , Pageable pageable);
 
     Long mentorCreateCourse(CreateCourseRequest mentorCreateClassRequest);
 
     Long  mentorUpdateCourse(Long id  ,CreateCourseRequest createCourseRequest);
+
+    ApiPage<CourseResponse> getCourseOfMentor(CourseSearchRequest query, Pageable pageable);
+
+    Boolean mentorDeleteCourse(Long id);
+
+    ApiPage<CourseClassResponse> coursePendingToApprove( Pageable pageable);
 //
 //    List<CourseDto> getCoursesBySubject(Long subjectId);
 //    List<Long> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest);

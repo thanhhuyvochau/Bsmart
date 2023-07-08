@@ -5,10 +5,12 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EQuestionType;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.response.*;
+import fpt.project.bsmart.repository.ClassRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -19,9 +21,15 @@ import java.util.stream.Collectors;
 @Component
 public class ConvertUtil {
     private static MessageUtil messageUtil;
+
+    private static ClassRepository staticClassRepository;
     private static String successIcon;
 
     private static String failIcon;
+
+    public ConvertUtil(ClassRepository classRepository) {
+        staticClassRepository= classRepository ;
+    }
 
     @Value("${icon.success}")
     public void setSuccessIconUrl(String url) {
@@ -314,7 +322,7 @@ public class ConvertUtil {
         courseResponse.setCourseName(course.getName());
         courseResponse.setCourseCode(course.getCode());
         courseResponse.setCourseDescription(course.getDescription());
-
+        courseResponse.setStatus(course.getStatus());
 
         List<String> mentorName = new ArrayList<>();
 
@@ -344,6 +352,42 @@ public class ConvertUtil {
                 }
             }
         }
+        return courseResponse;
+    }
+
+    public static CourseClassResponse convertCourseToCourseClassResponsePage(Course course) {
+
+
+        CourseClassResponse courseResponse = new CourseClassResponse();
+        courseResponse.setId(course.getId());
+        courseResponse.setCourseName(course.getName());
+        courseResponse.setCourseCode(course.getCode());
+        courseResponse.setCourseDescription(course.getDescription());
+        courseResponse.setStatus(course.getStatus());
+
+        if (course.getCreator() != null) {
+            courseResponse.setMentorName(course.getCreator().getFullName());
+        }
+
+
+        Subject subject = course.getSubject();
+        if (subject != null) {
+            courseResponse.setSubjectId(subject.getId());
+            courseResponse.setSubjectName(subject.getName());
+            Set<Category> categories = subject.getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+                    CategoryDto categoryDto = convertCategoryToCategoryDto(category);
+                    courseResponse.getCategoryDto().add(categoryDto);
+                }
+            }
+        }
+        List<ClassDetailResponse>classDetailResponses = new ArrayList<>( );
+        List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseStatus.WAITING);
+        classes.forEach(aClass -> {
+            classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(aClass)) ;
+        });
+        courseResponse.setClasses(classDetailResponses);
         return courseResponse;
     }
 

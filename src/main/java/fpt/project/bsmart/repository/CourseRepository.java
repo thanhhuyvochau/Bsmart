@@ -1,6 +1,7 @@
 package fpt.project.bsmart.repository;
 
 import fpt.project.bsmart.entity.Course;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.constant.ECourseType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,5 +21,5 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     Page<Course> findAll(Specification<Course> build, Pageable pageable);
 
-
+    Page<Course> findByCreator(User user, Pageable pageable);
 }

@@ -45,7 +45,7 @@ public class Activity extends BaseEntity {
     @JoinColumn(name = "course_id")
     private Course course;
     @Column(name = "is_visible")
-    private boolean visible = false;
+    private Boolean visible = false;
 
     public Activity(String name, ECourseActivityType type, Boolean visible, Activity parent, List<ActivityAuthorize> activityAuthorizes, Course course) {
         this.name = name;
