@@ -1,5 +1,7 @@
 package fpt.project.bsmart.entity.request;
 
+import fpt.project.bsmart.entity.constant.ECourseStatus;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -8,6 +10,8 @@ public class CourseSearchRequest implements Serializable {
 
     private String q;
 
+    private ECourseStatus status;
+
     private List<Long>  categoryId ;
 
 
@@ -15,6 +19,14 @@ public class CourseSearchRequest implements Serializable {
 
     public String getQ() {
         return q;
+    }
+
+    public ECourseStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ECourseStatus status) {
+        this.status = status;
     }
 
     public void setQ(String q) {

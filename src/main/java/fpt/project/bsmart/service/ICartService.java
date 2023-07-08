@@ -12,5 +12,5 @@ public interface ICartService {
 
     Integer removeCourseToCart(DeleteCartItemRequest request);
 
-    Integer updateCourseInCart(UpdateCartItemRequest request);
+//    Integer updateCourseInCart(UpdateCartItemRequest request);
 }

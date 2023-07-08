@@ -84,5 +84,22 @@ public class ClassUtil {
     }
 
 
+    public static ClassDetailResponse convertClassToClassDetailResponse( Class clazz) {
+        ClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ClassDetailResponse(), ClassDetailResponse.class);
+
+        ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
+        List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>();
+        clazz.getTimeInWeeks().forEach(timeInWeek -> {
+            timeInWeekDTOS.add(ConvertUtil.convertTimeInWeekToDto(timeInWeek));
+        });
+        classDetailResponse.setTimeInWeeks(timeInWeekDTOS);
+        classDetailResponse.setImage(imageDto);
+
+        ActivityUtil.setSectionForCourse(clazz, classDetailResponse);
+
+
+        return classDetailResponse;
+    }
+
 }
 

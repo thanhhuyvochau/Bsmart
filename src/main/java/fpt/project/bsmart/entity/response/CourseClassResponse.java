@@ -1,14 +1,20 @@
 package fpt.project.bsmart.entity.response;
 
 
+import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseType;
 import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
+import fpt.project.bsmart.entity.dto.SubjectDto;
+import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CourseResponse {
+public class CourseClassResponse {
 
     private Long id;
 
@@ -17,7 +23,7 @@ public class CourseResponse {
     private String courseCode;
     private String courseName;
 
-    private List<CategoryDto> categoryDtoList = new ArrayList<>();
+    private List<CategoryDto> categoryDto = new ArrayList<>();
 
     private Long subjectId;
     private String subjectName;
@@ -25,8 +31,9 @@ public class CourseResponse {
     private ECourseStatus status;
     private String courseDescription;
 
-    private int totalClass;
-    private List<String> mentorName;
+    private String mentorName;
+    private List<ClassDetailResponse> classes;
+
 
     public Long getId() {
         return id;
@@ -36,20 +43,20 @@ public class CourseResponse {
         this.id = id;
     }
 
-    public ECourseStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ECourseStatus status) {
-        this.status = status;
-    }
-
     public List<ImageDto> getImages() {
         return images;
     }
 
     public void setImages(List<ImageDto> images) {
         this.images = images;
+    }
+
+    public String getMentorName() {
+        return mentorName;
+    }
+
+    public void setMentorName(String mentorName) {
+        this.mentorName = mentorName;
     }
 
     public String getCourseCode() {
@@ -68,12 +75,12 @@ public class CourseResponse {
         this.courseName = courseName;
     }
 
-    public List<CategoryDto> getCategoryDtoList() {
-        return categoryDtoList;
+    public List<CategoryDto> getCategoryDto() {
+        return categoryDto;
     }
 
-    public void setCategoryDtoList(List<CategoryDto> categoryDtoList) {
-        this.categoryDtoList = categoryDtoList;
+    public void setCategoryDto(List<CategoryDto> categoryDto) {
+        this.categoryDto = categoryDto;
     }
 
     public Long getSubjectId() {
@@ -92,6 +99,13 @@ public class CourseResponse {
         this.subjectName = subjectName;
     }
 
+    public ECourseStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ECourseStatus status) {
+        this.status = status;
+    }
 
     public String getCourseDescription() {
         return courseDescription;
@@ -101,20 +115,11 @@ public class CourseResponse {
         this.courseDescription = courseDescription;
     }
 
-    public int getTotalClass() {
-        return totalClass;
+    public List<ClassDetailResponse> getClasses() {
+        return classes;
     }
 
-    public void setTotalClass(int totalClass) {
-        this.totalClass = totalClass;
-    }
-
-
-    public List<String> getMentorName() {
-        return mentorName;
-    }
-
-    public void setMentorName(List<String> mentorName) {
-        this.mentorName = mentorName;
+    public void setClasses(List<ClassDetailResponse> classes) {
+        this.classes = classes;
     }
 }

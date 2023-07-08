@@ -1,12 +1,16 @@
 
 package fpt.project.bsmart.service.Impl;
+
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
+import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.entity.response.CourseResponse;
+import fpt.project.bsmart.repository.ActivityRepository;
 import fpt.project.bsmart.repository.CategoryRepository;
 import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.service.ICourseService;
@@ -21,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
+import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.CourseUtil.checkCourseOwnership;
 
@@ -35,12 +39,14 @@ public class CourseServiceImpl implements ICourseService {
 
     private final CategoryRepository categoryRepository;
 
+    private final ActivityRepository activityRepository ;
 
 
-    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository) {
+    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository) {
         this.courseRepository = courseRepository;
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
+        this.activityRepository = activityRepository;
     }
 
 
@@ -101,10 +107,15 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public Long mentorUpdateCourse(Long id , CreateCourseRequest createCourseRequest) {
+    public Long mentorUpdateCourse(Long id, CreateCourseRequest createCourseRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+
+        if (!course.getStatus().equals(REQUESTING) && !course.getStatus().equals(EDITREQUEST)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
+        }
 
         Long categoryId = createCourseRequest.getCategoryId();
         if (categoryId == null) {
@@ -128,17 +139,69 @@ public class CourseServiceImpl implements ICourseService {
         // check skill of mentor is match with subject input
         List<Subject> skillOfMentor = currentUserAccountLogin.getMentorProfile().getSkills().stream().map(MentorSkill::getSkill).collect(Collectors.toList());
 
-        if (skillOfMentor.contains(subject)) {
+        if (!skillOfMentor.contains(subject)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT));
         }
 
-        checkCourseOwnership(course,currentUserAccountLogin) ;
+        checkCourseOwnership(course, currentUserAccountLogin);
         course.setName(createCourseRequest.getName());
         course.setDescription(createCourseRequest.getDescription());
         course.setSubject(subject);
         course.setStatus(REQUESTING);
         return courseRepository.save(course).getId();
+    }
+
+    @Override
+    public ApiPage<CourseResponse> getCourseOfMentor(CourseSearchRequest query, Pageable pageable) {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+
+        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
+                .queryLike(query.getQ())
+                .queryByCourseStatus(query.getStatus())
+                .queryBySubjectId(query.getSubjectId())
+                .queryByCreatorId(currentUserAccountLogin.getId())
+                .queryByCategoryId(query.getCategoryId());
+
+        Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
+        return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
+
+
+    }
+
+    @Override
+    public Boolean mentorDeleteCourse(Long id) {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        if (!course.getCreator().equals(currentUserAccountLogin)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
+        }
+        if (!course.getStatus().equals(REQUESTING) && !course.getStatus().equals(EDITREQUEST)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
+        }
+        List<Class> classes = course.getClasses();
+        List<ECourseStatus> statusClasses = classes.stream().map(Class::getStatus).collect(Collectors.toList());
+        if (statusClasses.contains(ECourseStatus.NOTSTART) || statusClasses.contains(STARTING) || statusClasses.contains(WAITING)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE));
+        }
+        List<Activity> activities = course.getActivities();
+        activityRepository.deleteAll(activities);
+        courseRepository.delete(course);
+        return true;
+    }
+
+    @Override
+    public ApiPage<CourseClassResponse> coursePendingToApprove(Pageable pageable) {
+        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
+                .queryByCourseStatus(WAITING) ;
+
+        Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
+        return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseToCourseClassResponsePage));
+
     }
 }
 //

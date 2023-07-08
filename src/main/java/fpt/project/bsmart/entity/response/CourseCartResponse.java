@@ -15,8 +15,6 @@ public class CourseCartResponse {
 
     private Long id;
 
-
-
     private String name;
 
     private String code;

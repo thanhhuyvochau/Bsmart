@@ -4,10 +4,13 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.ECourseActivityType;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EQuestionType;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.response.*;
+import fpt.project.bsmart.repository.ClassRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -18,9 +21,15 @@ import java.util.stream.Collectors;
 @Component
 public class ConvertUtil {
     private static MessageUtil messageUtil;
+
+    private static ClassRepository staticClassRepository;
     private static String successIcon;
 
     private static String failIcon;
+
+    public ConvertUtil(ClassRepository classRepository) {
+        staticClassRepository= classRepository ;
+    }
 
     @Value("${icon.success}")
     public void setSuccessIconUrl(String url) {
@@ -70,13 +79,9 @@ public class ConvertUtil {
         return walletDto;
     }
 
-//    public static ImageDto convertImageToImageDto(Image image) {
-//        ImageDto imageDto = ObjectUtil.copyProperties(image, new ImageDto(), ImageDto.class);
-//        if (image.getUser() != null) {
-//
-//        }
-//        return imageDto;
-//    }
+    public static ImageDto convertImageToImageDto(Image image) {
+        return ObjectUtil.copyProperties(image, new ImageDto(), ImageDto.class);
+    }
 
     public static ImageDto convertUserImageToUserImageDto(UserImage userImage) {
         ImageDto imageDto = ObjectUtil.copyProperties(userImage, new ImageDto(), ImageDto.class);
@@ -317,7 +322,7 @@ public class ConvertUtil {
         courseResponse.setCourseName(course.getName());
         courseResponse.setCourseCode(course.getCode());
         courseResponse.setCourseDescription(course.getDescription());
-
+        courseResponse.setStatus(course.getStatus());
 
         List<String> mentorName = new ArrayList<>();
 
@@ -335,7 +340,6 @@ public class ConvertUtil {
         courseResponse.setImages(images);
 
 
-
         Subject subject = course.getSubject();
         if (subject != null) {
             courseResponse.setSubjectId(subject.getId());
@@ -348,6 +352,42 @@ public class ConvertUtil {
                 }
             }
         }
+        return courseResponse;
+    }
+
+    public static CourseClassResponse convertCourseToCourseClassResponsePage(Course course) {
+
+
+        CourseClassResponse courseResponse = new CourseClassResponse();
+        courseResponse.setId(course.getId());
+        courseResponse.setCourseName(course.getName());
+        courseResponse.setCourseCode(course.getCode());
+        courseResponse.setCourseDescription(course.getDescription());
+        courseResponse.setStatus(course.getStatus());
+
+        if (course.getCreator() != null) {
+            courseResponse.setMentorName(course.getCreator().getFullName());
+        }
+
+
+        Subject subject = course.getSubject();
+        if (subject != null) {
+            courseResponse.setSubjectId(subject.getId());
+            courseResponse.setSubjectName(subject.getName());
+            Set<Category> categories = subject.getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+                    CategoryDto categoryDto = convertCategoryToCategoryDto(category);
+                    courseResponse.getCategoryDto().add(categoryDto);
+                }
+            }
+        }
+        List<ClassDetailResponse>classDetailResponses = new ArrayList<>( );
+        List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseStatus.WAITING);
+        classes.forEach(aClass -> {
+            classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(aClass)) ;
+        });
+        courseResponse.setClasses(classDetailResponses);
         return courseResponse;
     }
 
@@ -389,34 +429,34 @@ public class ConvertUtil {
         return mentorSkillDto;
     }
 
-//    public static CartResponse convertCartToCartResponse(Cart cart) {
-//        CartResponse cartResponse = ObjectUtil.copyProperties(cart, new CartResponse(), CartResponse.class, true);
-//        List<CourseCartResponse> cartItemResponses = cart.getCartItems().stream().map(ConvertUtil::convertCartItemToResponse).collect(Collectors.toList());
-//        cartResponse.getCartItems().addAll(cartItemResponses);
-//        return cartResponse;
-//    }
+    public static CartResponse convertCartToCartResponse(Cart cart) {
+        CartResponse cartResponse = ObjectUtil.copyProperties(cart, new CartResponse(), CartResponse.class, true);
+        List<CourseCartResponse> cartItemResponses = cart.getCartItems().stream().map(ConvertUtil::convertCartItemToResponse).collect(Collectors.toList());
+        cartResponse.getCartItems().addAll(cartItemResponses);
+        return cartResponse;
+    }
 
-//    public static CourseCartResponse convertCartItemToResponse(CartItem cartItem) {
-//        SubCourse chooseSubCourse = cartItem.getSubCourse();
-//        Course course = chooseSubCourse.getCourse();
-//
-//        CourseCartResponse courseCartResponse = convertCourseToCourseCart(course);
-//        courseCartResponse.setCartItemId(cartItem.getId());
-//        for (SubCourse subCourse : course.getSubCourses()) {
-//            SubCourseCartResponse subCourseCartResponse = ObjectUtil.copyProperties(subCourse, new SubCourseCartResponse(), SubCourseCartResponse.class, true);
-//            if (subCourseCartResponse.getId().equals(chooseSubCourse.getId())) {
-//                subCourseCartResponse.setIsChosen(true);
-//            }
-//            if (subCourse.getMentor() != null) {
-//                subCourseCartResponse.setMentor(convertUsertoUserDto(subCourse.getMentor()));
-//            }
-//            if (subCourse.getImage() != null) {
-//
-//            }
-//            courseCartResponse.getSubCourses().add(subCourseCartResponse);
-//        }
-//        return courseCartResponse;
-//    }
+    public static CourseCartResponse convertCartItemToResponse(CartItem cartItem) {
+        Class clazz = cartItem.getClazz();
+        Course course = clazz.getCourse();
+
+        CourseCartResponse courseCartResponse = convertCourseToCourseCart(course);
+        courseCartResponse.setCartItemId(cartItem.getId());
+        for (Class chooseClass : course.getClasses()) {
+            SubCourseCartResponse subCourseCartResponse = ObjectUtil.copyProperties(chooseClass, new SubCourseCartResponse(), SubCourseCartResponse.class, true);
+            if (subCourseCartResponse.getId().equals(clazz.getId())) {
+                subCourseCartResponse.setIsChosen(true);
+            }
+            if (chooseClass.getMentor() != null) {
+                subCourseCartResponse.setMentor(convertUsertoUserDto(clazz.getMentor()));
+            }
+            if (chooseClass.getClassImage() != null) {
+                subCourseCartResponse.setImage(ObjectUtil.copyProperties(chooseClass.getClassImage(), new ImageDto(), ImageDto.class));
+            }
+            courseCartResponse.getSubCourses().add(subCourseCartResponse);
+        }
+        return courseCartResponse;
+    }
 
     private static CourseCartResponse convertCourseToCourseCart(Course course) {
         CourseCartResponse courseCartResponse = ObjectUtil.copyProperties(course, new CourseCartResponse(), CourseCartResponse.class);
@@ -501,37 +541,35 @@ public class ConvertUtil {
         return ObjectUtil.copyProperties(answer, new AnswerDto(), AnswerDto.class, true);
     }
 
-//    public static ActivityDto convertActivityToDto(Activity activity) { // Convert ra detail của activity
-//        ActivityType type = activity.getType();
-//        switch (type.getCode()) {
-//            case "ASSIGNMENT":
-//                ActivityDto<AssignmentDto> activityDto = ObjectUtil.copyProperties(activity, new ActivityDto<>(), ActivityDto.class, true);
-//                activityDto.setType(ConvertUtil.convertActivityTypeToDto(activity.getType()));
-//                AssignmentDto assignmentDto = convertAssignmentToDto(activity.getAssignment());
-//                activityDto.setActivityDetail(assignmentDto);
-//                return activityDto;
-//            case "QUIZ":
-//                return null; // convert quiz activity ở đây tương tự như trên
-//            default:
-//                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy loại hoạt động!");
-//        }
-//    }
+    public static ActivityDto convertActivityToDto(Activity activity) { // Convert ra detail của activity
+        ECourseActivityType type = activity.getType();
+        switch (type) {
+            case ASSIGNMENT:
+                ActivityDto<AssignmentDto> activityDto = ObjectUtil.copyProperties(activity, new ActivityDto<>(), ActivityDto.class, true);
+                AssignmentDto assignmentDto = convertAssignmentToDto(activity.getAssignment());
+                activityDto.setDetail(assignmentDto);
+                return activityDto;
+            case QUIZ:
+                return null; // convert quiz activity ở đây tương tự như trên
+            default:
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy loại hoạt động!");
+        }
+    }
 
-//    public static ActivityDto convertActivityToSimpleDto(Activity activity) { // Convert ra đơn giản để show cho user xem
-//        ActivityType type = activity.getType();
-//        switch (type.getCode()) {
-//            case "ASSIGNMENT":
-//                ActivityDto<SimpleAssignmentDto> activityDto = ObjectUtil.copyProperties(activity, new ActivityDto<>(), ActivityDto.class, true);
-//                activityDto.setType(ConvertUtil.convertActivityTypeToDto(activity.getType()));
-//                SimpleAssignmentDto simpleAssignmentDto = convertAssignmentToSimpleDto(activity.getAssignment());
-//                activityDto.setActivityDetail(simpleAssignmentDto);
-//                return activityDto;
-//            case "QUIZ":
-//                return null; // convert quiz activity ở đây tương tự như trên
-//            default:
-//                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy loại hoạt động!");
-//        }
-//    }
+    public static ActivityDto convertActivityToSimpleDto(Activity activity) { // Convert ra đơn giản để show cho user xem
+        ECourseActivityType type = activity.getType();
+        switch (type) {
+            case ASSIGNMENT:
+                ActivityDto<SimpleAssignmentDto> activityDto = ObjectUtil.copyProperties(activity, new ActivityDto<>(), ActivityDto.class, true);
+                SimpleAssignmentDto simpleAssignmentDto = convertAssignmentToSimpleDto(activity.getAssignment());
+                activityDto.setDetail(simpleAssignmentDto);
+                return activityDto;
+            case QUIZ:
+                return null; // convert quiz activity ở đây tương tự như trên
+            default:
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy loại hoạt động!");
+        }
+    }
 
     private static AssignmentDto convertAssignmentToDto(Assignment assignment) {
         AssignmentDto assignmentDto = ObjectUtil.copyProperties(assignment, new AssignmentDto(), AssignmentDto.class, true);
