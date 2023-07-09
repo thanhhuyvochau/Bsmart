@@ -1,7 +1,10 @@
 package fpt.project.bsmart.entity.request;
 
+import fpt.project.bsmart.entity.constant.ECourseLevel;
+
 public class CreateCourseRequest {
     private String name;
+    private ECourseLevel level;
     private Long categoryId;
     private Long subjectId;
     private String description;
@@ -37,5 +40,13 @@ public class CreateCourseRequest {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public ECourseLevel getLevel() {
+        return level;
+    }
+
+    public void setLevel(ECourseLevel level) {
+        this.level = level;
     }
 }

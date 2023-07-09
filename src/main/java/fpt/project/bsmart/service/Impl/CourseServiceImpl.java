@@ -100,6 +100,7 @@ public class CourseServiceImpl implements ICourseService {
         course.setCode(CourseUtil.generateRandomCode(8));
         course.setDescription(createCourseRequest.getDescription());
         course.setSubject(subject);
+        course.setLevel(createCourseRequest.getLevel());
         course.setStatus(REQUESTING);
         course.setCreator(currentUserAccountLogin);
         Course courseSaved = courseRepository.save(course);
@@ -148,6 +149,7 @@ public class CourseServiceImpl implements ICourseService {
         course.setName(createCourseRequest.getName());
         course.setDescription(createCourseRequest.getDescription());
         course.setSubject(subject);
+        course.setLevel(createCourseRequest.getLevel());
         course.setStatus(REQUESTING);
         return courseRepository.save(course).getId();
     }

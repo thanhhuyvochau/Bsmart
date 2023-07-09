@@ -43,8 +43,10 @@ public class CourseSpecificationBuilder {
         if (status == null) {
             return this;
         }
+        if (status.equals(ECourseStatus.ALL)){
+            return this ;
+        }
         specifications.add((root, query, criteriaBuilder) -> {
-//            Join<Course, SubCourse> courseSubCourseJoin = root.join(Course_.SUB_COURSES, JoinType.INNER);
 
             return criteriaBuilder.equal(root.get(Course_.STATUS), status);
         });

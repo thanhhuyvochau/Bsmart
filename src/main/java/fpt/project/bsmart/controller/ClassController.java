@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
+import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -45,8 +46,8 @@ public class ClassController {
 
     @Operation(summary = "lấy tất cả các class của course load lên trang khoa học")
     @GetMapping("/course/{id}")
-    public ResponseEntity<ApiResponse<ApiPage<ClassDetailResponse>>> getAllClassOfCourse(@PathVariable Long id, Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourse(id, pageable)));
+    public ResponseEntity<ApiResponse<CourseClassResponse>> getAllClassOfCourse(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourse(id)));
     }
 
     @Operation(summary = "mentor update class cho course")

@@ -37,7 +37,6 @@ public class ClassDetailResponse {
     private ImageDto image;
     private List<TimeInWeekDTO> timeInWeeks;
 
-    private List<SectionDto> sections;
 
     private Boolean purchase;
 
@@ -137,13 +136,7 @@ public class ClassDetailResponse {
         this.timeInWeeks = timeInWeeks;
     }
 
-    public List<SectionDto> getSections() {
-        return sections;
-    }
 
-    public void setSections(List<SectionDto> sections) {
-        this.sections = sections;
-    }
 
     public Boolean getPurchase() {
         return purchase;

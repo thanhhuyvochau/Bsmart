@@ -24,9 +24,7 @@ public class Class extends BaseEntity {
     private Instant endDate;
     @Column(name = "student_number")
     private Integer numberOfStudent = 0;
-    @Column(name = "level")
-    @Enumerated(EnumType.STRING)
-    private ECourseLevel level;
+
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private ECourseStatus status;
@@ -130,13 +128,6 @@ public class Class extends BaseEntity {
         this.studentClasses = studentClasses;
     }
 
-    public ECourseLevel getLevel() {
-        return level;
-    }
-
-    public void setLevel(ECourseLevel level) {
-        this.level = level;
-    }
 
     public ECourseStatus getStatus() {
         return status;

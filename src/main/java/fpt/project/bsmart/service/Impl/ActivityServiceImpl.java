@@ -374,7 +374,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     }
 
     @Override
-    public Boolean mentorDeleteSectionForCourse(Long id, MentorDeleteSectionForCourse deleteRequest) {
+    public Boolean mentorDeleteSectionForCourse(Long id, List<MentorDeleteSectionForCourse> deleteRequest) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
@@ -384,22 +384,23 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         ActivityUtil.checkCourseIsAllowedUpdateOrDelete(course);
 
         List<Activity> activityDeleteList = new ArrayList<>();
-        Activity activity = activityRepository.findByIdAndCourse(deleteRequest.getId(), course)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + deleteRequest.getId()));
-        List<MentorDeleteLessonForCourse> lessons = deleteRequest.getLessons();
-        List<Lesson> lessonList = new ArrayList<>();
-        for (MentorDeleteLessonForCourse lessonDelete : lessons) {
-            Lesson lesson = lessonRepository.findById(lessonDelete.getId())
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(LESSON_NOT_FOUND_BY_ID) + lessonDelete.getId()));
-            Activity activityLesson = lesson.getActivity();
-            activityLesson.setParent(null);
-            activityDeleteList.add(activityLesson);
-//            lessonList.add(lesson);
+        for (MentorDeleteSectionForCourse mentorDeleteSectionForCourse : deleteRequest) {
+            Activity activity = activityRepository.findByIdAndCourse(mentorDeleteSectionForCourse.getId(), course)
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + mentorDeleteSectionForCourse.getId()));
+            List<MentorDeleteLessonForCourse> lessons = mentorDeleteSectionForCourse.getLessons();
+
+            for (MentorDeleteLessonForCourse lessonDelete : lessons) {
+                Lesson lesson = lessonRepository.findById(lessonDelete.getId())
+                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(LESSON_NOT_FOUND_BY_ID) + lessonDelete.getId()));
+                Activity activityLesson = lesson.getActivity();
+                activityLesson.setParent(null);
+                activityDeleteList.add(activityLesson);
+            }
+            if (activity.getChildren().size() == 0) {
+                activityDeleteList.add(activity);
+            }
         }
-//        lessonRepository.deleteAll(lessonList);
-        if (activity.getChildren().size() == 0) {
-            activityDeleteList.add(activity);
-        }
+
         activityRepository.deleteAll(activityDeleteList);
         return true;
     }

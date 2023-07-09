@@ -32,5 +32,5 @@ public interface IActivityService {
 
     Boolean mentorUpdateSectionForCourse(Long id, MentorUpdateSectionForCourse updateRequest);
 
-    Boolean mentorDeleteSectionForCourse(Long id, MentorDeleteSectionForCourse deleteRequest);
+    Boolean mentorDeleteSectionForCourse(Long id, List<MentorDeleteSectionForCourse> deleteRequest);
 }

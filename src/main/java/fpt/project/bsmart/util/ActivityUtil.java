@@ -65,7 +65,7 @@ public class ActivityUtil {
                 }
 
             });
-            classDetailResponse.setSections(sections);
+//            classDetailResponse.setSections(sections);
 
         }
 

@@ -1,6 +1,6 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.Category;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.request.category.CategoryRequest;
@@ -11,10 +11,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
 import static fpt.project.bsmart.util.ConvertUtil.convertCategoryToCategoryDto;
+import static fpt.project.bsmart.util.MentorUtil.checkIsMentor;
 
 @Service
 public class CategoryServiceImpl implements ICategoryService {
@@ -69,5 +73,29 @@ public class CategoryServiceImpl implements ICategoryService {
         Category category = findById(id);
         category.remove();
         return id;
+    }
+
+    @Override
+    public List<CategoryDto> getCategoryByMentorSkill() {
+        User user = checkIsMentor();
+
+        MentorProfile mentorProfile = user.getMentorProfile();
+        List<CategoryDto> categoryDtoList = new ArrayList<>();
+        List<Long> idCategoryDup = new ArrayList<>();
+
+        List<MentorSkill> skills = mentorProfile.getSkills();
+        List<Subject> skillList = skills.stream().map(MentorSkill::getSkill).collect(Collectors.toList());
+
+        for (Subject subject : skillList) {
+            Set<Category> categories = subject.getCategories();
+            for (Category category : categories) {
+                CategoryDto categoryDto = convertCategoryToCategoryDto(category);
+                if (!idCategoryDup.contains(categoryDto.getId())) {
+                    idCategoryDup.add(categoryDto.getId());
+                    categoryDtoList.add(categoryDto);
+                }
+            }
+        }
+        return categoryDtoList;
     }
 }

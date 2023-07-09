@@ -1,6 +1,7 @@
 package fpt.project.bsmart.entity;
 
 
+import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.ECourseType;
 
@@ -32,12 +33,12 @@ public class Course {
     @Enumerated(EnumType.STRING)
     private ECourseStatus status;
 
+    @Column(name = "level")
+    @Enumerated(EnumType.STRING)
+    private ECourseLevel level;
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Activity> activities = new ArrayList<>();
-
-    @Column(name = "type")
-    @Enumerated(EnumType.STRING)
-    private ECourseType type;
 
     @OneToOne
     @JoinColumn(name = "creator_id")
@@ -71,12 +72,22 @@ public class Course {
         this.code = code;
     }
 
+
+
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public ECourseLevel getLevel() {
+        return level;
+    }
+
+    public void setLevel(ECourseLevel level) {
+        this.level = level;
     }
 
     public Subject getSubject() {
@@ -95,13 +106,6 @@ public class Course {
         this.status = status;
     }
 
-    public ECourseType getType() {
-        return type;
-    }
-
-    public void setType(ECourseType type) {
-        this.type = type;
-    }
 
     public List<Class> getClasses() {
         return classes;

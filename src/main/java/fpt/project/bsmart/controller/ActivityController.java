@@ -51,7 +51,7 @@ public class ActivityController {
     @PreAuthorize("hasAnyRole('TEACHER')")
     @DeleteMapping("course/{id}")
     public ResponseEntity<ApiResponse<Boolean>> mentorDeleteSectionForCourse(@PathVariable Long id,
-                                                                             @Valid @RequestBody MentorDeleteSectionForCourse deleteRequest) {
+                                                                             @Valid @RequestBody List<MentorDeleteSectionForCourse> deleteRequest) {
         return ResponseEntity.ok(ApiResponse.success(activityService.mentorDeleteSectionForCourse(id, deleteRequest)));
     }
 
