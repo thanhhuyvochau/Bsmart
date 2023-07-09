@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
+import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
@@ -85,6 +86,8 @@ public class ClassServiceImpl implements IClassService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
         CourseClassResponse response = CourseUtil.convertCourseToCourseClassResponsePage(course);
+        List<SectionDto> sectionDtoList = ActivityUtil.GetSectionOfCoursePage(course);
+        response.setSections(sectionDtoList);
 
         User currentUser = SecurityUtil.getCurrentUser();
         List<Class> classList = classRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART);
