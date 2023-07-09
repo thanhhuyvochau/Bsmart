@@ -22,14 +22,14 @@ public class AssignmentFile extends BaseEntity {
     @Column(name = "note")
     private String note;
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-    @ManyToOne
     @JoinColumn(name = "assignment_id")
     private Assignment assignment;
 
     @Column(name = "name")
     private String name;
+    @ManyToOne
+    @JoinColumn(name = "assignment_submition")
+    private AssignmentSubmition assignmentSubmition;
 
     public Long getId() {
         return id;
@@ -79,12 +79,12 @@ public class AssignmentFile extends BaseEntity {
         this.note = note;
     }
 
-    public User getUser() {
-        return user;
+    public AssignmentSubmition getAssignmentSubmition() {
+        return assignmentSubmition;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setAssignmentSubmition(AssignmentSubmition assignmentSubmition) {
+        this.assignmentSubmition = assignmentSubmition;
     }
 
     public Assignment getAssignment() {
@@ -102,4 +102,5 @@ public class AssignmentFile extends BaseEntity {
     public void setName(String name) {
         this.name = name;
     }
+
 }
