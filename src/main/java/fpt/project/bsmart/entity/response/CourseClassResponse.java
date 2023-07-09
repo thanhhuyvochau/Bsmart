@@ -8,6 +8,7 @@ import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
+import fpt.project.bsmart.entity.dto.activity.SectionDto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -17,23 +18,23 @@ import java.util.List;
 public class CourseClassResponse {
 
     private Long id;
+    private String code;
+    private String name;
 
-    private List<ImageDto> images;
+    private String description;
 
-    private String courseCode;
-    private String courseName;
+    private CategoryDto categoryResponse;
 
-    private List<CategoryDto> categoryDto = new ArrayList<>();
+    private SubjectDto subjectResponse;
 
-    private Long subjectId;
-    private String subjectName;
 
     private ECourseStatus status;
-    private String courseDescription;
+
 
     private String mentorName;
     private List<ClassDetailResponse> classes;
 
+    private List<SectionDto> sections;
 
     public Long getId() {
         return id;
@@ -43,60 +44,44 @@ public class CourseClassResponse {
         this.id = id;
     }
 
-    public List<ImageDto> getImages() {
-        return images;
+    public String getCode() {
+        return code;
     }
 
-    public void setImages(List<ImageDto> images) {
-        this.images = images;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public String getMentorName() {
-        return mentorName;
+    public String getName() {
+        return name;
     }
 
-    public void setMentorName(String mentorName) {
-        this.mentorName = mentorName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getCourseCode() {
-        return courseCode;
+    public String getDescription() {
+        return description;
     }
 
-    public void setCourseCode(String courseCode) {
-        this.courseCode = courseCode;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getCourseName() {
-        return courseName;
+    public CategoryDto getCategoryResponse() {
+        return categoryResponse;
     }
 
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
+    public void setCategoryResponse(CategoryDto categoryResponse) {
+        this.categoryResponse = categoryResponse;
     }
 
-    public List<CategoryDto> getCategoryDto() {
-        return categoryDto;
+    public SubjectDto getSubjectResponse() {
+        return subjectResponse;
     }
 
-    public void setCategoryDto(List<CategoryDto> categoryDto) {
-        this.categoryDto = categoryDto;
-    }
-
-    public Long getSubjectId() {
-        return subjectId;
-    }
-
-    public void setSubjectId(Long subjectId) {
-        this.subjectId = subjectId;
-    }
-
-    public String getSubjectName() {
-        return subjectName;
-    }
-
-    public void setSubjectName(String subjectName) {
-        this.subjectName = subjectName;
+    public void setSubjectResponse(SubjectDto subjectResponse) {
+        this.subjectResponse = subjectResponse;
     }
 
     public ECourseStatus getStatus() {
@@ -107,12 +92,12 @@ public class CourseClassResponse {
         this.status = status;
     }
 
-    public String getCourseDescription() {
-        return courseDescription;
+    public String getMentorName() {
+        return mentorName;
     }
 
-    public void setCourseDescription(String courseDescription) {
-        this.courseDescription = courseDescription;
+    public void setMentorName(String mentorName) {
+        this.mentorName = mentorName;
     }
 
     public List<ClassDetailResponse> getClasses() {
@@ -121,5 +106,13 @@ public class CourseClassResponse {
 
     public void setClasses(List<ClassDetailResponse> classes) {
         this.classes = classes;
+    }
+
+    public List<SectionDto> getSections() {
+        return sections;
+    }
+
+    public void setSections(List<SectionDto> sections) {
+        this.sections = sections;
     }
 }

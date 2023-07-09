@@ -17,8 +17,6 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     boolean existsByCode(String code);
 
-    List<Course> findAllByType(ECourseType type);
-
     Page<Course> findAll(Specification<Course> build, Pageable pageable);
 
     Page<Course> findByCreator(User user, Pageable pageable);

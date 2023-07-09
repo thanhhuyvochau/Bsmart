@@ -28,7 +28,7 @@ public class ConvertUtil {
     private static String failIcon;
 
     public ConvertUtil(ClassRepository classRepository) {
-        staticClassRepository= classRepository ;
+        staticClassRepository = classRepository;
     }
 
     @Value("${icon.success}")
@@ -323,7 +323,7 @@ public class ConvertUtil {
         courseResponse.setCourseCode(course.getCode());
         courseResponse.setCourseDescription(course.getDescription());
         courseResponse.setStatus(course.getStatus());
-
+        courseResponse.setLevel(course.getLevel());
         List<String> mentorName = new ArrayList<>();
 
         List<Class> classes = course.getClasses();
@@ -342,13 +342,14 @@ public class ConvertUtil {
 
         Subject subject = course.getSubject();
         if (subject != null) {
-            courseResponse.setSubjectId(subject.getId());
-            courseResponse.setSubjectName(subject.getName());
+            SubjectDto subjectDto = convertSubjectToSubjectDto(subject);
+            courseResponse.setSubjectResponse(subjectDto);
+
             Set<Category> categories = subject.getCategories();
             if (!categories.isEmpty()) {
                 for (Category category : categories) {
                     CategoryDto categoryDto = convertCategoryToCategoryDto(category);
-                    courseResponse.getCategoryDtoList().add(categoryDto);
+                    courseResponse.setCategoryResponse(categoryDto);
                 }
             }
         }
@@ -360,9 +361,9 @@ public class ConvertUtil {
 
         CourseClassResponse courseResponse = new CourseClassResponse();
         courseResponse.setId(course.getId());
-        courseResponse.setCourseName(course.getName());
-        courseResponse.setCourseCode(course.getCode());
-        courseResponse.setCourseDescription(course.getDescription());
+        courseResponse.setName(course.getName());
+        courseResponse.setCode(course.getCode());
+        courseResponse.setDescription(course.getDescription());
         courseResponse.setStatus(course.getStatus());
 
         if (course.getCreator() != null) {
@@ -372,20 +373,21 @@ public class ConvertUtil {
 
         Subject subject = course.getSubject();
         if (subject != null) {
-            courseResponse.setSubjectId(subject.getId());
-            courseResponse.setSubjectName(subject.getName());
+            courseResponse.setSubjectResponse(ConvertUtil.convertSubjectToSubjectDto(subject));
+
             Set<Category> categories = subject.getCategories();
             if (!categories.isEmpty()) {
                 for (Category category : categories) {
-                    CategoryDto categoryDto = convertCategoryToCategoryDto(category);
-                    courseResponse.getCategoryDto().add(categoryDto);
+
+                    courseResponse.setCategoryResponse(ConvertUtil.convertCategoryToCategoryDto(category));
                 }
             }
         }
-        List<ClassDetailResponse>classDetailResponses = new ArrayList<>( );
+
+        List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
         List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseStatus.WAITING);
         classes.forEach(aClass -> {
-            classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(aClass)) ;
+            classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(course.getCreator(), aClass));
         });
         courseResponse.setClasses(classDetailResponses);
         return courseResponse;

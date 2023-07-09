@@ -15,4 +15,6 @@ public interface ICategoryService {
     Long updateCategory(Long id, CategoryRequest categoryRequest);
 
     Long deleteCategory(Long id);
+
+    List<CategoryDto> getCategoryByMentorSkill();
 }

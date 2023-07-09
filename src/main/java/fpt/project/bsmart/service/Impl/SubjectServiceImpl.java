@@ -118,17 +118,15 @@ public class SubjectServiceImpl implements ISubjectService {
     @Override
     public List<SubjectDto> getSubjectsByMentorSkill() {
         User user = checkIsMentor();
-
+//        Category category = categoryRepository.findById(categoryId)
+//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CATEGORY_NOT_FOUND_BY_ID) + categoryId));
         MentorProfile mentorProfile = user.getMentorProfile();
         List<SubjectDto> subjectDtoList = new ArrayList<>();
-
         List<MentorSkill> skills = mentorProfile.getSkills();
         List<Subject> skillList = skills.stream().map(MentorSkill::getSkill).collect(Collectors.toList());
         skillList.forEach(subject -> {
-            subjectDtoList.add(convertSubjectToSubjectDto(subject));
+                subjectDtoList.add(convertSubjectToSubjectDto(subject));
         });
         return subjectDtoList;
     }
-
-
 }

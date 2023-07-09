@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.request.category.CategoryRequest;
 import fpt.project.bsmart.service.ICategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -49,5 +50,12 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Long>> deleteCategory(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iCategoryService.deleteCategory(id)));
+    }
+
+    @Operation(summary = "Lấy category theo skill của mentor")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("mentor-skills")
+    public ResponseEntity<ApiResponse<List<CategoryDto>>> getSubjectsByMentorSkill(){
+        return ResponseEntity.ok(ApiResponse.success(iCategoryService.getCategoryByMentorSkill()));
     }
 }

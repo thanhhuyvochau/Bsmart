@@ -5,7 +5,9 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
+import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
+import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -42,10 +44,10 @@ public class ClassController {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClassForCourse(courseId,mentorCreateClassRequest)));
     }
 
-    @Operation(summary = "lấy tất cả các class của  course load lên trang khoa học")
+    @Operation(summary = "lấy tất cả các class của course load lên trang khoa học")
     @GetMapping("/course/{id}")
-    public ResponseEntity<ApiResponse<ApiPage<ClassDetailResponse>>> getAllSubCourseOfCourse(@PathVariable Long id, Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllSubCourseOfCourse(id, pageable)));
+    public ResponseEntity<ApiResponse<CourseClassResponse>> getAllClassOfCourse(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourse(id)));
     }
 
     @Operation(summary = "mentor update class cho course")
@@ -54,6 +56,13 @@ public class ClassController {
     public ResponseEntity<ApiResponse<Boolean>> mentorUpdateClassForCourse(@PathVariable Long id ,
                                                                               @Valid @RequestBody  MentorCreateClass mentorCreateClassRequest) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorUpdateClassForCourse(id,mentorCreateClassRequest)));
+    }
+
+    @Operation(summary = "mentor lấy các class của course ")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("/course/{id}/mentor")
+    public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> mentorGetClassOfCourse(@PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorGetClassOfCourse(id, pageable)));
     }
 
 //    @Operation(summary = "mentor tao lớp học")

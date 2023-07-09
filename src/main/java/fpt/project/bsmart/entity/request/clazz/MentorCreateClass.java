@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MentorCreateClass {
-    private ECourseLevel level;
+
 
     private Long imageId;
 
@@ -27,13 +27,7 @@ public class MentorCreateClass {
 
     private List<TimeInWeekRequest> timeInWeekRequests = new ArrayList<>();
 
-    public ECourseLevel getLevel() {
-        return level;
-    }
 
-    public void setLevel(ECourseLevel level) {
-        this.level = level;
-    }
 
     public Long getImageId() {
         return imageId;
