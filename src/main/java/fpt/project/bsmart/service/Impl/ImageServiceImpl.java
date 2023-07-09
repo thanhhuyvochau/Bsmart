@@ -3,6 +3,7 @@ package fpt.project.bsmart.service.Impl;
 import fpt.project.bsmart.entity.ClassImage;
 import fpt.project.bsmart.entity.Image;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.repository.ClassImageRepository;
@@ -77,7 +78,7 @@ public class ImageServiceImpl implements ImageService {
             image.setStatus(true);
             ClassImage persistedImage = classImageRepository.save(image);
 
-            image.setType(imageRequest.getType());
+            image.setType(EImageType.CLASS);
             return ObjectUtil.copyProperties(persistedImage, new ImageDto(), ImageDto.class);
         } catch (IOException e) {
             throw new RuntimeException(e);

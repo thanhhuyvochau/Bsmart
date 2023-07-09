@@ -1,15 +1,22 @@
 package fpt.project.bsmart.util;
 
 
-import fpt.project.bsmart.entity.Course;
-import fpt.project.bsmart.entity.MentorProfile;
-import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EOrderStatus;
+import fpt.project.bsmart.entity.dto.CategoryDto;
+import fpt.project.bsmart.entity.dto.SubjectDto;
+import fpt.project.bsmart.entity.response.ClassDetailResponse;
+import fpt.project.bsmart.entity.response.CourseClassResponse;
+import fpt.project.bsmart.repository.ClassRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.EDITREQUEST;
@@ -22,6 +29,12 @@ public class CourseUtil {
     private static String successIcon;
 
     private static String failIcon;
+
+    private static ClassRepository staticClassRepository;
+
+    public CourseUtil(ClassRepository classRepository) {
+        staticClassRepository = classRepository;
+    }
 
     public static void checkCourseOwnership(Course course, User user) {
         if (!course.getCreator().equals(user)) {
@@ -77,4 +90,64 @@ public class CourseUtil {
 //                .filter(orderDetail -> orderDetail.getOrder().getStatus().equals(EOrderStatus.SUCCESS)).count();
 //        return numberOfBought == subCourse.getMaxStudent();
 //    }
+
+    public static CourseClassResponse setCourseInformationForCourseDetailPage(Course course) {
+
+        CourseClassResponse response = ObjectUtil.copyProperties(course, new CourseClassResponse(), CourseClassResponse.class);
+        response.setSubjectResponse(ConvertUtil.convertSubjectToSubjectDto(course.getSubject()));
+        Subject subject = course.getSubject();
+        if (subject != null) {
+            response.setSubjectResponse(ConvertUtil.convertSubjectToSubjectDto(subject));
+
+            Set<Category> categories = subject.getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+
+                    response.setCategoryResponse(ConvertUtil.convertCategoryToCategoryDto(category));
+                }
+            }
+        }
+        if (course.getCreator() != null) {
+            response.setMentorName(course.getCreator().getFullName());
+        }
+
+        return response;
+    }
+
+    public static CourseClassResponse convertCourseToCourseClassResponsePage(Course course) {
+
+
+        CourseClassResponse courseResponse = new CourseClassResponse();
+        courseResponse.setId(course.getId());
+        courseResponse.setName(course.getName());
+        courseResponse.setCode(course.getCode());
+        courseResponse.setDescription(course.getDescription());
+        courseResponse.setStatus(course.getStatus());
+
+        if (course.getCreator() != null) {
+            courseResponse.setMentorName(course.getCreator().getFullName());
+        }
+
+
+        Subject subject = course.getSubject();
+        if (subject != null) {
+            courseResponse.setSubjectResponse(ConvertUtil.convertSubjectToSubjectDto(subject));
+
+            Set<Category> categories = subject.getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+
+                    courseResponse.setCategoryResponse(ConvertUtil.convertCategoryToCategoryDto(category));
+                }
+            }
+        }
+
+        List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
+        List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART);
+        classes.forEach(aClass -> {
+            classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(course.getCreator(), aClass));
+        });
+        courseResponse.setClasses(classDetailResponses);
+        return courseResponse;
+    }
 }

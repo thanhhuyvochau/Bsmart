@@ -10,7 +10,9 @@ import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
+import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
+import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.util.*;
@@ -78,23 +80,48 @@ public class ClassServiceImpl implements IClassService {
     }
 
     @Override
-    public ApiPage<ClassDetailResponse> getAllSubCourseOfCourse(Long id, Pageable pageable) {
+    public CourseClassResponse getAllClassOfCourse(Long id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        CourseClassResponse response = CourseUtil.convertCourseToCourseClassResponsePage(course);
+
+        User currentUser = SecurityUtil.getCurrentUser();
+        List<Class> classList = classRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART);
+
+//        List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
+//        for (Class aClass : classList) {
+//            ClassDetailResponse classDetailResponse = ClassUtil.convertClassToClassDetailResponse(currentUser, aClass);
+//            classDetailResponses.add(classDetailResponse);
+//        }
+//
+//        response.setClasses(classDetailResponses);
+        return response;
+
+    }
+
+    @Override
+    public ApiPage<MentorGetClassDetailResponse> mentorGetClassOfCourse(Long id, Pageable pageable) {
+        User currentUser = SecurityUtil.getCurrentUser();
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 
-        User currentUser = SecurityUtil.getCurrentUser();
-        Page<Class> classPage = classRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART, pageable);
-
-        List<ClassDetailResponse> classResponses = classPage.getContent().stream()
-                .map(subCourse -> ClassUtil.convertClassToClassDetailResponse(currentUser, subCourse))
+        if (!course.getCreator().equals(currentUser)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_VIEW_CLASS_FOR_THIS_COURSE));
+        }
+        Page<Class> classPage = classRepository.findByCourse(course, pageable);
+        List<MentorGetClassDetailResponse> classResponses = classPage.getContent().stream()
+                .map(ClassUtil::convertClassToMentorClassDetailResponse)
                 .collect(Collectors.toList());
-
         return PageUtil.convert(new PageImpl<>(classResponses, pageable, classPage.getTotalElements()));
+
     }
 
+
     @Override
-    public List<Long> mentorCreateClassForCourse( Long id  ,List<MentorCreateClass> mentorCreateClassRequest) {
+    public Long mentorCreateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
@@ -102,15 +129,15 @@ public class ClassServiceImpl implements IClassService {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
 
         User creator = course.getCreator();
-        if (!creator.equals(currentUserAccountLogin)){
+        if (!creator.equals(currentUserAccountLogin)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_CLASS_FOR_THIS_COURSE));
         }
 
-        mentorCreateClassRequest.forEach(mentorCreateClass -> {
-            createClassAndTimeInWeek(currentUserAccountLogin, course, mentorCreateClassRequest);
-        });
-        return null;
+
+        Long classAndTimeInWeek = createClassAndTimeInWeek(currentUserAccountLogin, course, mentorCreateClassRequest);
+
+        return classAndTimeInWeek;
     }
 
     @Override
@@ -130,6 +157,8 @@ public class ClassServiceImpl implements IClassService {
         updateClassFromRequest(mentorCreateClassRequest, course, currentUserAccountLogin, timeInWeeksFromRequest);
         return true;
     }
+
+
     private Class updateClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
         if (subCourseRequest.getPrice() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
@@ -143,7 +172,6 @@ public class ClassServiceImpl implements IClassService {
         aClass.setEndDate(subCourseRequest.getEndDate());
         aClass.setStatus(REQUESTING);
         aClass.setPrice(subCourseRequest.getPrice());
-        aClass.setLevel(subCourseRequest.getLevel());
         aClass.setMentor(currentUserAccountLogin);
         String codeRandom = ClassUtil.generateCode(course.getSubject().getCode());
         aClass.setCode(codeRandom);
@@ -158,14 +186,14 @@ public class ClassServiceImpl implements IClassService {
         aClass.setTimeInWeeks(timeInWeeks);
         timeInWeeks.forEach(timeInWeek -> {
             timeInWeek.setClazz(aClass);
-            timeInWeekRepository.save(timeInWeek) ;
+            timeInWeekRepository.save(timeInWeek);
         });
 
 
         return aClass;
     }
-    private List<TimeInWeek> updateTimeInWeeksFromRequest(List<TimeInWeekRequest> timeInWeekRequests) {
 
+    private List<TimeInWeek> updateTimeInWeeksFromRequest(List<TimeInWeekRequest> timeInWeekRequests) {
 
 
         TimeInWeekRequest duplicateElement = ObjectUtil.isHasDuplicate(timeInWeekRequests);
@@ -201,7 +229,7 @@ public class ClassServiceImpl implements IClassService {
     }
 
 
-    private List<String> createClassAndTimeInWeek(User currentUserAccountLogin, Course course, List<MentorCreateClass> mentorCreateClassRequest) {
+    private Long createClassAndTimeInWeek(User currentUserAccountLogin, Course course, MentorCreateClass mentorCreateClassRequest) {
         // check mentor account is valid
         MentorUtil.checkIsMentor();
 
@@ -209,30 +237,29 @@ public class ClassServiceImpl implements IClassService {
         List<String> classCodes = new ArrayList<>();
 
         List<Class> classes = new ArrayList<>();
-        mentorCreateClassRequest.forEach(createClassInformationRequest -> {
 
-            List<TimeInWeekRequest> timeInWeekRequests = createClassInformationRequest.getTimeInWeekRequests();
+        List<TimeInWeekRequest> timeInWeekRequests = mentorCreateClassRequest.getTimeInWeekRequests();
 
-            // create time in week for subCourse
-            List<TimeInWeek> timeInWeeksFromRequest = createTimeInWeeksFromRequest(timeInWeekRequests);
+        // create time in week for subCourse
+        List<TimeInWeek> timeInWeeksFromRequest = createTimeInWeeksFromRequest(timeInWeekRequests);
 
-            // create subCourse for course
-            Class classFromRequest = createClassFromRequest(createClassInformationRequest, course, currentUserAccountLogin, timeInWeeksFromRequest);
-            classFromRequest.setCourse(course);
+        // create subCourse for course
+        Class classFromRequest = createClassFromRequest(mentorCreateClassRequest, course, currentUserAccountLogin, timeInWeeksFromRequest);
+        classFromRequest.setCourse(course);
 
-            classes.add(classFromRequest);
+        classes.add(classFromRequest);
 
-        });
-
-        course.setClasses(classes);
-        courseRepository.save(course);
+        classFromRequest.setCourse(course);
+        classRepository.save(classFromRequest);
+//        course.setClasses(classes);
+//        courseRepository.save(course);
         // ghi log
         classes.forEach(aClass -> {
                     classCodes.add(aClass.getCode());
                     ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
                 }
         );
-        return classCodes;
+        return classFromRequest.getId();
     }
 
     private Class createClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
@@ -248,7 +275,6 @@ public class ClassServiceImpl implements IClassService {
         aClass.setEndDate(subCourseRequest.getEndDate());
         aClass.setStatus(REQUESTING);
         aClass.setPrice(subCourseRequest.getPrice());
-        aClass.setLevel(subCourseRequest.getLevel());
         aClass.setMentor(currentUserAccountLogin);
         String codeRandom = ClassUtil.generateCode(course.getSubject().getCode());
         aClass.setCode(codeRandom);
@@ -257,13 +283,17 @@ public class ClassServiceImpl implements IClassService {
         ClassImage classImage = classImageRepository.findById(imageId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + imageId));
-        classImage.setaClass(aClass);
-        classImageRepository.save(classImage);
 
+
+        if (classImage.getaClass() != null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID));
+        }
+        classImage.setaClass(aClass);
         aClass.setTimeInWeeks(timeInWeeks);
         timeInWeeks.forEach(timeInWeek -> {
             timeInWeek.setClazz(aClass);
-            timeInWeekRepository.save(timeInWeek) ;
+            timeInWeekRepository.save(timeInWeek);
         });
 
 
@@ -346,7 +376,6 @@ public class ClassServiceImpl implements IClassService {
     }
 
 
-
     private Class createClassFromRequest(CreateClassInformationRequest subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
         if (subCourseRequest.getPrice() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
@@ -360,7 +389,6 @@ public class ClassServiceImpl implements IClassService {
         aClass.setEndDate(subCourseRequest.getEndDate());
         aClass.setStatus(REQUESTING);
         aClass.setPrice(subCourseRequest.getPrice());
-        aClass.setLevel(subCourseRequest.getLevel());
         aClass.setMentor(currentUserAccountLogin);
         String codeRandom = ClassUtil.generateCode(course.getSubject().getCode());
         aClass.setCode(codeRandom);
@@ -375,7 +403,7 @@ public class ClassServiceImpl implements IClassService {
         aClass.setTimeInWeeks(timeInWeeks);
         timeInWeeks.forEach(timeInWeek -> {
             timeInWeek.setClazz(aClass);
-            timeInWeekRepository.save(timeInWeek) ;
+            timeInWeekRepository.save(timeInWeek);
         });
 
 

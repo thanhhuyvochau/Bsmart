@@ -43,8 +43,10 @@ public class CourseSpecificationBuilder {
         if (status == null) {
             return this;
         }
+        if (status.equals(ECourseStatus.ALL)){
+            return this ;
+        }
         specifications.add((root, query, criteriaBuilder) -> {
-//            Join<Course, SubCourse> courseSubCourseJoin = root.join(Course_.SUB_COURSES, JoinType.INNER);
 
             return criteriaBuilder.equal(root.get(Course_.STATUS), status);
         });
@@ -63,6 +65,17 @@ public class CourseSpecificationBuilder {
         return this;
     }
 
+    public CourseSpecificationBuilder queryByCreatorId(Long creatorId) {
+        if (creatorId == null) {
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            Path<Subject> objectPath = root.get(Course_.CREATOR);
+            return criteriaBuilder.and(objectPath.get(User_.ID).in(creatorId));
+        });
+        return this;
+    }
+
     public CourseSpecificationBuilder queryByCategoryId(List<Long> categoryIds) {
         if (categoryIds == null || categoryIds.isEmpty()) {
             return this;
@@ -75,7 +88,6 @@ public class CourseSpecificationBuilder {
         });
         return this;
     }
-
 
 
     public Specification<Course> build() {

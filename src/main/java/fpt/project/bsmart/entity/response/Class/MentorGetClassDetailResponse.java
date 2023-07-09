@@ -1,4 +1,4 @@
-package fpt.project.bsmart.entity.response;
+package fpt.project.bsmart.entity.response.Class;
 
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
@@ -12,7 +12,7 @@ import java.time.Instant;
 import java.util.List;
 
 
-public class ClassDetailResponse {
+public class MentorGetClassDetailResponse {
 
     private Long id;
 
@@ -38,7 +38,6 @@ public class ClassDetailResponse {
     private List<TimeInWeekDTO> timeInWeeks;
 
 
-    private Boolean purchase;
 
     public Long getId() {
         return id;
@@ -136,14 +135,5 @@ public class ClassDetailResponse {
         this.timeInWeeks = timeInWeeks;
     }
 
-
-
-    public Boolean getPurchase() {
-        return purchase;
-    }
-
-    public void setPurchase(Boolean purchase) {
-        this.purchase = purchase;
-    }
 
 }

@@ -18,10 +18,10 @@ public class ClassAnnouncement extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "activity_id")
     private Activity activity;
-
     @ManyToOne
     @JoinColumn(name = "class_id")
     private Class clazz;
+
 
     public Long getId() {
         return id;

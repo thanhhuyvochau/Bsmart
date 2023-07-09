@@ -32,6 +32,8 @@ public class Constants {
         public static final String SECTION_NOT_FOUND_BY_ID = "SECTION_NOT_FOUND_BY_ID";
         public static final String ACTIVITY_TYPE_NOT_FOUND_BY_ID = "ACTIVITY_TYPE_NOT_FOUND_BY_ID";
         public static final String ACTIVITY_NOT_FOUND_BY_ID = "ACTIVITY_NOT_FOUND_BY_ID";
+        public static final String LESSON_NOT_FOUND_BY_ID = "LESSON_NOT_FOUND_BY_ID";
+
         public static final String SUB_COURSE_NOT_FOUND_BY_ID = "SUB_COURSE_NOT_FOUND_BY_ID";
         public static final String CART_ITEM_NOT_FOUND_BY_ID = "CART_ITEM_NOT_FOUND_BY_ID";
         public static final String FEEDBACK_QUESTION_NOT_FOUND_BY_ID = "FEEDBACK_QUESTION_NOT_FOUND_BY_ID";
@@ -74,7 +76,12 @@ public class Constants {
         public static final String ACCOUNT_STATUS_NOT_ALLOW = "ACCOUNT_STATUS_NOT_ALLOW";
         public static final String YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_CLASS_FOR_THIS_COURSE = "YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_CLASS_FOR_THIS_COURSE";
 
+        public static final String YOU_DO_NOT_HAVE_PERMISSION_TO_VIEW_CLASS_FOR_THIS_COURSE = "YOU_DO_NOT_HAVE_PERMISSION_TO_VIEW_CLASS_FOR_THIS_COURSE";
         public static final String YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_SECTION_FOR_THIS_COURSE = "YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_SECTION_FOR_THIS_COURSE";
+
+        public static final String  CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_DELETE  = "CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_DELETE";
+
+        public static final String  CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_UPDATE  = "CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_UPDATE";
         public static class Invalid {
             public static final String INVALID_EMAIL = "INVALID_EMAIL";
             public static final String INVALID_BIRTH_DAY = "INVALID_BIRTH_DAY";

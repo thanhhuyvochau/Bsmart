@@ -17,6 +17,8 @@ import java.util.List;
 public class SubjectController {
     private final ISubjectService iSubjectService;
 
+
+
     public SubjectController(ISubjectService iSubjectService) {
         this.iSubjectService = iSubjectService;
     }
@@ -57,9 +59,9 @@ public class SubjectController {
         return ResponseEntity.ok(ApiResponse.success(iSubjectService.deleteSubject(id)));
     }
 
-    @Operation(summary = "Lấy subject theo skill của mentor")
+    @Operation(summary = "Lấy subject (skill) của mentor ")
     @PreAuthorize("hasAnyRole('TEACHER')")
-    @GetMapping("mentor-skills")
+    @GetMapping("/mentor-skills")
     public ResponseEntity<ApiResponse<List<SubjectDto>>> getSubjectsByMentorSkill(){
         return ResponseEntity.ok(ApiResponse.success(iSubjectService.getSubjectsByMentorSkill()));
     }

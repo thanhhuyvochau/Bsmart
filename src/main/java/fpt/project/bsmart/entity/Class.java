@@ -24,9 +24,7 @@ public class Class extends BaseEntity {
     private Instant endDate;
     @Column(name = "student_number")
     private Integer numberOfStudent = 0;
-    @Column(name = "level")
-    @Enumerated(EnumType.STRING)
-    private ECourseLevel level;
+
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private ECourseStatus status;
@@ -44,14 +42,14 @@ public class Class extends BaseEntity {
     @Column(name = "number_referral_code")
     private Integer numberReferralCode;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "course_id")
     private Course course;
 
     @OneToOne
     @JoinColumn(name = "feedback_template_id")
     private FeedbackTemplate feedbackTemplate;
-    @OneToOne(mappedBy = "aClass")
+    @OneToOne(mappedBy = "aClass", cascade = CascadeType.ALL)
     private ClassImage classImage;
 
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -130,13 +128,6 @@ public class Class extends BaseEntity {
         this.studentClasses = studentClasses;
     }
 
-    public ECourseLevel getLevel() {
-        return level;
-    }
-
-    public void setLevel(ECourseLevel level) {
-        this.level = level;
-    }
 
     public ECourseStatus getStatus() {
         return status;
@@ -251,5 +242,13 @@ public class Class extends BaseEntity {
 
     public void setActivityAuthorizes(List<ActivityAuthorize> activityAuthorizes) {
         this.activityAuthorizes = activityAuthorizes;
+    }
+
+    public List<ClassAnnouncement> getClassAnnouncements() {
+        return classAnnouncements;
+    }
+
+    public void setClassAnnouncements(List<ClassAnnouncement> classAnnouncements) {
+        this.classAnnouncements = classAnnouncements;
     }
 }

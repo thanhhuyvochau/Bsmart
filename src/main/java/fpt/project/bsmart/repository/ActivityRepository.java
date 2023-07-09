@@ -14,6 +14,7 @@ import java.util.Optional;
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
     Optional<Activity> findByIdAndType(Long id, ECourseActivityType type);
 
+    Optional<Activity> findByIdAndCourse(Long id, Course course);
     List<Activity> findByCourseAndParentIdIsNull(Course course);
 
     List<Activity> findByCourseAndParentId(Course course, Long parentId);
