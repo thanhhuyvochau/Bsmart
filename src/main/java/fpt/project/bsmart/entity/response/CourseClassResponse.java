@@ -23,6 +23,7 @@ public class CourseClassResponse {
 
     private String description;
 
+    private ECourseLevel level ;
     private CategoryDto categoryResponse;
 
     private SubjectDto subjectResponse;
@@ -66,6 +67,14 @@ public class CourseClassResponse {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public ECourseLevel getLevel() {
+        return level;
+    }
+
+    public void setLevel(ECourseLevel level) {
+        this.level = level;
     }
 
     public CategoryDto getCategoryResponse() {

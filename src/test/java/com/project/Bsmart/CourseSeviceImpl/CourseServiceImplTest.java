@@ -1,5 +1,7 @@
 package com.project.Bsmart.CourseSeviceImpl;
 
+import fpt.project.bsmart.config.security.service.UserDetailsImpl;
+import fpt.project.bsmart.config.security.service.UserDetailsServiceImpl;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.repository.CategoryRepository;
@@ -16,6 +18,12 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.junit.Test;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +46,8 @@ public class CourseServiceImplTest {
     private MessageUtil messageUtil;
 
     @InjectMocks
+    private UserDetailsServiceImpl userDetailsService ;
+    @InjectMocks
     private CourseServiceImpl courseService;
 
     @BeforeEach
@@ -47,9 +57,6 @@ public class CourseServiceImplTest {
 
     @Test
     public void testMentorCreateCourse() {
-        // giả lập đối tượng SecurityUtil.getCurrentUser()
-        User currentUserAccountLogin = mock(User.class);
-        when(SecurityUtil.getCurrentUser()).thenReturn(currentUserAccountLogin);
 
         // giả lập các đối tượng cần thiết
         Long categoryId = 1L;
@@ -61,10 +68,10 @@ public class CourseServiceImplTest {
         when(subject.getId()).thenReturn(subjectId);
         List<Subject> subjects = new ArrayList<>();
         subjects.add(subject);
-        when(category.getSubjects()).thenReturn((Set<Subject>) subjects);
+
 
         MentorProfile mentorProfile = mock(MentorProfile.class);
-        when(currentUserAccountLogin.getMentorProfile()).thenReturn(mentorProfile);
+
 
         MentorSkill mentorSkill = mock(MentorSkill.class);
         Subject mentorSubject = mock(Subject.class);

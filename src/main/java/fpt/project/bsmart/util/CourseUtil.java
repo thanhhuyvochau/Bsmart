@@ -123,7 +123,7 @@ public class CourseUtil {
         courseResponse.setCode(course.getCode());
         courseResponse.setDescription(course.getDescription());
         courseResponse.setStatus(course.getStatus());
-
+        courseResponse.setLevel(course.getLevel());
         if (course.getCreator() != null) {
             courseResponse.setMentorName(course.getCreator().getFullName());
         }
@@ -148,6 +148,8 @@ public class CourseUtil {
             classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(course.getCreator(), aClass));
         });
         courseResponse.setClasses(classDetailResponses);
+
+
         return courseResponse;
     }
 }

@@ -31,12 +31,12 @@ public class ActivityUtil {
 
     private static LessonRepository staticLessonRepository;
 
-    private static MessageUtil staticMessageUtil ;
+    private static MessageUtil staticMessageUtil;
 
-    public ActivityUtil(ActivityRepository activityRepository, LessonRepository lessonRepository , MessageUtil messageUtil) {
+    public ActivityUtil(ActivityRepository activityRepository, LessonRepository lessonRepository, MessageUtil messageUtil) {
         staticActivityRepository = activityRepository;
         staticLessonRepository = lessonRepository;
-        staticMessageUtil= messageUtil ;
+        staticMessageUtil = messageUtil;
     }
 
     public static void setSectionForCourse(Class clazz, ClassDetailResponse classDetailResponse) {
@@ -107,13 +107,49 @@ public class ActivityUtil {
     }
 
     public static void checkCourseIsAllowedUpdateOrDelete(Course course) {
-        if (!course.getStatus().equals(ECourseStatus.REQUESTING) && !course.getStatus().equals(ECourseStatus.EDITREQUEST)){
+        if (!course.getStatus().equals(ECourseStatus.REQUESTING) && !course.getStatus().equals(ECourseStatus.EDITREQUEST)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(staticMessageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
         }
         List<Class> classesOfCourse = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.WAITING) || aClass.getStatus().equals(ECourseStatus.STARTING)).collect(Collectors.toList());
-        if (classesOfCourse.size() > 0){
+        if (classesOfCourse.size() > 0) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(staticMessageUtil.getLocalMessage(CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_UPDATE));
         }
+    }
+
+    public static List<SectionDto> GetSectionOfCoursePage(Course course) {
+        List<SectionDto> sectionDtoList = new ArrayList<>();
+
+
+        List<Activity> byCourseAndParentIdIsNull = staticActivityRepository.findByCourseAndParentIdIsNull(course);
+
+        if (byCourseAndParentIdIsNull != null) {
+
+            byCourseAndParentIdIsNull.forEach(activity -> {
+                SectionDto sectionDto = new SectionDto();
+
+
+                sectionDto.setName(activity.getName());
+
+                List<MentorCreateLessonForCourse> lessons = new ArrayList<>();
+
+                List<Activity> ActivityLessonsDb = staticActivityRepository.findByCourseAndParentId(course, activity.getId());
+                List<Long> idLessons = ActivityLessonsDb.stream().map(Activity::getId).collect(Collectors.toList());
+                List<Lesson> lessonDbs = staticLessonRepository.findByActivityIdIn(idLessons);
+                if (lessonDbs != null) {
+                    lessonDbs.forEach(lesson -> {
+                        MentorCreateLessonForCourse lessonForCourse = new MentorCreateLessonForCourse();
+                        lessonForCourse.setDescription(lesson.getDescription());
+                        lessons.add(lessonForCourse);
+                    });
+
+                    sectionDto.setLessons(lessons);
+                }
+                sectionDtoList.add(sectionDto);
+            });
+
+
+        }
+        return sectionDtoList;
     }
 }
 
