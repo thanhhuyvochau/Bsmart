@@ -1,7 +1,9 @@
 package fpt.project.bsmart.entity.dto;
 
+import fpt.project.bsmart.config.json.View;
 import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.EAssignmentStatus;
+import org.codehaus.jackson.map.annotate.JsonView;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -16,15 +18,14 @@ public class AssignmentDto extends BaseEntity {
     private Instant startDate;
 
     private Instant endDate;
-
+    @JsonView(View.Teacher.class)
     private Integer editBeForSubmitMin = 0;
-
+    @JsonView(View.Teacher.class)
     private Integer maxFileSubmit = 1;
-
+    @JsonView(View.Teacher.class)
     private Integer maxFileSize = 5; // Dd
-
     private EAssignmentStatus status;
-
+    @JsonView(View.Teacher.class)
     private List<AssignmentFileDto> assignmentFiles = new ArrayList<>();
 
     public Long getId() {

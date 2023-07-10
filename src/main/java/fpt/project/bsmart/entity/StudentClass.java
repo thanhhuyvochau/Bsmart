@@ -18,6 +18,8 @@ public class StudentClass {
     private User student;
     @OneToMany(mappedBy = "studentClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attendance> attendanceList = new ArrayList<>();
+    @OneToMany(mappedBy = "studentClass", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AssignmentSubmition> submitAssignment = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -50,4 +52,13 @@ public class StudentClass {
     public void setAttendanceList(List<Attendance> attendanceList) {
         this.attendanceList = attendanceList;
     }
+
+    public List<AssignmentSubmition> getSubmitAssignment() {
+        return submitAssignment;
+    }
+
+    public void setSubmitAssignment(List<AssignmentSubmition> submitAssignment) {
+        this.submitAssignment = submitAssignment;
+    }
 }
+

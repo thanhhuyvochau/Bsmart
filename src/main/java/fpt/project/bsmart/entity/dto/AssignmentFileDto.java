@@ -12,7 +12,7 @@ public class AssignmentFileDto {
     private FileType fileType;
     private Float point;
     private String note;
-    private UserDto user;
+    private UserDto submiter;
     private String name;
 
     public Long getId() {
@@ -63,12 +63,12 @@ public class AssignmentFileDto {
         this.note = note;
     }
 
-    public UserDto getUser() {
-        return user;
+    public UserDto getSubmiter() {
+        return submiter;
     }
 
-    public void setUser(UserDto user) {
-        this.user = user;
+    public void setSubmiter(UserDto submiter) {
+        this.submiter = submiter;
     }
 
     public String getName() {

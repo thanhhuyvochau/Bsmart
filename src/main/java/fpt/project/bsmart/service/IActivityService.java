@@ -25,7 +25,7 @@ public interface IActivityService {
     //    Boolean editActivity(Long id, ActivityRequest activityRequest) throws IOException;
     ActivityDto getDetailActivity(Long id);
 
-    Boolean submitAssignment(Long id, SubmitAssignmentRequest request);
+    Boolean submitAssignment(Long id, SubmitAssignmentRequest request) throws IOException;
 
 
     List<MentorGetSectionForCourse> mentorGetSectionOfCourse(Long id);
