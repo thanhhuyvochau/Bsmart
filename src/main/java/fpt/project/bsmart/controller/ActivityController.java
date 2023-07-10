@@ -2,6 +2,7 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.ActivityDto;
+import fpt.project.bsmart.entity.request.AddQuizRequest;
 import fpt.project.bsmart.entity.request.AssignmentRequest;
 import fpt.project.bsmart.entity.response.Avtivity.MentorDeleteSectionForCourse;
 import fpt.project.bsmart.entity.response.Avtivity.MentorGetSectionForCourse;
@@ -31,6 +32,14 @@ public class ActivityController {
     public ResponseEntity<ApiResponse<Boolean>> addAssignmentActivity(@ModelAttribute AssignmentRequest request) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request)));
     }
+
+
+    @PostMapping("/quiz")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    public ResponseEntity<ApiResponse<Boolean>> addQuizActivity(@RequestBody AddQuizRequest addQuizRequest) throws  IOException{
+        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(addQuizRequest)));
+    }
+
     @Operation(summary = "mentor tao nội dung cho course (step 2) ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping("course/{id}")
