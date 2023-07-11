@@ -36,7 +36,6 @@ public class SecurityJsonViewControllerAdvice extends AbstractMappingJacksonResp
 
     @Override
     protected synchronized void beforeBodyWriteInternal(
-
             MappingJacksonValue bodyContainer,
             MediaType contentType,
             MethodParameter returnType,
@@ -46,7 +45,7 @@ public class SecurityJsonViewControllerAdvice extends AbstractMappingJacksonResp
             Map<EUserRole, Class> mapping = View.MAPPING;
             Class jsonViewClass = mapping.get(jsonViewHolder.getJsonRoleView());
             bodyContainer.setSerializationView(jsonViewClass);
-            jsonViewHolder.resetState();
+           jsonViewHolder.resetState();
         }
     }
 

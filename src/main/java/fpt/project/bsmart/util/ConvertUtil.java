@@ -4,8 +4,11 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.*;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.EQuestionType;
+import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.dto.*;
+import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.repository.ClassRepository;
@@ -384,6 +387,7 @@ public class ConvertUtil {
 
         return courseResponse;
     }
+
     public static CourseClassResponse convertCourseToCourseClassResponsePage(Course course) {
 
 
@@ -572,33 +576,20 @@ public class ConvertUtil {
     }
 
     public static ActivityDto convertActivityToDto(Activity activity) { // Convert ra detail của activity
-        ECourseActivityType type = activity.getType();
-        switch (type) {
-            case ASSIGNMENT:
-                ActivityDto<AssignmentDto> activityDto = ObjectUtil.copyProperties(activity, new ActivityDto<>(), ActivityDto.class, true);
-                AssignmentDto assignmentDto = convertAssignmentToDto(activity.getAssignment());
-                activityDto.setDetail(assignmentDto);
-                return activityDto;
-            case QUIZ:
-                return null; // convert quiz activity ở đây tương tự như trên
-            default:
-                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy loại hoạt động!");
+        ActivityDto activityDto = ObjectUtil.copyProperties(activity, new ActivityDto(), ActivityDto.class, true);
+        Activity parent = activity.getParent();
+        if (parent != null) {
+            activityDto.setParentActivityId(parent.getId());
         }
+        return activityDto;
     }
 
-    public static ActivityDto convertActivityToSimpleDto(Activity activity) { // Convert ra đơn giản để show cho user xem
-        ECourseActivityType type = activity.getType();
-        switch (type) {
-            case ASSIGNMENT:
-                ActivityDto<SimpleAssignmentDto> activityDto = ObjectUtil.copyProperties(activity, new ActivityDto<>(), ActivityDto.class, true);
-                SimpleAssignmentDto simpleAssignmentDto = convertAssignmentToSimpleDto(activity.getAssignment());
-                activityDto.setDetail(simpleAssignmentDto);
-                return activityDto;
-            case QUIZ:
-                return null; // convert quiz activity ở đây tương tự như trên
-            default:
-                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy loại hoạt động!");
-        }
+    public static ActivityDetailDto convertActivityDetailToDto(Activity activity) { // Convert ra đơn giản để show cho user xem
+        return null;
+    }
+
+    public static LessonDto convertLessonToDto(Lesson lesson) { // Convert ra đơn giản để show cho user xem
+        return ObjectUtil.copyProperties(lesson, new LessonDto(), LessonDto.class, true);
     }
 
     private static AssignmentDto convertAssignmentToDto(Assignment assignment) {
@@ -713,36 +704,26 @@ public class ConvertUtil {
         return ObjectUtil.copyProperties(activityHistory, new ActivityHistoryResponse(), ActivityHistoryResponse.class);
     }
 
-//    public static ClassResponse convertClassToClassResponse(Class clazz) {
-//        ClassResponse classResponse = ObjectUtil.copyProperties(clazz, new ClassResponse(), ClassResponse.class);
-//        if (clazz.getSubCourse() != null) {
-//            classResponse.setSubCourseName(clazz.getSubCourse().getTitle());
-//        }
-//        if (clazz.getSubCourse().getMentor() != null) {
-//            classResponse.setMentorName(clazz.getSubCourse().getMentor().getFullName());
-//        }
-//        List<ClassSection> classSections = clazz.getClassSections();
-//        for (ClassSection classSection : classSections) {
-//            ClassSectionDto classSectionDto = convertClassSectionToDto(classSection);
-//            classResponse.getClassSectionList().add(classSectionDto);
-//        }
-//        return classResponse;
-//    }
-
-//    public static ClassSectionDto convertClassSectionToDto(ClassSection classSection) {
-//        ClassSectionDto classSectionDto = ObjectUtil.copyProperties(classSection, new ClassSectionDto(), ClassSectionDto.class, true);
-//        for (ClassModule classModule : classSection.getClassModules()) {
-//            ClassModuleDto classModuleDto = convertClassModuleToDto(classModule);
-//            classSectionDto.getClassModules().add(classModuleDto);
-//        }
-//
-//        List<Activity> activities = classSection.getActivities();
-//        for (Activity activity : activities) {
-//            ActivityDto activityDto = convertActivityToSimpleDto(activity);
-//            classSectionDto.getActivities().add(activityDto);
-//        }
-//        return classSectionDto;
-//    }
+    public static ClassResponse convertClassToClassResponse(Class clazz, List<Activity> authorizeSectionActivities) {
+        ClassResponse classResponse = ObjectUtil.copyProperties(clazz, new ClassResponse(), ClassResponse.class);
+        Course course = clazz.getCourse();
+        if (course == null) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Lớp không thuộc về bất kì khóa học nào, vui lòng liên hệ với admin");
+        }
+        User creator = course.getCreator();
+        if (creator != null) {
+            classResponse.setMentor(convertUsertoUserDto(creator));
+        }
+        for (Activity activity : authorizeSectionActivities) {
+            ActivityDto activityDto = convertActivityToDto(activity);
+            List<Activity> children = activity.getChildren();
+            for (Activity child : children) {
+                activityDto.getSubActivities().add(convertActivityToDto(child));
+            }
+            classResponse.getActivities().add(activityDto);
+        }
+        return classResponse;
+    }
 
 
 //    public static ClassModuleDto convertClassModuleToDto(ClassModule classModule) {

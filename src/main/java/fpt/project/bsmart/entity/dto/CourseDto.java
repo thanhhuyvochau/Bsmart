@@ -6,28 +6,11 @@ import fpt.project.bsmart.entity.constant.ECourseStatus;
 
 
 public class CourseDto {
-
     private Long id;
-
     private String code ;
     private String name ;
     private String description ;
-
-//    private ECourseStatus status;
-
-//    private ECourseLevel level;
-
-//    private Double referenceDiscount = 0.0;
-
     private SubjectDto subject;
-
-//    private Long mentorId;
-//
-//    private UserDto mentor;
-
-
-//    private ImageDto image;
-
 
     public String getCode() {
         return code;

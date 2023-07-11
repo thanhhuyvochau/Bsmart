@@ -1,27 +1,49 @@
 package fpt.project.bsmart.entity.response;
 
-import fpt.project.bsmart.entity.dto.ActivityDto;
-import fpt.project.bsmart.entity.dto.ClassSectionDto;
+import com.fasterxml.jackson.annotation.JsonView;
+import fpt.project.bsmart.config.json.View;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.dto.*;
 
+
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClassResponse {
     private Long id;
+    private String code;
     private Instant startDate;
     private Instant endDate;
-    private Integer numberOfStudent = 0;
-    private String subCourseName;
-    private String mentorName;
-    private List<ClassSectionDto> classSectionList = new ArrayList<>();
-
+    private ECourseStatus status;
+    private BigDecimal price;
+    @JsonView(View.Teacher.class)
+    private Integer minStudent;
+    @JsonView(View.Teacher.class)
+    private Integer maxStudent;
+    private Integer numberOfSlot = 0;
+    @JsonView(View.Teacher.class)
+    private boolean hasReferralCode;
+    @JsonView(View.Teacher.class)
+    private Integer numberReferralCode;
+    private ImageDto classImage;
+    private UserDto mentor;
+    private List<ActivityDto> activities = new ArrayList<>();
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public Instant getStartDate() {
@@ -40,35 +62,83 @@ public class ClassResponse {
         this.endDate = endDate;
     }
 
-    public Integer getNumberOfStudent() {
-        return numberOfStudent;
+    public ECourseStatus getStatus() {
+        return status;
     }
 
-    public void setNumberOfStudent(Integer numberOfStudent) {
-        this.numberOfStudent = numberOfStudent;
+    public void setStatus(ECourseStatus status) {
+        this.status = status;
     }
 
-    public String getSubCourseName() {
-        return subCourseName;
+    public BigDecimal getPrice() {
+        return price;
     }
 
-    public void setSubCourseName(String subCourseName) {
-        this.subCourseName = subCourseName;
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
-    public String getMentorName() {
-        return mentorName;
+    public Integer getMinStudent() {
+        return minStudent;
     }
 
-    public void setMentorName(String mentorName) {
-        this.mentorName = mentorName;
+    public void setMinStudent(Integer minStudent) {
+        this.minStudent = minStudent;
     }
 
-    public List<ClassSectionDto> getClassSectionList() {
-        return classSectionList;
+    public Integer getMaxStudent() {
+        return maxStudent;
     }
 
-    public void setClassSectionList(List<ClassSectionDto> classSectionList) {
-        this.classSectionList = classSectionList;
+    public void setMaxStudent(Integer maxStudent) {
+        this.maxStudent = maxStudent;
+    }
+
+    public Integer getNumberOfSlot() {
+        return numberOfSlot;
+    }
+
+    public void setNumberOfSlot(Integer numberOfSlot) {
+        this.numberOfSlot = numberOfSlot;
+    }
+
+    public boolean isHasReferralCode() {
+        return hasReferralCode;
+    }
+
+    public void setHasReferralCode(boolean hasReferralCode) {
+        this.hasReferralCode = hasReferralCode;
+    }
+
+    public Integer getNumberReferralCode() {
+        return numberReferralCode;
+    }
+
+    public void setNumberReferralCode(Integer numberReferralCode) {
+        this.numberReferralCode = numberReferralCode;
+    }
+
+    public ImageDto getClassImage() {
+        return classImage;
+    }
+
+    public void setClassImage(ImageDto classImage) {
+        this.classImage = classImage;
+    }
+
+    public UserDto getMentor() {
+        return mentor;
+    }
+
+    public void setMentor(UserDto mentor) {
+        this.mentor = mentor;
+    }
+
+    public List<ActivityDto> getActivities() {
+        return activities;
+    }
+
+    public void setActivities(List<ActivityDto> activities) {
+        this.activities = activities;
     }
 }

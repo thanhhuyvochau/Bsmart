@@ -1,23 +1,24 @@
 package fpt.project.bsmart.entity.dto;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import fpt.project.bsmart.config.json.View;
 import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
+import org.codehaus.jackson.map.annotate.JsonView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActivityDto extends BaseEntity {
+public class ActivityDetailDto<T> extends BaseEntity {
     private Long id;
     private String name;
     private ECourseActivityType type;
     @JsonView(View.Teacher.class)
-    private Boolean visible;
+    private Boolean isVisible;
     private Long parentActivityId;
-    private List<ActivityDto> subActivities = new ArrayList<>();
+    private T detail;
+    private List<ActivityDetailDto> subActivities = new ArrayList<>();
 
-    public ActivityDto() {
+    public ActivityDetailDto() {
     }
 
     public Long getId() {
@@ -36,12 +37,12 @@ public class ActivityDto extends BaseEntity {
         this.name = name;
     }
 
-    public Boolean getVisible() {
-        return visible;
+    public Boolean getIsVisible() {
+        return isVisible;
     }
 
-    public void setVisible(Boolean visible) {
-        this.visible = visible;
+    public void setIsVisible(Boolean visible) {
+        isVisible = visible;
     }
 
     public ECourseActivityType getType() {
@@ -52,11 +53,27 @@ public class ActivityDto extends BaseEntity {
         this.type = type;
     }
 
-    public List<ActivityDto> getSubActivities() {
+    public Boolean getVisible() {
+        return isVisible;
+    }
+
+    public void setVisible(Boolean visible) {
+        isVisible = visible;
+    }
+
+    public T getDetail() {
+        return detail;
+    }
+
+    public void setDetail(T detail) {
+        this.detail = detail;
+    }
+
+    public List<ActivityDetailDto> getSubActivities() {
         return subActivities;
     }
 
-    public void setSubActivities(List<ActivityDto> subActivities) {
+    public void setSubActivities(List<ActivityDetailDto> subActivities) {
         this.subActivities = subActivities;
     }
 

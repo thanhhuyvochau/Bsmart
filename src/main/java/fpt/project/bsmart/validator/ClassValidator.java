@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class ClassValidator {
     public static boolean isMentorOfClass(User currentUser, Class clazz) {
-        User mentor = clazz.getMentor();
+        User mentor = clazz.getCourse().getCreator();
         return Objects.equals(mentor.getId(), currentUser.getId());
     }
 
