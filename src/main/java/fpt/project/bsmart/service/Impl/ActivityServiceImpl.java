@@ -6,12 +6,11 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.builder.ActivityBuilder;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.*;
-import fpt.project.bsmart.entity.dto.ActivityDto;
+import fpt.project.bsmart.entity.dto.ActivityDetailDto;
 import fpt.project.bsmart.entity.dto.QuizSubmittionDto;
 import fpt.project.bsmart.entity.request.*;
-
+import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.request.activity.MentorCreateAnnouncementForClass;
-import fpt.project.bsmart.entity.request.activity.MentorCreateLessonForCourse;
 import fpt.project.bsmart.entity.request.activity.MentorCreateResourceRequest;
 import fpt.project.bsmart.entity.request.activity.MentorCreateSectionForCourse;
 import fpt.project.bsmart.entity.response.Avtivity.*;
@@ -78,7 +77,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
 
 
     @Override
-    public Boolean addActivity(ActivityRequest activityRequest) throws IOException {
+    public Boolean addActivity(ActivityRequest activityRequest, ECourseActivityType type) throws IOException {
         User currentUser = SecurityUtil.getCurrentUser();
         Course course = courseRepository.findById(activityRequest.getCourseId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
@@ -89,23 +88,37 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         }
         List<Long> authorizeClassesId = activityRequest.getAuthorizeClasses();
         List<Class> authorizeClasses = classRepository.findAllById(authorizeClassesId);
-        ECourseActivityType type = activityRequest.getType();
         ActivityBuilder activityBuilder = ActivityBuilder.getBuilder()
                 .withName(activityRequest.getName())
                 .withVisible(activityRequest.getVisible())
                 .withCourse(course)
                 .withType(type);
-        if (!Objects.equals(activityRequest.getType(), ECourseActivityType.SECTION)) {
-            Activity parentActivity = activityRepository.findByIdAndType(activityRequest.getParentActivityId(), ECourseActivityType.SECTION).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+
+        Activity parentActivity = null;
+        List<ActivityAuthorize> parentActivityAuthorize = null;
+        if (!Objects.equals(type, ECourseActivityType.SECTION)) {
+            parentActivity = activityRepository.findByIdAndType(activityRequest.getParentActivityId(), ECourseActivityType.SECTION).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                     .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SECTION_NOT_FOUND_BY_ID) + activityRequest.getParentActivityId()));
+            parentActivityAuthorize = parentActivity.getActivityAuthorizes();
             activityBuilder.withParent(parentActivity);
         }
         Activity activity = activityBuilder.build();
+        List<ActivityAuthorize> activityAuthorizes = activity.getActivityAuthorizes();
         for (Class authorizeClass : authorizeClasses) {
             ActivityAuthorize activityAuthorize = new ActivityAuthorize();
             activityAuthorize.setActivity(activity);
             activityAuthorize.setAuthorizeClass(authorizeClass);
-            activity.getActivityAuthorizes().add(activityAuthorize);
+            activityAuthorizes.add(activityAuthorize);
+            if (parentActivityAuthorize != null) {
+                boolean existInParent = parentActivityAuthorize.stream()
+                        .anyMatch(authorize -> Objects.equals(authorize.getAuthorizeClass().getId(), authorizeClass.getId()));
+                if (!existInParent) {
+                    ActivityAuthorize newParentActivityAuthorize = new ActivityAuthorize();
+                    newParentActivityAuthorize.setActivity(parentActivity);
+                    newParentActivityAuthorize.setAuthorizeClass(authorizeClass);
+                    parentActivityAuthorize.add(newParentActivityAuthorize);
+                }
+            }
         }
         return createDetailActivity(activityRequest, type, activity);
     }
@@ -130,7 +143,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
 
     private List<Long> mentorCreateSectionForCourse(MentorCreateSectionForCourse session, Course course) {
         List<Activity> activityList = new ArrayList<>();
-        List<Lesson> lessonList = new ArrayList<>();
+        List<fpt.project.bsmart.entity.Lesson> lessonList = new ArrayList<>();
 
         Activity activitySection = new Activity();
         activitySection.setName(session.getName());
@@ -138,13 +151,13 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         activitySection.setCourse(course);
 
 
-        List<MentorCreateLessonForCourse> lessons = session.getLessons();
+        List<LessonDto> lessons = session.getLessons();
         lessons.forEach(mentorCreateLessonForCourse -> {
             Activity activityLesson = new Activity();
             activityLesson.setParent(activitySection);
             activityLesson.setType(ECourseActivityType.LESSON);
             activityLesson.setCourse(course);
-            Lesson lesson = new Lesson();
+            fpt.project.bsmart.entity.Lesson lesson = new fpt.project.bsmart.entity.Lesson();
             lesson.setDescription(mentorCreateLessonForCourse.getDescription());
             lesson.setActivity(activityLesson);
             lessonList.add(lesson);
@@ -183,6 +196,8 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                 activityRepository.save(activity);
                 return true;
             case LESSON:
+                fpt.project.bsmart.entity.Lesson lesson = addLesson((LessonRequest) activityRequest, activity);
+                activityRepository.save(activity);
                 return true;
             default:
                 throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE) + type);
@@ -303,7 +318,6 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         announcement.setTitle(request.getTitle());
         announcement.setContent(request.getContent());
         announcement.setVisible(request.getVisible());
-        announcement.setClazz(clazz);
         announcement.setActivity(activity);
         return announcement;
     }
@@ -466,9 +480,9 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         activity.setName(updateRequest.getName());
 
         List<MentorGetLessonForCourse> lessons = updateRequest.getLessons();
-        List<Lesson> lessonList = new ArrayList<>();
+        List<fpt.project.bsmart.entity.Lesson> lessonList = new ArrayList<>();
         for (MentorGetLessonForCourse lessonUpdate : lessons) {
-            Lesson lesson = lessonRepository.findById(lessonUpdate.getId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(LESSON_NOT_FOUND_BY_ID) + id));
+            fpt.project.bsmart.entity.Lesson lesson = lessonRepository.findById(lessonUpdate.getId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(LESSON_NOT_FOUND_BY_ID) + id));
             lesson.setDescription(lessonUpdate.getDescription());
             lessonList.add(lesson);
         }
@@ -494,7 +508,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             List<MentorDeleteLessonForCourse> lessons = mentorDeleteSectionForCourse.getLessons();
 
             for (MentorDeleteLessonForCourse lessonDelete : lessons) {
-                Lesson lesson = lessonRepository.findById(lessonDelete.getId())
+                fpt.project.bsmart.entity.Lesson lesson = lessonRepository.findById(lessonDelete.getId())
                         .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(LESSON_NOT_FOUND_BY_ID) + lessonDelete.getId()));
                 Activity activityLesson = lesson.getActivity();
                 activityLesson.setParent(null);
@@ -580,17 +594,17 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     }
 
     @Override
-    public ActivityDto getDetailActivity(Long id) {
+    public ActivityDetailDto getDetailActivity(Long id) {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
         Course course = activity.getCourse();
         User currentUser = SecurityUtil.getCurrentUser();
 
         if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
-            return ConvertUtil.convertActivityToDto(activity);
+            return ConvertUtil.convertActivityDetailToDto(activity);
         }
 
-        ActivityDto activityDto = ConvertUtil.convertActivityToDto(activity);
+        ActivityDetailDto activityDto = ConvertUtil.convertActivityDetailToDto(activity);
         if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.TEACHER) && Objects.equals(course.getCreator().getId(), currentUser.getId())) {
             ResponseUtil.responseForRole(EUserRole.TEACHER);
             return activityDto;
@@ -803,24 +817,9 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     }
 
 
-//    @Override
-//    public Boolean submitAssignment(Long id, SubmitAssignmentRequest request) {
-//        User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
-//        Activity activity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy Assignment với id:" + id));
-//        Class clazz = activity.getClassSection().getClazz();
-//        EUserRole userRole = ClassValidator.isMemberOfClassAsRole(clazz, currentUser);
-//        if (userRole == null){
-//            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Người dùng không phải thành viên của lớp này");
-//        } else if (userRole != EUserRole.STUDENT) {
-//            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Người dùng không phải học sinh của lớp này");
-//        }
-//        Assignment assignment = activity.getAssignment();
-//        if (assignment == null){
-//            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Không tìm thấy Assignment của Activity này");
-//        }
-
-//        createAssignmentFile(request.getSubmittedFiles(), assignment, FileType.SUBMIT)
-
-//        return null;
-//    }
+    private fpt.project.bsmart.entity.Lesson addLesson(LessonRequest request, Activity activity) throws IOException {
+        fpt.project.bsmart.entity.Lesson lesson = new fpt.project.bsmart.entity.Lesson(request.getDescription(), activity);
+        lessonRepository.save(lesson);
+        return lesson;
+    }
 }

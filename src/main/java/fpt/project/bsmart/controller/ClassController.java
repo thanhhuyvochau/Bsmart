@@ -3,10 +3,10 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
-import fpt.project.bsmart.entity.response.ClassDetailResponse;
+import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,12 +36,13 @@ public class ClassController {
     public ResponseEntity<ApiResponse<List<String>>> mentorCreateCoursePrivate(@Valid @RequestBody MentorCreateClassRequest mentorCreateClassRequest) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateCoursePrivate(mentorCreateClassRequest)));
     }
+
     @Operation(summary = "mentor tao class cho course (step 3 ) ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping("course/{courseId}")
-    public ResponseEntity<ApiResponse<Long>> mentorCreateClassForCourse(@PathVariable Long courseId ,
-            @Valid @RequestBody MentorCreateClass mentorCreateClassRequest) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClassForCourse(courseId,mentorCreateClassRequest)));
+    public ResponseEntity<ApiResponse<Long>> mentorCreateClassForCourse(@PathVariable Long courseId,
+                                                                        @Valid @RequestBody MentorCreateClass mentorCreateClassRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClassForCourse(courseId, mentorCreateClassRequest)));
     }
 
     @Operation(summary = "Mentor lấy tất cả các class của course load lên trang khoa học")
@@ -53,10 +54,11 @@ public class ClassController {
     @Operation(summary = "mentor update class cho course")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> mentorUpdateClassForCourse(@PathVariable Long id ,
-                                                                              @Valid @RequestBody  MentorCreateClass mentorCreateClassRequest) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorUpdateClassForCourse(id,mentorCreateClassRequest)));
+    public ResponseEntity<ApiResponse<Boolean>> mentorUpdateClassForCourse(@PathVariable Long id,
+                                                                           @Valid @RequestBody MentorCreateClass mentorCreateClassRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorUpdateClassForCourse(id, mentorCreateClassRequest)));
     }
+
     @Operation(summary = "mentor xoa class cho course")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @DeleteMapping("/{id}")
@@ -77,6 +79,14 @@ public class ClassController {
     public ResponseEntity<ApiResponse<CourseClassResponse>> getAllClassOfCourseForManager(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourseForManager(id)));
     }
+
+    @Operation(summary = "Lấy lớp chi tiết, bao gồm nội dung của lớp đang giảng dạy hoặc đã kết thúc")
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER','STUDENT','TEACHER')")
+    public ResponseEntity<ApiResponse<ClassResponse>> getClassDetail(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getDetailClass(id)));
+    }
+
 
 //    @Operation(summary = "mentor tao lớp học")
 //    @PostMapping
@@ -100,12 +110,6 @@ public class ClassController {
 //    @GetMapping("/{classId}/student/attendances")
 //    public ResponseEntity<ApiResponse<AttendanceStudentResponse>> getDetailStudentAttendance(@PathVariable long classId) {
 //        return ResponseEntity.ok(ApiResponse.success(attendanceService.getAttendanceByClassForStudent(classId)));
-//    }
-
-//    @Operation(summary = "Lấy lớp chi tiết")
-//    @GetMapping("/{id}")
-//    public ResponseEntity<ApiResponse<ClassResponse>> getClassDetail(@PathVariable Long id) {
-//        return ResponseEntity.ok(ApiResponse.success(iClassService.getDetailClass(id)));
 //    }
 
 //    @GetMapping("/{id}/time-tables")

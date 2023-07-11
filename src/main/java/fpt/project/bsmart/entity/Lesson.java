@@ -37,4 +37,12 @@ public class Lesson {
     public void setActivity(Activity activity) {
         this.activity = activity;
     }
+
+    public Lesson(String description, Activity activity) {
+        this.description = description;
+        this.activity = activity;
+    }
+
+    public Lesson() {
+    }
 }

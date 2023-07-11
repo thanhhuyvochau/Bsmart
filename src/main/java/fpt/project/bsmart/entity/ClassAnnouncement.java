@@ -18,9 +18,6 @@ public class ClassAnnouncement extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "activity_id")
     private Activity activity;
-    @ManyToOne
-    @JoinColumn(name = "class_id")
-    private Class clazz;
 
 
     public Long getId() {
@@ -61,13 +58,5 @@ public class ClassAnnouncement extends BaseEntity {
 
     public void setVisible(Boolean visible) {
         this.visible = visible;
-    }
-
-    public Class getClazz() {
-        return clazz;
-    }
-
-    public void setClazz(Class clazz) {
-        this.clazz = clazz;
     }
 }

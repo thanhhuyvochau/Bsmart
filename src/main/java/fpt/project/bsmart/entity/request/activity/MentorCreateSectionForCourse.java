@@ -5,7 +5,7 @@ import java.util.List;
 public class MentorCreateSectionForCourse {
     private String name;
 
-    private List<MentorCreateLessonForCourse> lessons;
+    private List<LessonDto> lessons;
 
     public String getName() {
         return name;
@@ -15,11 +15,11 @@ public class MentorCreateSectionForCourse {
         this.name = name;
     }
 
-    public List<MentorCreateLessonForCourse> getLessons() {
+    public List<LessonDto> getLessons() {
         return lessons;
     }
 
-    public void setLessons(List<MentorCreateLessonForCourse> lessons) {
+    public void setLessons(List<LessonDto> lessons) {
         this.lessons = lessons;
     }
 }
