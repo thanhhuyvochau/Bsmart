@@ -9,19 +9,12 @@ import fpt.project.bsmart.entity.request.AssignmentRequest;
 import fpt.project.bsmart.entity.request.SubmitAssignmentRequest;
 import fpt.project.bsmart.entity.request.activity.MentorCreateAnnouncementForClass;
 import fpt.project.bsmart.entity.request.activity.MentorCreateResourceRequest;
-import fpt.project.bsmart.entity.request.activity.MentorCreateSectionForCourse;
-import fpt.project.bsmart.entity.response.Avtivity.MentorDeleteSectionForCourse;
-import fpt.project.bsmart.entity.response.Avtivity.MentorGetSectionForCourse;
-import fpt.project.bsmart.entity.response.Avtivity.MentorUpdateSectionForCourse;
 import fpt.project.bsmart.service.IActivityService;
-import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/activity")

@@ -1,11 +1,9 @@
 package fpt.project.bsmart.entity.response.Class;
 
 
-import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
-import fpt.project.bsmart.entity.dto.activity.SectionDto;
 
 import java.math.BigDecimal;
 import java.time.Instant;

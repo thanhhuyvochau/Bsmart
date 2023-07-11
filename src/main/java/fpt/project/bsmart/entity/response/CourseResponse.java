@@ -7,7 +7,6 @@ import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CourseResponse {

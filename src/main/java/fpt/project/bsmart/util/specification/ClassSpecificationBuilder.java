@@ -1,16 +1,13 @@
 package fpt.project.bsmart.util.specification;
 
 import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.Class_;
+import fpt.project.bsmart.entity.StudentClass_;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.util.SpecificationUtil;
-import fpt.project.bsmart.util.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

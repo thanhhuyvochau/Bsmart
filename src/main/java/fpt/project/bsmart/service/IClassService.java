@@ -1,16 +1,11 @@
 package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
-import fpt.project.bsmart.entity.dto.ClassSectionDto;
-import fpt.project.bsmart.entity.request.*;
-import fpt.project.bsmart.entity.request.category.CreateClassRequest;
+import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
-import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
-import fpt.project.bsmart.entity.response.SimpleClassResponse;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;

@@ -1,7 +1,5 @@
 package fpt.project.bsmart.entity.response;
 
-import org.springframework.http.HttpStatus;
-
 public class VerifyResponse {
     private String message;
     private String status;

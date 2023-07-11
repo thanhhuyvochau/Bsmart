@@ -2,7 +2,6 @@ package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import fpt.project.bsmart.entity.dto.ActivityDetailDto;
-import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.ActivityRequest;
 import fpt.project.bsmart.entity.request.SubmitAssignmentRequest;
 import fpt.project.bsmart.entity.request.activity.MentorCreateSectionForCourse;

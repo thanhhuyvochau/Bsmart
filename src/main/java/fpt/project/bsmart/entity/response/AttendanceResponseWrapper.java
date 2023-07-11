@@ -1,9 +1,6 @@
 package fpt.project.bsmart.entity.response;
 
 import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.dto.SlotDto;
-
-import java.time.Instant;
 
 public class AttendanceResponseWrapper {
     private TimeTableResponse timeTableResponse;
