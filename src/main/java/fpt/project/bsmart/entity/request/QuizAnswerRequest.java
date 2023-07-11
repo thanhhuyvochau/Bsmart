@@ -12,11 +12,11 @@ public class QuizAnswerRequest {
         this.answer = answer;
     }
 
-    public Boolean getRight() {
+    public Boolean getIsRight() {
         return isRight;
     }
 
-    public void setRight(Boolean right) {
+    public void setISRight(Boolean right) {
         isRight = right;
     }
 }

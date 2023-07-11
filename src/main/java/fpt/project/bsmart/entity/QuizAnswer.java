@@ -39,4 +39,12 @@ public class QuizAnswer extends BaseEntity {
     public void setIsRight(Boolean right) {
         isRight = right;
     }
+
+    public QuizQuestion getQuizQuestion() {
+        return quizQuestion;
+    }
+
+    public void setQuizQuestion(QuizQuestion quizQuestion) {
+        this.quizQuestion = quizQuestion;
+    }
 }

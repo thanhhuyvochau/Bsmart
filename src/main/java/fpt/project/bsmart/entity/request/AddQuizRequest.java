@@ -56,11 +56,11 @@ public class AddQuizRequest extends ActivityRequest{
         this.defaultPoint = defaultPoint;
     }
 
-    public Boolean getSuffleQuestion() {
+    public Boolean getIsSuffleQuestion() {
         return isSuffleQuestion;
     }
 
-    public void setSuffleQuestion(Boolean suffleQuestion) {
+    public void setIsSuffleQuestion(Boolean suffleQuestion) {
         isSuffleQuestion = suffleQuestion;
     }
 
