@@ -22,9 +22,10 @@ public class MentorGetClassDetailResponse {
 
     private Instant endDate;
 
-    private Integer numberOfStudent = 0;
+    private Integer numberOfStudent ;
 
-    private ECourseLevel level;
+    private Integer numberOfSlot ;
+
 
     private ECourseStatus status;
 
@@ -71,6 +72,14 @@ public class MentorGetClassDetailResponse {
         this.endDate = endDate;
     }
 
+    public Integer getNumberOfSlot() {
+        return numberOfSlot;
+    }
+
+    public void setNumberOfSlot(Integer numberOfSlot) {
+        this.numberOfSlot = numberOfSlot;
+    }
+
     public Integer getNumberOfStudent() {
         return numberOfStudent;
     }
@@ -79,13 +88,7 @@ public class MentorGetClassDetailResponse {
         this.numberOfStudent = numberOfStudent;
     }
 
-    public ECourseLevel getLevel() {
-        return level;
-    }
 
-    public void setLevel(ECourseLevel level) {
-        this.level = level;
-    }
 
     public ECourseStatus getStatus() {
         return status;

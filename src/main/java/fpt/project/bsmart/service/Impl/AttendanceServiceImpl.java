@@ -59,7 +59,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 //        if (!ClassValidator.isMentorOfClass(currentUser, clazz)) {
 //            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS) + request.getTimeTableId());
 //        }
-        List<Attendance> attendanceList = timeTable.getAttendanceList();
+        List<Attendance> attendanceList = timeTable.getAttendances();
         boolean attendanceListEmpty = attendanceList.isEmpty();
         if (attendanceListEmpty) {
             attendanceList.addAll(createNewAttendances(request, timeTable));
@@ -92,7 +92,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     private List<Attendance> editAttendances(AttendanceRequest request, TimeTable timeTable) {
-        List<Attendance> attendances = timeTable.getAttendanceList();
+        List<Attendance> attendances = timeTable.getAttendances();
         Map<Long, Attendance> existedAttendancesMap = attendances.stream()
                 .collect(Collectors.toMap(attendance -> attendance.getStudentClass().getId(), Function.identity()));
 
@@ -131,7 +131,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 //        if (!ClassValidator.isMentorOfClass(currentUser, clazz)) {
 //            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
 //        }
-        Map<Long, Attendance> attendanceMap = timeTable.getAttendanceList().stream()
+        Map<Long, Attendance> attendanceMap = timeTable.getAttendances().stream()
                 .collect(Collectors.toMap(attendance -> attendance.getStudentClass().getId(), Function.identity()));
         List<StudentClass> studentClasses = clazz.getStudentClasses();
         List<AttendanceResponse> attendanceResponses = new ArrayList<>();
@@ -168,11 +168,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         List<AttendanceStudentDetailResponse> attendanceStudentDetailResponses = new ArrayList<>();
         int absentNum = 0;
         for (TimeTable timeTable : timeTables) {
-            Optional<Attendance> attendanceByUser = getAttendanceByUser(currentUser, timeTable.getAttendanceList());
+            Optional<Attendance> attendanceByUser = getAttendanceByUser(currentUser, timeTable.getAttendances());
 
             AttendanceStudentDetailResponse detailResponse = new AttendanceStudentDetailResponse();
             detailResponse.setDate(timeTable.getDate());
-            detailResponse.setSlotNum(timeTable.getCurrentSlotNums());
+            detailResponse.setSlotNum(timeTable.getCurrentSlotNum());
             if (attendanceByUser.isPresent()) {
                 Attendance attendance = attendanceByUser.get();
                 detailResponse.setNote(attendance.getNote());

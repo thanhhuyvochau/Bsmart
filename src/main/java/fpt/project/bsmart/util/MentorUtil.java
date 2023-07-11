@@ -1,14 +1,16 @@
 package fpt.project.bsmart.util;
 
 
-import fpt.project.bsmart.entity.MentorProfile;
-import fpt.project.bsmart.entity.Role;
-import fpt.project.bsmart.entity.User;
-import fpt.project.bsmart.entity.UserImage;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.dto.CategoryDto;
+import fpt.project.bsmart.entity.dto.ImageDto;
+import fpt.project.bsmart.entity.dto.MentorProfileDTO;
+import fpt.project.bsmart.entity.dto.MentorSkillDto;
+import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 import fpt.project.bsmart.entity.response.Mentor.CompletenessMentorProfileResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -16,7 +18,9 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.ACCOUNT_IS_NOT_MENTOR;
 
@@ -30,6 +34,26 @@ public class MentorUtil {
     public MentorUtil(MessageUtil messageUtil) {
         staticMessageUtil = messageUtil;
 
+    }
+
+    public static MentorDto convertUserToMentorDto(User user) {
+        MentorProfile mentorProfile = user.getMentorProfile();
+        MentorDto mentorDto = ObjectUtil.copyProperties(mentorProfile, new MentorDto(), MentorDto.class);
+        List<UserImage> userImages = user.getUserImages();
+        List<UserImage> avatar = userImages.stream().filter(userImage -> userImage.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
+        if (userImages != null && avatar.size() > 0) {
+            UserImage userImage = avatar.stream().findFirst().get();
+            ImageDto imageDto = ConvertUtil.convertUserImageToUserImageDto(userImage);
+            mentorDto.setAvatar(imageDto);
+        }
+
+        List<MentorSkill> skills = mentorProfile.getSkills();
+        List<MentorSkillDto> mentorSkills = new ArrayList<>();
+        skills.forEach(mentorSkill -> {
+            mentorSkills.add(ConvertUtil.convertMentorSkillToMentorSkillDto(mentorSkill));
+        });
+        mentorDto.setMentorSkills(mentorSkills);
+        return mentorDto;
     }
 
     public static MentorProfile getCurrentUserMentorProfile(User currentUserAccountLogin) {
