@@ -31,7 +31,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
+import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 
@@ -132,10 +132,7 @@ public class ClassServiceImpl implements IClassService {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
 
         User creator = course.getCreator();
-        if (!creator.equals(currentUserAccountLogin)) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_CLASS_FOR_THIS_COURSE));
-        }
+        ClassUtil.checkMentorOfClass(creator, currentUserAccountLogin);
 
 
         Long classAndTimeInWeek = createClassAndTimeInWeek(currentUserAccountLogin, course, mentorCreateClassRequest);
@@ -161,6 +158,31 @@ public class ClassServiceImpl implements IClassService {
         return true;
     }
 
+    @Override
+    public Boolean mentorDeleteClassForCourse(Long id) {
+        Class aClass = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                .withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
+        User mentor = aClass.getMentor();
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        ClassUtil.checkMentorOfClass(mentor, currentUserAccountLogin);
+        aClass.setCourse(null);
+        classRepository.delete(aClass);
+
+        return true;
+    }
+
+    @Override
+    public CourseClassResponse getAllClassOfCourseForManager(Long id) {
+        Course course = courseRepository.findByIdAndStatus(id, WAITING)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        CourseClassResponse response = CourseUtil.convertCourseToCourseClassResponseManager(course);
+        List<SectionDto> sectionDtoList = ActivityUtil.GetSectionOfCoursePage(course);
+        response.setSections(sectionDtoList);
+
+
+        return response;
+    }
 
     private Class updateClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
         if (subCourseRequest.getPrice() == null) {

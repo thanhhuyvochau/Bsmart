@@ -22,8 +22,6 @@ public class Class extends BaseEntity {
     private Instant startDate;
     @Column(name = "end_date")
     private Instant endDate;
-    @Column(name = "student_number")
-    private Integer numberOfStudent = 0;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -66,8 +64,7 @@ public class Class extends BaseEntity {
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudentClass> studentClasses = new ArrayList<>();
 
-    @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ClassAnnouncement> classAnnouncements = new ArrayList<>();
+
 
     @OneToMany(mappedBy = "authorizeClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ActivityAuthorize> activityAuthorizes = new ArrayList<>();
@@ -104,13 +101,7 @@ public class Class extends BaseEntity {
         this.endDate = endDate;
     }
 
-    public Integer getNumberOfStudent() {
-        return numberOfStudent;
-    }
 
-    public void setNumberOfStudent(Integer numberOfStudent) {
-        this.numberOfStudent = numberOfStudent;
-    }
 
     public List<TimeTable> getTimeTables() {
         return timeTables;
@@ -244,11 +235,5 @@ public class Class extends BaseEntity {
         this.activityAuthorizes = activityAuthorizes;
     }
 
-    public List<ClassAnnouncement> getClassAnnouncements() {
-        return classAnnouncements;
-    }
 
-    public void setClassAnnouncements(List<ClassAnnouncement> classAnnouncements) {
-        this.classAnnouncements = classAnnouncements;
-    }
 }

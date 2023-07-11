@@ -10,7 +10,7 @@ import java.util.List;
 
 public class AssignmentValidator {
 
-    private static final List<String> validFileTypes = Arrays.asList("docx", "doc", "xlsx", "xls", "csv", "pptx", "ppt");
+    private static final List<String> validFileTypes = Arrays.asList("docx", "doc", "xlsx", "xls", "csv", "pptx", "ppt", "pdf");
 
     public static boolean isValidSubmitDate(Assignment assignment) {
         Instant now = Instant.now();
@@ -21,7 +21,7 @@ public class AssignmentValidator {
 
     public static boolean isValidNumberOfSubmitFile(Assignment assignment, List<MultipartFile> submitFiles) {
         Integer maxFileSubmit = assignment.getMaxFileSubmit();
-        return maxFileSubmit > submitFiles.size();
+        return maxFileSubmit >= submitFiles.size();
     }
 
     public static boolean isValidAllowTimeToEditSubmit(Assignment assignment, AssignmentFile assignmentFile) {
@@ -31,7 +31,9 @@ public class AssignmentValidator {
     public static boolean isValidFileExtension(Assignment assignment, List<MultipartFile> submitFiles) {
         for (MultipartFile file : submitFiles) {
             if (!file.isEmpty()) {
-                if (!validFileTypes.contains(file.getContentType())) {
+                String[] fileParts = file.getOriginalFilename().split("\\.");
+                String contentType = fileParts[fileParts.length - 1];
+                if (!validFileTypes.contains(contentType)) {
                     return false;
                 }
             }

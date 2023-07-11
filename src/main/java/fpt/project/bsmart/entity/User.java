@@ -1,12 +1,8 @@
 package fpt.project.bsmart.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import fpt.project.bsmart.entity.constant.EGenderType;
+import fpt.project.bsmart.entity.dto.ImageDto;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -175,6 +171,14 @@ public class  User extends BaseEntity {
 
     public void setUserImages(List<UserImage> userImages) {
         this.userImages = userImages;
+    }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
+        isVerified = verified;
     }
 
     public EGenderType getGender() {

@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.entity.response.CourseResponse;
+import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.repository.ActivityRepository;
 import fpt.project.bsmart.repository.CategoryRepository;
 import fpt.project.bsmart.repository.CourseRepository;
@@ -196,12 +197,12 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public ApiPage<CourseClassResponse> coursePendingToApprove(Pageable pageable) {
+    public ApiPage<ManagerGetCourse> coursePendingToApprove(Pageable pageable) {
         CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
                 .queryByCourseStatus(WAITING) ;
 
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
-        return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseToCourseClassResponsePage));
+        return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseToManagerGetCourse));
 
     }
 }

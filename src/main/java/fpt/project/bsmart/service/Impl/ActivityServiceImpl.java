@@ -1,5 +1,6 @@
 package fpt.project.bsmart.service.Impl;
 
+import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.builder.ActivityBuilder;
@@ -15,14 +16,11 @@ import fpt.project.bsmart.entity.request.activity.MentorCreateResourceRequest;
 import fpt.project.bsmart.entity.request.activity.MentorCreateSectionForCourse;
 import fpt.project.bsmart.entity.response.Avtivity.*;
 import fpt.project.bsmart.repository.*;
-
-import fpt.project.bsmart.repository.ActivityRepository;
-import fpt.project.bsmart.repository.CourseRepository;
-import fpt.project.bsmart.repository.QuizSubmissionRepository;
-
 import fpt.project.bsmart.service.IActivityService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.adapter.MinioAdapter;
+import fpt.project.bsmart.validator.ActivityValidator;
+import fpt.project.bsmart.validator.AssignmentValidator;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -59,8 +57,12 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     private final MessageUtil messageUtil;
     private final PasswordEncoder encoder;
 
+    private final AssignmentFileRepository assignmentFileRepository;
+    private final ClassRepository classRepository;
+    private final AssignmentRepository assignmentRepository;
+    private final AssignmentSubmittionRepository assignmentSubmittionRepository;
 
-    public ActivityServiceImpl(CourseRepository courseRepository, ActivityRepository activityRepository, LessonRepository lessonRepository, QuizSubmissionRepository quizSubmissionRepository, MinioAdapter minioAdapter, MessageUtil messageUtil, PasswordEncoder encoder) {
+    public ActivityServiceImpl(CourseRepository courseRepository, ActivityRepository activityRepository, LessonRepository lessonRepository, QuizSubmissionRepository quizSubmissionRepository, MinioAdapter minioAdapter, MessageUtil messageUtil, PasswordEncoder encoder, AssignmentFileRepository assignmentFileRepository, ClassRepository classRepository, AssignmentRepository assignmentRepository, AssignmentSubmittionRepository assignmentSubmittionRepository) {
         this.courseRepository = courseRepository;
         this.activityRepository = activityRepository;
         this.lessonRepository = lessonRepository;
@@ -68,6 +70,10 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         this.minioAdapter = minioAdapter;
         this.messageUtil = messageUtil;
         this.encoder = encoder;
+        this.assignmentFileRepository = assignmentFileRepository;
+        this.classRepository = classRepository;
+        this.assignmentRepository = assignmentRepository;
+        this.assignmentSubmittionRepository = assignmentSubmittionRepository;
     }
 
 
@@ -81,6 +87,8 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         if (!SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER) && !Objects.equals(currentUser.getId(), mentor.getId())) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
+        List<Long> authorizeClassesId = activityRequest.getAuthorizeClasses();
+        List<Class> authorizeClasses = classRepository.findAllById(authorizeClassesId);
         ECourseActivityType type = activityRequest.getType();
         ActivityBuilder activityBuilder = ActivityBuilder.getBuilder()
                 .withName(activityRequest.getName())
@@ -93,6 +101,12 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             activityBuilder.withParent(parentActivity);
         }
         Activity activity = activityBuilder.build();
+        for (Class authorizeClass : authorizeClasses) {
+            ActivityAuthorize activityAuthorize = new ActivityAuthorize();
+            activityAuthorize.setActivity(activity);
+            activityAuthorize.setAuthorizeClass(authorizeClass);
+            activity.getActivityAuthorizes().add(activityAuthorize);
+        }
         return createDetailActivity(activityRequest, type, activity);
     }
 
@@ -153,7 +167,6 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                 break;
             case ASSIGNMENT:
                 Assignment assignment = addAssignment((AssignmentRequest) activityRequest, activity);
-                activity.setAssignment(assignment);
                 activityRepository.save(activity);
                 return true;
             case SECTION:
@@ -331,6 +344,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         for (MultipartFile attachFile : attachFiles) {
             assignment.getAssignmentFiles().add(createAssignmentFile(attachFile, assignment, FileType.ATTACH));
         }
+        assignmentRepository.save(assignment);
         return assignment;
     }
 
@@ -343,7 +357,6 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         assignmentFile.setName(originalFilename);
         assignmentFile.setFileType(fileType);
         assignmentFile.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
-        assignmentFile.setUser(SecurityUtil.getCurrentUser());
         assignmentFile.setAssignment(assignment);
         return assignmentFile;
     }
@@ -369,7 +382,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
         User subCourseMentor = activity.getCourse().getCreator();
-        User currentUser = SecurityUtil.getCurrentUser();
+        User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         if (activity.getFixed()) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Could not edit fixed activity");
         }
@@ -381,8 +394,46 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     }
 
     @Override
-    public Boolean submitAssignment(Long id, SubmitAssignmentRequest request) {
-        return null;
+    public Boolean submitAssignment(Long id, SubmitAssignmentRequest request) throws IOException {
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
+        Assignment assignment = activity.getAssignment();
+        if (assignment == null) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Hoạt động này không phải là Assigment!");
+        }
+        User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        Course course = activity.getCourse();
+        Optional<Class> clazzOfUser = currentUser.getStudentClasses().stream()
+                .map(StudentClass::getClazz)
+                .filter(clazz -> clazz.getCourse().getId().equals(course.getId()))
+                .findFirst();
+        Class clazz = clazzOfUser.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy lớp của người dùng với hoạt động đang tương tác"));
+        List<MultipartFile> submittedFiles = request.getSubmittedFiles();
+        if (!ActivityValidator.isAuthorizeForClass(clazz, activity)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Lớp bạn không có thẩm quyền với assignment");
+
+        } else if (!AssignmentValidator.isValidSubmitDate(assignment)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Ngày nộp không hợp lệ");
+
+        } else if (!AssignmentValidator.isValidNumberOfSubmitFile(assignment, submittedFiles)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Số lượng file phải ít hơn:" + assignment.getMaxFileSubmit());
+
+        } else if (!AssignmentValidator.isValidFileExtension(assignment, submittedFiles)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Định dạng file không hợp lệ (docx, doc, xlsx, xls, csv, pptx, ppt, pdf)");
+        }
+        StudentClass studentClass = ClassUtil.findUserInClass(clazz, currentUser);
+        AssignmentSubmition assignmentSubmition = new AssignmentSubmition();
+        assignmentSubmition.setAssignment(assignment);
+        assignmentSubmition.setStudentClass(studentClass);
+        List<AssignmentFile> assignmentFiles = assignmentSubmition.getAssignmentFiles();
+        for (MultipartFile submittedFile : request.getSubmittedFiles()) {
+            AssignmentFile assignmentFile = createAssignmentFile(submittedFile, assignment, FileType.SUBMIT);
+            assignmentFile.setNote(request.getNote());
+            assignmentFile.setAssignmentSubmition(assignmentSubmition);
+            assignmentFiles.add(assignmentFile);
+        }
+        assignmentSubmittionRepository.save(assignmentSubmition);
+        return true;
     }
 
     @Override
@@ -530,27 +581,32 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
 
     @Override
     public ActivityDto getDetailActivity(Long id) {
-//        Activity activity = activityRepository.findById(id)
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
-//        Course course = activity.getCourse();
-//        User currentUser = SecurityUtil.getCurrentUser();
-//
-//        if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
-//            return ConvertUtil.convertActivityToDto(activity);
-//        }
-//
-//        ActivityDto activityDto = ConvertUtil.convertActivityToDto(activity);
-//        if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.TEACHER) && Objects.equals(course.getCreator().getId(), currentUser.getId())) {
-//            return activityDto;
-//        }
-//
-//        boolean isStudentOfClass = clazz.getStudentClasses().stream().anyMatch(studentClass -> Objects.equals(studentClass.getStudent().getId(), currentUser.getId()));
-//        if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.STUDENT) && isStudentOfClass) {
-//            return activityDto;
-//        } else {
-//            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
-//        }
-        return null;
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
+        Course course = activity.getCourse();
+        User currentUser = SecurityUtil.getCurrentUser();
+
+        if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
+            return ConvertUtil.convertActivityToDto(activity);
+        }
+
+        ActivityDto activityDto = ConvertUtil.convertActivityToDto(activity);
+        if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.TEACHER) && Objects.equals(course.getCreator().getId(), currentUser.getId())) {
+            ResponseUtil.responseForRole(EUserRole.TEACHER);
+            return activityDto;
+        }
+
+        Optional<Class> clazzOfUser = currentUser.getStudentClasses().stream()
+                .map(StudentClass::getClazz)
+                .filter(clazz -> clazz.getCourse().getId().equals(course.getId()))
+                .findFirst();
+        boolean isStudentOfClass = clazzOfUser.isPresent();
+        if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.STUDENT) && isStudentOfClass) {
+            ResponseUtil.responseForRole(EUserRole.STUDENT);
+            return activityDto;
+        } else {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
+        }
     }
 
 //    private Quiz findQuizById(Long id) {

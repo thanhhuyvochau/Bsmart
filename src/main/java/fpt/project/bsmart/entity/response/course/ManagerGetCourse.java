@@ -1,23 +1,16 @@
-package fpt.project.bsmart.entity.response;
-
+package fpt.project.bsmart.entity.response.course;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.ECourseType;
 import fpt.project.bsmart.entity.dto.CategoryDto;
-import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
-import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
+import fpt.project.bsmart.entity.response.ClassDetailResponse;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
-public class CourseClassResponse {
-
+public class ManagerGetCourse {
     private Long id;
     private String code;
     private String name;
@@ -34,9 +27,6 @@ public class CourseClassResponse {
 
 
     private MentorDto mentor;
-    private List<ClassDetailResponse> classes;
-
-    private List<SectionDto> sections;
 
     public Long getId() {
         return id;
@@ -108,21 +98,5 @@ public class CourseClassResponse {
 
     public void setMentor(MentorDto mentor) {
         this.mentor = mentor;
-    }
-
-    public List<ClassDetailResponse> getClasses() {
-        return classes;
-    }
-
-    public void setClasses(List<ClassDetailResponse> classes) {
-        this.classes = classes;
-    }
-
-    public List<SectionDto> getSections() {
-        return sections;
-    }
-
-    public void setSections(List<SectionDto> sections) {
-        this.sections = sections;
     }
 }

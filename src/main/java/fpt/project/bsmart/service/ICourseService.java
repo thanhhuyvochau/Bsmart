@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.entity.response.CourseResponse;
+import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import org.springframework.data.domain.Pageable;
 
 public interface ICourseService {
@@ -22,7 +23,7 @@ public interface ICourseService {
 
     Boolean mentorDeleteCourse(Long id);
 
-    ApiPage<CourseClassResponse> coursePendingToApprove( Pageable pageable);
+    ApiPage<ManagerGetCourse> coursePendingToApprove(Pageable pageable);
 //
 //    List<CourseDto> getCoursesBySubject(Long subjectId);
 //    List<Long> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest);
