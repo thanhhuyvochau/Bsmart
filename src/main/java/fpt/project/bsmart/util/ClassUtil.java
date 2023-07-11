@@ -1,16 +1,22 @@
 package fpt.project.bsmart.util;
 
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
+
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+
+import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.common.ApiException;
+
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import org.springframework.http.HttpStatus;
+
 import org.springframework.stereotype.Component;
+
 
 import java.time.Instant;
 import java.util.*;
@@ -126,8 +132,14 @@ public class ClassUtil {
         classDetailResponse.setTimeInWeeks(timeInWeekDTOS);
         classDetailResponse.setImage(imageDto);
 
-
         return classDetailResponse;
+    }
+
+    public static StudentClass findUserInClass(Class clazz, User user) {
+        List<StudentClass> studentClasses = clazz.getStudentClasses();
+        Optional<StudentClass> optionalStudentClass = studentClasses.stream().filter(studentClass -> Objects.equals(studentClass.getStudent().getId(), user.getId())).findFirst();
+        StudentClass studentClass = optionalStudentClass.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy học sinh trong lớp"));
+        return studentClass;
     }
 
 }

@@ -4,10 +4,7 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.ECourseActivityType;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.EQuestionType;
-import fpt.project.bsmart.entity.constant.ETransactionStatus;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
@@ -619,7 +616,12 @@ public class ConvertUtil {
 
     public static AssignmentFileDto convertAssignmentFileToDto(AssignmentFile assignmentFile) {
         AssignmentFileDto assignmentFileDto = ObjectUtil.copyProperties(assignmentFile, new AssignmentFileDto(), AssignmentFileDto.class, true);
-        assignmentFileDto.setUser(ConvertUtil.convertUsertoUserDto(assignmentFile.getUser()));
+//        if (Objects.equals(assignmentFile.getFileType(), FileType.SUBMIT)) {
+//            Optional<User> student = Optional.ofNullable(assignmentFile.getStudentClass().getStudent());
+//            if (student.isPresent()) {
+//                assignmentFileDto.setSubmiter(ConvertUtil.convertUsertoUserDto(student.get()));
+//            }
+//        }
         return assignmentFileDto;
     }
 

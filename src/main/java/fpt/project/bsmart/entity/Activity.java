@@ -38,7 +38,7 @@ public class Activity extends BaseEntity {
 
     @OneToMany(mappedBy = "parent")
     private List<Activity> children = new ArrayList<>();
-    @OneToMany(mappedBy = "authorizeClass", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ActivityAuthorize> activityAuthorizes = new ArrayList<>();
 
     @ManyToOne
@@ -53,6 +53,7 @@ public class Activity extends BaseEntity {
         this.parent = parent;
         this.activityAuthorizes = activityAuthorizes;
         this.course = course;
+        this.visible = visible;
     }
 
     public Activity() {
