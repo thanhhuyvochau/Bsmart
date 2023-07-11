@@ -57,37 +57,6 @@ public class ActivityController {
         return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request, ECourseActivityType.RESOURCE)));
     }
 
-    @Operation(summary = "mentor tao nội dung cho course (step 2) ")
-    @PreAuthorize("hasAnyRole('TEACHER')")
-    @PostMapping("course/{id}")
-    public ResponseEntity<ApiResponse<List<Long>>> mentorCreateSectionForCourse(@PathVariable Long id,
-                                                                                @Valid @RequestBody MentorCreateSectionForCourse sessions) {
-        return ResponseEntity.ok(ApiResponse.success(activityService.mentorCreateSectionForCourse(id, sessions)));
-    }
-
-    @Operation(summary = "mentor sửa nội dung cho course  ")
-    @PreAuthorize("hasAnyRole('TEACHER')")
-    @PutMapping("course/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> mentorUpdateSectionForCourse(@PathVariable Long id,
-                                                                             @Valid @RequestBody MentorUpdateSectionForCourse updateRequest) {
-        return ResponseEntity.ok(ApiResponse.success(activityService.mentorUpdateSectionForCourse(id, updateRequest)));
-    }
-
-    @Operation(summary = "mentor xóa nội dung cho course  ")
-    @PreAuthorize("hasAnyRole('TEACHER')")
-    @DeleteMapping("course/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> mentorDeleteSectionForCourse(@PathVariable Long id,
-                                                                             @Valid @RequestBody List<MentorDeleteSectionForCourse> deleteRequest) {
-        return ResponseEntity.ok(ApiResponse.success(activityService.mentorDeleteSectionForCourse(id, deleteRequest)));
-    }
-
-    @Operation(summary = "mentor lấy  nội dung của course ")
-    @PreAuthorize("hasAnyRole('TEACHER')")
-    @GetMapping("course/{id}")
-    public ResponseEntity<ApiResponse<List<MentorGetSectionForCourse>>> mentorGetSectionOfCourse(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(activityService.mentorGetSectionOfCourse(id)));
-    }
-
     @PutMapping("/visible/{id}")
     @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
     public ResponseEntity<ApiResponse<Boolean>> changeActivityVisible(@PathVariable("id") Long id) {
