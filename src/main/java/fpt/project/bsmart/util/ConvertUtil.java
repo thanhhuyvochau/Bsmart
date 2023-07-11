@@ -714,15 +714,22 @@ public class ConvertUtil {
         if (creator != null) {
             classResponse.setMentor(convertUsertoUserDto(creator));
         }
+        List<ActivityDto> activityDtos = convertActivityAsTree(authorizeSectionActivities);
+        classResponse.getActivities().addAll(activityDtos);
+        return classResponse;
+    }
+
+    public static List<ActivityDto> convertActivityAsTree(List<Activity> authorizeSectionActivities) {
+        List<ActivityDto> activityDtos = new ArrayList<>();
         for (Activity activity : authorizeSectionActivities) {
             ActivityDto activityDto = convertActivityToDto(activity);
             List<Activity> children = activity.getChildren();
             for (Activity child : children) {
                 activityDto.getSubActivities().add(convertActivityToDto(child));
             }
-            classResponse.getActivities().add(activityDto);
+            activityDtos.add(activityDto);
         }
-        return classResponse;
+        return activityDtos;
     }
 
 
