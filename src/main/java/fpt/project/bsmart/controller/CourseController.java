@@ -8,6 +8,7 @@ import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
+import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -67,6 +68,16 @@ public class CourseController {
     public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseOfMentor(
             @Nullable CourseSearchRequest query, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseOfMentor(query, pageable)));
+    }
+
+
+    //     ################################## Manager ##########################################
+
+    @Operation(summary = "Manager get tất cả yêu cầu mở khóa học của mentor")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @GetMapping("/pending")
+    public ResponseEntity<ApiResponse<ApiPage<ManagerGetCourse>>> coursePendingToApprove(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(pageable)));
     }
 
 
@@ -174,14 +185,7 @@ public class CourseController {
 //    }
 
 
-//     ################################## Manager ##########################################
 
-    @Operation(summary = "Manager get tất cả yêu cầu mở khóa học của mentor")
-    @PreAuthorize("hasAnyRole('MANAGER')")
-    @GetMapping("/pending")
-    public ResponseEntity<ApiResponse<ApiPage<CourseClassResponse>>> coursePendingToApprove( Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(pageable)));
-    }
 //
 //    @Operation(summary = "Manager phê duyêt / từ chối / yêu cầu thay đổi khoá học của mentor  ")
 //    @PreAuthorize("hasAnyRole('MANAGER')")

@@ -44,7 +44,7 @@ public class ClassController {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClassForCourse(courseId,mentorCreateClassRequest)));
     }
 
-    @Operation(summary = "lấy tất cả các class của course load lên trang khoa học")
+    @Operation(summary = "Mentor lấy tất cả các class của course load lên trang khoa học")
     @GetMapping("/course/{id}")
     public ResponseEntity<ApiResponse<CourseClassResponse>> getAllClassOfCourse(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourse(id)));
@@ -57,12 +57,25 @@ public class ClassController {
                                                                               @Valid @RequestBody  MentorCreateClass mentorCreateClassRequest) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorUpdateClassForCourse(id,mentorCreateClassRequest)));
     }
+    @Operation(summary = "mentor xoa class cho course")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> mentorDeleteClassForCourse(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorDeleteClassForCourse(id)));
+    }
 
     @Operation(summary = "mentor lấy các class của course ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/course/{id}/mentor")
     public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> mentorGetClassOfCourse(@PathVariable Long id, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorGetClassOfCourse(id, pageable)));
+    }
+
+    @Operation(summary = "mentor lấy tất cả các class của course để phê duyệt")
+    @GetMapping("/pending/course/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    public ResponseEntity<ApiResponse<CourseClassResponse>> getAllClassOfCourseForManager(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourseForManager(id)));
     }
 
 //    @Operation(summary = "mentor tao lớp học")

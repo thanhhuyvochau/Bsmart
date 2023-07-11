@@ -8,6 +8,7 @@ import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EOrderStatus;
 import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
+import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.repository.ClassRepository;
@@ -108,8 +109,10 @@ public class CourseUtil {
             }
         }
         if (course.getCreator() != null) {
-            response.setMentorName(course.getCreator().getFullName());
+            MentorDto mentorDto = MentorUtil.convertUserToMentorDto(course.getCreator());
+            response.setMentor(mentorDto);
         }
+
 
         return response;
     }
@@ -125,7 +128,8 @@ public class CourseUtil {
         courseResponse.setStatus(course.getStatus());
         courseResponse.setLevel(course.getLevel());
         if (course.getCreator() != null) {
-            courseResponse.setMentorName(course.getCreator().getFullName());
+            MentorDto mentorDto = MentorUtil.convertUserToMentorDto(course.getCreator());
+            courseResponse.setMentor(mentorDto);
         }
 
 
@@ -149,6 +153,44 @@ public class CourseUtil {
         });
         courseResponse.setClasses(classDetailResponses);
 
+        return courseResponse;
+    }
+
+    public static CourseClassResponse convertCourseToCourseClassResponseManager(Course course) {
+
+
+        CourseClassResponse courseResponse = new CourseClassResponse();
+        courseResponse.setId(course.getId());
+        courseResponse.setName(course.getName());
+        courseResponse.setCode(course.getCode());
+        courseResponse.setDescription(course.getDescription());
+        courseResponse.setStatus(course.getStatus());
+        courseResponse.setLevel(course.getLevel());
+        if (course.getCreator() != null) {
+            MentorDto mentorDto = MentorUtil.convertUserToMentorDto(course.getCreator());
+            courseResponse.setMentor(mentorDto);
+        }
+
+
+        Subject subject = course.getSubject();
+        if (subject != null) {
+            courseResponse.setSubjectResponse(ConvertUtil.convertSubjectToSubjectDto(subject));
+
+            Set<Category> categories = subject.getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+
+                    courseResponse.setCategoryResponse(ConvertUtil.convertCategoryToCategoryDto(category));
+                }
+            }
+        }
+
+        List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
+        List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseStatus.WAITING);
+        classes.forEach(aClass -> {
+            classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(course.getCreator(), aClass));
+        });
+        courseResponse.setClasses(classDetailResponses);
 
         return courseResponse;
     }

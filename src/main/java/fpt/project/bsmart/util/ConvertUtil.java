@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.response.*;
+import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.repository.ClassRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -139,7 +140,7 @@ public class ConvertUtil {
         if (slot != null) {
             slotDto = convertSlotToSlotDto(slot);
         }
-        return new TimeInWeekDTO(dayOfWeekDTO, null, slotDto);
+        return new TimeInWeekDTO(dayOfWeekDTO, slotDto);
     }
 
 
@@ -353,6 +354,36 @@ public class ConvertUtil {
         return courseResponse;
     }
 
+    public static ManagerGetCourse convertCourseToManagerGetCourse(Course course) {
+
+
+        ManagerGetCourse courseResponse = new ManagerGetCourse();
+        courseResponse.setId(course.getId());
+        courseResponse.setName(course.getName());
+        courseResponse.setCode(course.getCode());
+        courseResponse.setDescription(course.getDescription());
+        courseResponse.setStatus(course.getStatus());
+        courseResponse.setLevel(course.getLevel());
+        if (course.getCreator() != null) {
+            courseResponse.setMentor(MentorUtil.convertUserToMentorDto(course.getCreator()));
+        }
+
+
+        Subject subject = course.getSubject();
+        if (subject != null) {
+            courseResponse.setSubjectResponse(ConvertUtil.convertSubjectToSubjectDto(subject));
+
+            Set<Category> categories = subject.getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+
+                    courseResponse.setCategoryResponse(ConvertUtil.convertCategoryToCategoryDto(category));
+                }
+            }
+        }
+
+        return courseResponse;
+    }
     public static CourseClassResponse convertCourseToCourseClassResponsePage(Course course) {
 
 
@@ -364,7 +395,7 @@ public class ConvertUtil {
         courseResponse.setStatus(course.getStatus());
 
         if (course.getCreator() != null) {
-            courseResponse.setMentorName(course.getCreator().getFullName());
+            courseResponse.setMentor(MentorUtil.convertUserToMentorDto(course.getCreator()));
         }
 
 
