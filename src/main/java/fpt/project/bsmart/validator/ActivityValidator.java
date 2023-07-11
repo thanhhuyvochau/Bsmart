@@ -15,7 +15,7 @@ public class ActivityValidator {
     }
 
     public static boolean isActivityBelongCourse(Activity activity, Course course) {
-        return course.getActivities().stream().map(Activity::getId).anyMatch(id -> Objects.equals(id, course.getId()));
+        return course.getActivities().stream().map(Activity::getId).anyMatch(id -> Objects.equals(id, activity.getId()));
     }
 
     public static boolean isAuthorizeForClass(Class clazz, Activity activity) {

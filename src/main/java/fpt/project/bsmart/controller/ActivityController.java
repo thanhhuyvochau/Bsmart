@@ -2,8 +2,11 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.ActivityDto;
+import fpt.project.bsmart.entity.request.AddQuizRequest;
 import fpt.project.bsmart.entity.request.AssignmentRequest;
 import fpt.project.bsmart.entity.request.SubmitAssignmentRequest;
+import fpt.project.bsmart.entity.request.activity.MentorCreateAnnouncementForClass;
+import fpt.project.bsmart.entity.request.activity.MentorCreateResourceRequest;
 import fpt.project.bsmart.entity.request.activity.MentorCreateSectionForCourse;
 import fpt.project.bsmart.entity.response.Avtivity.MentorDeleteSectionForCourse;
 import fpt.project.bsmart.entity.response.Avtivity.MentorGetSectionForCourse;
@@ -30,6 +33,25 @@ public class ActivityController {
     @PostMapping("/assignment")
     @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
     public ResponseEntity<ApiResponse<Boolean>> addAssignmentActivity(@ModelAttribute AssignmentRequest request) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request)));
+    }
+
+
+    @PostMapping("/quiz")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    public ResponseEntity<ApiResponse<Boolean>> addQuizActivity(@RequestBody AddQuizRequest addQuizRequest) throws  IOException{
+        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(addQuizRequest)));
+    }
+
+    @PostMapping("/announcement")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    public ResponseEntity<ApiResponse<Boolean>> addAnnouncementActivity(@RequestBody MentorCreateAnnouncementForClass request) throws  IOException{
+        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request)));
+    }
+
+    @PostMapping("/resource")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    public ResponseEntity<ApiResponse<Boolean>> addResourceActivity(@ModelAttribute MentorCreateResourceRequest request) throws IOException{
         return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request)));
     }
 
