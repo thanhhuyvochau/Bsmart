@@ -5,6 +5,8 @@ import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.AddQuizRequest;
 import fpt.project.bsmart.entity.request.AssignmentRequest;
 import fpt.project.bsmart.entity.request.SubmitAssignmentRequest;
+import fpt.project.bsmart.entity.request.activity.MentorCreateAnnouncementForClass;
+import fpt.project.bsmart.entity.request.activity.MentorCreateResourceRequest;
 import fpt.project.bsmart.entity.request.activity.MentorCreateSectionForCourse;
 import fpt.project.bsmart.entity.response.Avtivity.MentorDeleteSectionForCourse;
 import fpt.project.bsmart.entity.response.Avtivity.MentorGetSectionForCourse;
