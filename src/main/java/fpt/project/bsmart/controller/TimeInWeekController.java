@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.SubCourseTimeRequest;
 import fpt.project.bsmart.service.ITimeInWeekService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,7 @@ public class TimeInWeekController {
 //    }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('TEACHER')")
     public ResponseEntity<ApiResponse<Boolean>> createTimeInWeek(@Valid @RequestBody SubCourseTimeRequest request) {
         return ResponseEntity.ok(ApiResponse.success(timeInWeekService.createTimeInWeek(request)));
     }

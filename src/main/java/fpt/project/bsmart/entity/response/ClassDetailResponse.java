@@ -22,9 +22,8 @@ public class ClassDetailResponse {
 
     private Instant endDate;
 
-    private Integer numberOfStudent = 0;
-
-    private ECourseLevel level;
+    private Integer numberOfStudent = 0  ;
+    private Integer numberOfSlot  ;
 
     private ECourseStatus status;
 
@@ -80,12 +79,12 @@ public class ClassDetailResponse {
         this.numberOfStudent = numberOfStudent;
     }
 
-    public ECourseLevel getLevel() {
-        return level;
+    public Integer getNumberOfSlot() {
+        return numberOfSlot;
     }
 
-    public void setLevel(ECourseLevel level) {
-        this.level = level;
+    public void setNumberOfSlot(Integer numberOfSlot) {
+        this.numberOfSlot = numberOfSlot;
     }
 
     public ECourseStatus getStatus() {

@@ -119,7 +119,6 @@ public class ActivityUtil {
     public static List<SectionDto> GetSectionOfCoursePage(Course course) {
         List<SectionDto> sectionDtoList = new ArrayList<>();
 
-
         List<Activity> byCourseAndParentIdIsNull = staticActivityRepository.findByCourseAndParentIdIsNull(course);
 
         if (byCourseAndParentIdIsNull != null) {

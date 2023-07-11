@@ -33,7 +33,7 @@ public class TimeInWeekUtil {
                     if (i <= 0) break;
                     TimeTable timeTable = new TimeTable();
                     timeTable.setDate(date);
-                    timeTable.setCurrentSlotNums((numberOfSlot - i) + 1);
+                    timeTable.setCurrentSlotNum((numberOfSlot - i) + 1);
                     timeTable.setSlot(dow.getSlot());
                     timeTable.setClazz(clazz);
                     timeTables.add(timeTable);

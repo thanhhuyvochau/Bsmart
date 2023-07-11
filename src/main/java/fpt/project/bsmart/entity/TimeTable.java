@@ -13,8 +13,8 @@ public class TimeTable {
     private Long id;
     @Column(name = "date")
     private Instant date;
-    @Column(name = "current_slot_nums")
-    private Integer currentSlotNums = 0;
+    @Column(name = "current_slot_num")
+    private Integer currentSlotNum = 0;
     @Column(name = "class_room")
     private String classRoom;
     @Column(name = "class_url")
@@ -26,7 +26,7 @@ public class TimeTable {
     @JoinColumn(name = "clazz_id")
     private Class clazz;
     @OneToMany(mappedBy = "timeTable", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Attendance> attendanceList = new ArrayList<>();
+    private List<Attendance> attendances= new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -44,12 +44,13 @@ public class TimeTable {
         this.date = date;
     }
 
-    public Integer getCurrentSlotNums() {
-        return currentSlotNums;
+
+    public Integer getCurrentSlotNum() {
+        return currentSlotNum;
     }
 
-    public void setCurrentSlotNums(Integer currentSlotNums) {
-        this.currentSlotNums = currentSlotNums;
+    public void setCurrentSlotNum(Integer currentSlotNum) {
+        this.currentSlotNum = currentSlotNum;
     }
 
     public String getClassRoom() {
@@ -84,11 +85,11 @@ public class TimeTable {
         this.clazz = clazz;
     }
 
-    public List<Attendance> getAttendanceList() {
-        return attendanceList;
+    public List<Attendance> getAttendances() {
+        return attendances;
     }
 
-    public void setAttendanceList(List<Attendance> attendanceList) {
-        this.attendanceList = attendanceList;
+    public void setAttendances(List<Attendance> attendances) {
+        this.attendances = attendances;
     }
 }

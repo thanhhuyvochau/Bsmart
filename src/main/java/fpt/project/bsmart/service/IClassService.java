@@ -26,6 +26,10 @@ public interface IClassService {
 
     ApiPage<MentorGetClassDetailResponse> mentorGetClassOfCourse(Long id, Pageable pageable);
 
+    Boolean mentorDeleteClassForCourse(Long id);
+
+    CourseClassResponse getAllClassOfCourseForManager(Long id);
+
 //    Boolean createClass(CreateClassRequest request);
 //
 //    ApiPage<SimpleClassResponse> getClassFeedbacks(ClassFeedbackRequest classFeedbackRequest, Pageable pageable);
