@@ -1,15 +1,17 @@
 package fpt.project.bsmart.service.Impl;
 
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.DayOfWeek;
-import fpt.project.bsmart.entity.Slot;
-import fpt.project.bsmart.entity.TimeTable;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.common.ValidationErrors;
+import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.dto.SlotDto;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import fpt.project.bsmart.entity.request.timetable.GenerateScheduleRequest;
-import fpt.project.bsmart.entity.request.timetable.GenerateScheduleResponse;
+import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
+import fpt.project.bsmart.entity.response.timetable.GenerateScheduleResponse;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.DayOfWeekRepository;
 import fpt.project.bsmart.repository.SlotRepository;
@@ -22,10 +24,10 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.*;
+
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
@@ -88,7 +90,7 @@ public class TimeTableServiceImpl implements ITimeTableService {
 
         List<GenerateScheduleResponse> result = new ArrayList<>();
 
-        int numberOfSlot = 1;
+        int numberOfSlot = 0;
 
         for (LocalDate date : localDatesBetween) {
 
@@ -99,7 +101,7 @@ public class TimeTableServiceImpl implements ITimeTableService {
 
             if (collectCodeDOW.contains(dayOfWeekCode)) {
                 GenerateScheduleResponse generateScheduleResponse = new GenerateScheduleResponse();
-                generateScheduleResponse.setDate(date);
+                generateScheduleResponse.setDate(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
                 generateScheduleResponse.setNumberOfSlot(++numberOfSlot);
                 generateScheduleResponse.setDayOfWeek(ConvertUtil.convertDayOfWeekToDto(dayOfWeekCodeMap.get(dayOfWeekCode)));
 
@@ -115,8 +117,8 @@ public class TimeTableServiceImpl implements ITimeTableService {
                 result.add(generateScheduleResponse);
 
             }
-            if (result.size() == request.getNumberOfSlot()){
-                return result ;
+            if (result.size() == request.getNumberOfSlot()) {
+                return result;
             }
         }
 
@@ -128,8 +130,8 @@ public class TimeTableServiceImpl implements ITimeTableService {
         return result;
 
 
-
     }
+
 
     public LocalDate instantToLocalDate(Instant instant) {
         ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
@@ -144,6 +146,51 @@ public class TimeTableServiceImpl implements ITimeTableService {
             datesInRange.add(date);
         }
         return datesInRange;
+    }
+
+    @Override
+    public Boolean mentorCreateScheduleForClass(Long classId, List<MentorCreateScheduleRequest> request) throws ValidationErrorsException {
+        Class aClass = classRepository.findById(classId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
+
+        List<Slot> allSlot = slotRepository.findAll();
+        Map<Long, Slot> slotMap = new HashMap<>();
+        for (Slot slot : allSlot) {
+            slotMap.put(slot.getId(), slot);
+        }
+
+        List<TimeTable> timeTables = new ArrayList<>();
+        ArrayList<MentorCreateScheduleRequest> duplicateDate = new ArrayList<>();
+        ValidationErrors<MentorCreateScheduleRequest> vaErr = new ValidationErrors<>();
+        for (MentorCreateScheduleRequest mentorCreateScheduleRequest : request) {
+
+            Long checkDuplicate = timeTableRepository.countByClassIdAndDateAndSlotId(classId, mentorCreateScheduleRequest.getDate(), mentorCreateScheduleRequest.getSlot().getId());
+            if (checkDuplicate > 0) {
+                ValidationErrors.ValidationError<MentorCreateScheduleRequest> validationError = new ValidationErrors.ValidationError<>();
+                validationError.setMessage("Trùng ngày dạy ");
+
+                duplicateDate.add(mentorCreateScheduleRequest);
+                validationError.setInvalidParams(duplicateDate);
+                vaErr.setError(validationError);
+
+            }
+            // Check for duplicate entries
+            TimeTable timeTable = new TimeTable();
+            timeTable.setDate(mentorCreateScheduleRequest.getDate());
+            timeTable.setCurrentSlotNum(mentorCreateScheduleRequest.getNumberOfSlot());
+            Slot slot = slotMap.get(mentorCreateScheduleRequest.getSlot().getId());
+            timeTable.setSlot(slot);
+            timeTable.setClazz(aClass);
+            timeTables.add(timeTable);
+        }
+        if (duplicateDate.size()> 0){
+            throw new ValidationErrorsException(vaErr.getError().getInvalidParams(), vaErr.getError().getMessage());
+        }
+
+        timeTableRepository.saveAll(timeTables);
+
+        return true;
     }
 
 

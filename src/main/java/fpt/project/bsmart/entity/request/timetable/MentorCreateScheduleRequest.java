@@ -6,22 +6,22 @@ import fpt.project.bsmart.entity.dto.SlotDto;
 import java.time.Instant;
 import java.time.LocalDate;
 
-public class GenerateScheduleResponse {
-    private LocalDate date ;
+public class MentorCreateScheduleRequest {
 
-    private Integer  numberOfSlot ;
+    private Instant date;
+
+    private Integer numberOfSlot;
+
+    private DayOfWeekDTO dayOfWeek;
+
+    private SlotDto slot;
 
 
-    private DayOfWeekDTO dayOfWeek ;
-
-    private SlotDto slot ;
-
-
-    public LocalDate getDate() {
+    public Instant getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(Instant date) {
         this.date = date;
     }
 
