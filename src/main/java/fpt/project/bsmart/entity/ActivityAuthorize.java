@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "activity_authorize")
-public class ActivityAuthorize extends BaseEntity {
+public class ActivityAuthorize extends BaseEntity  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

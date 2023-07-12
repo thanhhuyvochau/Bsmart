@@ -13,11 +13,7 @@ import java.util.List;
 
 
 public class CourseDetailResponse {
-
     private Long id;
-
-
-
     private ECourseStatus status;
 
     private ECourseLevel level;

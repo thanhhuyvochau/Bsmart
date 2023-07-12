@@ -1,29 +1,28 @@
 package fpt.project.bsmart.util;
 
-import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.Activity;
 import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.Course;
+import fpt.project.bsmart.entity.Lesson;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.EActivityAction;
-import fpt.project.bsmart.entity.constant.EActivityType;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.activity.SectionDto;
-import fpt.project.bsmart.entity.request.activity.MentorCreateLessonForCourse;
-import fpt.project.bsmart.entity.request.activity.MentorCreateSectionForCourse;
+import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.Avtivity.MentorGetLessonForCourse;
 import fpt.project.bsmart.entity.response.Avtivity.MentorGetSectionForCourse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
-import fpt.project.bsmart.repository.ActivityHistoryRepository;
 import fpt.project.bsmart.repository.ActivityRepository;
 import fpt.project.bsmart.repository.LessonRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_UPDATE;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_STATUS_NOT_ALLOW;
 
 @Component
 public class ActivityUtil {
@@ -51,17 +50,17 @@ public class ActivityUtil {
                 sectionDto.setName(activity.getName());
                 sections.add(sectionDto);
 
-                List<MentorCreateLessonForCourse> lessons = new ArrayList<>();
+                List<LessonDto> lessons = new ArrayList<>();
                 List<Activity> ActivityLessonsDb = staticActivityRepository.findByCourseAndParentId(course, activity.getId());
                 List<Long> idLessons = ActivityLessonsDb.stream().map(Activity::getId).collect(Collectors.toList());
                 List<Lesson> lessonDbs = staticLessonRepository.findByActivityIdIn(idLessons);
                 if (lessonDbs != null) {
                     lessonDbs.forEach(lesson -> {
-                        MentorCreateLessonForCourse lessonForCourse = new MentorCreateLessonForCourse();
+                        LessonDto lessonForCourse = new LessonDto();
                         lessonForCourse.setDescription(lesson.getDescription());
                         lessons.add(lessonForCourse);
                     });
-                    sectionDto.setLessons(lessons);
+//                    sectionDto.setLessons(lessons);
                 }
 
             });
@@ -88,7 +87,7 @@ public class ActivityUtil {
                 List<MentorGetLessonForCourse> lessons = new ArrayList<>();
                 List<Activity> ActivityLessonsDb = staticActivityRepository.findByCourseAndParentId(course, activity.getId());
                 List<Long> idLessons = ActivityLessonsDb.stream().map(Activity::getId).collect(Collectors.toList());
-                List<Lesson> lessonDbs = staticLessonRepository.findByActivityIdIn(idLessons);
+                List<fpt.project.bsmart.entity.Lesson> lessonDbs = staticLessonRepository.findByActivityIdIn(idLessons);
                 if (lessonDbs != null) {
                     lessonDbs.forEach(lesson -> {
                         MentorGetLessonForCourse lessonForCourse = new MentorGetLessonForCourse();
@@ -129,19 +128,19 @@ public class ActivityUtil {
 
                 sectionDto.setName(activity.getName());
 
-                List<MentorCreateLessonForCourse> lessons = new ArrayList<>();
+                List<LessonDto> lessons = new ArrayList<>();
 
                 List<Activity> ActivityLessonsDb = staticActivityRepository.findByCourseAndParentId(course, activity.getId());
                 List<Long> idLessons = ActivityLessonsDb.stream().map(Activity::getId).collect(Collectors.toList());
-                List<Lesson> lessonDbs = staticLessonRepository.findByActivityIdIn(idLessons);
+                List<fpt.project.bsmart.entity.Lesson> lessonDbs = staticLessonRepository.findByActivityIdIn(idLessons);
                 if (lessonDbs != null) {
                     lessonDbs.forEach(lesson -> {
-                        MentorCreateLessonForCourse lessonForCourse = new MentorCreateLessonForCourse();
+                        LessonDto lessonForCourse = new LessonDto();
                         lessonForCourse.setDescription(lesson.getDescription());
                         lessons.add(lessonForCourse);
                     });
 
-                    sectionDto.setLessons(lessons);
+//                    sectionDto.setLessons(lessons);
                 }
                 sectionDtoList.add(sectionDto);
             });
@@ -149,6 +148,14 @@ public class ActivityUtil {
 
         }
         return sectionDtoList;
+    }
+
+    public static boolean haveAuthorizeToView(Activity activity, Class clazz) {
+        long isAuthorized = activity.getActivityAuthorizes().stream().filter(activityAuthorize -> {
+            Class authorizeClass = activityAuthorize.getAuthorizeClass();
+            return Objects.equals(authorizeClass.getId(), clazz.getId());
+        }).count();
+        return isAuthorized > 0;
     }
 }
 

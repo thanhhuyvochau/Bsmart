@@ -1,9 +1,14 @@
 package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.dto.ActivityDto;
+import fpt.project.bsmart.entity.constant.ECourseActivityType;
+import fpt.project.bsmart.entity.dto.ActivityDetailDto;
+import fpt.project.bsmart.entity.request.ActivityRequest;
+import fpt.project.bsmart.entity.request.AddQuizRequest;
 import fpt.project.bsmart.entity.request.AssignmentRequest;
 import fpt.project.bsmart.entity.request.SubmitAssignmentRequest;
+import fpt.project.bsmart.entity.request.activity.MentorCreateAnnouncementForClass;
+import fpt.project.bsmart.entity.request.activity.MentorCreateResourceRequest;
 import fpt.project.bsmart.entity.request.activity.MentorCreateSectionForCourse;
 import fpt.project.bsmart.entity.response.Avtivity.MentorDeleteSectionForCourse;
 import fpt.project.bsmart.entity.response.Avtivity.MentorGetSectionForCourse;
@@ -30,51 +35,27 @@ public class ActivityController {
     @PostMapping("/assignment")
     @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
     public ResponseEntity<ApiResponse<Boolean>> addAssignmentActivity(@ModelAttribute AssignmentRequest request) throws IOException {
-        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request)));
+        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request, ECourseActivityType.ASSIGNMENT)));
     }
 
-    @Operation(summary = "mentor tao nội dung cho course (step 2) ")
+
+    @PostMapping("/quiz")
     @PreAuthorize("hasAnyRole('TEACHER')")
-    @PostMapping("course/{id}")
-    public ResponseEntity<ApiResponse<List<Long>>> mentorCreateSectionForCourse(@PathVariable Long id,
-                                                                                @Valid @RequestBody MentorCreateSectionForCourse sessions) {
-        return ResponseEntity.ok(ApiResponse.success(activityService.mentorCreateSectionForCourse(id, sessions)));
+    public ResponseEntity<ApiResponse<Boolean>> addQuizActivity(@RequestBody AddQuizRequest addQuizRequest) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(addQuizRequest, ECourseActivityType.QUIZ)));
     }
 
-    @Operation(summary = "mentor sửa nội dung cho course  ")
+    @PostMapping("/announcement")
     @PreAuthorize("hasAnyRole('TEACHER')")
-    @PutMapping("course/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> mentorUpdateSectionForCourse(@PathVariable Long id,
-                                                                             @Valid @RequestBody MentorUpdateSectionForCourse updateRequest) {
-        return ResponseEntity.ok(ApiResponse.success(activityService.mentorUpdateSectionForCourse(id, updateRequest)));
+    public ResponseEntity<ApiResponse<Boolean>> addAnnouncementActivity(@RequestBody MentorCreateAnnouncementForClass request) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request, ECourseActivityType.ANNOUNCEMENT)));
     }
 
-    @Operation(summary = "mentor xóa nội dung cho course  ")
+    @PostMapping("/resource")
     @PreAuthorize("hasAnyRole('TEACHER')")
-    @DeleteMapping("course/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> mentorDeleteSectionForCourse(@PathVariable Long id,
-                                                                             @Valid @RequestBody List<MentorDeleteSectionForCourse> deleteRequest) {
-        return ResponseEntity.ok(ApiResponse.success(activityService.mentorDeleteSectionForCourse(id, deleteRequest)));
+    public ResponseEntity<ApiResponse<Boolean>> addResourceActivity(@ModelAttribute MentorCreateResourceRequest request) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request, ECourseActivityType.RESOURCE)));
     }
-
-    @Operation(summary = "mentor lấy  nội dung của course ")
-    @PreAuthorize("hasAnyRole('TEACHER')")
-    @GetMapping("course/{id}")
-    public ResponseEntity<ApiResponse<List<MentorGetSectionForCourse>>> mentorGetSectionOfCourse(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(activityService.mentorGetSectionOfCourse(id)));
-    }
-
-//
-//    @PostMapping("/assignment")
-//    @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
-//    public ResponseEntity<ApiResponse<Boolean>> addAssignmentActivity(@ModelAttribute AssignmentRequest request) throws IOException {
-//        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request)));
-//    }
-//    @PutMapping("/assignment/{id}")
-//    @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
-//    public ResponseEntity<ApiResponse<Boolean>> editAssignmentActivity(@ModelAttribute AssignmentRequest request, @PathVariable("id") Long id) throws IOException {
-//        return ResponseEntity.ok(ApiResponse.success(activityService.editActivity(id,request)));
-//    }
 
     @PutMapping("/visible/{id}")
     @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
@@ -90,7 +71,7 @@ public class ActivityController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN','STUDENT')")
-    public ResponseEntity<ApiResponse<ActivityDto>> getDetailActivity(@PathVariable("id") Long id) {
+    public ResponseEntity<ApiResponse<ActivityDetailDto>> getDetailActivity(@PathVariable("id") Long id) {
         return ResponseEntity.ok(ApiResponse.success(activityService.getDetailActivity(id)));
     }
 
@@ -98,5 +79,17 @@ public class ActivityController {
     @PreAuthorize("hasAnyRole('STUDENT')")
     public ResponseEntity<ApiResponse<Boolean>> submitAssignment(@PathVariable Long assignmentId, @ModelAttribute SubmitAssignmentRequest request) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(activityService.submitAssignment(assignmentId, request)));
+    }
+
+    @PostMapping("/section")
+    @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
+    public ResponseEntity<ApiResponse<Boolean>> addSectionActivity(@RequestBody ActivityRequest request) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request, ECourseActivityType.SECTION)));
+    }
+
+    @PostMapping("/lesson")
+    @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
+    public ResponseEntity<ApiResponse<Boolean>> addLessonActivity(@RequestBody AssignmentRequest request) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(activityService.addActivity(request, ECourseActivityType.LESSON)));
     }
 }

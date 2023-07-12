@@ -1,7 +1,5 @@
 package fpt.project.bsmart.entity.response.Avtivity;
 
-import fpt.project.bsmart.entity.request.activity.MentorCreateLessonForCourse;
-
 import java.util.List;
 
 public class MentorGetSectionForCourse {

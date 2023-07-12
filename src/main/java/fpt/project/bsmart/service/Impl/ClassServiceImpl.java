@@ -1,22 +1,25 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
+import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
-import fpt.project.bsmart.entity.response.ClassDetailResponse;
+import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.validator.ClassValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -24,14 +27,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
+import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
+import static fpt.project.bsmart.entity.constant.ECourseStatus.WAITING;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 
@@ -51,8 +54,9 @@ public class ClassServiceImpl implements IClassService {
     private final CourseRepository courseRepository;
 
     private final ClassImageRepository classImageRepository;
+    private final ActivityAuthorizeRepository activityAuthorizeRepository;
 
-    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository) {
+    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository) {
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.classRepository = classRepository;
@@ -61,6 +65,7 @@ public class ClassServiceImpl implements IClassService {
         this.timeInWeekRepository = timeInWeekRepository;
         this.courseRepository = courseRepository;
         this.classImageRepository = classImageRepository;
+        this.activityAuthorizeRepository = activityAuthorizeRepository;
     }
 
     /**
@@ -502,6 +507,36 @@ public class ClassServiceImpl implements IClassService {
             endDate = endDate.plus(1, ChronoUnit.DAYS);
         }
         return endDate;
+    }
+
+    @Override
+    public ClassResponse getDetailClass(Long id) {
+        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
+        if (!Objects.equals(clazz.getStatus(), ECourseStatus.STARTING)) {
+            // throw error later
+        }
+        User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        EUserRole memberOfClassAsRole = ClassValidator.isMemberOfClassAsRole(clazz, currentUser);
+        List<Activity> sectionActivities = clazz.getCourse().getActivities().stream()
+                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
+                .collect(Collectors.toList());
+
+        if (memberOfClassAsRole.equals(EUserRole.TEACHER)) {
+            ResponseUtil.responseForRole(memberOfClassAsRole);
+            return ConvertUtil.convertClassToClassResponse(clazz, sectionActivities);
+        } else if (memberOfClassAsRole.equals(EUserRole.STUDENT)) {
+            List<Activity> authorizeActivities = sectionActivities.stream().filter(activity -> {
+                long isAuthorized = activity.getActivityAuthorizes().stream().filter(activityAuthorize -> {
+                    Class authorizeClass = activityAuthorize.getAuthorizeClass();
+                    return Objects.equals(authorizeClass.getId(), clazz.getId());
+                }).count();
+                return isAuthorized > 0;
+            }).collect(Collectors.toList());
+            ClassResponse classResponse = ConvertUtil.convertClassToClassResponse(clazz, authorizeActivities);
+            ResponseUtil.responseForRole(memberOfClassAsRole);
+            return classResponse;
+        }
+        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
     }
 }
 //    private final MessageUtil messageUtil;

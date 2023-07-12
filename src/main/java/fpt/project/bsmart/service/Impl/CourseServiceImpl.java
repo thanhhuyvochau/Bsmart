@@ -1,14 +1,16 @@
 
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
-import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.repository.ActivityRepository;
@@ -17,12 +19,14 @@ import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.service.ICourseService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.CourseSpecificationBuilder;
+import fpt.project.bsmart.validator.CourseValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -40,7 +44,7 @@ public class CourseServiceImpl implements ICourseService {
 
     private final CategoryRepository categoryRepository;
 
-    private final ActivityRepository activityRepository ;
+    private final ActivityRepository activityRepository;
 
 
     public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository) {
@@ -186,7 +190,7 @@ public class CourseServiceImpl implements ICourseService {
         }
         List<Class> classes = course.getClasses();
         List<ECourseStatus> statusClasses = classes.stream().map(Class::getStatus).collect(Collectors.toList());
-        if (statusClasses.contains(ECourseStatus.NOTSTART) || statusClasses.contains(STARTING) || statusClasses.contains(WAITING)){
+        if (statusClasses.contains(ECourseStatus.NOTSTART) || statusClasses.contains(STARTING) || statusClasses.contains(WAITING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_DELETE));
         }
@@ -199,11 +203,28 @@ public class CourseServiceImpl implements ICourseService {
     @Override
     public ApiPage<ManagerGetCourse> coursePendingToApprove(Pageable pageable) {
         CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
-                .queryByCourseStatus(WAITING) ;
+                .queryByCourseStatus(WAITING);
 
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseToManagerGetCourse));
 
+    }
+
+    @Override
+    public List<ActivityDto> getAllActivityByCourseId(Long id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+
+        if (!CourseValidator.isMentorOfCourse(currentUser, course)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage("Bạn không phải là giáo viên của khóa học này");
+        }
+        List<Activity> sectionActivities = course.getActivities().stream()
+                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
+                .collect(Collectors.toList());
+        ResponseUtil.responseForRole(EUserRole.TEACHER);
+        return ConvertUtil.convertActivityAsTree(sectionActivities);
     }
 }
 //

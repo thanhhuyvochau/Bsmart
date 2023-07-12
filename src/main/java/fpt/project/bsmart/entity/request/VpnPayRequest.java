@@ -1,18 +1,17 @@
 package fpt.project.bsmart.entity.request;
 
 public class VpnPayRequest {
-    private Long subCourseId;
+    private Long clazzId;
     private String returnURL;
 
 
-    public Long getSubCourseId() {
-        return subCourseId;
+    public Long getClazzId() {
+        return clazzId;
     }
 
-    public void setSubCourseId(Long subCourseId) {
-        this.subCourseId = subCourseId;
+    public void setClazzId(Long clazzId) {
+        this.clazzId = clazzId;
     }
-
 
     public String getReturnURL() {
         return returnURL;

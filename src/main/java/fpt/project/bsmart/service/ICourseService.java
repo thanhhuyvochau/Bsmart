@@ -3,12 +3,16 @@ package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.dto.ActivityDetailDto;
+import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface ICourseService {
 
@@ -24,6 +28,8 @@ public interface ICourseService {
     Boolean mentorDeleteCourse(Long id);
 
     ApiPage<ManagerGetCourse> coursePendingToApprove(Pageable pageable);
+
+    List<ActivityDto> getAllActivityByCourseId(Long id);
 //
 //    List<CourseDto> getCoursesBySubject(Long subjectId);
 //    List<Long> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest);

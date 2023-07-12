@@ -36,7 +36,7 @@ public interface IClassService {
 //
 //    ClassProgressTimeDto getClassProgression(Long clazzId);
 //
-//    ClassResponse getDetailClass(Long id);
+    ClassResponse getDetailClass(Long id);
 //
 //    ApiPage<SimpleClassResponse> getUserClasses(ClassFilterRequest request, Pageable pageable);
 //

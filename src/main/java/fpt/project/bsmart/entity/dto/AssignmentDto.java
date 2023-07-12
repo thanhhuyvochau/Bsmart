@@ -18,13 +18,13 @@ public class AssignmentDto extends BaseEntity {
     private Instant startDate;
 
     private Instant endDate;
+    private EAssignmentStatus status;
     @JsonView(View.Teacher.class)
     private Integer editBeForSubmitMin = 0;
     @JsonView(View.Teacher.class)
     private Integer maxFileSubmit = 1;
     @JsonView(View.Teacher.class)
     private Integer maxFileSize = 5; // Dd
-    private EAssignmentStatus status;
     @JsonView(View.Teacher.class)
     private List<AssignmentFileDto> assignmentFiles = new ArrayList<>();
 

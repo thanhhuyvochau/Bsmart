@@ -79,18 +79,18 @@ public class CourseUtil {
 //        return true;
 //    }
 
-//    public static Boolean isPaidCourse(SubCourse subCourse, User user) {
-//        List<User> allPaidSubCourseUsers = subCourse.getOrderDetails().stream()
-//                .filter(orderDetail -> orderDetail.getOrder().getStatus().equals(EOrderStatus.SUCCESS))
-//                .map(orderDetail -> orderDetail.getOrder().getUser()).collect(Collectors.toList());
-//        return allPaidSubCourseUsers.contains(user);
-//    }
-//
-//    public static Boolean isFullMemberOfSubCourse(SubCourse subCourse) {
-//        long numberOfBought = subCourse.getOrderDetails().stream()
-//                .filter(orderDetail -> orderDetail.getOrder().getStatus().equals(EOrderStatus.SUCCESS)).count();
-//        return numberOfBought == subCourse.getMaxStudent();
-//    }
+    public static Boolean isPaidCourse(Class clazz, User user) {
+        List<User> allPaidSubCourseUsers = clazz.getOrderDetails().stream()
+                .filter(orderDetail -> orderDetail.getOrder().getStatus().equals(EOrderStatus.SUCCESS))
+                .map(orderDetail -> orderDetail.getOrder().getUser()).collect(Collectors.toList());
+        return allPaidSubCourseUsers.contains(user);
+    }
+
+    public static Boolean isFullMemberOfSubCourse(Class clazz) {
+        long numberOfBought = clazz.getOrderDetails().stream()
+                .filter(orderDetail -> orderDetail.getOrder().getStatus().equals(EOrderStatus.SUCCESS)).count();
+        return numberOfBought == clazz.getMaxStudent();
+    }
 
     public static CourseClassResponse setCourseInformationForCourseDetailPage(Course course) {
 

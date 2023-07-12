@@ -3,11 +3,10 @@ package fpt.project.bsmart.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
-import fpt.project.bsmart.entity.response.CourseClassResponse;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
+import java.util.List;
 
 import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_COURSES;
 import static fpt.project.bsmart.util.Constants.UrlConstants.COMMON_ROOT;
@@ -78,6 +78,12 @@ public class CourseController {
     @GetMapping("/pending")
     public ResponseEntity<ApiResponse<ApiPage<ManagerGetCourse>>> coursePendingToApprove(Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(pageable)));
+    }
+
+    @Operation(summary = "Giáo viên lấy hoạt động khóa học")
+    @GetMapping("/{id}/activities")
+    public ResponseEntity<ApiResponse<List<ActivityDto>>> mentorGetCourseActivities(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getAllActivityByCourseId(id)));
     }
 
 
@@ -183,7 +189,6 @@ public class CourseController {
 //    public ResponseEntity<ApiResponse<ApiPage<CourseSubCourseResponse>>> memberGetCourseSuggest(@PageableDefault(sort = "created", direction = Sort.Direction.DESC) Pageable pageable) {
 //        return ResponseEntity.ok(ApiResponse.success(iCourseService.memberGetCourseSuggest(pageable)));
 //    }
-
 
 
 //
