@@ -3,11 +3,11 @@ package fpt.project.bsmart.entity.common;
 import java.util.List;
 
 public class ValidationErrorsException extends Exception  {
-    private List<String> invalidFields;
+    private List<?> invalidFields;
     private String errorMessage;
 
 
-    public List<String> getInvalidFields() {
+    public List<?> getInvalidFields() {
         return invalidFields;
     }
 
@@ -23,16 +23,16 @@ public class ValidationErrorsException extends Exception  {
         this.errorMessage = errorMessage;
     }
 
-    public ValidationErrorsException(List<String> invalidFields, String errorMessage) {
+    public ValidationErrorsException(List<?> invalidFields, String errorMessage) {
         this.invalidFields = invalidFields;
         this.errorMessage = errorMessage;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("ValidationErrorsException: ").append(errorMessage).append("\n");
-        sb.append("Invalid Fields: ").append(String.join(",", invalidFields));
-        return sb.toString();
-    }
+//    @Override
+//    public String toString() {
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("ValidationErrorsException: ").append(errorMessage).append("\n");
+//        sb.append("Invalid Fields: ").append(String.join(",", invalidFields));
+//        return sb.toString();
+//    }
 }
