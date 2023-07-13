@@ -6,21 +6,17 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
-import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
-import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.MentorSkillDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
-import fpt.project.bsmart.entity.response.Mentor.CompletenessMentorProfileResponse;
+import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.ACCOUNT_IS_NOT_MENTOR;
 
@@ -169,8 +165,6 @@ public class MentorUtil {
             fieldOption.setName("linkedIn");
             optionalInfoFiled.add(fieldOption);
 
-        } else {
-            completionPercentage++;
         }
 
         if (user.getFacebookLink() == null || user.getFacebookLink().isEmpty()) {
@@ -179,8 +173,6 @@ public class MentorUtil {
             fieldOption.setName("facebook");
             optionalInfoFiled.add(fieldOption);
 
-        } else {
-            completionPercentage++;
         }
 
 

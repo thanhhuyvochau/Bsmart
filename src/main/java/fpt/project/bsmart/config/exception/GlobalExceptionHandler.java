@@ -35,8 +35,6 @@ public class GlobalExceptionHandler {
     }
 
 
-
-
     @ExceptionHandler(ValidationErrorsException.class)
     @ResponseBody
     public ResponseEntity<ApiResponse> handleValidationErrorsException(ValidationErrorsException ex) {
