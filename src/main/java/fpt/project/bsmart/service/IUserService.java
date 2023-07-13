@@ -3,6 +3,7 @@ package fpt.project.bsmart.service;
 import fpt.project.bsmart.config.security.oauth2.dto.LocalUser;
 import fpt.project.bsmart.config.security.oauth2.dto.SignUpRequest;
 import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
@@ -10,7 +11,9 @@ import fpt.project.bsmart.entity.request.User.ChangePasswordRequest;
 import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
+import fpt.project.bsmart.entity.response.UserInfoResponse;
 import fpt.project.bsmart.entity.response.VerifyResponse;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +25,7 @@ import java.util.Map;
 
 public interface IUserService {
     UserDto getUserById(Long id);
+    ApiPage<UserInfoResponse> getAllUser(Pageable pageable);
 
     UserDto getLoginUser();
 

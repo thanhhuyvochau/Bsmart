@@ -754,4 +754,14 @@ public class ConvertUtil {
         return cimpleClassAnnouncementResponse;
     }
 
+    public static UserInfoResponse convertUserToUserInfoResponse(User user){
+        UserInfoResponse userInfoResponse = ObjectUtil.copyProperties(user, new UserInfoResponse(), UserInfoResponse.class);
+        if(user.getRoles() != null){
+            List<RoleDto> roleDtos = user.getRoles().stream()
+                    .map(ConvertUtil::convertRoleToRoleDto)
+                    .collect(Collectors.toList());
+            userInfoResponse.setRoles(roleDtos);
+        }
+        return userInfoResponse;
+    }
 }

@@ -12,6 +12,7 @@ import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
+import fpt.project.bsmart.entity.response.UserInfoResponse;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,6 +47,13 @@ public class UserController {
     @GetMapping("{id}")
     public ResponseEntity<ApiResponse<UserDto>> getUser(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iUserService.getUserById(id)));
+    }
+
+    @Operation(summary = "Admin lấy toàn bộ user")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @GetMapping
+    public ResponseEntity<ApiResponse<ApiPage<UserInfoResponse>>> getAllUser(Pageable pageable){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.getAllUser(pageable)));
     }
 
     @Operation(summary = "Lấy thông tin user đang đăng nhập hiện tại")

@@ -8,6 +8,9 @@ public class StringUtil {
     private static final Pattern INSTAGRAM_REGEX_PATTERN = Pattern.compile("(https?://)?(www\\.)?instagram\\.com/.+");
     private static final Pattern TWITTER_REGEX_PATTERN = Pattern.compile("(https?://)?(www\\.)?twitter\\.com/.+");
 
+    private static final Pattern LINKEDIN_REGEX_PATTERN = Pattern.compile("(https?://)?(www\\.)?linkedin\\.com/in/.+");
+    private static final Pattern WEBSITE_REGEX_PATTERN = Pattern.compile("^(https?:\\/\\/)?(www\\.)?[\\w\\d\\-]+(\\.[\\w\\d\\-]+)+([\\/?#]\\S*)?$");
+
     //This regex pattern use RFC standard( version RFC-5322)
     private static final Pattern EMAIL_REGEX_PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
     private static final Pattern VIETNAMESE_MOBILE_PHONE_NUMBER_PATTERN = Pattern.compile("(?:03|05|07|08|09|01[2689])[0-9]{8}\\b");
@@ -80,6 +83,13 @@ public class StringUtil {
         return TWITTER_REGEX_PATTERN.matcher(url).matches();
     }
 
+    public static boolean isValidLinkedinLink(String url){
+        return LINKEDIN_REGEX_PATTERN.matcher(url).matches();
+    }
+
+    public static boolean isValidWebsite(String url){
+        return WEBSITE_REGEX_PATTERN.matcher(url).matches();
+    }
     public static boolean isValidEmailAddress(String url){
         return EMAIL_REGEX_PATTERN.matcher(url).matches();
     }

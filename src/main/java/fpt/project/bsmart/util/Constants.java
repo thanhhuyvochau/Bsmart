@@ -113,6 +113,7 @@ public class Constants {
             public static final String INVALID_QUESTION_TYPE = "INVALID_QUESTION_TYPE";
             public static final String INVALID_ITEM_IN_CART = "INVALID_ITEM_IN_CART";
             public static final String INVALID_COURSE_STATUS_TO_PURCHASE = "INVALID_COURSE_STATUS_TO_PURCHASE";
+            public static final String INVALID_WEBSITE = "INVALID_WEBSITE";
         }
 
         public static class Empty {
