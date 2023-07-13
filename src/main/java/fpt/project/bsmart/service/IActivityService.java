@@ -16,7 +16,7 @@ public interface IActivityService {
     Boolean addActivity(ActivityRequest activityRequest, ECourseActivityType type) throws IOException;
 
 
-    List<Long> mentorCreateSectionForCourse(Long id, MentorCreateSectionForCourse sessions );
+    List<Long> mentorCreateSectionForCourse(Long id, MentorCreateSectionForCourse sessions);
 
 
     Boolean deleteActivity(Long id);
@@ -34,4 +34,6 @@ public interface IActivityService {
     Boolean mentorUpdateSectionForCourse(Long id, MentorUpdateSectionForCourse updateRequest);
 
     Boolean mentorDeleteSectionForCourse(Long id, List<MentorDeleteSectionForCourse> deleteRequest);
+
+    Boolean editActivity(Long id, ActivityRequest activityRequest, ECourseActivityType type) throws IOException;
 }

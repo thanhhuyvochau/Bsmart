@@ -195,7 +195,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                 activityRepository.save(activity);
                 return true;
             case LESSON:
-                fpt.project.bsmart.entity.Lesson lesson = addLesson((LessonRequest) activityRequest, activity);
+                Lesson lesson = addLesson((LessonRequest) activityRequest, activity);
                 activityRepository.save(activity);
                 return true;
             default:
@@ -204,6 +204,37 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         return false;
     }
 
+    private boolean editDetailActivity(ActivityRequest activityRequest, ECourseActivityType type, Activity activity) throws IOException {
+        switch (type) {
+            case QUIZ:
+//                Quiz quiz = editQuiz((AddQuizRequest) activityRequest, activity);
+//                activity.setQuiz(quiz);
+//                activityRepository.save(activity);
+                break;
+            case ASSIGNMENT:
+                editAssignment((AssignmentRequest) activityRequest, activity);
+                activityRepository.save(activity);
+                return true;
+            case SECTION:
+                // Just return for section -> section work as folder for others activities with no content inside
+                return true;
+            case RESOURCE:
+                editResource((MentorCreateResourceRequest) activityRequest, activity);
+                activityRepository.save(activity);
+                return true;
+            case ANNOUNCEMENT:
+                editAnnouncement((MentorCreateAnnouncementForClass) activityRequest, activity);
+                activityRepository.save(activity);
+                return true;
+            case LESSON:
+                editLesson((LessonRequest) activityRequest, activity);
+                activityRepository.save(activity);
+                return true;
+            default:
+                throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE) + type);
+        }
+        return false;
+    }
 
     public Quiz addQuiz(AddQuizRequest addQuizRequest, Activity activity) {
         if (addQuizRequest.getCode().trim().isEmpty()) {
@@ -294,26 +325,29 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         return quiz;
     }
 
-    public ClassAnnouncement addAnnouncement(MentorCreateAnnouncementForClass request, Activity activity){
-        if(StringUtil.isNullOrEmpty(request.getContent())){
+    public ClassAnnouncement addAnnouncement(MentorCreateAnnouncementForClass request, Activity activity) {
+        if (StringUtil.isNullOrEmpty(request.getContent())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("content is empty");
         }
-        if(StringUtil.isNullOrEmpty(request.getTitle())){
+        if (StringUtil.isNullOrEmpty(request.getTitle())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("title is empty");
         }
-        boolean isOnlyClassId = request.getAuthorizeClasses().size() == 1;
-        if(!isOnlyClassId){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Announcement is only belong to 1 class");
-        }
-        Course course = courseRepository.findById(request.getCourseId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + request.getCourseId()));
-        Long classId = request.getAuthorizeClasses().get(0);
-        Class clazz = course.getClasses().stream()
-                .filter(x -> x.getId().equals(classId))
-                .findFirst()
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
         ClassAnnouncement announcement = new ClassAnnouncement();
+        announcement.setTitle(request.getTitle());
+        announcement.setContent(request.getContent());
+        announcement.setVisible(request.getVisible());
+        announcement.setActivity(activity);
+        return announcement;
+    }
+
+    public ClassAnnouncement editAnnouncement(MentorCreateAnnouncementForClass request, Activity activity) {
+        if (StringUtil.isNullOrEmpty(request.getContent())) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("content is empty");
+        }
+        if (StringUtil.isNullOrEmpty(request.getTitle())) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("title is empty");
+        }
+        ClassAnnouncement announcement = activity.getAnnouncement();
         announcement.setTitle(request.getTitle());
         announcement.setContent(request.getContent());
         announcement.setVisible(request.getVisible());
@@ -324,6 +358,12 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     private Resource addResource(MentorCreateResourceRequest request, Activity activity) throws IOException {
         Resource resource = new Resource();
         resource.setActivity(activity);
+        resource.setUrl(createResource(request.getFile()));
+        return resource;
+    }
+
+    private Resource editResource(MentorCreateResourceRequest request, Activity activity) throws IOException {
+        Resource resource = activity.getResource();
         resource.setUrl(createResource(request.getFile()));
         return resource;
     }
@@ -522,38 +562,57 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         return true;
     }
 
-//    @Override
-//    public Boolean editActivity(Long id, ActivityRequest activityRequest) throws IOException {
-//        User currentUser = SecurityUtil.getCurrentUser();
-//        ClassSection classSection = classSectionRepository.findById(activityRequest.getClassSectionId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-//                .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SECTION_NOT_FOUND_BY_ID) + activityRequest.getClassSectionId()));
-//        Class clazz = classSection.getClazz();
-//        User mentor = clazz.getSubCourse().getMentor();
-//        if (!SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER) && !Objects.equals(currentUser.getId(), mentor.getId())) {
-//            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
-//        }
-//        ActivityType activityType = activityTypeRepository.findById(activityRequest.getActivityTypeId())
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-//                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_TYPE_NOT_FOUND_BY_ID) + activityRequest.getActivityTypeId()));
-//
-//        Activity activity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
-//        activity.setName(activityRequest.getName());
-//        activity.setVisible(activityRequest.getIsVisible());
-//        activity.setClassSection(classSection);
-//        String code = activityType.getCode();
-//        switch (code) {
-//            case "QUIZ":
-//                break; // Xử lý tương tự cho quiz activity ở đây
-//            case "ASSIGNMENT":
-//                Assignment assignment = editAssignment((AssignmentRequest) activityRequest, activity);
-//                activity.setAssignment(assignment);
-//                activityRepository.save(activity);
-//                return true;
-//            default:
-//                throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE));
-//        }
-//        return false;
-//    }
+    @Override
+    public Boolean editActivity(Long id, ActivityRequest activityRequest, ECourseActivityType type) throws IOException {
+        User currentUser = SecurityUtil.getCurrentUser();
+        Course course = courseRepository.findById(activityRequest.getCourseId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID) + activityRequest.getCourseId()));
+        Activity editedActivity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + id));
+        if (editedActivity.getFixed()) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_STATUS_HAS_FIXED));
+        }
+        User mentor = course.getCreator();
+        if (!SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER) && !Objects.equals(currentUser.getId(), mentor.getId())) {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
+        }
+        List<Long> authorizeClassesId = activityRequest.getAuthorizeClasses();
+        List<Class> authorizeClasses = classRepository.findAllById(authorizeClassesId);
+        ActivityBuilder activityBuilder = ActivityBuilder.getBuilder()
+                .withName(activityRequest.getName())
+                .withVisible(activityRequest.getVisible())
+                .withCourse(course)
+                .withType(type);
+
+        Activity parentActivity = null;
+        List<ActivityAuthorize> parentActivityAuthorize = null;
+        if (!Objects.equals(type, ECourseActivityType.SECTION)) {
+            parentActivity = activityRepository.findByIdAndType(activityRequest.getParentActivityId(), ECourseActivityType.SECTION).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SECTION_NOT_FOUND_BY_ID) + activityRequest.getParentActivityId()));
+            parentActivityAuthorize = parentActivity.getActivityAuthorizes();
+            activityBuilder.withParent(parentActivity);
+        }
+        Activity activity = activityBuilder.modify(editedActivity);
+        activity.getActivityAuthorizes().clear();
+        List<ActivityAuthorize> activityAuthorizes = activity.getActivityAuthorizes();
+        for (Class authorizeClass : authorizeClasses) {
+            ActivityAuthorize activityAuthorize = new ActivityAuthorize();
+            activityAuthorize.setActivity(activity);
+            activityAuthorize.setAuthorizeClass(authorizeClass);
+            activityAuthorizes.add(activityAuthorize);
+            if (parentActivityAuthorize != null) {
+                boolean existInParent = parentActivityAuthorize.stream()
+                        .anyMatch(authorize -> Objects.equals(authorize.getAuthorizeClass().getId(), authorizeClass.getId()));
+                if (!existInParent) {
+                    ActivityAuthorize newParentActivityAuthorize = new ActivityAuthorize();
+                    newParentActivityAuthorize.setActivity(parentActivity);
+                    newParentActivityAuthorize.setAuthorizeClass(authorizeClass);
+                    parentActivityAuthorize.add(newParentActivityAuthorize);
+                }
+            }
+        }
+        return editDetailActivity(activityRequest, type, activity);
+    }
 
     private Assignment editAssignment(AssignmentRequest request, Activity activity) throws IOException {
         Instant now = Instant.now();
@@ -816,8 +875,15 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     }
 
 
-    private fpt.project.bsmart.entity.Lesson addLesson(LessonRequest request, Activity activity) throws IOException {
-        fpt.project.bsmart.entity.Lesson lesson = new fpt.project.bsmart.entity.Lesson(request.getDescription(), activity);
+    private Lesson addLesson(LessonRequest request, Activity activity) throws IOException {
+        Lesson lesson = new Lesson(request.getDescription(), activity);
+        lessonRepository.save(lesson);
+        return lesson;
+    }
+
+    private Lesson editLesson(LessonRequest request, Activity activity) throws IOException {
+        Lesson lesson = activity.getLesson();
+        lesson.setDescription(request.getDescription());
         lessonRepository.save(lesson);
         return lesson;
     }

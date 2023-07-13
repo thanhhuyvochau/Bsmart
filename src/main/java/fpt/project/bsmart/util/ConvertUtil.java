@@ -4,6 +4,7 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EQuestionType;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
@@ -591,7 +592,34 @@ public class ConvertUtil {
     }
 
     public static ActivityDetailDto convertActivityDetailToDto(Activity activity) { // Convert ra đơn giản để show cho user xem
-        return null;
+        ActivityDetailDto activityDetailDto = ObjectUtil.copyProperties(activity, new ActivityDetailDto(), ActivityDetailDto.class, true);
+        Activity parent = activity.getParent();
+        if (parent != null) {
+            activityDetailDto.setParentActivityId(parent.getId());
+        }
+
+        ECourseActivityType type = activity.getType();
+        switch (type) {
+            case QUIZ:
+
+                break;
+            case ASSIGNMENT:
+
+                break;
+            case SECTION:
+                // Just return for section -> section work as folder for others activities with no content inside
+                break;
+            case RESOURCE:
+
+                break;
+            case ANNOUNCEMENT:
+                break;
+            case LESSON:
+                break;
+            default:
+                throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE) + type);
+        }
+        return activityDetailDto;
     }
 
     public static LessonDto convertLessonToDto(Lesson lesson) { // Convert ra đơn giản để show cho user xem
