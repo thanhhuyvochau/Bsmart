@@ -12,9 +12,12 @@ import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
+import fpt.project.bsmart.entity.response.course.CompletenessCourseResponse;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
+import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.repository.ActivityRepository;
 import fpt.project.bsmart.repository.CategoryRepository;
+import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.service.ICourseService;
 import fpt.project.bsmart.util.*;
@@ -25,9 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
@@ -46,12 +47,15 @@ public class CourseServiceImpl implements ICourseService {
 
     private final ActivityRepository activityRepository;
 
+    private final ClassRepository classRepository;
 
-    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository) {
+
+    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository, ClassRepository classRepository) {
         this.courseRepository = courseRepository;
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.activityRepository = activityRepository;
+        this.classRepository = classRepository;
     }
 
 
@@ -225,6 +229,67 @@ public class CourseServiceImpl implements ICourseService {
                 .collect(Collectors.toList());
         ResponseUtil.responseForRole(EUserRole.TEACHER);
         return ConvertUtil.convertActivityAsTree(sectionActivities);
+    }
+
+    @Override
+    public Boolean mentorRequestApprovalCourse(Long id, List<Long> classIds) {
+        User user = MentorUtil.checkIsMentor();
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+
+        List<Class> classesInRequest = classRepository.findAllById(classIds);
+
+        List<Class> classesOfCourse = course.getClasses();
+        // kiểm tra lớp trong request có phai lớp của khóa học không ?
+        List<Long> classIdOfCourseList = classesOfCourse.stream().map(Class::getId).collect(Collectors.toList());
+        for (Long aClassId : classIds) {
+            if (!classIdOfCourseList.contains(aClassId)) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage("Lớp học với mã " + aClassId + " không thuộc khóa học " + course.getId());
+            }
+        }
+        Boolean isValidCourse = CourseUtil.checkCourseValid(course, user, classesInRequest);
+
+        if (isValidCourse) {
+            course.setStatus(WAITING);
+            courseRepository.save(course);
+            classesInRequest
+                    .forEach(aClass -> {
+                        aClass.setStatus(WAITING);
+                        classRepository.save(aClass);
+                    });
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public CompletenessCourseResponse getCompletenessCourse(Long id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+
+        return checkCompletenessCourse(course);
+    }
+
+    private CompletenessCourseResponse checkCompletenessCourse(Course course) {
+        int completionPercentage = 0;
+        int totalFields = 2;
+
+
+        if (course.getClasses().size() > 0) {
+            completionPercentage++;
+        }
+        if (course.getActivities().size() > 0) {
+            completionPercentage++;
+        }
+        // Tính % hoàn thành dựa trên số lượng trường thông tin có giá trị
+        completionPercentage = (int) Math.round(((double) completionPercentage / totalFields) * 100);
+
+        CompletenessCourseResponse response = new CompletenessCourseResponse();
+        response.setPercentComplete(completionPercentage);
+        response.setAllowSendingApproval(completionPercentage == 100);
+        return response;
     }
 }
 //

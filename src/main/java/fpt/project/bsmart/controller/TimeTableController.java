@@ -15,7 +15,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/time-table")
+@RequestMapping("/api/time-table")
 public class TimeTableController {
 
     private final ITimeTableService timeTableService ;
