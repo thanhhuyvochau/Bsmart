@@ -7,6 +7,8 @@ import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
+import fpt.project.bsmart.entity.response.course.CompletenessCourseResponse;
+import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -70,6 +72,19 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseOfMentor(query, pageable)));
     }
 
+    @Operation(summary = "mentor gửi yêu cầu phê duyệt khoá hoc ")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/{id}/request-approval")
+    public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalCourse(@PathVariable Long id, @RequestBody List<Long> classIds) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorRequestApprovalCourse(id, classIds)));
+    }
+
+    @Operation(summary = "Lấy % hông tin khoa học hoàn thiện ")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("/{id}/completeness")
+    public ResponseEntity<ApiResponse<CompletenessCourseResponse>> getCompletenessMentorProfile(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getCompletenessCourse(id)));
+    }
 
     //     ################################## Manager ##########################################
 
