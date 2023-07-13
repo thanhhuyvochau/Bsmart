@@ -1,4 +1,4 @@
-package fpt.project.bsmart.entity.response.Mentor;
+package fpt.project.bsmart.entity.response.mentor;
 
 import java.util.List;
 

@@ -2,12 +2,12 @@ package fpt.project.bsmart.entity.common;
 
 import java.util.ArrayList;
 
-public class ValidationErrors {
-    private ValidationError error  ;
+public class ValidationErrors <T>{
+    private ValidationError<T> error;
 
-    public static class ValidationError{
+    public static class ValidationError<T>{
         private String message;
-        private ArrayList<String> invalidParams = new ArrayList<String>();
+        private ArrayList<T> invalidParams = new ArrayList<T>();
 
         public String getMessage() {
             return message;
@@ -17,23 +17,20 @@ public class ValidationErrors {
             this.message = message;
         }
 
-        public ArrayList<String> getInvalidParams() {
+        public ArrayList<T> getInvalidParams() {
             return invalidParams;
         }
 
-        public void setInvalidParams(ArrayList<String> invalidParams) {
+        public void setInvalidParams(ArrayList<T> invalidParams) {
             this.invalidParams = invalidParams;
         }
     }
 
-    public ValidationError getError() {
+    public ValidationError<T> getError() {
         return error;
     }
 
-    public void setError(ValidationError error) {
+    public void setError(ValidationError<T> error) {
         this.error = error;
     }
-
-
-
 }

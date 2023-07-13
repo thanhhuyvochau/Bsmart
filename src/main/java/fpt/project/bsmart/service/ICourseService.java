@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
+import fpt.project.bsmart.entity.response.course.CompletenessCourseResponse;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import org.springframework.data.domain.Pageable;
 
@@ -14,11 +15,11 @@ import java.util.List;
 public interface ICourseService {
 
 
-    ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest , Pageable pageable);
+    ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest, Pageable pageable);
 
     Long mentorCreateCourse(CreateCourseRequest mentorCreateClassRequest);
 
-    Long  mentorUpdateCourse(Long id  ,CreateCourseRequest createCourseRequest);
+    Long mentorUpdateCourse(Long id, CreateCourseRequest createCourseRequest);
 
     ApiPage<CourseResponse> getCourseOfMentor(CourseSearchRequest query, Pageable pageable);
 
@@ -27,13 +28,16 @@ public interface ICourseService {
     ApiPage<ManagerGetCourse> coursePendingToApprove(Pageable pageable);
 
     List<ActivityDto> getAllActivityByCourseId(Long id);
+
+    Boolean mentorRequestApprovalCourse(Long id, List<Long> classIds);
+
+    CompletenessCourseResponse getCompletenessCourse(Long id);
 //
 //    List<CourseDto> getCoursesBySubject(Long subjectId);
 //    List<Long> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest);
 //
 
 //    ApiPage<CourseSubCourseResponse> mentorGetAllCourse(ECourseStatus status  , Pageable pageable);
-
 
 
 //    CourseSubCourseDetailResponse getDetailCourseForCoursePage(Long subCourseId);

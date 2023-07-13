@@ -9,7 +9,7 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.MentorSkillDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
-import fpt.project.bsmart.entity.response.Mentor.CompletenessMentorProfileResponse;
+import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -165,8 +165,6 @@ public class MentorUtil {
             fieldOption.setName("linkedIn");
             optionalInfoFiled.add(fieldOption);
 
-        } else {
-            completionPercentage++;
         }
 
         if (user.getFacebookLink() == null || user.getFacebookLink().isEmpty()) {
@@ -175,8 +173,6 @@ public class MentorUtil {
             fieldOption.setName("facebook");
             optionalInfoFiled.add(fieldOption);
 
-        } else {
-            completionPercentage++;
         }
 
 

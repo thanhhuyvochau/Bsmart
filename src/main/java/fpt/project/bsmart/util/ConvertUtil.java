@@ -330,13 +330,18 @@ public class ConvertUtil {
         List<Class> classes = course.getClasses();
         List<ImageDto> images = new ArrayList<>();
         classes.forEach(clazz -> {
+
             if (clazz.getMentor() != null) {
-                mentorName.add(clazz.getMentor().getFullName());
+                if (mentorName.size() == 0) {
+                    mentorName.add(clazz.getMentor().getFullName());
+                }
+
             }
             if (clazz.getClassImage() != null) {
                 images.add(ObjectUtil.copyProperties(clazz.getClassImage(), new ImageDto(), ImageDto.class));
             }
         });
+        courseResponse.setTotalClass(classes.size());
         courseResponse.setMentorName(mentorName);
         courseResponse.setImages(images);
 
@@ -354,6 +359,7 @@ public class ConvertUtil {
                 }
             }
         }
+
         return courseResponse;
     }
 

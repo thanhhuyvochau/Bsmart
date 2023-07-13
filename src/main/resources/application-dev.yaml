@@ -49,5 +49,11 @@ beholder:
       86400000
 
 
+logging:
+  file:
+    path: /logs
+    name: /logs/application.log
+
+
 
 

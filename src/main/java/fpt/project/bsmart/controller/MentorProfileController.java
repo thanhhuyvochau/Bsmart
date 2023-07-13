@@ -9,7 +9,7 @@ import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.request.ManagerApprovalAccountRequest;
 import fpt.project.bsmart.entity.request.MentorSearchRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
-import fpt.project.bsmart.entity.response.Mentor.CompletenessMentorProfileResponse;
+import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.service.IMentorProfileService;
 import io.swagger.v3.oas.annotations.Operation;

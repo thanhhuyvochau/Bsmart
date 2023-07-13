@@ -9,42 +9,46 @@ import fpt.project.bsmart.entity.constant.EOrderStatus;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
+import fpt.project.bsmart.entity.response.course.CompletenessCourseResponse;
 import fpt.project.bsmart.repository.ClassRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import static fpt.project.bsmart.entity.constant.ECourseStatus.EDITREQUEST;
 import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_DOES_NOT_BELONG_TO_THE_TEACHER;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.SUB_COURSE_STATUS_NOT_ALLOW;
+import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 @Component
 public class CourseUtil {
-    private static MessageUtil messageUtil;
+    private static MessageUtil staticMessageUtil;
     private static String successIcon;
 
     private static String failIcon;
 
     private static ClassRepository staticClassRepository;
 
-    public CourseUtil(ClassRepository classRepository) {
+    public CourseUtil(ClassRepository classRepository, MessageUtil messageUtil) {
+        staticMessageUtil= messageUtil ;
         staticClassRepository = classRepository;
     }
 
     public static void checkCourseOwnership(Course course, User user) {
         if (!course.getCreator().equals(user)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
+                    .withMessage(staticMessageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
         }
 
         if (!course.getStatus().equals(EDITREQUEST) && !course.getStatus().equals(REQUESTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(SUB_COURSE_STATUS_NOT_ALLOW));
+                    .withMessage(staticMessageUtil.getLocalMessage(SUB_COURSE_STATUS_NOT_ALLOW));
         }
     }
 
@@ -60,23 +64,47 @@ public class CourseUtil {
         return sb.toString();
     }
 
-//    public static Boolean checkCourseValid(SubCourse subCourse, User user) {
-//        if (!subCourse.getStatus().equals(REQUESTING)) {
-//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(COURSE_STATUS_NOT_ALLOW);
-//        }
-//        MentorProfile mentorProfile = user.getMentorProfile();
-//        if (!subCourse.getMentor().getMentorProfile().equals(mentorProfile)) {
-//            throw ApiException.create(HttpStatus.BAD_REQUEST)
-//                    .withMessage(messageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
-//        }
-//
-//        if (subCourse.getStatus() != EDITREQUEST && subCourse.getStatus() != REQUESTING) {
-//            throw ApiException.create(HttpStatus.BAD_REQUEST)
-//                    .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
-//        }
-//
-//        return true;
-//    }
+    public static Boolean checkCourseValid(Course course, User user, List<Class> classesInRequest) {
+        if (!course.getStatus().equals(REQUESTING) && !course.getStatus().equals(EDITREQUEST)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(staticMessageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
+        }
+
+        // kiểm tra có pha mentor của khóa học đó không
+        MentorProfile mentorProfile = user.getMentorProfile();
+        if (!course.getCreator().getMentorProfile().equals(mentorProfile)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(staticMessageUtil.getLocalMessage(COURSE_DOES_NOT_BELONG_TO_THE_TEACHER));
+        }
+
+
+        // Kiem tra khóa học có nội dung chưa
+        if (course.getActivities().size() == 0) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(staticMessageUtil.getLocalMessage(THE_COURSE_HAS_NO_CONTENT) +  course.getId());
+        }
+
+        // kiểm tra course có  lớp học chưa
+        List<Class> classes = course.getClasses();
+        if (classes.size() == 0) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(staticMessageUtil.getLocalMessage(THE_COURSE_HAS_NO_CLASS_UNABLE_TO_SUBMIT_APPROVAL_REQUEST));
+        }
+
+
+        // Kiểm tra lớp học có thời khóa biểu chưaz`
+        for (Class aClass : classesInRequest) {
+            if (!aClass.getStatus().equals(REQUESTING) && !aClass.getStatus().equals(EDITREQUEST)) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(staticMessageUtil.getLocalMessage(CLASSES_ARE_CURRENTLY_STARTING_CANNOT_NOT_REQUEST_TO_APPROVAL));
+            }
+            if (aClass.getTimeTables() == null) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage(staticMessageUtil.getLocalMessage(THE_CLASS_HAS_NO_TIME_TABLE) + aClass.getId());
+            }
+
+        }
+
+        return true;
+    }
 
     public static Boolean isPaidCourse(Class clazz, User user) {
         List<User> allPaidSubCourseUsers = clazz.getOrderDetails().stream()
@@ -193,4 +221,6 @@ public class CourseUtil {
 
         return courseResponse;
     }
+
+
 }
