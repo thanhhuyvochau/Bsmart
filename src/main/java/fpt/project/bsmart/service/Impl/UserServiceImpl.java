@@ -98,7 +98,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     public ApiPage<UserInfoResponse> getAllUser(Pageable pageable){
-        Page<User> userPage = userRepository.findAll(pageable);
+        Page<User> userPage = userRepository.getAll(pageable, Arrays.asList(EUserRole.STUDENT, EUserRole.TEACHER));
         List<UserInfoResponse> userInfoResponses = userPage.getContent().stream()
                 .map(ConvertUtil::convertUserToUserInfoResponse)
                 .collect(Collectors.toList());
