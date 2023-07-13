@@ -11,10 +11,10 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
+import fpt.project.bsmart.entity.request.ManagerApprovalCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.course.CompletenessCourseResponse;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
-import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.repository.ActivityRepository;
 import fpt.project.bsmart.repository.CategoryRepository;
 import fpt.project.bsmart.repository.ClassRepository;
@@ -28,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -176,7 +177,6 @@ public class CourseServiceImpl implements ICourseService {
 
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
-
     }
 
     @Override
@@ -248,7 +248,7 @@ public class CourseServiceImpl implements ICourseService {
                         .withMessage("Lớp học với mã " + aClassId + " không thuộc khóa học " + course.getId());
             }
         }
-        Boolean isValidCourse = CourseUtil.checkCourseValid(course, user, classesInRequest);
+        Boolean isValidCourse = CourseUtil.checkCourseValidToSendApproval(course, user, classesInRequest);
 
         if (isValidCourse) {
             course.setStatus(WAITING);
@@ -290,6 +290,44 @@ public class CourseServiceImpl implements ICourseService {
         response.setPercentComplete(completionPercentage);
         response.setAllowSendingApproval(completionPercentage == 100);
         return response;
+    }
+
+    @Transactional
+    @Override
+    public Boolean managerApprovalCourseRequest(Long id, ManagerApprovalCourseRequest approvalCourseRequest) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+
+        validateApprovalCourseRequest(approvalCourseRequest.getStatus());
+        if (course.getStatus() != WAITING) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
+        }
+
+
+        List<Long> classIds = approvalCourseRequest.getClassId();
+        List<Class> classList = new ArrayList<>();
+        for (Long classId : classIds) {
+            Class aClass = classRepository.findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
+
+            aClass.setStatus(approvalCourseRequest.getStatus());
+            classList.add(aClass);
+        }
+        CourseUtil.checkCourseValidToApproval(course, classList);
+        classRepository.saveAll(classList);
+        // log history
+        ActivityHistoryUtil.logHistoryForCourseApprove(course.getCreator().getId(), course, approvalCourseRequest.getMessage());
+        courseRepository.save(course);
+        return true;
+    }
+
+    private void validateApprovalCourseRequest(ECourseStatus statusRequest) {
+        List<ECourseStatus> ALLOWED_STATUSES = Arrays.asList(NOTSTART, EDITREQUEST, REJECTED);
+        if (!ALLOWED_STATUSES.contains(statusRequest)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
+        }
     }
 }
 //
@@ -828,28 +866,7 @@ public class CourseServiceImpl implements ICourseService {
 //        return PageUtil.convert(subCoursesPedingPage.map(ConvertUtil::subCourseToCourseSubCourseResponseConverter));
 //    }
 //
-//    @Transactional
-//    @Override
-//    public Boolean managerApprovalCourseRequest(Long subCourseId, ManagerApprovalCourseRequest approvalCourseRequest) {
-//
-//        SubCourse subCourse = subCourseRepository.findById(subCourseId).
-//                orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
-//
-//
-//        validateApprovalCourseRequest(approvalCourseRequest.getStatus());
-//
-//        if (subCourse.getStatus() != WAITING) {
-//            throw ApiException.create(HttpStatus.BAD_REQUEST)
-//                    .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
-//        }
-//
-//        subCourse.setStatus(approvalCourseRequest.getStatus());
-//
-//        // log history
-//        ActivityHistoryUtil.logHistoryForCourseApprove(subCourse.getMentor().getId(), subCourse, approvalCourseRequest.getMessage());
-//        subCourseRepository.save(subCourse);
-//        return true;
-//    }
+
 //
 //    @Override
 //    public Boolean managerCreateCourse(CreateCoursePublicRequest createCourseRequest) {

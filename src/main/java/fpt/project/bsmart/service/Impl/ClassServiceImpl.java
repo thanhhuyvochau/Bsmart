@@ -284,11 +284,11 @@ public class ClassServiceImpl implements IClassService {
 //        course.setClasses(classes);
 //        courseRepository.save(course);
         // ghi log
-        classes.forEach(aClass -> {
-                    classCodes.add(aClass.getCode());
-                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
-                }
-        );
+//        classes.forEach(aClass -> {
+//                    classCodes.add(aClass.getCode());
+//                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
+//                }
+//        );
         return classFromRequest.getId();
     }
 
@@ -397,11 +397,11 @@ public class ClassServiceImpl implements IClassService {
         course.setClasses(classes);
         courseRepository.save(course);
         // ghi log
-        classes.forEach(aClass -> {
-                    classCodes.add(aClass.getCode());
-                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
-                }
-        );
+//        classes.forEach(aClass -> {
+//                    classCodes.add(aClass.getCode());
+//                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
+//                }
+//        );
         return classCodes;
     }
 

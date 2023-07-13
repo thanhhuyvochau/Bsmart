@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Verify Your Account</title>
+      <style type="text/css">
+         * {
+         box-sizing: border-box;
+         }
+         body {
+         margin: 0;
+         padding: 0;
+         font-family: Arial, sans-serif;
+         font-size: 16px;
+         line-height: 1.5;
+         color: #333333;
+         }
+         h1, h2, p {
+         margin: 0;
+         padding: 0;
+         }
+         h1 {
+         font-size: 28px;
+         font-weight: bold;
+         color: #333333;
+         text-align: center;
+         margin-top: 40px;
+         margin-bottom: 20px;
+         }
+         h2 {
+         font-size: 24px;
+         font-weight: bold;
+         color: #333333;
+         margin-top: 20px;
+         margin-bottom: 10px;
+         }
+         p {
+         font-size: 16px;
+         line-height: 1.5;
+         color: #555555;
+         margin-bottom: 20px;
+         }
+         .wrapper {
+         max-width: 600px;
+         margin: 0 auto;
+         padding: 20px;
+         background-color: #ffffff;
+         border: 1px solid #dddddd;
+         border-radius: 5px;
+         }
+         .button {
+         display: inline-block;
+         padding: 10px 20px;
+         background-color: #007bff;
+         color: #ffffff;
+         font-size: 16px;
+         font-weight: bold;
+         text-decoration: none;
+         border-radius: 5px;
+         margin-top: 20px;
+         width: fit-content;
+         }
+         .button:hover {
+         background-color: #0069d9;
+         }
+         .footer {
+         font-size: 14px;
+         line-height: 1.5;
+         color: #999999;
+         margin-top: 40px;
+         margin-bottom: 20px;
+         text-align: center;
+         }
+      </style>
+   </head>
+   <body>
+      <div class="wrapper">
+         <h1>Verify Your Account</h1>
+         <p>Thank you for creating an account with us. To activate your account, please click on the button below:</p>
+         <a href="%s" class="button">Activate Account</a>
+         <h2>Why Verify Your Account?</h2>
+         <p>Verifying your account helps us ensure the security of your personal information and prevent unauthorized access. By verifying your account, you will be able to access all the features of our platform and get the most out of our services.</p>
+         <p>If you have any questions or concerns, please contact our support team at support@yourcompany.com.</p>
+         <p>Thank you for choosing our platform!</p>
+         <div class="footer">
+            <p>BSmart Learning Platform<br>
+               Phone: 555-555-5555<br>
+               Email: bsmart@gmail.com
+            </p>
+         </div>
+      </div>
+   </body>
+</html>
