@@ -12,17 +12,14 @@ import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
-import fpt.project.bsmart.entity.request.User.ChangePasswordRequest;
-import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
-import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
-import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
-import fpt.project.bsmart.entity.response.UserInfoResponse;
+import fpt.project.bsmart.entity.request.User.*;
 import fpt.project.bsmart.entity.response.VerifyResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.adapter.MinioAdapter;
 import fpt.project.bsmart.util.email.EmailUtil;
+import fpt.project.bsmart.util.specification.UserSpecificationBuilder;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -97,10 +94,15 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id));
     }
 
-    public ApiPage<UserInfoResponse> getAllUser(Pageable pageable){
-        Page<User> userPage = userRepository.getAll(pageable, Arrays.asList(EUserRole.STUDENT, EUserRole.TEACHER));
-        List<UserInfoResponse> userInfoResponses = userPage.getContent().stream()
-                .map(ConvertUtil::convertUserToUserInfoResponse)
+    public ApiPage<UserDto> getAllUser(UserSearchRequest request,Pageable pageable){
+        UserSpecificationBuilder builder = UserSpecificationBuilder.specificationBuilder()
+                .searchByName(request.getName())
+                .searchByEmail(request.getEmail())
+                .hasRole(request.getRole())
+                .isVerified(request.getIsVerified());
+        Page<User> userPage = userRepository.findAll(builder.build(),pageable);
+        List<UserDto> userInfoResponses = userPage.getContent().stream()
+                .map(ConvertUtil::convertUsertoUserDto)
                 .collect(Collectors.toList());
         return PageUtil.convert(new PageImpl<>(userInfoResponses, pageable, userPage.getTotalElements()));
     }
