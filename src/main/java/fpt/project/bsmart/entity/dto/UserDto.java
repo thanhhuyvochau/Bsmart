@@ -22,7 +22,7 @@ public class UserDto {
     private String fullName;
 
     private String email;
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private Instant birthday;
 
 
@@ -34,7 +34,6 @@ public class UserDto {
     private EGenderType gender;
 
     List<RoleDto> roles = new ArrayList<>();
-
 
 
     private String linkedinLink;
@@ -122,7 +121,6 @@ public class UserDto {
     public void setRoles(List<RoleDto> roles) {
         this.roles = roles;
     }
-
 
 
     public String getFacebookLink() {

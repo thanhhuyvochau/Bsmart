@@ -31,6 +31,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.ParameterMode;
+import javax.persistence.StoredProcedureQuery;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.Instant;
@@ -117,6 +119,8 @@ public class UserServiceImpl implements IUserService {
         }
         return userRepository.save(user).getId();
     }
+
+
 
     public Long uploadImageProfile(UploadImageRequest uploadImageRequest) throws IOException {
         User user = getCurrentLoginUser();

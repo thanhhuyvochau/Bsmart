@@ -55,6 +55,8 @@ public class  User extends BaseEntity {
     @Column(name = "intro_point")
     private Double point;
 
+    @Column(name = "is_first_login")
+    private Boolean isFirstLogin;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<UserImage> userImages = new ArrayList<>();
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
@@ -83,6 +85,13 @@ public class  User extends BaseEntity {
     @Column(name = "provider")
     private String provider;
 
+    public Boolean getFirstLogin() {
+        return isFirstLogin;
+    }
+
+    public void setFirstLogin(Boolean firstLogin) {
+        isFirstLogin = firstLogin;
+    }
 
     public Long getId() {
         return id;

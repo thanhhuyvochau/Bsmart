@@ -81,9 +81,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/v3/api-docs/**").permitAll()
-                .antMatchers("/websocket/**" ,"/ws/**" , "/socket.io/**", "/send-message").permitAll()
+                .antMatchers("/websocket/**", "/gs-guide-websocket/**", "/socket.io/**", "/send-notification").permitAll()
                 .antMatchers("/api/ocr/**").permitAll()
-                .antMatchers("/api/users/register", "/api/users/login", "/api/test/user", "/api/**","/oauth2/**").permitAll().anyRequest().authenticated()
+                .antMatchers("/api/users/register", "/api/users/login", "/api/test/user", "/api/**", "/oauth2/**").permitAll().anyRequest().authenticated()
                 .and().exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .and()
@@ -109,6 +109,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //        http.addFilter(new UsernamePasswordAuthenticationFilter(authenticationManager()));
         http.addFilterBefore(secFilter, UsernamePasswordAuthenticationFilter.class);
     }
+
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.httpFirewall(new DefaultHttpFirewall());
@@ -126,7 +127,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 
 
     @Bean
