@@ -41,6 +41,7 @@ public class UserDto {
 
     private String facebookLink;
 
+    private String website;
 
     private List<ImageDto> userImages = new ArrayList<>();
 
@@ -147,6 +148,14 @@ public class UserDto {
 
     public void setLinkedinLink(String linkedinLink) {
         this.linkedinLink = linkedinLink;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
     }
 
     public WalletDto getWallet() {
