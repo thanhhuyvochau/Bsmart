@@ -21,7 +21,7 @@ import java.util.Map;
 
 public interface IUserService {
     UserDto getUserById(Long id);
-    ApiPage<UserDto> getAllUser(UserSearchRequest request, Pageable pageable);
+    ApiPage<UserDto> adminGetAllUser(UserSearchRequest request, Pageable pageable);
 
     UserDto getLoginUser();
 
