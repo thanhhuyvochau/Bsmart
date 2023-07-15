@@ -42,10 +42,12 @@ public class  User extends BaseEntity {
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     List<Role> roles = new ArrayList<>();
-    @Column(name = "twitter_link")
+    @Column(name = "linkedin_Link")
     private String linkedinLink;
     @Column(name = "facebook_link")
     private String facebookLink;
+    @Column(name = "website")
+    private String website;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")
@@ -162,6 +164,14 @@ public class  User extends BaseEntity {
 
     public void setFacebookLink(String facebookLink) {
         this.facebookLink = facebookLink;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
     }
 
     public List<UserImage> getUserImages() {

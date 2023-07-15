@@ -17,6 +17,7 @@ public interface ICourseService {
 
     ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest, Pageable pageable);
 
+    ApiPage<CourseResponse> studentGetCurrentCourse(CourseSearchRequest request,Pageable pageable);
     Long mentorCreateCourse(CreateCourseRequest mentorCreateClassRequest);
 
     Long mentorUpdateCourse(Long id, CreateCourseRequest createCourseRequest);

@@ -787,5 +787,4 @@ public class ConvertUtil {
         SimpleClassAnnouncementResponse cimpleClassAnnouncementResponse = ObjectUtil.copyProperties(classAnnouncement, new SimpleClassAnnouncementResponse(), SimpleClassAnnouncementResponse.class, true);
         return cimpleClassAnnouncementResponse;
     }
-
 }

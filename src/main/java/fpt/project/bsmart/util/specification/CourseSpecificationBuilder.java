@@ -1,14 +1,13 @@
 package fpt.project.bsmart.util.specification;
 
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.util.SpecificationUtil;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Path;
+import javax.persistence.criteria.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -89,6 +88,18 @@ public class CourseSpecificationBuilder {
         return this;
     }
 
+    public CourseSpecificationBuilder queryStudentCurrentCourse(Long studentId){
+        Instant now = Instant.now();
+        specifications.add((root, query, criteriaBuilder) -> {
+            Join<Course, Class> courseClassJoin = root.join(Course_.CLASSES);
+            Join<Class, StudentClass> studentClassJoin = courseClassJoin.join(Class_.STUDENT_CLASSES);
+            Predicate userPredicate = criteriaBuilder.equal(studentClassJoin.get(StudentClass_.STUDENT), studentId);
+            Predicate startDatePredicate = criteriaBuilder.lessThanOrEqualTo(courseClassJoin.get(Class_.START_DATE), now);
+            Predicate endDatePredicate = criteriaBuilder.greaterThanOrEqualTo(courseClassJoin.get(Class_.END_DATE), now);
+            return criteriaBuilder.and(userPredicate, startDatePredicate, endDatePredicate);
+        });
+        return this;
+    }
 
     public Specification<Course> build() {
         return specifications.stream()

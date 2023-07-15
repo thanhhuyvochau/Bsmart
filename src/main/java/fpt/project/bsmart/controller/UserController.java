@@ -1,6 +1,7 @@
 package fpt.project.bsmart.controller;
 
 
+import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
@@ -9,9 +10,11 @@ import fpt.project.bsmart.entity.request.User.ChangePasswordRequest;
 import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
+import fpt.project.bsmart.entity.request.User.*;
 import fpt.project.bsmart.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,6 +44,13 @@ public class UserController {
     @GetMapping("{id}")
     public ResponseEntity<ApiResponse<UserDto>> getUser(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iUserService.getUserById(id)));
+    }
+
+    @Operation(summary = "Admin lấy toàn bộ user")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @GetMapping
+    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getAllUser(@Nullable UserSearchRequest request, Pageable pageable){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.getAllUser(request, pageable)));
     }
 
     @Operation(summary = "Lấy thông tin user đang đăng nhập hiện tại")

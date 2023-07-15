@@ -43,6 +43,13 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(query, pageable)));
     }
 
+    @Operation(summary = "Student get current course")
+    @GetMapping("/user")
+    @PreAuthorize("hasAnyRole('STUDENT')")
+    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> studentGetCurrentCourse(@Nullable CourseSearchRequest request, Pageable pageable){
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.studentGetCurrentCourse(request, pageable)));
+    }
+
     @Operation(summary = "mentor tao khoá học (step 1 : course) ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping
