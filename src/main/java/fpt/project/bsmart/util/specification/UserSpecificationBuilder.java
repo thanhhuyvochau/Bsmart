@@ -5,9 +5,11 @@ import fpt.project.bsmart.entity.Role_;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.User_;
 import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.util.SpecificationUtil;
 import fpt.project.bsmart.util.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
 
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +37,20 @@ public class UserSpecificationBuilder {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("%").append(search).append("%");
             return criteriaBuilder.like(root.get(User_.FULL_NAME), stringBuilder.toString());
+        });
+        return this;
+    }
+
+    public UserSpecificationBuilder queryLike(String q){
+        if(StringUtil.isNullOrEmpty(q)){
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            Expression<String> name = root.get(User_.FULL_NAME);
+            Expression<String> email = root.get(User_.EMAIL);
+            Expression<String> stringExpression = SpecificationUtil.concat(criteriaBuilder, " ", name, email);
+            String search = q.replaceAll("\\s\\s+", " ").trim();
+            return criteriaBuilder.like(stringExpression, '%' + search + '%');
         });
         return this;
     }
