@@ -4,6 +4,7 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.UserDto;
+import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.ChangePasswordRequest;
@@ -11,6 +12,8 @@ import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.*;
+import fpt.project.bsmart.entity.response.SimpleClassResponse;
+import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +35,12 @@ public class UserController {
     @Autowired
     private SimpMessagingTemplate template;
     private final IUserService iUserService;
-//    private final IClassService classService;
+    private final IClassService classService;
 
-    public UserController(IUserService iUserService) {
+    public UserController(IUserService iUserService, IClassService classService) {
         this.iUserService = iUserService;
 
+        this.classService = classService;
     }
 
 
@@ -115,10 +119,10 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(iUserService.registerAccount(createAccountRequest)));
     }
 
-//    @Operation(summary = "Lấy lớp của học sinh / giáo viên")
-//    @GetMapping("/classes")
-//    public ResponseEntity<ApiResponse<ApiPage<SimpleClassResponse>>> getUserClasses(ClassFilterRequest request, Pageable pageable) {
-//        return ResponseEntity.ok(ApiResponse.success(classService.getUserClasses(request, pageable)));
-//    }
+    @Operation(summary = "Lấy lớp của học sinh / giáo viên")
+    @GetMapping("/classes")
+    public ResponseEntity<ApiResponse<ApiPage<SimpleClassResponse>>> getUserClasses(ClassFilterRequest request, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(classService.getUserClasses(request, pageable)));
+    }
 
 }

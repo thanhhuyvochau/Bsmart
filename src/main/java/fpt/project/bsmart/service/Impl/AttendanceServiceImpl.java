@@ -186,9 +186,8 @@ public class AttendanceServiceImpl implements AttendanceService {
             attendanceStudentDetailResponses.add(detailResponse);
         }
         AttendanceStudentResponse response = new AttendanceStudentResponse();
-//        clazz.getSubCourse().getNumberOfSlot();
         response.setAttendanceStudentDetails(attendanceStudentDetailResponses);
-//        response.setAbsentPercentage(calculateAbsentPercentage(clazz.getSubCourse().getNumberOfSlot(), absentNum));
+        response.setAbsentPercentage(calculateAbsentPercentage(clazz.getNumberOfSlot(), absentNum));
         return response;
     }
 

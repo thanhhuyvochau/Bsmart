@@ -1,13 +1,13 @@
 package fpt.project.bsmart.util.specification;
 
 import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.Class_;
-import fpt.project.bsmart.entity.StudentClass_;
-import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.util.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,27 +66,27 @@ public class ClassSpecificationBuilder {
         return this;
     }
 
-//    public ClassSpecificationBuilder searchByClassName(String name) {
-//        if (StringUtil.isNullOrEmpty(name)) {
-//            return this;
-//        }
-//        specifications.add((root, query, criteriaBuilder) -> {
-//            Path<SubCourse> subCoursePath = root.get(Class_.SUB_COURSE);
-//            return criteriaBuilder.like(subCoursePath.get(SubCourse_.TITLE), "%" + name + "%");
-//        });
-//        return this;
-//    }
+    public ClassSpecificationBuilder searchByCourseName(String name) {
+        if (StringUtil.isNullOrEmpty(name)) {
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            Path<Course> coursePath = root.get(Class_.COURSE);
+            return criteriaBuilder.like(coursePath.get(Course_.NAME), "%" + name + "%");
+        });
+        return this;
+    }
 
-//    public ClassSpecificationBuilder byMentor(User mentor) {
-//        if (mentor == null) {
-//            return this;
-//        }
-//        specifications.add((root, query, criteriaBuilder) -> {
-//            Path<SubCourse> subCoursePath = root.get(Class_.SUB_COURSE);
-//            return criteriaBuilder.equal(subCoursePath.get(SubCourse_.MENTOR), mentor);
-//        });
-//        return this;
-//    }
+    public ClassSpecificationBuilder byMentor(User mentor) {
+        if (mentor == null) {
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            Path<Course> coursePath = root.get(Class_.COURSE);
+            return criteriaBuilder.equal(coursePath.get(Course_.CREATOR), mentor);
+        });
+        return this;
+    }
 
     public ClassSpecificationBuilder byStudent(User student) {
         if (student == null) {

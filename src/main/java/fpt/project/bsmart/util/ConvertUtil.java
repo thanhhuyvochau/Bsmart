@@ -560,16 +560,14 @@ public class ConvertUtil {
         return userFeedbackResponse;
     }
 
-//    public static SimpleClassResponse convertClassToSimpleClassResponse(Class clazz) {
-//        SimpleClassResponse simpleClassResponse = ObjectUtil.copyProperties(clazz, new SimpleClassResponse(), SimpleClassResponse.class);
-//        if (clazz.getSubCourse() != null) {
-//            simpleClassResponse.setSubCourseName(clazz.getSubCourse().getTitle());
-//        }
-//        if (clazz.getSubCourse().getMentor() != null) {
-//            simpleClassResponse.setMentorName(clazz.getSubCourse().getMentor().getFullName());
-//        }
-//        return simpleClassResponse;
-//    }
+    public static SimpleClassResponse convertClassToSimpleClassResponse(Class clazz) {
+        SimpleClassResponse simpleClassResponse = ObjectUtil.copyProperties(clazz, new SimpleClassResponse(), SimpleClassResponse.class);
+        Course course = clazz.getCourse();
+        if (course != null) {
+            simpleClassResponse.setCourse(convertCourseToCourseDTO(course));
+        }
+        return simpleClassResponse;
+    }
 
     public static QuestionDto convertQuestionToQuestionDto(Question question) {
         QuestionDto questionDto = ObjectUtil.copyProperties(question, new QuestionDto(), QuestionDto.class, true);

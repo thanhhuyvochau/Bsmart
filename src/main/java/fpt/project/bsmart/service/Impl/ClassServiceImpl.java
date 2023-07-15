@@ -9,6 +9,7 @@ import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.activity.SectionDto;
+import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
@@ -16,13 +17,16 @@ import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
+import fpt.project.bsmart.entity.response.SimpleClassResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.specification.ClassSpecificationBuilder;
 import fpt.project.bsmart.validator.ClassValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -538,6 +542,24 @@ public class ClassServiceImpl implements IClassService {
         }
         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
     }
+        @Override
+    public ApiPage<SimpleClassResponse> getUserClasses(ClassFilterRequest request, Pageable pageable) {
+        User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        ClassSpecificationBuilder  builder = ClassSpecificationBuilder.classSpecificationBuilder();
+        builder.searchByCourseName(request.getQ())
+                .filterByStartDay(request.getStartDate())
+                .filterByEndDate(request.getEndDate())
+                .filterByStatus(request.getStatus());
+
+        if (request.getAsRole() == 2) {
+            builder.byMentor(user);
+        } else if (request.getAsRole() == 1) {
+            builder.byStudent(user);
+        }
+        Specification<Class> specification = builder.build();
+        Page<Class> classes = classRepository.findAll(specification, pageable);
+        return PageUtil.convert(classes.map(ConvertUtil::convertClassToSimpleClassResponse));
+    }
 }
 //    private final MessageUtil messageUtil;
 //    private final CourseRepository courseRepository;
@@ -627,24 +649,7 @@ public class ClassServiceImpl implements IClassService {
 //        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
 //    }
 //
-//    @Override
-//    public ApiPage<SimpleClassResponse> getUserClasses(ClassFilterRequest request, Pageable pageable) {
-//        User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
-//        ClassSpecificationBuilder builder = ClassSpecificationBuilder.classSpecificationBuilder();
-//        builder.searchByClassName(request.getQ())
-//                .filterByStartDay(request.getStartDate())
-//                .filterByEndDate(request.getEndDate())
-//                .filterByStatus(request.getStatus());
-//
-//        if (request.getAsRole() == 2) {
-//            builder.byMentor(user);
-//        } else if (request.getAsRole() == 1) {
-//            builder.byStudent(user);
-//        }
-//        Specification<Class> specification = builder.build();
-//        Page<Class> classes = classRepository.findAll(specification, pageable);
-//        return PageUtil.convert(classes.map(ConvertUtil::convertClassToSimpleClassResponse));
-//    }
+
 //
 //    @Override
 //    public ClassSectionDto createClassSection(ClassSectionCreateRequest request, Long classId) {
