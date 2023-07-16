@@ -71,7 +71,7 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorDeleteCourse(id)));
     }
 
-    @Operation(summary = "Lấy tất cả khóa học của mentor")
+    @Operation(summary = "Mentor lấy khoa hoc cua minh")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/mentor")
     public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseOfMentor(

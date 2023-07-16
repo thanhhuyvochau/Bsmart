@@ -35,6 +35,9 @@ public class MentorUtil {
     public static MentorDto convertUserToMentorDto(User user) {
         MentorProfile mentorProfile = user.getMentorProfile();
         MentorDto mentorDto = ObjectUtil.copyProperties(mentorProfile, new MentorDto(), MentorDto.class);
+        if (user.getFullName() != null) {
+            mentorDto.setName(user.getFullName());
+        }
         List<UserImage> userImages = user.getUserImages();
         List<UserImage> avatar = userImages.stream().filter(userImage -> userImage.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
         if (userImages != null && avatar.size() > 0) {
