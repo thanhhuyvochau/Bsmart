@@ -116,6 +116,10 @@ public class ClassSpecificationBuilder {
         return this;
     }
 
+    public ClassSpecificationBuilder getPendingClass(){
+        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Class_.STATUS), ECourseStatus.WAITING));
+        return this;
+    }
     public ClassSpecificationBuilder getStartingClass() {
         Instant now = Instant.now();
         specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get(Class_.END_DATE), now),

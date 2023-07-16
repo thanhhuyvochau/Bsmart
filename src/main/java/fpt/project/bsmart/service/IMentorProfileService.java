@@ -19,7 +19,7 @@ public interface IMentorProfileService {
     MentorProfileDTO getMentorProfile(Long id);
     ApiPage<MentorProfileDTO> getAllMentors(MentorSearchRequest mentorSearchRequest, Pageable pageable);
     List<MentorProfileResponse> getAllMentorProfiles();
-    ApiPage<UserDto> getPendingMentorProfileList(EMentorProfileStatus accountStatus  , Pageable pageable);
+    ApiPage<UserDto> getPendingMentorProfileList(MentorSearchRequest request  , Pageable pageable);
     Long approveMentorProfile(Long id,  ManagerApprovalAccountRequest managerApprovalAccountRequest);
     Long updateMentorProfile(UpdateMentorProfileRequest updateMentorProfileRequest);
     List<Long> updateCertificate(List<ImageRequest> imageRequests);

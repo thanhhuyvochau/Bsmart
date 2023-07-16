@@ -14,6 +14,8 @@ import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
+import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
+import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
@@ -191,6 +193,23 @@ public class ClassServiceImpl implements IClassService {
 
 
         return response;
+    }
+
+    public ApiPage<BaseClassResponse> getAllClassesForManager(Pageable pageable){
+        ClassSpecificationBuilder builder = ClassSpecificationBuilder.classSpecificationBuilder()
+                .getPendingClass()
+                .getStartingClass();
+        Page<Class> classes = classRepository.findAll(builder.build(), pageable);
+        List<BaseClassResponse> classDetailResponses = classes.getContent().stream()
+                .map(ClassUtil::convertClassToBaseclassResponse)
+                .collect(Collectors.toList());
+        return PageUtil.convert(new PageImpl<>(classDetailResponses, pageable, classes.getTotalElements()));
+    }
+
+    public ManagerGetClassDetailResponse managerGetClassDetail(Long classId){
+        Class clazz = classRepository.findById(classId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
+        return ClassUtil.convertClassToManagerGetClassResponse(clazz);
     }
 
     private Class updateClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {

@@ -7,6 +7,9 @@ import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
+import fpt.project.bsmart.entity.dto.UserDto;
+import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
+import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import org.springframework.http.HttpStatus;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
@@ -127,6 +131,29 @@ public class ClassUtil {
         classDetailResponse.setImage(imageDto);
 
         return classDetailResponse;
+    }
+
+    public static ManagerGetClassDetailResponse convertClassToManagerGetClassResponse(Class clazz){
+        ManagerGetClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ManagerGetClassDetailResponse(), ManagerGetClassDetailResponse.class);
+        classDetailResponse.setNumberOfStudent(clazz.getStudentClasses().size());
+        List<StudentClass> studentClasses = clazz.getStudentClasses();
+        if(studentClasses != null){
+            List<UserDto> students = studentClasses.stream()
+                    .map(StudentClass::getStudent)
+                    .map(ConvertUtil::convertUsertoUserDto)
+                    .collect(Collectors.toList());
+            classDetailResponse.setStudents(students);
+        }
+        if(clazz.getMentor() !=  null){
+            classDetailResponse.setMentor(ConvertUtil.convertUsertoUserDto(clazz.getMentor()));
+        }
+        return classDetailResponse;
+    }
+
+    public static BaseClassResponse convertClassToBaseclassResponse(Class clazz){
+        BaseClassResponse classResponse = ObjectUtil.copyProperties(clazz, new BaseClassResponse(), BaseClassResponse.class);
+        classResponse.setNumberOfStudent(clazz.getStudentClasses().size());
+        return classResponse;
     }
 
     public static StudentClass findUserInClass(Class clazz, User user) {
