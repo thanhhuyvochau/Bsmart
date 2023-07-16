@@ -7,10 +7,6 @@ import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
-import fpt.project.bsmart.entity.request.User.ChangePasswordRequest;
-import fpt.project.bsmart.entity.request.User.MentorPersonalProfileEditRequest;
-import fpt.project.bsmart.entity.request.User.PersonalProfileEditRequest;
-import fpt.project.bsmart.entity.request.User.SocialProfileEditRequest;
 import fpt.project.bsmart.entity.request.User.*;
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
 import fpt.project.bsmart.service.IClassService;
@@ -53,7 +49,7 @@ public class UserController {
     @Operation(summary = "Admin lấy toàn bộ user")
     @PreAuthorize("hasAnyRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> adminGetAllUser(@Nullable UserSearchRequest request, Pageable pageable){
+    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> adminGetAllUser(@Nullable UserSearchRequest request, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iUserService.adminGetAllUser(request, pageable)));
     }
 
@@ -125,4 +121,10 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(classService.getUserClasses(request, pageable)));
     }
 
+    @Operation(summary = "Admin Tạo Tài Khoản Manager")
+    @PostMapping("/manager/register")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Long>> registerManagerAccount(@Valid @RequestBody CreateAccountRequest createAccountRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iUserService.registerAccount(createAccountRequest)));
+    }
 }

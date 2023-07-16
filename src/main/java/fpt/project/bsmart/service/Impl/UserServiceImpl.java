@@ -406,14 +406,14 @@ public class UserServiceImpl implements IUserService {
         user.getRoles().add(role);
         user.setBirthday(createAccountRequest.getBirthDay());
         user.setIsVerified(false);
-        if (role.getCode().equals(EUserRole.STUDENT)) {
-            user.setStatus(true);
-        } else if (role.getCode().equals(EUserRole.TEACHER)) {
+        if (role.getCode().equals(EUserRole.TEACHER)) {
             user.setStatus(false);
             MentorProfile mentorProfile = new MentorProfile();
             mentorProfile.setUser(user);
             mentorProfile.setStatus(EMentorProfileStatus.REQUESTING);
             mentorProfileRepository.save(mentorProfile);
+        } else {
+            user.setStatus(true);
         }
         User savedUser = userRepository.save(user);
         // Send verify mail
