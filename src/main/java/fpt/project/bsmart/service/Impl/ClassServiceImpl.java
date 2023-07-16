@@ -8,21 +8,19 @@ import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
-
+import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
+import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.MentorGetCourseClassResponse;
-
-import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
-import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
-
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IClassService;
@@ -102,9 +100,12 @@ public class ClassServiceImpl implements IClassService {
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
         MentorGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponsePage(course);
         List<SectionDto> sectionDtoList = ActivityUtil.GetSectionOfCoursePage(course);
-        response.setSections(sectionDtoList);
-
-        User currentUser = SecurityUtil.getCurrentUser();
+        List<Activity> sectionActivities = course.getActivities().stream()
+                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
+                .collect(Collectors.toList());
+        ResponseUtil.responseForRole(EUserRole.TEACHER);
+        List<ActivityDto> activityDtos = ConvertUtil.convertActivityAsTree(sectionActivities);
+        response.setActivities(activityDtos);
         List<Class> classList = classRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART);
 
 //        List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
@@ -191,15 +192,17 @@ public class ClassServiceImpl implements IClassService {
         Course course = courseRepository.findByIdAndStatus(id, WAITING)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-
-
         ManagerGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponseManager(course);
-
-
+        List<Activity> sectionActivities = course.getActivities().stream()
+                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
+                .collect(Collectors.toList());
+        ResponseUtil.responseForRole(EUserRole.MANAGER);
+        List<ActivityDto> activityDtoList = ConvertUtil.convertActivityAsTree(sectionActivities);
+        response.setActivities(activityDtoList);
         return response;
     }
 
-    public ApiPage<BaseClassResponse> getAllClassesForManager(Pageable pageable){
+    public ApiPage<BaseClassResponse> getAllClassesForManager(Pageable pageable) {
         ClassSpecificationBuilder builder = ClassSpecificationBuilder.classSpecificationBuilder()
                 .getPendingClass()
                 .getStartingClass();
@@ -210,7 +213,7 @@ public class ClassServiceImpl implements IClassService {
         return PageUtil.convert(new PageImpl<>(classDetailResponses, pageable, classes.getTotalElements()));
     }
 
-    public ManagerGetClassDetailResponse managerGetClassDetail(Long classId){
+    public ManagerGetClassDetailResponse managerGetClassDetail(Long classId) {
         Class clazz = classRepository.findById(classId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
         return ClassUtil.convertClassToManagerGetClassResponse(clazz);
@@ -563,10 +566,11 @@ public class ClassServiceImpl implements IClassService {
         }
         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
     }
-        @Override
+
+    @Override
     public ApiPage<SimpleClassResponse> getUserClasses(ClassFilterRequest request, Pageable pageable) {
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
-        ClassSpecificationBuilder  builder = ClassSpecificationBuilder.classSpecificationBuilder();
+        ClassSpecificationBuilder builder = ClassSpecificationBuilder.classSpecificationBuilder();
         builder.searchByCourseName(request.getQ())
                 .filterByStartDay(request.getStartDate())
                 .filterByEndDate(request.getEndDate())

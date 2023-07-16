@@ -3,11 +3,13 @@ package fpt.project.bsmart.entity.response;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MentorGetCourseClassResponse {
@@ -29,7 +31,7 @@ public class MentorGetCourseClassResponse {
 
     private MentorDto mentor;
     private List<ClassDetailResponse> classes;
-    private List<SectionDto> sections ;
+    private List<ActivityDto> activities = new ArrayList<>();
 
 
     public Long getId() {
@@ -112,11 +114,11 @@ public class MentorGetCourseClassResponse {
         this.classes = classes;
     }
 
-    public List<SectionDto> getSections() {
-        return sections;
+    public List<ActivityDto> getActivities() {
+        return activities;
     }
 
-    public void setSections(List<SectionDto> sections) {
-        this.sections = sections;
+    public void setActivities(List<ActivityDto> activities) {
+        this.activities = activities;
     }
 }

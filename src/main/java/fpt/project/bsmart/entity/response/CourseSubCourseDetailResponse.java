@@ -18,7 +18,7 @@ public class CourseSubCourseDetailResponse {
 
     private String description;
 
-//    private List<SubCourseDetailResponse> subCourses ;
+    private List<CourseSubCourseDetailResponse> subCourses ;
 
     private SubjectDto subject;
 
