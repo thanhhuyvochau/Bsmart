@@ -49,8 +49,10 @@ public class UserController {
     @Operation(summary = "Admin lấy toàn bộ user")
     @PreAuthorize("hasAnyRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> adminGetAllUser(@Nullable UserSearchRequest request, Pageable pageable) {
+
+    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> adminGetAllUser(@Nullable UserSearchRequest request, Pageable pageable){
         return ResponseEntity.ok(ApiResponse.success(iUserService.adminGetAllUser(request, pageable)));
+
     }
 
     @Operation(summary = "Lấy thông tin user đang đăng nhập hiện tại")

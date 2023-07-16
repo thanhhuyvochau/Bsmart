@@ -35,6 +35,9 @@ public class MentorUtil {
     public static MentorDto convertUserToMentorDto(User user) {
         MentorProfile mentorProfile = user.getMentorProfile();
         MentorDto mentorDto = ObjectUtil.copyProperties(mentorProfile, new MentorDto(), MentorDto.class);
+        if (user.getFullName() != null) {
+            mentorDto.setName(user.getFullName());
+        }
         List<UserImage> userImages = user.getUserImages();
         List<UserImage> avatar = userImages.stream().filter(userImage -> userImage.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
         if (userImages != null && avatar.size() > 0) {
@@ -131,7 +134,7 @@ public class MentorUtil {
         if (user.getAddress() == null || user.getAddress().isEmpty()) {
             fieldRequired = new CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field();
             fieldRequired.setField("address");
-            fieldRequired.setName("Đại chỉ");
+            fieldRequired.setName("Địa chỉ");
             requiredInfoFiled.add(fieldRequired);
         } else {
             completionPercentage++;

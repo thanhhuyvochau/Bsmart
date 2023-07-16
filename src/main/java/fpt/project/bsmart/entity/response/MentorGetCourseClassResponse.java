@@ -10,7 +10,7 @@ import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 
 import java.util.List;
 
-public class CourseClassResponse {
+public class MentorGetCourseClassResponse {
 
     private Long id;
     private String code;
@@ -29,8 +29,8 @@ public class CourseClassResponse {
 
     private MentorDto mentor;
     private List<ClassDetailResponse> classes;
+    private List<SectionDto> sections ;
 
-    private List<SectionDto> sections;
 
     public Long getId() {
         return id;

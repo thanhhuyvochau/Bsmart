@@ -1,12 +1,19 @@
-package fpt.project.bsmart.entity.response.course;
+package fpt.project.bsmart.entity.response.Class;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.CategoryDto;
+import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
+import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
+import fpt.project.bsmart.entity.response.ClassDetailResponse;
 
-public class ManagerGetCourse {
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+
+public class ManagerGetCourseClassResponse {
     private Long id;
     private String code;
     private String name;
@@ -23,9 +30,7 @@ public class ManagerGetCourse {
 
 
     private MentorDto mentor;
-
-    private Integer totalClass ;
-
+    private List<ClassDetailResponse> classes;
 
     public Long getId() {
         return id;
@@ -99,11 +104,11 @@ public class ManagerGetCourse {
         this.mentor = mentor;
     }
 
-    public Integer getTotalClass() {
-        return totalClass;
+    public List<ClassDetailResponse> getClasses() {
+        return classes;
     }
 
-    public void setTotalClass(Integer totalClass) {
-        this.totalClass = totalClass;
+    public void setClasses(List<ClassDetailResponse> classes) {
+        this.classes = classes;
     }
 }

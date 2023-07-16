@@ -64,7 +64,6 @@ public class Class extends BaseEntity {
     private List<StudentClass> studentClasses = new ArrayList<>();
 
 
-
     @OneToMany(mappedBy = "authorizeClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ActivityAuthorize> activityAuthorizes = new ArrayList<>();
 
@@ -101,7 +100,6 @@ public class Class extends BaseEntity {
     }
 
 
-
     public List<TimeTable> getTimeTables() {
         return timeTables;
     }
@@ -126,7 +124,6 @@ public class Class extends BaseEntity {
     public void setStatus(ECourseStatus status) {
         this.status = status;
     }
-
 
 
     public BigDecimal getPrice() {
