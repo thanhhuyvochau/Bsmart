@@ -8,7 +8,11 @@ import java.util.List;
 public class MentorDto {
 
     private Long id;
+
+    private String name ;
+
     private String introduce;
+
     private List<MentorSkillDto> mentorSkills;
     private ImageDto avatar ;
 
@@ -18,6 +22,14 @@ public class MentorDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getIntroduce() {

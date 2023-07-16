@@ -333,7 +333,7 @@ public class ConvertUtil {
         classes.forEach(clazz -> {
 
             if (clazz.getMentor() != null) {
-                if (mentorName.size() == 0) {
+                if (mentorName.isEmpty()) {
                     mentorName.add(clazz.getMentor().getFullName());
                 }
 
@@ -391,14 +391,25 @@ public class ConvertUtil {
                 }
             }
         }
+        int totalClassToApproval = 0;
+        List<Class> classes = course.getClasses();
+        if (classes != null) {
+            for (Class aClass : classes) {
+                if (aClass.getStatus().equals(ECourseStatus.WAITING)) {
+                    ++totalClassToApproval;
+                }
+            }
+        }
+        courseResponse.setTotalClass(totalClassToApproval);
+
 
         return courseResponse;
     }
 
-    public static CourseClassResponse convertCourseToCourseClassResponsePage(Course course) {
+    public static MentorGetCourseClassResponse convertCourseToCourseClassResponsePage(Course course) {
 
 
-        CourseClassResponse courseResponse = new CourseClassResponse();
+        MentorGetCourseClassResponse courseResponse = new MentorGetCourseClassResponse();
         courseResponse.setId(course.getId());
         courseResponse.setName(course.getName());
         courseResponse.setCode(course.getCode());

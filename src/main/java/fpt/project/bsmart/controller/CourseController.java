@@ -70,7 +70,7 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorDeleteCourse(id)));
     }
 
-    @Operation(summary = "Lấy tất cả khóa học của mentor")
+    @Operation(summary = "Mentor lấy khoa hoc cua minh")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/mentor")
     public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseOfMentor(
@@ -92,6 +92,12 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getCompletenessCourse(id)));
     }
 
+    @Operation(summary = "Giáo viên lấy hoạt động khóa học")
+    @GetMapping("/{id}/activities")
+    public ResponseEntity<ApiResponse<List<ActivityDto>>> mentorGetCourseActivities(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.getAllActivityByCourseId(id)));
+    }
+
     //     ################################## Manager ##########################################
 
     @Operation(summary = "Manager get tất cả yêu cầu mở khóa học của mentor")
@@ -99,13 +105,6 @@ public class CourseController {
     @GetMapping("/pending")
     public ResponseEntity<ApiResponse<ApiPage<ManagerGetCourse>>> coursePendingToApprove(Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(pageable)));
-    }
-
-    @Operation(summary = "Giáo viên lấy hoạt động khóa học")
-    @GetMapping("/{id}/activities")
-    @PreAuthorize("hasAnyRole('TEACHER')")
-    public ResponseEntity<ApiResponse<List<ActivityDto>>> mentorGetCourseActivities(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.getAllActivityByCourseId(id)));
     }
 
 

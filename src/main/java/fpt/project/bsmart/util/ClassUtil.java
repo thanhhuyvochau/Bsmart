@@ -2,8 +2,10 @@ package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
+
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
@@ -97,7 +99,7 @@ public class ClassUtil {
         clazz.getTimeInWeeks().forEach(timeInWeek -> {
             timeInWeekDTOS.add(ConvertUtil.convertTimeInWeekToDto(timeInWeek));
         });
-        classDetailResponse.setTimeInWeeks(timeInWeekDTOS);
+
         classDetailResponse.setImage(imageDto);
         if (userLogin != null) {
             List<Order> orders = userLogin.getOrder();
@@ -162,6 +164,8 @@ public class ClassUtil {
         StudentClass studentClass = optionalStudentClass.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy học sinh trong lớp"));
         return studentClass;
     }
+
+
 
 }
 

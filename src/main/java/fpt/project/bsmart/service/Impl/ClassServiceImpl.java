@@ -17,9 +17,10 @@ import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
+import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
-import fpt.project.bsmart.entity.response.CourseClassResponse;
+import fpt.project.bsmart.entity.response.MentorGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IClassService;
@@ -93,15 +94,18 @@ public class ClassServiceImpl implements IClassService {
     }
 
     @Override
-    public CourseClassResponse getAllClassOfCourse(Long id) {
+    public MentorGetCourseClassResponse getAllClassOfCourse(Long id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-        CourseClassResponse response = CourseUtil.convertCourseToCourseClassResponsePage(course);
+        MentorGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponsePage(course);
         List<SectionDto> sectionDtoList = ActivityUtil.GetSectionOfCoursePage(course);
-        response.setActivityDtos(sectionDtoList);
-
-        User currentUser = SecurityUtil.getCurrentUser();
+        List<Activity> sectionActivities = course.getActivities().stream()
+                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
+                .collect(Collectors.toList());
+        ResponseUtil.responseForRole(EUserRole.TEACHER);
+        List<ActivityDto> activityDtos = ConvertUtil.convertActivityAsTree(sectionActivities);
+        response.setActivities(activityDtos);
         List<Class> classList = classRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART);
 
 //        List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
@@ -184,11 +188,11 @@ public class ClassServiceImpl implements IClassService {
     }
 
     @Override
-    public CourseClassResponse getAllClassOfCourseForManager(Long id) {
+    public ManagerGetCourseClassResponse getAllClassOfCourseForManager(Long id) {
         Course course = courseRepository.findByIdAndStatus(id, WAITING)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-        CourseClassResponse response = CourseUtil.convertCourseToCourseClassResponseManager(course);
+        ManagerGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponseManager(course);
         List<Activity> sectionActivities = course.getActivities().stream()
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
                 .collect(Collectors.toList());
@@ -307,9 +311,7 @@ public class ClassServiceImpl implements IClassService {
 
         classFromRequest.setCourse(course);
         classRepository.save(classFromRequest);
-//        course.setClasses(classes);
-//        courseRepository.save(course);
-        // ghi log
+
         classes.forEach(aClass -> {
                     classCodes.add(aClass.getCode());
                     ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
