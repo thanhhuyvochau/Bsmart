@@ -1,9 +1,6 @@
 package fpt.project.bsmart.entity.common;
 
-import fpt.project.bsmart.entity.Section;
-
 import java.util.ArrayList;
-import java.util.List;
 
 public class SimpleResult {
 

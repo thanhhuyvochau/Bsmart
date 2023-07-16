@@ -1,8 +1,6 @@
 package fpt.project.bsmart.config.security.oauth2.dto;
 
 
-import org.springframework.beans.factory.annotation.Value;
-
 import java.util.List;
 
 

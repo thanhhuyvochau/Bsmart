@@ -1,17 +1,10 @@
-package fpt.project.bsmart.entity.response;
-
+package fpt.project.bsmart.entity.response.Class;
 
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.dto.ImageDto;
-import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
 
-
-public class ClassDetailResponse {
-
+public class BaseClassResponse {
     private Long id;
 
     private String code;
@@ -20,22 +13,16 @@ public class ClassDetailResponse {
 
     private Instant endDate;
 
-    private Integer numberOfStudent = 0  ;
-    private Integer numberOfSlot  ;
+    private Integer numberOfStudent ;
+
+    private Integer numberOfSlot ;
+
 
     private ECourseStatus status;
-
-    private BigDecimal price;
 
     private int minStudent;
 
     private int maxStudent;
-
-    private ImageDto image;
-    private List<TimeInWeekDTO> timeInWeeks;
-
-
-    private Boolean purchase;
 
     public Long getId() {
         return id;
@@ -93,14 +80,6 @@ public class ClassDetailResponse {
         this.status = status;
     }
 
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
     public int getMinStudent() {
         return minStudent;
     }
@@ -116,31 +95,4 @@ public class ClassDetailResponse {
     public void setMaxStudent(int maxStudent) {
         this.maxStudent = maxStudent;
     }
-
-    public ImageDto getImage() {
-        return image;
-    }
-
-    public void setImage(ImageDto image) {
-        this.image = image;
-    }
-
-    public List<TimeInWeekDTO> getTimeInWeeks() {
-        return timeInWeeks;
-    }
-
-    public void setTimeInWeeks(List<TimeInWeekDTO> timeInWeeks) {
-        this.timeInWeeks = timeInWeeks;
-    }
-
-
-
-    public Boolean getPurchase() {
-        return purchase;
-    }
-
-    public void setPurchase(Boolean purchase) {
-        this.purchase = purchase;
-    }
-
 }

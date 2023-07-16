@@ -24,7 +24,7 @@ spring:
           auth: 'true'
     host: smtp.gmail.com
     username: thanhhuyne113@gmail.com
-    password: aktumoajjptyhfjn
+    password: ymhcnyghgsrfukdj
     port: '587'
 moodle:
   url:
@@ -84,19 +84,6 @@ vnp_apiUrl: https://sandbox.vnpayment.vn/merchant_webapi/merchant.html
 
 # External API
 provinces: https://provinces.open-api.vn/api/?depth=1
-
-# Mail Config
-mail:
-  properties:
-    mail:
-      smtp:
-        starttls:
-          enable: 'true'
-        auth: 'true'
-  host: smtp.gmail.com
-  username: <login user to smtp server>
-  password: <login password to smtp server>
-  port: '587'
 
 bank:
   url: https://api.vietqr.io/v2/banks

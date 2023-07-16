@@ -1,6 +1,5 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 
 import javax.persistence.*;

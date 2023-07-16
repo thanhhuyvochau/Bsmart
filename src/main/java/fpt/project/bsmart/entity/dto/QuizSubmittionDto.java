@@ -1,6 +1,5 @@
 package fpt.project.bsmart.entity.dto;
 
-import fpt.project.bsmart.entity.QuizSubmitQuestion;
 import fpt.project.bsmart.entity.constant.QuizSubmittionStatus;
 
 import java.util.ArrayList;

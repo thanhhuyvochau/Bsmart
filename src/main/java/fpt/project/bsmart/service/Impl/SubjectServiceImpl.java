@@ -9,7 +9,6 @@ import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
 import fpt.project.bsmart.service.ISubjectService;
 import fpt.project.bsmart.util.MessageUtil;
-import fpt.project.bsmart.util.SecurityUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.CATEGORY_NOT_FOUND_BY_ID;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.SUBJECT_NOT_FOUND_BY_ID;
 import static fpt.project.bsmart.util.ConvertUtil.convertSubjectToSubjectDto;
 import static fpt.project.bsmart.util.MentorUtil.checkIsMentor;
 

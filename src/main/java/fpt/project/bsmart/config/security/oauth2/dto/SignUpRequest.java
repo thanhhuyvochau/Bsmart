@@ -2,6 +2,7 @@ package fpt.project.bsmart.config.security.oauth2.dto;
 
 
 import fpt.project.bsmart.entity.constant.SocialProvider;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 

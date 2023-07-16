@@ -4,8 +4,6 @@ import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.EAssignmentStatus;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class SimpleAssignmentDto extends BaseEntity {

@@ -11,8 +11,10 @@ import fpt.project.bsmart.repository.AttendanceRepository;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.TimeTableRepository;
 import fpt.project.bsmart.service.AttendanceService;
-
-import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.ConvertUtil;
+import fpt.project.bsmart.util.MessageUtil;
+import fpt.project.bsmart.util.PageUtil;
+import fpt.project.bsmart.util.SecurityUtil;
 import fpt.project.bsmart.validator.AttendanceValidator;
 import fpt.project.bsmart.validator.ClassValidator;
 import org.modelmapper.ModelMapper;
@@ -184,9 +186,8 @@ public class AttendanceServiceImpl implements AttendanceService {
             attendanceStudentDetailResponses.add(detailResponse);
         }
         AttendanceStudentResponse response = new AttendanceStudentResponse();
-//        clazz.getSubCourse().getNumberOfSlot();
         response.setAttendanceStudentDetails(attendanceStudentDetailResponses);
-//        response.setAbsentPercentage(calculateAbsentPercentage(clazz.getSubCourse().getNumberOfSlot(), absentNum));
+        response.setAbsentPercentage(calculateAbsentPercentage(clazz.getNumberOfSlot(), absentNum));
         return response;
     }
 

@@ -1,6 +1,5 @@
 package fpt.project.bsmart.entity.request.clazz;
 
-import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 
 import java.math.BigDecimal;

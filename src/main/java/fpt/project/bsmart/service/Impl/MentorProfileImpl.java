@@ -97,11 +97,17 @@ public class MentorProfileImpl implements IMentorProfileService {
     }
 
     @Override
-    public ApiPage<UserDto> getPendingMentorProfileList(EMentorProfileStatus accountStatus, Pageable pageable) {
+    public ApiPage<UserDto> getPendingMentorProfileList(MentorSearchRequest request, Pageable pageable) {
+        MentorProfileSpecificationBuilder builder = MentorProfileSpecificationBuilder.specificationBuilder()
+                .queryLike(request.getQ())
+                .queryByStatus(EMentorProfileStatus.WAITING);
 
-        List<MentorProfile> pendingMentorProfileList = mentorProfileRepository.findAllByStatus(EMentorProfileStatus.WAITING);
+
+        Page<MentorProfile> mentorProfilePage = mentorProfileRepository.findAll(builder.build(), pageable);
+        List<MentorProfile> mentorProfiles = mentorProfilePage.stream().collect(Collectors.toList());
+
         List<UserDto> userDtoList = new ArrayList<>();
-        for (MentorProfile mentorProfile : pendingMentorProfileList) {
+        for (MentorProfile mentorProfile : mentorProfiles) {
             User user = mentorProfile.getUser();
             UserDto userDto = ConvertUtil.convertUsertoUserDto(user);
             userDto.setWallet(null);
