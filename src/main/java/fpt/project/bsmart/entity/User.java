@@ -2,7 +2,6 @@ package fpt.project.bsmart.entity;
 
 
 import fpt.project.bsmart.entity.constant.EGenderType;
-import fpt.project.bsmart.entity.dto.ImageDto;
 
 import javax.persistence.*;
 import java.time.Instant;

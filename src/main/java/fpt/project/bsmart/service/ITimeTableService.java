@@ -1,5 +1,6 @@
 package fpt.project.bsmart.service;
 
+import fpt.project.bsmart.entity.request.timetable.GenerateScheduleRequest;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.request.timetable.GenerateScheduleRequest;
 import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;

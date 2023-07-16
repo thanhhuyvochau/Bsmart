@@ -1,13 +1,9 @@
 package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.Class;
-
-import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
@@ -17,9 +13,7 @@ import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import org.springframework.http.HttpStatus;
-
 import org.springframework.stereotype.Component;
-
 
 import java.time.Instant;
 import java.util.*;

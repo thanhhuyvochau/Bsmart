@@ -1,10 +1,6 @@
 package fpt.project.bsmart.entity.dto;
 
 
-import fpt.project.bsmart.entity.constant.ECourseLevel;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-
-
 public class CourseDto {
     private Long id;
     private String code ;

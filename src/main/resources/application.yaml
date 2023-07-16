@@ -94,8 +94,8 @@ mail:
           enable: 'true'
         auth: 'true'
   host: smtp.gmail.com
-  username: <login user to smtp server>
-  password: <login password to smtp server>
+  username: thanhhuyne113@gmail.com
+  password: xrcnbqqqejhqcmqc
   port: '587'
 
 bank:
