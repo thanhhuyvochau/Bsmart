@@ -11,6 +11,7 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
+import fpt.project.bsmart.entity.request.ManagerApprovalCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.course.CompletenessCourseResponse;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
@@ -72,7 +73,7 @@ public class CourseServiceImpl implements ICourseService {
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
     }
 
-    public ApiPage<CourseResponse> studentGetCurrentCourse(CourseSearchRequest request,Pageable pageable){
+    public ApiPage<CourseResponse> studentGetCurrentCourse(CourseSearchRequest request, Pageable pageable) {
         User user = SecurityUtil.getCurrentUser();
         CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
                 .queryLike(request.getQ())
@@ -302,6 +303,41 @@ public class CourseServiceImpl implements ICourseService {
         response.setPercentComplete(completionPercentage);
         response.setAllowSendingApproval(completionPercentage == 100);
         return response;
+    }
+
+
+    @Override
+    public Boolean managerApprovalCourseRequest(Long id, ManagerApprovalCourseRequest approvalCourseRequest) {
+
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+
+
+        validateApprovalCourseRequest(approvalCourseRequest.getStatus());
+
+        if (course.getStatus() != WAITING) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
+        }
+        List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
+        List<Class> classList = new ArrayList<>();
+        for (Class aClass : classToApproval) {
+            aClass.setStatus(approvalCourseRequest.getStatus());
+            classList.add(aClass);
+        }
+        classRepository.saveAll(classList);
+
+        courseRepository.save(course);
+        return true;
+    }
+
+    private void validateApprovalCourseRequest(ECourseStatus statusRequest) {
+        List<ECourseStatus> ALLOWED_STATUSES = Arrays.asList(NOTSTART, EDITREQUEST, REJECTED);
+        if (!ALLOWED_STATUSES.contains(statusRequest)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
+
+        }
     }
 }
 //
