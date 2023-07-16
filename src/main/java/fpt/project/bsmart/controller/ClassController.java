@@ -5,6 +5,8 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
+import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
+import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
@@ -80,6 +82,19 @@ public class ClassController {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourseForManager(id)));
     }
 
+    @Operation(summary = "Quản lý lấy danh sách các lớp học đang chờ và đã bắt đầu")
+    @GetMapping()
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    public ResponseEntity<ApiResponse<ApiPage<BaseClassResponse>>> getAllClassesForManager(Pageable pageable){
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassesForManager(pageable)));
+    }
+
+    @Operation(summary = "manager lấy thông tin chi tiết lớp")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<ApiResponse<ManagerGetClassDetailResponse>> managerGetClassDetail(@PathVariable Long id){
+        return ResponseEntity.ok(ApiResponse.success(iClassService.managerGetClassDetail(id)));
+    }
     @Operation(summary = "Lấy lớp chi tiết, bao gồm nội dung của lớp đang giảng dạy hoặc đã kết thúc")
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER','STUDENT','TEACHER')")
