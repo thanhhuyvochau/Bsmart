@@ -5,11 +5,13 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
+import fpt.project.bsmart.entity.response.AttendanceStudentResponse;
 import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
+import fpt.project.bsmart.service.AttendanceService;
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -26,9 +28,11 @@ import java.util.List;
 public class ClassController {
 
     private final IClassService iClassService;
+    private final AttendanceService attendanceService;
 
-    public ClassController(IClassService iClassService) {
+    public ClassController(IClassService iClassService, AttendanceService attendanceService) {
         this.iClassService = iClassService;
+        this.attendanceService = attendanceService;
     }
 
 
@@ -121,60 +125,15 @@ public class ClassController {
 //        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassProgression(classId)));
 //    }
 
-//    @Operation(summary = "Học sinh lấy điểm danh của lớp học")
-//    @GetMapping("/{classId}/student/attendances")
-//    public ResponseEntity<ApiResponse<AttendanceStudentResponse>> getDetailStudentAttendance(@PathVariable long classId) {
-//        return ResponseEntity.ok(ApiResponse.success(attendanceService.getAttendanceByClassForStudent(classId)));
-//    }
+    @Operation(summary = "Học sinh lấy điểm danh của lớp học")
+    @GetMapping("/{classId}/student/attendances")
+    public ResponseEntity<ApiResponse<AttendanceStudentResponse>> getDetailStudentAttendance(@PathVariable long classId) {
+        return ResponseEntity.ok(ApiResponse.success(attendanceService.getAttendanceByClassForStudent(classId)));
+    }
 
 //    @GetMapping("/{id}/time-tables")
 //    public ResponseEntity<ApiResponse<ApiPage<TimeTableResponse>>> getTimeTables(Long id, Pageable pageable) {
 //        return ResponseEntity.ok(ApiResponse.success(timeTableService.getTimeTableByClass(id, pageable)));
 //    }
 
-//    @PostMapping("/{id}/class-sections")
-//    public ResponseEntity<ApiResponse<ClassSectionDto>> createClassSection(@RequestBody ClassSectionCreateRequest request, @PathVariable Long id) {
-//        return ResponseEntity.ok(ApiResponse.success(iClassService.createClassSection(request, id)));
-//    }
-//
-//    @PutMapping("/{id}/class-sections/{classSectionId}")
-//    public ResponseEntity<ApiResponse<ClassSectionDto>> updateClassSection(@RequestBody ClassSectionUpdateRequest request, @PathVariable("id") Long id, @PathVariable("classSectionId") Long classSectionId) {
-//        return ResponseEntity.ok(ApiResponse.success(iClassService.updateClassSection(id, classSectionId, request)));
-//    }
-
-//    @DeleteMapping("/{id}/class-sections/{classSectionId}")
-//    public ResponseEntity<ApiResponse<Boolean>> deleteClassSection(@PathVariable("classSectionId") Long classSectionId, @PathVariable("id") Long id) {
-//        return ResponseEntity.ok(ApiResponse.success(iClassService.deleteClassSection(classSectionId, id)));
-//    }
-//
-//    @GetMapping("/{id}/class-sections/{classSectionId}")
-//    public ResponseEntity<ApiResponse<ClassSectionDto>> getClassSection(@PathVariable("id") Long id, @PathVariable("classSectionId") Long classSectionId) {
-//        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassSection(classSectionId, id)));
-//    }
-
-
-//    @GetMapping("/{id}/announcements")
-//    public ResponseEntity<ApiResponse<ApiPage<SimpleClassAnnouncementResponse>>> getAnnouncements(@PathVariable("id") Long id, Pageable pageable) {
-//        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.getAllClassAnnouncements(id, pageable)));
-//    }
-//
-//    @GetMapping("/{id}/announcements/{announcement-id}")
-//    public ResponseEntity<ApiResponse<ClassAnnouncementDto>> getAnnouncement(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId) {
-//        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.getClassAnnouncementById(id, classAnnouncementId)));
-//    }
-//
-//    @PostMapping("/{id}/announcements")
-//    public ResponseEntity<ApiResponse<ClassAnnouncementDto>> createAnnouncements(@PathVariable("id") Long id, @RequestBody ClassAnnouncementRequest request) {
-//        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.saveClassAnnouncement(id, request)));
-//    }
-//
-//    @PutMapping("/{id}/announcements/{announcement-id}")
-//    public ResponseEntity<ApiResponse<ClassAnnouncementDto>> updateAnnouncements(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId, @RequestBody ClassAnnouncementRequest request) {
-//        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.updateClassAnnouncement(id, classAnnouncementId, request)));
-//    }
-//
-//    @DeleteMapping("/{id}/announcements/{announcement-id}")
-//    public ResponseEntity<ApiResponse<Boolean>> deleteAnnouncements(@PathVariable("id") Long id, @PathVariable("announcement-id") Long classAnnouncementId) {
-//        return ResponseEntity.ok(ApiResponse.success(classAnnouncementService.deleteClassAnnouncement(id, classAnnouncementId)));
-//    }
 }

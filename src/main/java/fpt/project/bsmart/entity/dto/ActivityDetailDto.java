@@ -5,9 +5,6 @@ import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import org.codehaus.jackson.map.annotate.JsonView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ActivityDetailDto<T> extends BaseEntity {
     private Long id;
     private String name;
@@ -16,7 +13,6 @@ public class ActivityDetailDto<T> extends BaseEntity {
     private Boolean isVisible;
     private Long parentActivityId;
     private T detail;
-    private List<ActivityDetailDto> subActivities = new ArrayList<>();
 
     public ActivityDetailDto() {
     }
@@ -67,14 +63,6 @@ public class ActivityDetailDto<T> extends BaseEntity {
 
     public void setDetail(T detail) {
         this.detail = detail;
-    }
-
-    public List<ActivityDetailDto> getSubActivities() {
-        return subActivities;
-    }
-
-    public void setSubActivities(List<ActivityDetailDto> subActivities) {
-        this.subActivities = subActivities;
     }
 
     public Long getParentActivityId() {

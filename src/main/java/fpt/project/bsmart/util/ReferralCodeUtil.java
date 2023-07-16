@@ -1,13 +1,14 @@
 package fpt.project.bsmart.util;
 
-import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.OrderDetail;
+import fpt.project.bsmart.entity.ReferralCode;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.repository.ReferralCodeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
 
 @Component

@@ -2,8 +2,6 @@ package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "order_detail")

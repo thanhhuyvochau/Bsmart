@@ -1,6 +1,5 @@
 package com.project.Bsmart.CourseSeviceImpl;
 
-import fpt.project.bsmart.config.security.service.UserDetailsImpl;
 import fpt.project.bsmart.config.security.service.UserDetailsServiceImpl;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
@@ -8,8 +7,7 @@ import fpt.project.bsmart.repository.CategoryRepository;
 import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.service.Impl.CourseServiceImpl;
 import fpt.project.bsmart.util.MessageUtil;
-import fpt.project.bsmart.util.SecurityUtil;
-import org.junit.Assert;
+import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -17,18 +15,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.junit.Test;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;

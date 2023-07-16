@@ -3,17 +3,11 @@ package fpt.project.bsmart.entity.response;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.ECourseType;
 import fpt.project.bsmart.entity.dto.CategoryDto;
-import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
-import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 public class CourseClassResponse {

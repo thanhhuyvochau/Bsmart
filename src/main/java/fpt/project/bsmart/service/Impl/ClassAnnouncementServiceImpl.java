@@ -1,30 +1,12 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.ClassAnnouncement;
-import fpt.project.bsmart.entity.User;
-import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.constant.EUserRole;
-import fpt.project.bsmart.entity.dto.ClassAnnouncementDto;
-import fpt.project.bsmart.entity.dto.SimpleClassAnnouncementResponse;
-import fpt.project.bsmart.entity.request.ClassAnnouncementRequest;
 import fpt.project.bsmart.repository.ClassAnnouncementRepository;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.service.ClassAnnouncementService;
-import fpt.project.bsmart.util.*;
-import fpt.project.bsmart.validator.ClassValidator;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
+import fpt.project.bsmart.util.MessageUtil;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Objects;
-
-import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 @Service
 @Transactional

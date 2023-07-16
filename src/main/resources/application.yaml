@@ -85,7 +85,6 @@ vnp_apiUrl: https://sandbox.vnpayment.vn/merchant_webapi/merchant.html
 # External API
 provinces: https://provinces.open-api.vn/api/?depth=1
 
-
 bank:
   url: https://api.vietqr.io/v2/banks
 

@@ -1,5 +1,7 @@
 package fpt.project.bsmart.entity.response;
 
+import fpt.project.bsmart.entity.dto.CourseDto;
+
 import java.time.Instant;
 
 public class SimpleClassResponse {
@@ -7,7 +9,7 @@ public class SimpleClassResponse {
     private Instant startDate;
     private Instant endDate;
     private Integer numberOfStudent = 0;
-    private String subCourseName;
+    private CourseDto course;
     private String mentorName;
 
     public Long getId() {
@@ -42,19 +44,19 @@ public class SimpleClassResponse {
         this.numberOfStudent = numberOfStudent;
     }
 
-    public String getSubCourseName() {
-        return subCourseName;
-    }
-
-    public void setSubCourseName(String subCourseName) {
-        this.subCourseName = subCourseName;
-    }
-
     public String getMentorName() {
         return mentorName;
     }
 
     public void setMentorName(String mentorName) {
         this.mentorName = mentorName;
+    }
+
+    public CourseDto getCourse() {
+        return course;
+    }
+
+    public void setCourse(CourseDto course) {
+        this.course = course;
     }
 }

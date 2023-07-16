@@ -1,9 +1,8 @@
 package fpt.project.bsmart.entity.response.timetable;
-
 import fpt.project.bsmart.entity.dto.DayOfWeekDTO;
 import fpt.project.bsmart.entity.dto.SlotDto;
-
 import java.time.Instant;
+
 
 public class GenerateScheduleResponse {
     private Instant date ;

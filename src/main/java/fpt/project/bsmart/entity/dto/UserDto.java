@@ -1,11 +1,6 @@
 package fpt.project.bsmart.entity.dto;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import fpt.project.bsmart.entity.constant.EGenderType;
 
 import java.time.Instant;

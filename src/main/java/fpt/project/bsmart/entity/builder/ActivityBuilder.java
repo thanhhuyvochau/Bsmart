@@ -68,6 +68,28 @@ public class ActivityBuilder {
         return new Activity(name, type, visible, parent, activityAuthorizes, course);
     }
 
+    public Activity modify(Activity activity) {
+        // TODO: Validation
+        if (type == null) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Loại hoạt động không thể trống");
+        } else if (name == null) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Tên hoạt động không thể trống");
+        } else if (course == null) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Khóa học của hoạt động không thể trống");
+        } else if (parent == null && !Objects.equals(type, ECourseActivityType.SECTION)) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Khóa học không thể tạo độc lập");
+        } else if (parent != null && Objects.equals(type, ECourseActivityType.SECTION)) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Section không thể tạo dưới một section khác");
+        } else if (parent != null && !ActivityValidator.isActivityBelongCourse(parent, course)) {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Parent activity không thuộc về khóa học");
+        }
+        activity.setName(name);
+        activity.setType(type);
+        activity.setVisible(visible);
+        activity.setParent(parent);
+        activity.setCourse(course);
+        return activity;
+    }
 
     public static ActivityBuilder getBuilder() {
         return new ActivityBuilder();

@@ -1,13 +1,11 @@
 package fpt.project.bsmart.util;
 
 
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EOrderStatus;
-import fpt.project.bsmart.entity.dto.CategoryDto;
-import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import fpt.project.bsmart.entity.response.CourseClassResponse;
@@ -21,7 +19,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+import static fpt.project.bsmart.entity.constant.ECourseStatus.EDITREQUEST;
+import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_DOES_NOT_BELONG_TO_THE_TEACHER;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.SUB_COURSE_STATUS_NOT_ALLOW;
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 

@@ -3,8 +3,9 @@ package fpt.project.bsmart.entity.response;
 import com.fasterxml.jackson.annotation.JsonView;
 import fpt.project.bsmart.config.json.View;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.dto.*;
-
+import fpt.project.bsmart.entity.dto.ActivityDto;
+import fpt.project.bsmart.entity.dto.ImageDto;
+import fpt.project.bsmart.entity.dto.UserDto;
 
 import java.math.BigDecimal;
 import java.time.Instant;

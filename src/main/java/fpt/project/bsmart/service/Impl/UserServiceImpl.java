@@ -39,9 +39,9 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 @Service
 @Transactional
@@ -94,12 +94,13 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id));
     }
 
-    public ApiPage<UserDto> adminGetAllUser(UserSearchRequest request, Pageable pageable){
+    @Override
+    public ApiPage<UserDto> adminGetAllUser(UserSearchRequest request, Pageable pageable) {
         UserSpecificationBuilder builder = UserSpecificationBuilder.specificationBuilder()
                 .queryLike(request.getQ())
                 .hasRole(request.getRole())
                 .isVerified(request.getIsVerified());
-        Page<User> userPage = userRepository.findAll(builder.build(),pageable);
+        Page<User> userPage = userRepository.findAll(builder.build(), pageable);
         List<UserDto> userInfoResponses = userPage.getContent().stream()
                 .map(ConvertUtil::convertUsertoUserDto)
                 .collect(Collectors.toList());
@@ -262,9 +263,9 @@ public class UserServiceImpl implements IUserService {
         }
 
         boolean isTeacher = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER);
-        if(isTeacher){
-            if(socialProfileEditRequest.getWebsite() != null){
-                if(!StringUtil.isValidWebsite(socialProfileEditRequest.getWebsite())){
+        if (isTeacher) {
+            if (socialProfileEditRequest.getWebsite() != null) {
+                if (!StringUtil.isValidWebsite(socialProfileEditRequest.getWebsite())) {
                     throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_WEBSITE));
                 }
                 user.setWebsite(socialProfileEditRequest.getWebsite());
@@ -421,27 +422,27 @@ public class UserServiceImpl implements IUserService {
         return savedUser.getId();
     }
 
-    public void validateCreateAccountRequest(CreateAccountRequest request){
-        if(StringUtil.isNullOrEmpty(request.getEmail())){
+    public void validateCreateAccountRequest(CreateAccountRequest request) {
+        if (StringUtil.isNullOrEmpty(request.getEmail())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_EMAIL));
         }
-        if(!StringUtil.isValidEmailAddress(request.getEmail())){
+        if (!StringUtil.isValidEmailAddress(request.getEmail())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_EMAIL));
         }
-        if(!TimeUtil.isValidBirthday(request.getBirthDay())){
+        if (!TimeUtil.isValidBirthday(request.getBirthDay())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_BIRTH_DAY));
         }
-        if(!StringUtil.isValidVietnameseMobilePhoneNumber(request.getPhone())){
+        if (!StringUtil.isValidVietnameseMobilePhoneNumber(request.getPhone())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
         }
-        if(StringUtil.isNullOrEmpty(request.getFullName())){
+        if (StringUtil.isNullOrEmpty(request.getFullName())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_FULL_NAME));
         }
         boolean isValidGender = request.getGender().equals(EGenderType.MALE) || request.getGender().equals(EGenderType.FEMALE);
-        if(!isValidGender){
+        if (!isValidGender) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_GENDER));
         }
-        if(!PasswordUtil.validationPassword(request.getPassword())){
+        if (!PasswordUtil.validationPassword(request.getPassword())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
         }
     }

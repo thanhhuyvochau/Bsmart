@@ -3,7 +3,6 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.TransactionDto;
-import fpt.project.bsmart.entity.request.DepositRequest;
 import fpt.project.bsmart.entity.request.PayCourseRequest;
 import fpt.project.bsmart.entity.request.VpnPayRequest;
 import fpt.project.bsmart.entity.request.WithdrawRequest;
@@ -47,17 +46,17 @@ public class TransactionController {
     public ResponseEntity<ApiResponse<ApiPage<TransactionDto>>> getSelfTransaction(Pageable pageable, @PathVariable Long userId) {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.getUserTransactions(pageable, userId)));
     }
-
-    @Operation(summary = "Thành viên nạp tiền vào vi")
-    @PostMapping("/deposit")
-    @PreAuthorize("hasAnyRole('STUDENT')")
-    public ResponseEntity<ApiResponse<Boolean>> deposit(@Valid @RequestBody DepositRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(iTransactionService.deposit(request)));
-    }
+//
+//    @Operation(summary = "Thành viên nạp tiền vào vi")
+//    @PostMapping("/deposit")
+//    @PreAuthorize("hasAnyRole('STUDENT')")
+//    public ResponseEntity<ApiResponse<Boolean>> deposit(@Valid @RequestBody DepositRequest request) {
+//        return ResponseEntity.ok(ApiResponse.success(iTransactionService.deposit(request)));
+//    }
 
     @Operation(summary = "Thành viên rút tiền từ vi")
     @PostMapping("/withdraw")
-    @PreAuthorize("hasAnyRole('STUDENT','TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER')")
     public ResponseEntity<ApiResponse<Boolean>> withdraw(@Valid @RequestBody WithdrawRequest request) {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.withdraw(request)));
     }

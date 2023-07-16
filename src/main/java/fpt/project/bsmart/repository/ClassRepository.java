@@ -2,7 +2,6 @@ package fpt.project.bsmart.repository;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.Course;
-import fpt.project.bsmart.entity.MentorProfile;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
