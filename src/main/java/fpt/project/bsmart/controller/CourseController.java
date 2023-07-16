@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
+import fpt.project.bsmart.entity.request.ManagerApprovalCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.course.CompletenessCourseResponse;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
@@ -106,6 +107,20 @@ public class CourseController {
     public ResponseEntity<ApiResponse<ApiPage<ManagerGetCourse>>> coursePendingToApprove(Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(pageable)));
     }
+
+
+
+
+    @Operation(summary = "Manager phê duyêt / từ chối / yêu cầu thay đổi khoá học của mentor  ")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PutMapping("/{id}/approval")
+    public ResponseEntity<ApiResponse<Boolean>> managerApprovalCourseRequest(@PathVariable Long id
+            , @RequestBody ManagerApprovalCourseRequest approvalCourseRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.managerApprovalCourseRequest(id, approvalCourseRequest)));
+    }
+
+
+
 
 
 //    @Operation(summary = "lấy tất cả các course theo subject id")
