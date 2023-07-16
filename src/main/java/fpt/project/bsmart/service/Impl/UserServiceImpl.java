@@ -94,7 +94,7 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id));
     }
 
-    public ApiPage<UserDto> adminGetAllUser(UserSearchRequest request, Pageable pageable){
+    public ApiPage<UserDto> getAllUser(UserSearchRequest request, Pageable pageable){
         UserSpecificationBuilder builder = UserSpecificationBuilder.specificationBuilder()
                 .queryLike(request.getQ())
                 .hasRole(request.getRole())

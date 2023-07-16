@@ -134,7 +134,7 @@ public class MentorUtil {
         if (user.getAddress() == null || user.getAddress().isEmpty()) {
             fieldRequired = new CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field();
             fieldRequired.setField("address");
-            fieldRequired.setName("Đại chỉ");
+            fieldRequired.setName("Địa chỉ");
             requiredInfoFiled.add(fieldRequired);
         } else {
             completionPercentage++;

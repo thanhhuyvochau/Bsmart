@@ -99,7 +99,7 @@ public class MentorProfileImpl implements IMentorProfileService {
     @Override
     public ApiPage<UserDto> getPendingMentorProfileList(EMentorProfileStatus accountStatus, Pageable pageable) {
 
-        List<MentorProfile> pendingMentorProfileList = mentorProfileRepository.findAllByStatus(accountStatus);
+        List<MentorProfile> pendingMentorProfileList = mentorProfileRepository.findAllByStatus(EMentorProfileStatus.WAITING);
         List<UserDto> userDtoList = new ArrayList<>();
         for (MentorProfile mentorProfile : pendingMentorProfileList) {
             User user = mentorProfile.getUser();

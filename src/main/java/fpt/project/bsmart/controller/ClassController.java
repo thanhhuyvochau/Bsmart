@@ -5,9 +5,10 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
+import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
-import fpt.project.bsmart.entity.response.CourseClassResponse;
+import fpt.project.bsmart.entity.response.MentorGetCourseClassResponse;
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -47,7 +48,7 @@ public class ClassController {
 
     @Operation(summary = "Mentor lấy tất cả các class của course load lên trang khoa học")
     @GetMapping("/course/{id}")
-    public ResponseEntity<ApiResponse<CourseClassResponse>> getAllClassOfCourse(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<MentorGetCourseClassResponse>> getAllClassOfCourse(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourse(id)));
     }
 
@@ -73,18 +74,21 @@ public class ClassController {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorGetClassOfCourse(id, pageable)));
     }
 
-    @Operation(summary = "mentor lấy tất cả các class của course để phê duyệt")
-    @GetMapping("/pending/course/{id}")
-    @PreAuthorize("hasAnyRole('MANAGER')")
-    public ResponseEntity<ApiResponse<CourseClassResponse>> getAllClassOfCourseForManager(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourseForManager(id)));
-    }
+
 
     @Operation(summary = "Lấy lớp chi tiết, bao gồm nội dung của lớp đang giảng dạy hoặc đã kết thúc")
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER','STUDENT','TEACHER')")
     public ResponseEntity<ApiResponse<ClassResponse>> getClassDetail(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getDetailClass(id)));
+    }
+    //     ################################## Manager ##########################################
+
+    @Operation(summary = "MANAGER lấy tất cả các class của course để phê duyệt")
+    @GetMapping("/pending/course/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    public ResponseEntity<ApiResponse<ManagerGetCourseClassResponse>> getAllClassOfCourseForManager(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourseForManager(id)));
     }
 
 

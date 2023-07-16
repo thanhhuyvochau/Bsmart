@@ -48,7 +48,7 @@ public class MentorProfileController {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getAllMentorProfiles()));
     }
 
-    @Operation(summary = "Lấy danh sách giảng viên chờ duyệt")
+    @Operation(summary = "Manager Lấy danh sách giảng viên chờ duyệt")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/pending")
     public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getPendingMentorProfile(@RequestParam EMentorProfileStatus accountStatus , Pageable pageable){
