@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_MENTOR_PROFILE_STATUS;
 
 @Service
 public class MentorProfileImpl implements IMentorProfileService {
@@ -154,7 +155,10 @@ public class MentorProfileImpl implements IMentorProfileService {
         MentorProfile mentorProfile = mentorProfileRepository.getMentorProfileByUser(user)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + user.getId()));
-
+        if(!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING)
+                || !mentorProfile.getStatus().equals(EMentorProfileStatus.EDITREQUEST)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_MENTOR_PROFILE_STATUS));
+        }
         if (updateMentorProfileRequest.getIntroduce() != null) {
             mentorProfile.setIntroduce(updateMentorProfileRequest.getIntroduce());
         }
