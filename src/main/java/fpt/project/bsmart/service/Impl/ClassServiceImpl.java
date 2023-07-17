@@ -4,6 +4,8 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.common.ValidationErrors;
+import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
@@ -15,6 +17,7 @@ import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
+import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
 import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
@@ -64,7 +67,9 @@ public class ClassServiceImpl implements IClassService {
     private final ClassImageRepository classImageRepository;
     private final ActivityAuthorizeRepository activityAuthorizeRepository;
 
-    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository) {
+    private final TimeTableRepository timeTableRepository;
+
+    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, TimeTableRepository timeTableRepository) {
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.classRepository = classRepository;
@@ -74,6 +79,7 @@ public class ClassServiceImpl implements IClassService {
         this.courseRepository = courseRepository;
         this.classImageRepository = classImageRepository;
         this.activityAuthorizeRepository = activityAuthorizeRepository;
+        this.timeTableRepository = timeTableRepository;
     }
 
     /**
@@ -140,7 +146,7 @@ public class ClassServiceImpl implements IClassService {
 
 
     @Override
-    public Long mentorCreateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) {
+    public Long mentorCreateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) throws ValidationErrorsException {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
@@ -151,9 +157,53 @@ public class ClassServiceImpl implements IClassService {
         ClassUtil.checkMentorOfClass(creator, currentUserAccountLogin);
 
 
-        Long classAndTimeInWeek = createClassAndTimeInWeek(currentUserAccountLogin, course, mentorCreateClassRequest);
+        Class classAndTimeInWeek = createClassAndTimeInWeek(currentUserAccountLogin, course, mentorCreateClassRequest);
+        mentorCreateScheduleForClass(classAndTimeInWeek, mentorCreateClassRequest.getTimeTableRequest());
+        ;
+        return classAndTimeInWeek.getId();
+    }
 
-        return classAndTimeInWeek;
+    public Boolean mentorCreateScheduleForClass(Class clazz, List<MentorCreateScheduleRequest> request) throws ValidationErrorsException {
+
+        List<Slot> allSlot = slotRepository.findAll();
+        Map<Long, Slot> slotMap = new HashMap<>();
+        for (Slot slot : allSlot) {
+            slotMap.put(slot.getId(), slot);
+        }
+
+        List<TimeTable> timeTables = new ArrayList<>();
+        ArrayList<MentorCreateScheduleRequest> duplicateDate = new ArrayList<>();
+        ValidationErrors<MentorCreateScheduleRequest> vaErr = new ValidationErrors<>();
+        for (MentorCreateScheduleRequest mentorCreateScheduleRequest : request) {
+
+            Long checkDuplicate = timeTableRepository.countByClassIdAndDateAndSlotId(clazz.getId(), mentorCreateScheduleRequest.getDate(), mentorCreateScheduleRequest.getSlot().getId());
+            if (checkDuplicate > 0) {
+                ValidationErrors.ValidationError<MentorCreateScheduleRequest> validationError = new ValidationErrors.ValidationError<>();
+                validationError.setMessage("Trùng ngày dạy ");
+
+                duplicateDate.add(mentorCreateScheduleRequest);
+                validationError.setInvalidParams(duplicateDate);
+                vaErr.setError(validationError);
+
+            }
+            // Check for duplicate entries
+            TimeTable timeTable = new TimeTable();
+            timeTable.setDate(mentorCreateScheduleRequest.getDate());
+            timeTable.setCurrentSlotNum(mentorCreateScheduleRequest.getNumberOfSlot());
+            Slot slot = slotMap.get(mentorCreateScheduleRequest.getSlot().getId());
+            timeTable.setSlot(slot);
+            timeTable.setClazz(clazz);
+            timeTables.add(timeTable);
+
+        }
+        if (!duplicateDate.isEmpty()) {
+            throw new ValidationErrorsException(vaErr.getError().getInvalidParams(), vaErr.getError().getMessage());
+        }
+//        clazz.setTimeTables(timeTables);
+        timeTableRepository.saveAll(timeTables);
+//        aClass.setTimeTables(timeTables);
+//        classRepository.save(aClass) ;
+        return true;
     }
 
     @Override
@@ -289,7 +339,7 @@ public class ClassServiceImpl implements IClassService {
     }
 
 
-    private Long createClassAndTimeInWeek(User currentUserAccountLogin, Course course, MentorCreateClass mentorCreateClassRequest) {
+    private Class createClassAndTimeInWeek(User currentUserAccountLogin, Course course, MentorCreateClass mentorCreateClassRequest) {
         // check mentor account is valid
         MentorUtil.checkIsMentor();
 
@@ -310,14 +360,14 @@ public class ClassServiceImpl implements IClassService {
         classes.add(classFromRequest);
 
         classFromRequest.setCourse(course);
-        classRepository.save(classFromRequest);
+        classRepository.save(classFromRequest) ;
 
         classes.forEach(aClass -> {
                     classCodes.add(aClass.getCode());
                     ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
                 }
         );
-        return classFromRequest.getId();
+        return classFromRequest;
     }
 
     private Class createClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {

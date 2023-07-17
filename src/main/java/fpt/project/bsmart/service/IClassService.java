@@ -1,6 +1,7 @@
 package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
@@ -24,7 +25,7 @@ public interface IClassService {
 
     MentorGetCourseClassResponse getAllClassOfCourse(Long id);
 
-    Long mentorCreateClassForCourse( Long id  ,MentorCreateClass mentorCreateClassRequest);
+    Long mentorCreateClassForCourse( Long id  ,MentorCreateClass mentorCreateClassRequest) throws ValidationErrorsException;
 
     Boolean mentorUpdateClassForCourse(Long id,  MentorCreateClass mentorCreateClassRequest);
 
