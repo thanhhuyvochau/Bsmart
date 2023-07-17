@@ -3,6 +3,7 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 
@@ -41,18 +42,18 @@ public class ClassController {
     }
 
 
-    @Operation(summary = "mentor tao khoá học của riêng mình ")
-    @PreAuthorize("hasAnyRole('TEACHER')")
-    @PostMapping
-    public ResponseEntity<ApiResponse<List<String>>> mentorCreateCoursePrivate(@Valid @RequestBody MentorCreateClassRequest mentorCreateClassRequest) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateCoursePrivate(mentorCreateClassRequest)));
-    }
+//    @Operation(summary = "mentor tao khoá học của riêng mình ")
+//    @PreAuthorize("hasAnyRole('TEACHER')")
+//    @PostMapping
+//    public ResponseEntity<ApiResponse<List<String>>> mentorCreateCoursePrivate(@Valid @RequestBody MentorCreateClassRequest mentorCreateClassRequest) {
+//        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateCoursePrivate(mentorCreateClassRequest)));
+//    }
 
     @Operation(summary = "mentor tao class cho course (step 3 ) ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping("course/{courseId}")
     public ResponseEntity<ApiResponse<Long>> mentorCreateClassForCourse(@PathVariable Long courseId,
-                                                                        @Valid @RequestBody MentorCreateClass mentorCreateClassRequest) {
+                                                                        @Valid @RequestBody MentorCreateClass mentorCreateClassRequest) throws ValidationErrorsException {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClassForCourse(courseId, mentorCreateClassRequest)));
     }
 

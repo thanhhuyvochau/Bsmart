@@ -19,7 +19,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -48,6 +50,16 @@ public class BsmartApplication {
     public static void main(String[] args) {
 
         SpringApplication.run(BsmartApplication.class, args);
+
+        ArrayList<String> list = new ArrayList<>();
+        list.add("hello");
+        list.add("hi") ;
+        list.add("hello");
+
+        // lisst : [hello, hi, hello] ; [0,1,2], [0,1,2,3,4,5,6]
+        System.out.println(list.get(1));
+
+        System.out.println(list);
     }
 //    @EventListener(ContextRefreshedEvent.class)
 //    public void initAdmin() {

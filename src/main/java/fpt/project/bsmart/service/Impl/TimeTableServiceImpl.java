@@ -186,13 +186,15 @@ public class TimeTableServiceImpl implements ITimeTableService {
             timeTable.setSlot(slot);
             timeTable.setClazz(aClass);
             timeTables.add(timeTable);
+
         }
         if (duplicateDate.size()> 0){
             throw new ValidationErrorsException(vaErr.getError().getInvalidParams(), vaErr.getError().getMessage());
         }
 
-        timeTableRepository.saveAll(timeTables);
-
+        timeTableRepository.saveAll(timeTables) ;
+//        aClass.setTimeTables(timeTables);
+//        classRepository.save(aClass) ;
         return true;
     }
 
