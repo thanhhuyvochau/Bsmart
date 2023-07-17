@@ -41,12 +41,12 @@ public class ClassController {
     }
 
 
-    @Operation(summary = "mentor tao khoá học của riêng mình ")
-    @PreAuthorize("hasAnyRole('TEACHER')")
-    @PostMapping
-    public ResponseEntity<ApiResponse<List<String>>> mentorCreateCoursePrivate(@Valid @RequestBody MentorCreateClassRequest mentorCreateClassRequest) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateCoursePrivate(mentorCreateClassRequest)));
-    }
+//    @Operation(summary = "mentor tao khoá học của riêng mình ")
+//    @PreAuthorize("hasAnyRole('TEACHER')")
+//    @PostMapping
+//    public ResponseEntity<ApiResponse<List<String>>> mentorCreateCoursePrivate(@Valid @RequestBody MentorCreateClassRequest mentorCreateClassRequest) {
+//        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateCoursePrivate(mentorCreateClassRequest)));
+//    }
 
     @Operation(summary = "mentor tao class cho course (step 3 ) ")
     @PreAuthorize("hasAnyRole('TEACHER')")

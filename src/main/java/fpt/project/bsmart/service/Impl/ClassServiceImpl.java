@@ -351,7 +351,7 @@ public class ClassServiceImpl implements IClassService {
         aClass.setTimeInWeeks(timeInWeeks);
         timeInWeeks.forEach(timeInWeek -> {
             timeInWeek.setClazz(aClass);
-            timeInWeekRepository.save(timeInWeek);
+//            timeInWeekRepository.save(timeInWeek);
         });
 
 
@@ -381,11 +381,11 @@ public class ClassServiceImpl implements IClassService {
         // check skill of mentor is match with subject input
         List<Subject> skillOfMentor = currentUserAccountLogin.getMentorProfile().getSkills().stream().map(MentorSkill::getSkill).collect(Collectors.toList());
 
-        if (skillOfMentor.contains(subject)) {
+        List<String> skillNames = skillOfMentor.stream().map(Subject::getName).collect(Collectors.toList());
+        if (!skillOfMentor.contains(subject)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT));
+                    .withMessage(messageUtil.getLocalMessage(YOU_ONLY_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT_MATCH_TO_YOUR_SKILL) + skillNames);
         }
-
 
         Course course = new Course();
         course.setName(mentorCreateClassRequest.getName());
@@ -488,12 +488,12 @@ public class ClassServiceImpl implements IClassService {
             TimeInWeek timeInWeek = new TimeInWeek();
             DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage(DAY_OF_WEEK_COULD_NOT_BE_FOUND));
+                            .withMessage(messageUtil.getLocalMessage(DAY_OF_WEEK_COULD_NOT_BE_FOUND)));
             timeInWeek.setDayOfWeek(dayOfWeek);
 
             Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage(SLOT_COULD_NOT_BE_FOUND));
+                            .withMessage(messageUtil.getLocalMessage(SLOT_COULD_NOT_BE_FOUND)));
             timeInWeek.setSlot(slot);
 
             timeInWeeks.add(timeInWeek);
