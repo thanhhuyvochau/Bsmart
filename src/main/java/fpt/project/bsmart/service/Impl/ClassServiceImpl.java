@@ -4,20 +4,27 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.common.ValidationErrors;
+import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.dto.activity.SectionDto;
+import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
+import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
 import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
+import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
-import fpt.project.bsmart.entity.response.CourseClassResponse;
+import fpt.project.bsmart.entity.response.MentorGetCourseClassResponse;
+import fpt.project.bsmart.entity.response.SimpleClassResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.util.*;
@@ -26,6 +33,7 @@ import fpt.project.bsmart.validator.ClassValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -59,7 +67,9 @@ public class ClassServiceImpl implements IClassService {
     private final ClassImageRepository classImageRepository;
     private final ActivityAuthorizeRepository activityAuthorizeRepository;
 
-    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository) {
+    private final TimeTableRepository timeTableRepository;
+
+    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, TimeTableRepository timeTableRepository) {
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.classRepository = classRepository;
@@ -69,6 +79,7 @@ public class ClassServiceImpl implements IClassService {
         this.courseRepository = courseRepository;
         this.classImageRepository = classImageRepository;
         this.activityAuthorizeRepository = activityAuthorizeRepository;
+        this.timeTableRepository = timeTableRepository;
     }
 
     /**
@@ -89,15 +100,18 @@ public class ClassServiceImpl implements IClassService {
     }
 
     @Override
-    public CourseClassResponse getAllClassOfCourse(Long id) {
+    public MentorGetCourseClassResponse getAllClassOfCourse(Long id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-        CourseClassResponse response = CourseUtil.convertCourseToCourseClassResponsePage(course);
+        MentorGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponsePage(course);
         List<SectionDto> sectionDtoList = ActivityUtil.GetSectionOfCoursePage(course);
-        response.setSections(sectionDtoList);
-
-        User currentUser = SecurityUtil.getCurrentUser();
+        List<Activity> sectionActivities = course.getActivities().stream()
+                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
+                .collect(Collectors.toList());
+        ResponseUtil.responseForRole(EUserRole.TEACHER);
+        List<ActivityDto> activityDtos = ConvertUtil.convertActivityAsTree(sectionActivities);
+        response.setActivities(activityDtos);
         List<Class> classList = classRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART);
 
 //        List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
@@ -132,7 +146,7 @@ public class ClassServiceImpl implements IClassService {
 
 
     @Override
-    public Long mentorCreateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) {
+    public Long mentorCreateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) throws ValidationErrorsException {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
@@ -143,9 +157,53 @@ public class ClassServiceImpl implements IClassService {
         ClassUtil.checkMentorOfClass(creator, currentUserAccountLogin);
 
 
-        Long classAndTimeInWeek = createClassAndTimeInWeek(currentUserAccountLogin, course, mentorCreateClassRequest);
+        Class classAndTimeInWeek = createClassAndTimeInWeek(currentUserAccountLogin, course, mentorCreateClassRequest);
+        mentorCreateScheduleForClass(classAndTimeInWeek, mentorCreateClassRequest.getTimeTableRequest());
+        ;
+        return classAndTimeInWeek.getId();
+    }
 
-        return classAndTimeInWeek;
+    public Boolean mentorCreateScheduleForClass(Class clazz, List<MentorCreateScheduleRequest> request) throws ValidationErrorsException {
+
+        List<Slot> allSlot = slotRepository.findAll();
+        Map<Long, Slot> slotMap = new HashMap<>();
+        for (Slot slot : allSlot) {
+            slotMap.put(slot.getId(), slot);
+        }
+
+        List<TimeTable> timeTables = new ArrayList<>();
+        ArrayList<MentorCreateScheduleRequest> duplicateDate = new ArrayList<>();
+        ValidationErrors<MentorCreateScheduleRequest> vaErr = new ValidationErrors<>();
+        for (MentorCreateScheduleRequest mentorCreateScheduleRequest : request) {
+
+            Long checkDuplicate = timeTableRepository.countByClassIdAndDateAndSlotId(clazz.getId(), mentorCreateScheduleRequest.getDate(), mentorCreateScheduleRequest.getSlot().getId());
+            if (checkDuplicate > 0) {
+                ValidationErrors.ValidationError<MentorCreateScheduleRequest> validationError = new ValidationErrors.ValidationError<>();
+                validationError.setMessage("Trùng ngày dạy ");
+
+                duplicateDate.add(mentorCreateScheduleRequest);
+                validationError.setInvalidParams(duplicateDate);
+                vaErr.setError(validationError);
+
+            }
+            // Check for duplicate entries
+            TimeTable timeTable = new TimeTable();
+            timeTable.setDate(mentorCreateScheduleRequest.getDate());
+            timeTable.setCurrentSlotNum(mentorCreateScheduleRequest.getNumberOfSlot());
+            Slot slot = slotMap.get(mentorCreateScheduleRequest.getSlot().getId());
+            timeTable.setSlot(slot);
+            timeTable.setClazz(clazz);
+            timeTables.add(timeTable);
+
+        }
+        if (!duplicateDate.isEmpty()) {
+            throw new ValidationErrorsException(vaErr.getError().getInvalidParams(), vaErr.getError().getMessage());
+        }
+//        clazz.setTimeTables(timeTables);
+        timeTableRepository.saveAll(timeTables);
+//        aClass.setTimeTables(timeTables);
+//        classRepository.save(aClass) ;
+        return true;
     }
 
     @Override
@@ -180,19 +238,21 @@ public class ClassServiceImpl implements IClassService {
     }
 
     @Override
-    public CourseClassResponse getAllClassOfCourseForManager(Long id) {
+    public ManagerGetCourseClassResponse getAllClassOfCourseForManager(Long id) {
         Course course = courseRepository.findByIdAndStatus(id, WAITING)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-        CourseClassResponse response = CourseUtil.convertCourseToCourseClassResponseManager(course);
-        List<SectionDto> sectionDtoList = ActivityUtil.GetSectionOfCoursePage(course);
-        response.setSections(sectionDtoList);
-
-
+        ManagerGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponseManager(course);
+        List<Activity> sectionActivities = course.getActivities().stream()
+                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
+                .collect(Collectors.toList());
+        ResponseUtil.responseForRole(EUserRole.MANAGER);
+        List<ActivityDto> activityDtoList = ConvertUtil.convertActivityAsTree(sectionActivities);
+        response.setActivities(activityDtoList);
         return response;
     }
 
-    public ApiPage<BaseClassResponse> getAllClassesForManager(Pageable pageable){
+    public ApiPage<BaseClassResponse> getAllClassesForManager(Pageable pageable) {
         ClassSpecificationBuilder builder = ClassSpecificationBuilder.classSpecificationBuilder()
                 .getPendingClass()
                 .getStartingClass();
@@ -203,7 +263,7 @@ public class ClassServiceImpl implements IClassService {
         return PageUtil.convert(new PageImpl<>(classDetailResponses, pageable, classes.getTotalElements()));
     }
 
-    public ManagerGetClassDetailResponse managerGetClassDetail(Long classId){
+    public ManagerGetClassDetailResponse managerGetClassDetail(Long classId) {
         Class clazz = classRepository.findById(classId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
         return ClassUtil.convertClassToManagerGetClassResponse(clazz);
@@ -279,7 +339,7 @@ public class ClassServiceImpl implements IClassService {
     }
 
 
-    private Long createClassAndTimeInWeek(User currentUserAccountLogin, Course course, MentorCreateClass mentorCreateClassRequest) {
+    private Class createClassAndTimeInWeek(User currentUserAccountLogin, Course course, MentorCreateClass mentorCreateClassRequest) {
         // check mentor account is valid
         MentorUtil.checkIsMentor();
 
@@ -300,16 +360,14 @@ public class ClassServiceImpl implements IClassService {
         classes.add(classFromRequest);
 
         classFromRequest.setCourse(course);
-        classRepository.save(classFromRequest);
-//        course.setClasses(classes);
-//        courseRepository.save(course);
-        // ghi log
+        classRepository.save(classFromRequest) ;
+
         classes.forEach(aClass -> {
                     classCodes.add(aClass.getCode());
                     ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
                 }
         );
-        return classFromRequest.getId();
+        return classFromRequest;
     }
 
     private Class createClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
@@ -343,7 +401,7 @@ public class ClassServiceImpl implements IClassService {
         aClass.setTimeInWeeks(timeInWeeks);
         timeInWeeks.forEach(timeInWeek -> {
             timeInWeek.setClazz(aClass);
-            timeInWeekRepository.save(timeInWeek);
+//            timeInWeekRepository.save(timeInWeek);
         });
 
 
@@ -373,11 +431,11 @@ public class ClassServiceImpl implements IClassService {
         // check skill of mentor is match with subject input
         List<Subject> skillOfMentor = currentUserAccountLogin.getMentorProfile().getSkills().stream().map(MentorSkill::getSkill).collect(Collectors.toList());
 
-        if (skillOfMentor.contains(subject)) {
+        List<String> skillNames = skillOfMentor.stream().map(Subject::getName).collect(Collectors.toList());
+        if (!skillOfMentor.contains(subject)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT));
+                    .withMessage(messageUtil.getLocalMessage(YOU_ONLY_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT_MATCH_TO_YOUR_SKILL) + skillNames);
         }
-
 
         Course course = new Course();
         course.setName(mentorCreateClassRequest.getName());
@@ -480,12 +538,12 @@ public class ClassServiceImpl implements IClassService {
             TimeInWeek timeInWeek = new TimeInWeek();
             DayOfWeek dayOfWeek = Optional.ofNullable(dayOfWeekMap.get(timeInWeekRequest.getDayOfWeekId()))
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage(DAY_OF_WEEK_COULD_NOT_BE_FOUND));
+                            .withMessage(messageUtil.getLocalMessage(DAY_OF_WEEK_COULD_NOT_BE_FOUND)));
             timeInWeek.setDayOfWeek(dayOfWeek);
 
             Slot slot = Optional.ofNullable(slotMap.get(timeInWeekRequest.getSlotId()))
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage(SLOT_COULD_NOT_BE_FOUND));
+                            .withMessage(messageUtil.getLocalMessage(SLOT_COULD_NOT_BE_FOUND)));
             timeInWeek.setSlot(slot);
 
             timeInWeeks.add(timeInWeek);
@@ -557,6 +615,25 @@ public class ClassServiceImpl implements IClassService {
             return classResponse;
         }
         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
+    }
+
+    @Override
+    public ApiPage<SimpleClassResponse> getUserClasses(ClassFilterRequest request, Pageable pageable) {
+        User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        ClassSpecificationBuilder builder = ClassSpecificationBuilder.classSpecificationBuilder();
+        builder.searchByCourseName(request.getQ())
+                .filterByStartDay(request.getStartDate())
+                .filterByEndDate(request.getEndDate())
+                .filterByStatus(request.getStatus());
+
+        if (request.getAsRole() == 2) {
+            builder.byMentor(user);
+        } else if (request.getAsRole() == 1) {
+            builder.byStudent(user);
+        }
+        Specification<Class> specification = builder.build();
+        Page<Class> classes = classRepository.findAll(specification, pageable);
+        return PageUtil.convert(classes.map(ConvertUtil::convertClassToSimpleClassResponse));
     }
 }
 //    private final MessageUtil messageUtil;
@@ -647,24 +724,7 @@ public class ClassServiceImpl implements IClassService {
 //        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
 //    }
 //
-//    @Override
-//    public ApiPage<SimpleClassResponse> getUserClasses(ClassFilterRequest request, Pageable pageable) {
-//        User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
-//        ClassSpecificationBuilder builder = ClassSpecificationBuilder.classSpecificationBuilder();
-//        builder.searchByClassName(request.getQ())
-//                .filterByStartDay(request.getStartDate())
-//                .filterByEndDate(request.getEndDate())
-//                .filterByStatus(request.getStatus());
-//
-//        if (request.getAsRole() == 2) {
-//            builder.byMentor(user);
-//        } else if (request.getAsRole() == 1) {
-//            builder.byStudent(user);
-//        }
-//        Specification<Class> specification = builder.build();
-//        Page<Class> classes = classRepository.findAll(specification, pageable);
-//        return PageUtil.convert(classes.map(ConvertUtil::convertClassToSimpleClassResponse));
-//    }
+
 //
 //    @Override
 //    public ClassSectionDto createClassSection(ClassSectionCreateRequest request, Long classId) {

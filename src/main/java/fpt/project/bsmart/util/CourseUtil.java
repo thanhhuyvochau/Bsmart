@@ -1,27 +1,27 @@
 package fpt.project.bsmart.util;
 
 
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EOrderStatus;
-import fpt.project.bsmart.entity.dto.CategoryDto;
-import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
+import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
-import fpt.project.bsmart.entity.response.CourseClassResponse;
-import fpt.project.bsmart.entity.response.course.CompletenessCourseResponse;
+import fpt.project.bsmart.entity.response.MentorGetCourseClassResponse;
 import fpt.project.bsmart.repository.ClassRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+import static fpt.project.bsmart.entity.constant.ECourseStatus.EDITREQUEST;
+import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_DOES_NOT_BELONG_TO_THE_TEACHER;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.SUB_COURSE_STATUS_NOT_ALLOW;
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
@@ -118,9 +118,9 @@ public class CourseUtil {
         return numberOfBought == clazz.getMaxStudent();
     }
 
-    public static CourseClassResponse setCourseInformationForCourseDetailPage(Course course) {
+    public static MentorGetCourseClassResponse setCourseInformationForCourseDetailPage(Course course) {
 
-        CourseClassResponse response = ObjectUtil.copyProperties(course, new CourseClassResponse(), CourseClassResponse.class);
+        MentorGetCourseClassResponse response = ObjectUtil.copyProperties(course, new MentorGetCourseClassResponse(), MentorGetCourseClassResponse.class);
         response.setSubjectResponse(ConvertUtil.convertSubjectToSubjectDto(course.getSubject()));
         Subject subject = course.getSubject();
         if (subject != null) {
@@ -143,10 +143,10 @@ public class CourseUtil {
         return response;
     }
 
-    public static CourseClassResponse convertCourseToCourseClassResponsePage(Course course) {
+    public static MentorGetCourseClassResponse convertCourseToCourseClassResponsePage(Course course) {
 
 
-        CourseClassResponse courseResponse = new CourseClassResponse();
+        MentorGetCourseClassResponse courseResponse = new MentorGetCourseClassResponse();
         courseResponse.setId(course.getId());
         courseResponse.setName(course.getName());
         courseResponse.setCode(course.getCode());
@@ -182,10 +182,10 @@ public class CourseUtil {
         return courseResponse;
     }
 
-    public static CourseClassResponse convertCourseToCourseClassResponseManager(Course course) {
+    public static ManagerGetCourseClassResponse convertCourseToCourseClassResponseManager(Course course) {
 
 
-        CourseClassResponse courseResponse = new CourseClassResponse();
+        ManagerGetCourseClassResponse courseResponse = new ManagerGetCourseClassResponse();
         courseResponse.setId(course.getId());
         courseResponse.setName(course.getName());
         courseResponse.setCode(course.getCode());

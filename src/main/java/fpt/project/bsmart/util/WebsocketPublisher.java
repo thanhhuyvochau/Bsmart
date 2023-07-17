@@ -6,7 +6,6 @@ import fpt.project.bsmart.repository.NotificationRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-
 import javax.transaction.Transactional;
 
 @Component

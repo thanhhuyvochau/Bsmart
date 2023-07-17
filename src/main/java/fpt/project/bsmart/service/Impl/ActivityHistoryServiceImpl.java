@@ -1,20 +1,19 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.ActivityHistory;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.response.ActivityHistoryResponse;
-import fpt.project.bsmart.repository.*;
+import fpt.project.bsmart.repository.ActivityHistoryRepository;
 import fpt.project.bsmart.service.ActivityHistoryService;
-import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.ConvertUtil;
+import fpt.project.bsmart.util.PageUtil;
+import fpt.project.bsmart.util.SecurityUtil;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional

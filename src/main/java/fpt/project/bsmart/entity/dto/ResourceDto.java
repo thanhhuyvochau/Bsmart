@@ -1,11 +1,5 @@
 package fpt.project.bsmart.entity.dto;
 
-import fpt.project.bsmart.entity.Activity;
-
-import javax.persistence.*;
-
-
-
 public class ResourceDto {
 
     private Long id;

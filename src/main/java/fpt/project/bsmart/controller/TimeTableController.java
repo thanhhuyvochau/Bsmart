@@ -26,7 +26,6 @@ public class TimeTableController {
 
     @Operation(summary = "Lấy danh sách thời khóa biểu tự đông tạo ra từ request tạo lớp ")
     @PostMapping
-
     @PreAuthorize("hasAnyRole('TEACHER')")
     public ResponseEntity<ApiResponse<List<GenerateScheduleResponse>>> generateScheduleForClass (@Valid @RequestBody GenerateScheduleRequest request) {
         return ResponseEntity.ok(ApiResponse.success(timeTableService.generateScheduleForClass(request)));

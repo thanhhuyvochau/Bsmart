@@ -1,7 +1,5 @@
 package fpt.project.bsmart.entity.request;
 
-import fpt.project.bsmart.config.json.SecurityJsonViewControllerAdvice;
-import fpt.project.bsmart.util.ResponseUtil;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;

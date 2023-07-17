@@ -4,9 +4,12 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.UserDto;
+import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.*;
+import fpt.project.bsmart.entity.response.SimpleClassResponse;
+import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +31,12 @@ public class UserController {
     @Autowired
     private SimpMessagingTemplate template;
     private final IUserService iUserService;
-//    private final IClassService classService;
+    private final IClassService classService;
 
-    public UserController(IUserService iUserService) {
+    public UserController(IUserService iUserService, IClassService classService) {
         this.iUserService = iUserService;
 
+        this.classService = classService;
     }
 
 
@@ -45,8 +49,10 @@ public class UserController {
     @Operation(summary = "Admin lấy toàn bộ user")
     @PreAuthorize("hasAnyRole('ADMIN')")
     @GetMapping
+
     public ResponseEntity<ApiResponse<ApiPage<UserDto>>> adminGetAllUser(@Nullable UserSearchRequest request, Pageable pageable){
         return ResponseEntity.ok(ApiResponse.success(iUserService.adminGetAllUser(request, pageable)));
+
     }
 
     @Operation(summary = "Lấy thông tin user đang đăng nhập hiện tại")
@@ -98,7 +104,7 @@ public class UserController {
     }
 
     @Operation(summary = "upload nhiều bằng cấp ")
-    @PreAuthorize("hasAnyRole('TEACHER' , 'STUDENT')")
+    @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping("/upload-degree")
     public ResponseEntity<ApiResponse<Boolean>> uploadDegree(@Nullable @RequestParam List<Long> degreeIdsToDelete, @Nullable @RequestParam("files") MultipartFile[] files) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(iUserService.uploadDegree(degreeIdsToDelete, files)));
@@ -111,10 +117,16 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(iUserService.registerAccount(createAccountRequest)));
     }
 
-//    @Operation(summary = "Lấy lớp của học sinh / giáo viên")
-//    @GetMapping("/classes")
-//    public ResponseEntity<ApiResponse<ApiPage<SimpleClassResponse>>> getUserClasses(ClassFilterRequest request, Pageable pageable) {
-//        return ResponseEntity.ok(ApiResponse.success(classService.getUserClasses(request, pageable)));
-//    }
+    @Operation(summary = "Lấy lớp của học sinh / giáo viên")
+    @GetMapping("/classes")
+    public ResponseEntity<ApiResponse<ApiPage<SimpleClassResponse>>> getUserClasses(ClassFilterRequest request, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(classService.getUserClasses(request, pageable)));
+    }
 
+    @Operation(summary = "Admin Tạo Tài Khoản Manager")
+    @PostMapping("/manager/register")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Long>> registerManagerAccount(@Valid @RequestBody CreateAccountRequest createAccountRequest) {
+        return ResponseEntity.ok(ApiResponse.success(iUserService.registerAccount(createAccountRequest)));
+    }
 }

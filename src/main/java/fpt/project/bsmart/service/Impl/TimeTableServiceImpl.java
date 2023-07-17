@@ -23,13 +23,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.*;
-
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.CLASS_NOT_FOUND_BY_ID;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.TIME_TABLE_NOT_FOUND_BY_ID;
 
 @Service
 @Transactional
@@ -183,13 +186,15 @@ public class TimeTableServiceImpl implements ITimeTableService {
             timeTable.setSlot(slot);
             timeTable.setClazz(aClass);
             timeTables.add(timeTable);
+
         }
         if (duplicateDate.size()> 0){
             throw new ValidationErrorsException(vaErr.getError().getInvalidParams(), vaErr.getError().getMessage());
         }
 
-        timeTableRepository.saveAll(timeTables);
-
+        timeTableRepository.saveAll(timeTables) ;
+//        aClass.setTimeTables(timeTables);
+//        classRepository.save(aClass) ;
         return true;
     }
 

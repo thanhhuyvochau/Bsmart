@@ -103,8 +103,10 @@ public class MentorProfileImpl implements IMentorProfileService {
                 .queryLike(request.getQ())
                 .queryByStatus(EMentorProfileStatus.WAITING);
 
+
         Page<MentorProfile> mentorProfilePage = mentorProfileRepository.findAll(builder.build(), pageable);
         List<MentorProfile> mentorProfiles = mentorProfilePage.stream().collect(Collectors.toList());
+
         List<UserDto> userDtoList = new ArrayList<>();
         for (MentorProfile mentorProfile : mentorProfiles) {
             User user = mentorProfile.getUser();
