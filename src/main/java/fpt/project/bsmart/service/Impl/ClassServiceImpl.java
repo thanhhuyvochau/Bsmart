@@ -513,8 +513,6 @@ public class ClassServiceImpl implements IClassService {
             timeInWeek.setClazz(aClass);
             timeInWeekRepository.save(timeInWeek);
         });
-
-
         return aClass;
     }
 
