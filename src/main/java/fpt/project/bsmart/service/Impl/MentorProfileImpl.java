@@ -10,8 +10,8 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.*;
-import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
+import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.MentorSkillRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
@@ -157,8 +157,8 @@ public class MentorProfileImpl implements IMentorProfileService {
         MentorProfile mentorProfile = mentorProfileRepository.getMentorProfileByUser(user)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + user.getId()));
-        if(!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING)
-                || !mentorProfile.getStatus().equals(EMentorProfileStatus.EDITREQUEST)){
+        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING)
+                && !mentorProfile.getStatus().equals(EMentorProfileStatus.EDITREQUEST)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_MENTOR_PROFILE_STATUS));
         }
         if (updateMentorProfileRequest.getIntroduce() != null) {
@@ -230,9 +230,9 @@ public class MentorProfileImpl implements IMentorProfileService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + id));
 
-        if (!currentUserAccountLogin.getMentorProfile().equals(mentorProfile)){
+        if (!currentUserAccountLogin.getMentorProfile().equals(mentorProfile)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(MENTOR_PROFILE_NOT_FOUND_BY_USER) );
+                    .withMessage(messageUtil.getLocalMessage(MENTOR_PROFILE_NOT_FOUND_BY_USER));
 
         }
 
@@ -255,7 +255,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         CompletenessMentorProfileResponse response = MentorUtil.checkCompletenessMentorProfile();
         List<CompletenessMentorProfileResponse.MissingInformation.RequiredInfo> requiredInfoList
                 = response.getMissingInformation().stream().map(CompletenessMentorProfileResponse.MissingInformation::getRequiredInfo).collect(Collectors.toList());
-        ValidationErrors.ValidationError validationError = new ValidationErrors.ValidationError() ;
+        ValidationErrors.ValidationError validationError = new ValidationErrors.ValidationError();
 
         ArrayList<String> invalidParams = new ArrayList<String>();
 
@@ -275,8 +275,8 @@ public class MentorProfileImpl implements IMentorProfileService {
         }
 
         mentorProfile.setStatus(EMentorProfileStatus.WAITING);
-        mentorProfileRepository.save(mentorProfile) ;
-        return true ;
+        mentorProfileRepository.save(mentorProfile);
+        return true;
     }
 
 
