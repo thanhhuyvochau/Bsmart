@@ -243,7 +243,7 @@ public class CourseServiceImpl implements ICourseService {
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
                 .collect(Collectors.toList());
         ResponseUtil.responseForRole(EUserRole.TEACHER);
-        return ConvertUtil.convertActivityAsTree(sectionActivities);
+        return ConvertUtil.convertActivityAsTree(sectionActivities,false);
     }
 
     @Override
