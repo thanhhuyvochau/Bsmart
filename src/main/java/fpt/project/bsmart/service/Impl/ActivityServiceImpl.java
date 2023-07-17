@@ -281,7 +281,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("There is an empty answer");
             }
 
-            long numOfRightAnswer = answers.stream().filter(x -> x.getIsRight()).count();
+            long numOfRightAnswer = answers.stream().filter(x -> x.getRight()).count();
             switch (question.getQuestionType()) {
                 case SINGLE:
                     if (numOfRightAnswer > 1) {
@@ -299,7 +299,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             for (QuizAnswerRequest answer : answers) {
                 QuizAnswer quizAnswer = new QuizAnswer();
                 quizAnswer.setAnswer(answer.getAnswer());
-                quizAnswer.setIsRight(answer.getIsRight());
+                quizAnswer.setIsRight(answer.getRight());
                 quizAnswer.setQuizQuestion(quizQuestion);
                 quizAnswers.add(quizAnswer);
             }
