@@ -110,7 +110,7 @@ public class ClassServiceImpl implements IClassService {
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION) && activity.getFixed())
                 .collect(Collectors.toList());
         ResponseUtil.responseForRole(EUserRole.TEACHER);
-        List<ActivityDto> activityDtos = ConvertUtil.convertActivityAsTree(sectionActivities);
+        List<ActivityDto> activityDtos = ConvertUtil.convertActivityAsTree(sectionActivities, true);
         response.setActivities(activityDtos);
         List<Class> classList = classRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART);
 
@@ -247,7 +247,7 @@ public class ClassServiceImpl implements IClassService {
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
                 .collect(Collectors.toList());
         ResponseUtil.responseForRole(EUserRole.MANAGER);
-        List<ActivityDto> activityDtoList = ConvertUtil.convertActivityAsTree(sectionActivities);
+        List<ActivityDto> activityDtoList = ConvertUtil.convertActivityAsTree(sectionActivities, false);
         response.setActivities(activityDtoList);
         return response;
     }
