@@ -107,7 +107,7 @@ public class ClassServiceImpl implements IClassService {
         MentorGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponsePage(course);
         List<SectionDto> sectionDtoList = ActivityUtil.GetSectionOfCoursePage(course);
         List<Activity> sectionActivities = course.getActivities().stream()
-                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
+                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION) && activity.getFixed())
                 .collect(Collectors.toList());
         ResponseUtil.responseForRole(EUserRole.TEACHER);
         List<ActivityDto> activityDtos = ConvertUtil.convertActivityAsTree(sectionActivities);
@@ -360,7 +360,7 @@ public class ClassServiceImpl implements IClassService {
         classes.add(classFromRequest);
 
         classFromRequest.setCourse(course);
-        classRepository.save(classFromRequest) ;
+        classRepository.save(classFromRequest);
 
         classes.forEach(aClass -> {
                     classCodes.add(aClass.getCode());
