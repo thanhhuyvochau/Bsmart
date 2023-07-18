@@ -9,6 +9,7 @@ import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.*;
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
+import fpt.project.bsmart.entity.response.WorkTimeResponse;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,7 +51,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     @GetMapping
 
-    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> adminGetAllUser(@Nullable UserSearchRequest request, Pageable pageable){
+    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> adminGetAllUser(@Nullable UserSearchRequest request, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iUserService.adminGetAllUser(request, pageable)));
 
     }
@@ -128,5 +129,11 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<ApiResponse<Long>> registerManagerAccount(@Valid @RequestBody CreateAccountRequest createAccountRequest) {
         return ResponseEntity.ok(ApiResponse.success(iUserService.registerAccount(createAccountRequest)));
+    }
+
+    @Operation(summary = "Lấy tất cả lịch làm việc của học sinh / giáo viên ")
+    @GetMapping("/timetables")
+    public ResponseEntity<ApiResponse<List<WorkTimeResponse>>> getWorkingTimeOfUser() {
+        return ResponseEntity.ok(ApiResponse.success(classService.getWorkingTime()));
     }
 }

@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
+import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 
 import fpt.project.bsmart.entity.request.ClassFilterRequest;
@@ -13,9 +14,6 @@ import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
-import fpt.project.bsmart.entity.response.ClassResponse;
-import fpt.project.bsmart.entity.response.MentorGetCourseClassResponse;
-import fpt.project.bsmart.entity.response.SimpleClassResponse;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -51,6 +49,5 @@ public interface IClassService {
 
     ApiPage<SimpleClassResponse> getUserClasses(ClassFilterRequest request, Pageable pageable);
 
-
-
+    List<WorkTimeResponse> getWorkingTime();
 }
