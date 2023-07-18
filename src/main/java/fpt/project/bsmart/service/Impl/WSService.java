@@ -31,4 +31,8 @@ public class WSService {
         notificationService.sendPrivateNotification(id);
         messagingTemplate.convertAndSendToUser(id, "/topic/private-messages", response);
     }
+    public void sayHello() {
+        notificationService.sendSayHello();
+        messagingTemplate.convertAndSend("/topic/greetings", "Just say hello");
+    }
 }
