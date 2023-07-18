@@ -1,13 +1,23 @@
 package fpt.project.bsmart.entity.response;
 
 public class Message {
-    private String messageContent;
+    private String text;
 
-    public String getMessageContent() {
-        return messageContent;
+    private String to;
+
+    public String getText() {
+        return text;
     }
 
-    public void setMessageContent(String messageContent) {
-        this.messageContent = messageContent;
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
     }
 }

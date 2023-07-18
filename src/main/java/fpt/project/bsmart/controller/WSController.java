@@ -1,39 +1,27 @@
 package fpt.project.bsmart.controller;
 
-
-import fpt.project.bsmart.entity.response.Message;
-import fpt.project.bsmart.service.NotificationService;
-import org.springframework.web.bind.annotation.*;
+import fpt.project.bsmart.entity.dto.notification.Message;
+import fpt.project.bsmart.service.Impl.WSService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/websocket")
 public class WSController {
 
-  private final NotificationService notificationService ;
+    @Autowired
+    private WSService service;
 
-  public WSController(NotificationService notificationService) {
-    this.notificationService = notificationService;
-  }
+    @PostMapping("/send-message")
+    public void sendMessage(@RequestBody final Message message) {
+        service.notifyFrontend(message.getMessageContent());
+    }
 
-  @PostMapping("/send-message")
-  public String sendMessage(@RequestBody Message message){
-    String s = notificationService.sendMessage(message.getMessageContent());
-    return s ;
-  }
-
-  @PostMapping("/send-private-message/{id}")
-  public void sendPrivateMessage(@RequestBody Message message, @PathVariable String id){
-    notificationService.sendPrivateMessage(message.getMessageContent(),id);
-  }
-
-  @RequestMapping(value = "/send-notification-global",method = RequestMethod.POST)
-  public void sendNotification(@RequestBody Message message){
-    System.out.println("hello");
-    notificationService.sendNotification(message.getMessageContent());
-  }
-
-  @RequestMapping(value = "/send-notification-private/{id}",method = RequestMethod.POST)
-  public void sendPrivateNotification(@RequestBody Message message, @PathVariable String id){
-    notificationService.sendPrivateNotification(message.getMessageContent(),id);
-  }
+    @PostMapping("/send-private-message/{id}")
+    public void sendPrivateMessage(@PathVariable final String id,
+                                   @RequestBody final Message message) {
+        service.notifyUser(id, message.getMessageContent());
+    }
 }
