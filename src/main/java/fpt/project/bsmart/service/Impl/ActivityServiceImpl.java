@@ -119,7 +119,11 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                 }
             }
         }
-        return createDetailActivity(activityRequest, type, activity);
+        boolean result = createDetailActivity(activityRequest, type, activity);
+        if (result) {
+            activityRepository.save(activity);
+        }
+        return result;
     }
 
     @Override
@@ -175,11 +179,9 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             case QUIZ:
                 Quiz quiz = addQuiz((AddQuizRequest) activityRequest, activity);
                 activity.setQuiz(quiz);
-                activityRepository.save(activity);
                 break;
             case ASSIGNMENT:
                 Assignment assignment = addAssignment((AssignmentRequest) activityRequest, activity);
-                activityRepository.save(activity);
                 return true;
             case SECTION:
                 // Just return for section -> section work as folder for others activities with no content inside
@@ -187,16 +189,13 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             case RESOURCE:
                 Resource resource = addResource((MentorCreateResourceRequest) activityRequest, activity);
                 activity.setResource(resource);
-                activityRepository.save(activity);
                 return true;
             case ANNOUNCEMENT:
                 ClassAnnouncement announcement = addAnnouncement((MentorCreateAnnouncementForClass) activityRequest, activity);
                 activity.setAnnouncement(announcement);
-                activityRepository.save(activity);
                 return true;
             case LESSON:
                 Lesson lesson = addLesson((LessonRequest) activityRequest, activity);
-                activityRepository.save(activity);
                 return true;
             default:
                 throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE) + type);
@@ -282,7 +281,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("There is an empty answer");
             }
 
-            long numOfRightAnswer = answers.stream().filter(x -> x.getIsRight()).count();
+            long numOfRightAnswer = answers.stream().filter(x -> x.getRight()).count();
             switch (question.getQuestionType()) {
                 case SINGLE:
                     if (numOfRightAnswer > 1) {
@@ -300,7 +299,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             for (QuizAnswerRequest answer : answers) {
                 QuizAnswer quizAnswer = new QuizAnswer();
                 quizAnswer.setAnswer(answer.getAnswer());
-                quizAnswer.setIsRight(answer.getIsRight());
+                quizAnswer.setIsRight(answer.getRight());
                 quizAnswer.setQuizQuestion(quizQuestion);
                 quizAnswers.add(quizAnswer);
             }

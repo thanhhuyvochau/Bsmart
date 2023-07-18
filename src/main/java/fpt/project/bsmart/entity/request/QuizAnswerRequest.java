@@ -2,7 +2,7 @@ package fpt.project.bsmart.entity.request;
 
 public class QuizAnswerRequest {
     private String answer;
-    private Boolean isRight = false;
+    private boolean right = false;
 
     public String getAnswer() {
         return answer;
@@ -12,11 +12,11 @@ public class QuizAnswerRequest {
         this.answer = answer;
     }
 
-    public Boolean getIsRight() {
-        return isRight;
+    public boolean getRight() {
+        return right;
     }
 
-    public void setISRight(Boolean right) {
-        isRight = right;
+    public void setRight(boolean right) {
+        this.right = right;
     }
 }
