@@ -2,17 +2,18 @@ package fpt.project.bsmart.entity.request.timetable;
 
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GenerateScheduleRequest {
-    private Instant startDate ;
-
-    private Instant endDate ;
-
-    private Integer  numberOfSlot ;
-
+    @NotNull
+    private Instant startDate;
+    @NotNull
+    private Instant endDate;
+    private Integer numberOfSlot;
+    @NotNull
     private List<TimeInWeekRequest> timeInWeekRequests = new ArrayList<>();
 
     public Instant getStartDate() {

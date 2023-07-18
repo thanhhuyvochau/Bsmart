@@ -13,7 +13,7 @@ import java.util.List;
 @Table(name = "user")
 
 
-public class  User extends BaseEntity {
+public class User extends BaseEntity {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -84,6 +84,8 @@ public class  User extends BaseEntity {
     @Column(name = "provider")
     private String provider;
 
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Course> courses = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -294,5 +296,11 @@ public class  User extends BaseEntity {
         this.provider = provider;
     }
 
+    public List<Course> getCourses() {
+        return courses;
+    }
 
+    public void setCourses(List<Course> courses) {
+        this.courses = courses;
+    }
 }
