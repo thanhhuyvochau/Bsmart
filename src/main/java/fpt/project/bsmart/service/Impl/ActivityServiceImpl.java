@@ -274,23 +274,23 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             }
             List<QuizAnswerRequest> answers = question.getAnswers();
             if (answers.size() < QuizUtil.MIN_ANSWERS_PER_QUESTION || answers.size() > QuizUtil.MAX_ANSWERS_PER_QUESTION) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("");
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Câu trả lời tối thiểu phải lớn hơn 1");
             }
             boolean isContainEmptyAnswer = answers.stream().anyMatch(x -> x.getAnswer().trim().isEmpty());
             if (isContainEmptyAnswer) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("There is an empty answer");
             }
 
-            long numOfRightAnswer = answers.stream().filter(x -> x.getRight()).count();
+            long numOfRightAnswer = answers.stream().filter(QuizAnswerRequest::getRight).count();
             switch (question.getQuestionType()) {
                 case SINGLE:
-                    if (numOfRightAnswer > 1) {
-                        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + numOfRightAnswer);
+                    if (numOfRightAnswer > 1 || numOfRightAnswer == 0) {
+                        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("Số lượng câu trả lời đúng cho câu hỏi SINGLE duy nhất 1 câu đúng") + numOfRightAnswer);
                     }
                     break;
                 case MULTIPLE:
-                    if (numOfRightAnswer < 2 || numOfRightAnswer == answers.size()) {
-                        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + numOfRightAnswer);
+                    if (numOfRightAnswer == 0) {
+                        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("Số lượng câu trả là đúng của câu hỏi MULTIPLE không thể bằng 0") + numOfRightAnswer);
                     }
                     break;
             }
