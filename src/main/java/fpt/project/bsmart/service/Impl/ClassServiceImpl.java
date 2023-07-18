@@ -22,9 +22,7 @@ import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
-import fpt.project.bsmart.entity.response.ClassResponse;
-import fpt.project.bsmart.entity.response.MentorGetCourseClassResponse;
-import fpt.project.bsmart.entity.response.SimpleClassResponse;
+import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.util.*;
@@ -632,6 +630,44 @@ public class ClassServiceImpl implements IClassService {
         Specification<Class> specification = builder.build();
         Page<Class> classes = classRepository.findAll(specification, pageable);
         return PageUtil.convert(classes.map(ConvertUtil::convertClassToSimpleClassResponse));
+    }
+
+    @Override
+    public List<WorkTimeResponse> getWorkingTime() {
+        User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        Map<EUserRole, Role> userRoles = user.getRoles().stream().collect(Collectors.toMap(Role::getCode, Function.identity()));
+        List<WorkTimeResponse> workTimeResponses = new ArrayList<>();
+        if (userRoles.get(EUserRole.STUDENT) != null) {
+            List<Class> enrolledClasses = user.getStudentClasses().stream().map(StudentClass::getClazz).collect(Collectors.toList());
+            for (Class clazz : enrolledClasses) {
+                List<TimeTableResponse> timeTables = clazz.getTimeTables().stream()
+                        .map(ConvertUtil::convertTimeTableToResponse)
+                        .collect(Collectors.toList());
+                SimpleClassResponse classResponse = ConvertUtil.convertClassToSimpleClassResponse(clazz);
+                workTimeResponses.add(new WorkTimeResponse(classResponse, EUserRole.STUDENT, timeTables));
+            }
+        }
+        if (userRoles.get(EUserRole.TEACHER) != null) {
+            /**Không xóa những code này*/
+//            List<Class> workingClasses = user.getCourses().stream()
+//                    .filter(course -> Objects.equals(course.getStatus(), ECourseStatus.STARTING) || Objects.equals(course.getStatus(), ECourseStatus.ENDED))
+//                    .flatMap(course -> course.getClasses().stream())
+//                    .filter(aClass -> Objects.equals(aClass.getStatus(), ECourseStatus.STARTING) || Objects.equals(aClass.getStatus(), ECourseStatus.ENDED))
+//                    .collect(Collectors.toList());
+            /**Tạm thời cho dev, khi run thực sự sẽ dùng dòng trên*/
+            List<Class> workingClasses = user.getCourses().stream()
+                    .flatMap(course -> course.getClasses().stream())
+                    .collect(Collectors.toList());
+            /**-------------------------------------------------------*/
+            for (Class clazz : workingClasses) {
+                List<TimeTableResponse> timeTables = clazz.getTimeTables().stream()
+                        .map(ConvertUtil::convertTimeTableToResponse)
+                        .collect(Collectors.toList());
+                SimpleClassResponse classResponse = ConvertUtil.convertClassToSimpleClassResponse(clazz);
+                workTimeResponses.add(new WorkTimeResponse(classResponse, EUserRole.TEACHER, timeTables));
+            }
+        }
+        return workTimeResponses;
     }
 }
 //    private final MessageUtil messageUtil;

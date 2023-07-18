@@ -1,9 +1,12 @@
 package fpt.project.bsmart.entity.request;
 
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 public class TimeInWeekRequest {
+    @NotNull
     private Long dayOfWeekId;
+    @NotNull
     private Long slotId;
 
     public Long getDayOfWeekId() {
