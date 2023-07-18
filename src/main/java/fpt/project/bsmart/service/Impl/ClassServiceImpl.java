@@ -648,15 +648,17 @@ public class ClassServiceImpl implements IClassService {
             }
         }
         if (userRoles.get(EUserRole.TEACHER) != null) {
+            /**Không xóa những code này*/
 //            List<Class> workingClasses = user.getCourses().stream()
 //                    .filter(course -> Objects.equals(course.getStatus(), ECourseStatus.STARTING) || Objects.equals(course.getStatus(), ECourseStatus.ENDED))
 //                    .flatMap(course -> course.getClasses().stream())
 //                    .filter(aClass -> Objects.equals(aClass.getStatus(), ECourseStatus.STARTING) || Objects.equals(aClass.getStatus(), ECourseStatus.ENDED))
 //                    .collect(Collectors.toList());
+            /**Tạm thời cho dev, khi run thực sự sẽ dùng dòng trên*/
             List<Class> workingClasses = user.getCourses().stream()
                     .flatMap(course -> course.getClasses().stream())
                     .collect(Collectors.toList());
-
+            /**-------------------------------------------------------*/
             for (Class clazz : workingClasses) {
                 List<TimeTableResponse> timeTables = clazz.getTimeTables().stream()
                         .map(ConvertUtil::convertTimeTableToResponse)
