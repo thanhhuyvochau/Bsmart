@@ -57,7 +57,7 @@ public class ClassController {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClassForCourse(courseId, mentorCreateClassRequest)));
     }
 
-    @Operation(summary = "Mentor lấy tất cả các class của course load lên trang khoa học")
+    @Operation(summary = " lấy tất cả các class của course load lên trang khoa học")
     @GetMapping("/course/{id}")
     public ResponseEntity<ApiResponse<MentorGetCourseClassResponse>> getAllClassOfCourse(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourse(id)));

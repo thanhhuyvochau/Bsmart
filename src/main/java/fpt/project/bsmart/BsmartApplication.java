@@ -51,15 +51,6 @@ public class BsmartApplication {
 
         SpringApplication.run(BsmartApplication.class, args);
 
-        ArrayList<String> list = new ArrayList<>();
-        list.add("hello");
-        list.add("hi") ;
-        list.add("hello");
-
-        // lisst : [hello, hi, hello] ; [0,1,2], [0,1,2,3,4,5,6]
-        System.out.println(list.get(1));
-
-        System.out.println(list);
     }
 //    @EventListener(ContextRefreshedEvent.class)
 //    public void initAdmin() {
