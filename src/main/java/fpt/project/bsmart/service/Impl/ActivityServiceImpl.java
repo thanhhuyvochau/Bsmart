@@ -396,9 +396,9 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         if (activity.getFixed()) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Could not delete fixed activity");
         }
-        User subCourseMentor = activity.getCourse().getCreator();
+        User creator = activity.getCourse().getCreator();
         User currentUser = SecurityUtil.getCurrentUser();
-        if (!Objects.equals(subCourseMentor.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
+        if (!Objects.equals(creator.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN, EUserRole.TEACHER)) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
         activityRepository.delete(activity);
@@ -626,41 +626,41 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         return assignment;
     }
 
-    private Quiz editQuiz(AddQuizRequest request, Activity activity){
+    private Quiz editQuiz(AddQuizRequest request, Activity activity) {
         Quiz quiz = activity.getQuiz();
-        if(quiz == null){
+        if (quiz == null) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(""));
         }
-        if(!quiz.getStatus().equals(QuizStatus.PENDING)){
+        if (!quiz.getStatus().equals(QuizStatus.PENDING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
         Instant now = Instant.now();
         boolean isValidQuizDate = request.getStartDate().isAfter(now) || request.getEndDate().isAfter(now)
-                 || request.getStartDate().isBefore(request.getEndDate());
-        if(isValidQuizDate){
+                || request.getStartDate().isBefore(request.getEndDate());
+        if (isValidQuizDate) {
             quiz.setStartDate(request.getStartDate());
             quiz.setEndDate(request.getEndDate());
         }
-        if(request.getIsSuffleQuestion() != null){
+        if (request.getIsSuffleQuestion() != null) {
             quiz.setIsSuffleQuestion(request.getIsSuffleQuestion());
         }
-        if(StringUtil.isNotNullOrEmpty(request.getPassword())){
+        if (StringUtil.isNotNullOrEmpty(request.getPassword())) {
             quiz.setPassword(request.getPassword());
         }
-        if(request.getIsAllowReview() != null){
+        if (request.getIsAllowReview() != null) {
             quiz.setIsAllowReview(request.getIsAllowReview());
         }
-        if(request.getAllowReviewAfterMin() != null &&  request.getAllowReviewAfterMin() > 0){
+        if (request.getAllowReviewAfterMin() != null && request.getAllowReviewAfterMin() > 0) {
             quiz.setAllowReviewAfterMin(request.getAllowReviewAfterMin());
         }
-        if(request.getDefaultPoint() != null && request.getDefaultPoint() >= 0
-                && request.getDefaultPoint() <= 10){
+        if (request.getDefaultPoint() != null && request.getDefaultPoint() >= 0
+                && request.getDefaultPoint() <= 10) {
             quiz.setDefaultPoint(request.getDefaultPoint());
         }
-        if(request.getTime() != null && request.getTime() > 0){
+        if (request.getTime() != null && request.getTime() > 0) {
             quiz.setTime(request.getTime());
         }
-        if(StringUtil.isNotNullOrEmpty(request.getCode())){
+        if (StringUtil.isNotNullOrEmpty(request.getCode())) {
             quiz.setCode(request.getCode());
         }
         return quiz;
