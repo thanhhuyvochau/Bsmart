@@ -132,7 +132,7 @@ public class MentorProfileImpl implements IMentorProfileService {
 
         if (mentorProfile.getStatus() != EMentorProfileStatus.WAITING) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW) + mentorProfile.getStatus());
         }
         mentorProfile.setStatus(EMentorProfileStatus.STARTING);
         ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser(), managerApprovalAccountRequest.getMessage());
@@ -159,7 +159,7 @@ public class MentorProfileImpl implements IMentorProfileService {
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + user.getId()));
         if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING)
                 && !mentorProfile.getStatus().equals(EMentorProfileStatus.EDITREQUEST)) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_MENTOR_PROFILE_STATUS));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_MENTOR_PROFILE_STATUS) + mentorProfile.getStatus());
         }
         if (updateMentorProfileRequest.getIntroduce() != null) {
             mentorProfile.setIntroduce(updateMentorProfileRequest.getIntroduce());
