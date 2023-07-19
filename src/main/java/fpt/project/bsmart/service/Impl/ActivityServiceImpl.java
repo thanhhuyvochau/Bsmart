@@ -206,9 +206,9 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     private boolean editDetailActivity(ActivityRequest activityRequest, ECourseActivityType type, Activity activity) throws IOException {
         switch (type) {
             case QUIZ:
-//                Quiz quiz = editQuiz((AddQuizRequest) activityRequest, activity);
-//                activity.setQuiz(quiz);
-//                activityRepository.save(activity);
+                Quiz quiz = editQuiz((AddQuizRequest) activityRequest, activity);
+                activity.setQuiz(quiz);
+                activityRepository.save(activity);
                 break;
             case ASSIGNMENT:
                 editAssignment((AssignmentRequest) activityRequest, activity);
@@ -236,31 +236,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     }
 
     public Quiz addQuiz(AddQuizRequest addQuizRequest, Activity activity) {
-        if (addQuizRequest.getCode().trim().isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Code is empty");
-        }
-
-        if (addQuizRequest.getStartDate().isBefore(Instant.now()) || addQuizRequest.getEndDate().isBefore(Instant.now())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Invalid start date or end date");
-        }
-
-        if (addQuizRequest.getStartDate().isAfter(addQuizRequest.getEndDate())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Start day can not after end date");
-        }
-
-        if (addQuizRequest.getTime() < 0) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Invalid quiz time");
-        }
-        if (addQuizRequest.getDefaultPoint() < 0) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Invalid default point " + addQuizRequest.getDefaultPoint());
-        }
-        if (addQuizRequest.getIsAllowReview() && addQuizRequest.getAllowReviewAfterMin() < 0) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Invalid number of allow review after min: " + addQuizRequest.getAllowReviewAfterMin());
-        }
-
-        if (addQuizRequest.getPassword().trim().isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Quiz password is empty");
-        }
+        ActivityValidator.validateQuizInfo(addQuizRequest);
 
         List<QuizQuestionRequest> questions = addQuizRequest.getQuizQuestions();
         if (questions.size() < QuizUtil.MIN_QUESTIONS_PER_QUIZ || questions.size() > QuizUtil.MAX_QUESTIONS_PER_QUIZ) {
@@ -648,6 +624,46 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             }
         }
         return assignment;
+    }
+
+    private Quiz editQuiz(AddQuizRequest request, Activity activity){
+        Quiz quiz = activity.getQuiz();
+        if(quiz == null){
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(""));
+        }
+        if(!quiz.getStatus().equals(QuizStatus.PENDING)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+        }
+        Instant now = Instant.now();
+        boolean isValidQuizDate = request.getStartDate().isAfter(now) || request.getEndDate().isAfter(now)
+                 || request.getStartDate().isBefore(request.getEndDate());
+        if(isValidQuizDate){
+            quiz.setStartDate(request.getStartDate());
+            quiz.setEndDate(request.getEndDate());
+        }
+        if(request.getIsSuffleQuestion() != null){
+            quiz.setIsSuffleQuestion(request.getIsSuffleQuestion());
+        }
+        if(StringUtil.isNotNullOrEmpty(request.getPassword())){
+            quiz.setPassword(request.getPassword());
+        }
+        if(request.getIsAllowReview() != null){
+            quiz.setIsAllowReview(request.getIsAllowReview());
+        }
+        if(request.getAllowReviewAfterMin() != null &&  request.getAllowReviewAfterMin() > 0){
+            quiz.setAllowReviewAfterMin(request.getAllowReviewAfterMin());
+        }
+        if(request.getDefaultPoint() != null && request.getDefaultPoint() >= 0
+                && request.getDefaultPoint() <= 10){
+            quiz.setDefaultPoint(request.getDefaultPoint());
+        }
+        if(request.getTime() != null && request.getTime() > 0){
+            quiz.setTime(request.getTime());
+        }
+        if(StringUtil.isNotNullOrEmpty(request.getCode())){
+            quiz.setCode(request.getCode());
+        }
+        return quiz;
     }
 
     @Override
