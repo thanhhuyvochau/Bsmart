@@ -39,14 +39,14 @@ public class QuestionController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
+    @PreAuthorize("hasAnyRole('TEACHER','ADMIN','MANAGER')")
     public ResponseEntity<ApiResponse<ApiPage<QuestionDto>>> getQuestions(@RequestBody @Valid QuestionFilter filter, Pageable pageable) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(questionService.getQuestions(filter, pageable)));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
-    public ResponseEntity<ApiResponse<QuestionDto>> getQuestions(@PathVariable("id") Long id) throws IOException {
+    @PreAuthorize("hasAnyRole('TEACHER','ADMIN','MANAGER')")
+    public ResponseEntity<ApiResponse<QuestionDto>> getQuestion(@PathVariable("id") Long id) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(questionService.getQuestion(id)));
     }
 
