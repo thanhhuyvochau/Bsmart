@@ -16,7 +16,7 @@ public class Attendance {
     @JoinColumn(name = "student_class_id")
     private StudentClass studentClass;
     @Column(name = "attendance")
-    private Boolean attendance = false;
+    private Boolean attendance;
     @Column(name = "note")
     private String note;
 

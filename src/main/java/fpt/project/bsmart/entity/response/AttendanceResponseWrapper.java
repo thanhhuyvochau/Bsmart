@@ -6,6 +6,7 @@ public class AttendanceResponseWrapper {
     private TimeTableResponse timeTableResponse;
     private ApiPage<AttendanceResponse> attendanceResponses;
 
+
     public AttendanceResponseWrapper(TimeTableResponse timeTableResponse, ApiPage<AttendanceResponse> attendanceResponses) {
         this.timeTableResponse = timeTableResponse;
         this.attendanceResponses = attendanceResponses;
