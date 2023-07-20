@@ -1,4 +1,5 @@
 package fpt.project.bsmart.config;
+
 import fpt.project.bsmart.service.Impl.UserHandshakeHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 
@@ -7,6 +8,7 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
@@ -22,7 +24,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/our-websocket")
                 .setHandshakeHandler(new UserHandshakeHandler())
                 .withSockJS();
-        registry.addEndpoint("/our-websocket");
+        registry.addEndpoint("/our-websocket")
+                .setHandshakeHandler(new UserHandshakeHandler());
+
     }
 
 }

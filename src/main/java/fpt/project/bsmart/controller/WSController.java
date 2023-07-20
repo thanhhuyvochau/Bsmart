@@ -28,7 +28,9 @@ public class WSController {
     }
 
     @PostMapping("/say-hello")
-    public void sayHello() {
-        service.sayHello();
+    public String sayHello() {
+        String s = service.sayHello();
+        System.out.println(s);
+        return s ;
     }
 }
