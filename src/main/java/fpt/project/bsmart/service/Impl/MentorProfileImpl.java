@@ -134,7 +134,8 @@ public class MentorProfileImpl implements IMentorProfileService {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW) + mentorProfile.getStatus());
         }
-        mentorProfile.setStatus(EMentorProfileStatus.STARTING);
+
+        mentorProfile.setStatus(managerApprovalAccountRequest.getStatus());
         ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser(), managerApprovalAccountRequest.getMessage());
 
         return mentorProfileRepository.save(mentorProfile).getId();
