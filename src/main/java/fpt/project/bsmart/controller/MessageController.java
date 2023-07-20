@@ -37,4 +37,12 @@ public class MessageController {
                         + message.getMessageContent())
         );
     }
+
+    @MessageMapping("/hello")
+    @SendTo("/topic/say-hello")
+    public String sayHello() throws Exception {
+        Thread.sleep(1000); // simulated delay
+        notificationService.sendSayHello();
+        return "Just say hello" ;
+    }
 }

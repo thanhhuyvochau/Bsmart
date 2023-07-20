@@ -80,7 +80,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/v3/api-docs/**").permitAll()
-                .antMatchers("/websocket/**" ,"/ws/**" , "/socket.io/**", "/private/**").permitAll()
+                .antMatchers("/websocket/**" ,"/ws/**" , "/socket.io/**", "/our-websocket/**" , "/send-message/**", "/say-hello/**").permitAll()
                 .antMatchers("/api/ocr/**").permitAll()
                 .antMatchers("/api/users/register", "/api/users/login", "/api/test/user", "/api/**","/oauth2/**").permitAll().anyRequest().authenticated()
                 .and().exceptionHandling()
