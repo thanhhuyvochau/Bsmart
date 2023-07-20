@@ -130,9 +130,9 @@ public class AttendanceServiceImpl implements AttendanceService {
         TimeTable timeTable = timeTableRepository.findById(timeTableId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(TIME_TABLE_NOT_FOUND_BY_ID) + timeTableId));
         Class clazz = timeTable.getClazz();
-//        if (!ClassValidator.isMentorOfClass(currentUser, clazz)) {
-//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
-//        }
+        if (!ClassValidator.isMentorOfClass(currentUser, clazz)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
+        }
         Map<Long, Attendance> attendanceMap = timeTable.getAttendances().stream()
                 .collect(Collectors.toMap(attendance -> attendance.getStudentClass().getId(), Function.identity()));
         List<StudentClass> studentClasses = clazz.getStudentClasses();
@@ -146,6 +146,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                 attendanceResponse.setNote(attendance.getNote());
                 attendanceResponse.setId(attendance.getId());
                 attendanceResponse.setAttendance(attendance.getAttendance());
+                attendanceResponse.setHasTookAttendance(true);
             }
             attendanceResponses.add(attendanceResponse);
         }

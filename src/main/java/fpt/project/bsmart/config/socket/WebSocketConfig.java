@@ -1,4 +1,4 @@
-package fpt.project.bsmart.config;
+package fpt.project.bsmart.config.socket;
 
 import fpt.project.bsmart.service.Impl.UserHandshakeHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -14,19 +14,17 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
-    public void configureMessageBroker(final MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic");
-        registry.setApplicationDestinationPrefixes("/ws");
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry
+                .addEndpoint("/websocket").setAllowedOriginPatterns("*")
+                .setHandshakeHandler(new ClientHandshakeHandler())
+                .withSockJS();
     }
 
     @Override
-    public void registerStompEndpoints(final StompEndpointRegistry registry) {
-        registry.addEndpoint("/our-websocket").setAllowedOrigins("*")
-                .setHandshakeHandler(new UserHandshakeHandler())
-                .withSockJS();
-        registry.addEndpoint("/our-websocket").setAllowedOrigins("*")
-                .setHandshakeHandler(new UserHandshakeHandler());
-
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker("/topic", "/queue");
+        registry.setApplicationDestinationPrefixes("/app");
     }
 
 }

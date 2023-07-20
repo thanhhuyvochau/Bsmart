@@ -8,6 +8,7 @@ public class QuestionFilter {
      */
     @NotNull
     private Long subjectId;
+    private int selection = 0; // -1 private, 0 all, 1 shared
 
     public Long getSubjectId() {
         return subjectId;
@@ -15,5 +16,13 @@ public class QuestionFilter {
 
     public void setSubjectId(Long subjectId) {
         this.subjectId = subjectId;
+    }
+
+    public int getSelection() {
+        return selection;
+    }
+
+    public void setSelection(int selection) {
+        this.selection = selection;
     }
 }
