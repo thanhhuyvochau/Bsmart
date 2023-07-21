@@ -66,8 +66,9 @@ public class ClassServiceImpl implements IClassService {
     private final ActivityAuthorizeRepository activityAuthorizeRepository;
 
     private final TimeTableRepository timeTableRepository;
+    private final SubjectRepository subjectRepository;
 
-    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, TimeTableRepository timeTableRepository) {
+    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, TimeTableRepository timeTableRepository, SubjectRepository subjectRepository) {
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.classRepository = classRepository;
@@ -78,6 +79,7 @@ public class ClassServiceImpl implements IClassService {
         this.classImageRepository = classImageRepository;
         this.activityAuthorizeRepository = activityAuthorizeRepository;
         this.timeTableRepository = timeTableRepository;
+        this.subjectRepository = subjectRepository;
     }
 
     /**
@@ -621,11 +623,19 @@ public class ClassServiceImpl implements IClassService {
                 .filterByStartDay(request.getStartDate())
                 .filterByEndDate(request.getEndDate())
                 .filterByStatus(request.getStatus());
-
         if (request.getAsRole() == 2) {
             builder.byMentor(user);
         } else if (request.getAsRole() == 1) {
             builder.byStudent(user);
+        }
+        if (!request.getCategoryId().isEmpty()) {
+            List<Category> categories = categoryRepository.findAllById(request.getCategoryId());
+            builder.filterByCategories(categories);
+        }
+        if (!request.getSubjectId().isEmpty()) {
+            List<Subject> subjects = subjectRepository.findAllById(request.getSubjectId());
+            builder.filterBySubjects(subjects);
+
         }
         Specification<Class> specification = builder.build();
         Page<Class> classes = classRepository.findAll(specification, pageable);

@@ -38,9 +38,9 @@ public class QuestionController {
         return ResponseEntity.ok(ApiResponse.success(questionService.addQuestionToQuestionBank(request)));
     }
 
-    @PostMapping("/filters")
+    @GetMapping("/filters")
     @PreAuthorize("hasAnyRole('TEACHER','ADMIN','MANAGER')")
-    public ResponseEntity<ApiResponse<ApiPage<QuestionDto>>> getQuestions(@RequestBody @Valid QuestionFilter filter, Pageable pageable) throws IOException {
+    public ResponseEntity<ApiResponse<ApiPage<QuestionDto>>> getQuestions(@Valid QuestionFilter filter, Pageable pageable) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(questionService.getQuestions(filter, pageable)));
     }
 

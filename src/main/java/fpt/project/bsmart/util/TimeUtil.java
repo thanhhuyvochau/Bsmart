@@ -107,4 +107,9 @@ public class TimeUtil {
         long differenceInDay = difference.toDays();
         return Math.abs(differenceInDay) <= duration;
     }
+
+    public static long compareTwoInstantTruncated(Instant start, Instant end, ChronoUnit unit) {
+        Duration difference = Duration.between(start.truncatedTo(unit), end.truncatedTo(unit));
+        return difference.toMinutes();
+    }
 }

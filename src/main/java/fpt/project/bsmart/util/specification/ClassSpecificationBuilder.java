@@ -110,16 +110,40 @@ public class ClassSpecificationBuilder {
         }
     }
 
+    public ClassSpecificationBuilder filterByCategories(List<Category> categories) {
+        if (categories == null || categories.isEmpty()) {
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            Path<Course> coursePath = root.get(Class_.COURSE);
+            Path<Subject> subjectPath = coursePath.get(Course_.SUBJECT);
+            return criteriaBuilder.and(subjectPath.get(Subject_.CATEGORIES).in(categories));
+        });
+        return this;
+    }
+
+    public ClassSpecificationBuilder filterBySubjects(List<Subject> subjects) {
+        if (subjects == null || subjects.isEmpty()) {
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            Path<Course> coursePath = root.get(Class_.COURSE);
+            return criteriaBuilder.and(coursePath.get(Course_.SUBJECT).in(subjects));
+        });
+        return this;
+    }
+
     public ClassSpecificationBuilder getEndClass() {
         Instant now = Instant.now();
         specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.lessThanOrEqualTo(root.get(Class_.END_DATE), now));
         return this;
     }
 
-    public ClassSpecificationBuilder getPendingClass(){
+    public ClassSpecificationBuilder getPendingClass() {
         specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Class_.STATUS), ECourseStatus.WAITING));
         return this;
     }
+
     public ClassSpecificationBuilder getStartingClass() {
         Instant now = Instant.now();
         specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get(Class_.END_DATE), now),
