@@ -123,8 +123,10 @@ public class Constants {
             public static final String INVALID_COURSE_STATUS_TO_PURCHASE = "INVALID_COURSE_STATUS_TO_PURCHASE";
             public static final String INVALID_WEBSITE = "INVALID_WEBSITE";
             public static final String INVALID_MENTOR_PROFILE_STATUS = "INVALID_MENTOR_PROFILE_STATUS";
-            public static final String INVALID_START_DATE = "INVALID_START_DATE";
-            public static final String INVALID_END_DATE = "INVALID_END_DATE";
+            public static final String INVALID_START_NOW_DATE = "INVALID_START_NOW_DATE";
+            public static final String INVALID_END_NOW_DATE = "INVALID_END_NOW_DATE";
+            public static final String INVALID_START_END_DATE = "INVALID_START_END_DATE";
+
         }
 
         public static class Empty {

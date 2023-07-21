@@ -353,8 +353,14 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         Instant startDate = request.getStartDate();
         Instant endDate = request.getEndDate();
 
-        if (startDate.isBefore(now) || endDate.isBefore(now) || startDate.isAfter(endDate)) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ASSIGNMENT_DATE));
+        if (startDate.isBefore(now)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(Invalid.INVALID_START_NOW_DATE);
+        }
+        if (endDate.isBefore(now)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(Invalid.INVALID_END_NOW_DATE);
+        }
+        if (startDate.isAfter(endDate)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(Invalid.INVALID_START_END_DATE);
         }
 
         Assignment assignment = new Assignment();
@@ -597,8 +603,15 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         long minDiffOfStartDate = TimeUtil.compareTwoInstantTruncated(startDate, assignment.getStartDate(), ChronoUnit.MINUTES);
         long minDiffOfEndDate = TimeUtil.compareTwoInstantTruncated(endDate, assignment.getEndDate(), ChronoUnit.MINUTES);
         if (minDiffOfEndDate == 0 && minDiffOfStartDate == 0) {
-            if (startDate.isBefore(now) || endDate.isBefore(now) || startDate.isAfter(endDate)) {
-                throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_BIRTHDAY));
+            if (startDate.isBefore(now)) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(Invalid.INVALID_START_NOW_DATE);
+            }
+            if (endDate.isBefore(now)) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(Invalid.INVALID_END_NOW_DATE);
+
+            }
+            if (startDate.isAfter(endDate)) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(Invalid.INVALID_START_END_DATE);
             }
         }
         assignment.setDescription(request.getDescription());
