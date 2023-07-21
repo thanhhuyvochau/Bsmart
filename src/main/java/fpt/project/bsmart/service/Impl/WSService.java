@@ -19,7 +19,7 @@ public class WSService {
     }
 
     public void notifyFrontend(final String message) {
-        ResponseMessage response = new ResponseMessage(message);
+        ResponseMessage response = new ResponseMessage("test send message");
         notificationService.sendGlobalNotification();
 
         messagingTemplate.convertAndSend("/topic/messages", response);
