@@ -591,13 +591,16 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
 
     private Assignment editAssignment(AssignmentRequest request, Activity activity) throws IOException {
         Instant now = Instant.now();
+        Assignment assignment = activity.getAssignment();
         Instant startDate = request.getStartDate();
         Instant endDate = request.getEndDate();
-
-        if (startDate.isBefore(now) || endDate.isBefore(now) || startDate.isAfter(endDate)) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_DAY));
+        long minDiffOfStartDate = TimeUtil.compareTwoInstantTruncated(startDate, assignment.getStartDate(), ChronoUnit.MINUTES);
+        long minDiffOfEndDate = TimeUtil.compareTwoInstantTruncated(endDate, assignment.getEndDate(), ChronoUnit.MINUTES);
+        if (minDiffOfEndDate == 0 && minDiffOfStartDate == 0) {
+            if (startDate.isBefore(now) || endDate.isBefore(now) || startDate.isAfter(endDate)) {
+                throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_BIRTHDAY));
+            }
         }
-        Assignment assignment = activity.getAssignment();
         assignment.setDescription(request.getDescription());
         assignment.setStartDate(request.getStartDate());
         assignment.setEndDate(request.getEndDate());

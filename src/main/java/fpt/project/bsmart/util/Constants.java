@@ -102,7 +102,7 @@ public class Constants {
             public static final String INVALID_FACEBOOK_LINK = "INVALID_FACEBOOK_LINK";
             public static final String INVALID_INSTAGRAM_LINK = "INVALID_INSTAGRAM_LINK";
             public static final String INVALID_TWITTER_LINK = "INVALID_TWITTER_LINK";
-            public static final String INVALID_DAY = "INVALID_DAY";
+            public static final String INVALID_BIRTHDAY = "INVALID_BIRTHDAY";
             public static final String INVALID_PHONE_NUMBER = "INVALID_PHONE_NUMBER";
             public static final String INVALID_PASSWORD = "INVALID_PASSWORD";
             public static final String INVALID_SOCIAL_LINK = "INVALID_SOCIAL_LINK";
@@ -123,6 +123,8 @@ public class Constants {
             public static final String INVALID_COURSE_STATUS_TO_PURCHASE = "INVALID_COURSE_STATUS_TO_PURCHASE";
             public static final String INVALID_WEBSITE = "INVALID_WEBSITE";
             public static final String INVALID_MENTOR_PROFILE_STATUS = "INVALID_MENTOR_PROFILE_STATUS";
+            public static final String INVALID_START_DATE = "INVALID_START_DATE";
+            public static final String INVALID_END_DATE = "INVALID_END_DATE";
         }
 
         public static class Empty {
