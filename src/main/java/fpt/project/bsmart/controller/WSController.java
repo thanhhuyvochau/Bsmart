@@ -16,6 +16,8 @@ public class WSController {
 
     @PostMapping("/send-message")
     public void sendMessage(@RequestBody final Message message) {
+
+        System.out.println(message);
         service.notifyFrontend(message.getMessageContent());
     }
 
@@ -23,5 +25,12 @@ public class WSController {
     public void sendPrivateMessage(@PathVariable final String id,
                                    @RequestBody final Message message) {
         service.notifyUser(id, message.getMessageContent());
+    }
+
+    @PostMapping("/say-hello")
+    public String sayHello() {
+        String s = service.sayHello();
+        System.out.println(s);
+        return s ;
     }
 }

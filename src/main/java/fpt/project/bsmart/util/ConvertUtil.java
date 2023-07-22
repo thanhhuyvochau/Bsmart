@@ -610,20 +610,22 @@ public class ConvertUtil {
         ECourseActivityType type = activity.getType();
         switch (type) {
             case QUIZ:
-
+                activityDetailDto.setDetail(convertQuizToQuizDto(activity.getQuiz()));
                 break;
             case ASSIGNMENT:
-
+                activityDetailDto.setDetail(convertAssignmentToDto(activity.getAssignment()));
                 break;
             case SECTION:
                 // Just return for section -> section work as folder for others activities with no content inside
                 break;
             case RESOURCE:
-
+                activityDetailDto.setDetail(convertResourceToDto(activity.getResource()));
                 break;
             case ANNOUNCEMENT:
+                activityDetailDto.setDetail(convertClassAnnouncementToDto(activity.getAnnouncement()));
                 break;
             case LESSON:
+                activityDetailDto.setDetail(convertLessonToDto(activity.getLesson()));
                 break;
             default:
                 throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE) + type);
@@ -633,6 +635,10 @@ public class ConvertUtil {
 
     public static LessonDto convertLessonToDto(Lesson lesson) { // Convert ra đơn giản để show cho user xem
         return ObjectUtil.copyProperties(lesson, new LessonDto(), LessonDto.class, true);
+    }
+
+    public static ResourceDto convertResourceToDto(Resource resource) { // Convert ra đơn giản để show cho user xem
+        return ObjectUtil.copyProperties(resource, new ResourceDto(), ResourceDto.class, true);
     }
 
     private static AssignmentDto convertAssignmentToDto(Assignment assignment) {
@@ -758,7 +764,7 @@ public class ConvertUtil {
         if (creator != null) {
             classResponse.setMentor(convertUsertoUserDto(creator));
         }
-        List<ActivityDto> activityDtos = convertActivityAsTree(authorizeSectionActivities,false);
+        List<ActivityDto> activityDtos = convertActivityAsTree(authorizeSectionActivities, false);
         classResponse.getActivities().addAll(activityDtos);
         return classResponse;
     }

@@ -25,4 +25,8 @@ public class NotificationService {
 
         messagingTemplate.convertAndSendToUser(userId,"/topic/private-notifications", message);
     }
+
+    public void sendSayHello() {
+        messagingTemplate.convertAndSend("/topic/greetings", "Just say hello");
+    }
 }
