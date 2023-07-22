@@ -7,6 +7,7 @@ import fpt.project.bsmart.util.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -92,7 +93,10 @@ public class ClassSpecificationBuilder {
         if (student == null) {
             return this;
         }
-        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.in(root.get(Class_.STUDENT_CLASSES).get(StudentClass_.STUDENT)).value(student));
+        specifications.add((root, query, criteriaBuilder) -> {
+            Join<Class, StudentClass> studentClassPath = root.join(Class_.STUDENT_CLASSES);
+            return criteriaBuilder.equal(studentClassPath.get(StudentClass_.STUDENT), student);
+        });
         return this;
     }
 

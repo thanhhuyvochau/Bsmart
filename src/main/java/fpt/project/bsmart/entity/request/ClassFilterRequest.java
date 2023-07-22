@@ -2,6 +2,7 @@ package fpt.project.bsmart.entity.request;
 
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,11 +11,13 @@ public class ClassFilterRequest {
     private String q;
     private Instant startDate;
     private Instant endDate;
+    @NotNull
     private ECourseStatus status;
     // Student = 1 | Teacher = 2
     private int asRole = 0;
     private List<Long> categoryId = new ArrayList<>();
     private List<Long> subjectId = new ArrayList<>();
+
     public String getQ() {
         return q;
     }

@@ -105,7 +105,6 @@ public class ClassServiceImpl implements IClassService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
         MentorGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponsePage(course);
-        List<SectionDto> sectionDtoList = ActivityUtil.GetSectionOfCoursePage(course);
         List<Activity> sectionActivities = course.getActivities().stream()
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION) && activity.getFixed())
                 .collect(Collectors.toList());
