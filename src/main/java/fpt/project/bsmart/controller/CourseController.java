@@ -110,8 +110,6 @@ public class CourseController {
     }
 
 
-
-
     @Operation(summary = "Manager phê duyêt / từ chối / yêu cầu thay đổi khoá học của mentor  ")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @PutMapping("/{id}/approval")
