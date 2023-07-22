@@ -775,9 +775,6 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         for (QuizQuestionDto quizQuestionDto : questions) {
             quizQuestionDto.getAnswers().stream().forEach(x -> x.setRight(false));
         }
-        if (quiz.getIsSuffleQuestion()) {
-            Collections.shuffle(questions);
-        }
         quizDto.setQuizQuestions(questions);
         return quizDto;
     }
@@ -835,25 +832,31 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             submitQuestion.setQuizSubmitAnswers(quizSubmitAnswers);
             submitQuestions.add(submitQuestion);
         }
-        int correctNumber = getCorrectNumberFromSubmission(submitQuestions);
+        Map<String, Float> submissionResultMap = calculateSubmissionResult(submitQuestions);
+        int correctNumber = submissionResultMap.get(QuizUtil.CORRECT_QUESTION_NUMBER_KEY).intValue();
+        float point = submissionResultMap.get(QuizUtil.POINT_KEY);
         quizSubmittion.setQuiz(quiz);
         quizSubmittion.setStatus(request.getStatus());
         quizSubmittion.setSubmittedBy(user);
         quizSubmittion.setSubmitQuestions(submitQuestions);
         quizSubmittion.setCorrectNumber(correctNumber);
         quizSubmittion.setIncorrectNumber(quiz.getQuizQuestions().size() - correctNumber);
+        quizSubmittion.setPoint(point < quiz.getDefaultPoint() ? quiz.getDefaultPoint() : point);
         quizSubmissionRepository.save(quizSubmittion);
         return true;
     }
 
-    private int getCorrectNumberFromSubmission(List<QuizSubmitQuestion> quizSubmitQuestions) {
+    private Map<String, Float> calculateSubmissionResult(List<QuizSubmitQuestion> quizSubmitQuestions) {
         int correctNumber = 0;
+        float totalPoint = 0;
         for (QuizSubmitQuestion quizSubmitQuestion : quizSubmitQuestions) {
+            long pointPerQuestion = 10 / quizSubmitQuestions.size();
             List<QuizSubmitAnswer> quizSubmitAnswers = quizSubmitQuestion.getQuizSubmitAnswers();
             if (!quizSubmitAnswers.isEmpty()) {
                 if (quizSubmitQuestion.getQuizQuestion().getType().equals(QuestionType.SINGLE)) {
                     if (quizSubmitAnswers.get(0).getQuizAnswer().getIsRight()) {
                         correctNumber++;
+                        totalPoint += pointPerQuestion;
                     }
                 } else {
                     List<QuizAnswer> quizAnswers = quizSubmitQuestion.getQuizQuestion().getAnswers();
@@ -863,13 +866,18 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                     long quizCorrectAnswerCount = quizAnswers.stream()
                             .filter(x -> x.getIsRight())
                             .count();
-                    if (submittedCorrectAnswerCount == quizCorrectAnswerCount) {
+                    if (submittedCorrectAnswerCount > 0) {
                         correctNumber++;
+                        long correctPercentage = submittedCorrectAnswerCount / quizCorrectAnswerCount;
+                        totalPoint += pointPerQuestion * correctPercentage;
                     }
                 }
             }
         }
-        return correctNumber;
+        Map<String, Float> resultMap = new HashMap<>();
+        resultMap.put(QuizUtil.CORRECT_QUESTION_NUMBER_KEY, (float) correctNumber);
+        resultMap.put(QuizUtil.POINT_KEY, totalPoint);
+        return resultMap;
     }
 
     private List<QuizSubmitAnswer> handleSingleChoice(List<Long> submittedAnswers, List<QuizAnswer> quizAnswers, QuizSubmitQuestion quizSubmitQuestion) {

@@ -8,4 +8,6 @@ public class QuizUtil {
     public static final Integer MIN_QUIZ_TIME = 5;
     public static final Integer MAX_QUIZ_TIME = 120;
     public static final Integer MAX_ALLOW_REVIEW_AFTER_MIN = 1440; //1440 min = 24h
+    public static final String POINT_KEY = "point";
+    public static final String CORRECT_QUESTION_NUMBER_KEY = "correctNumber";
 }

@@ -676,7 +676,10 @@ public class ConvertUtil {
         if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
             List<QuizQuestionDto> questionDtos = new ArrayList<>();
             for (QuizQuestion question : quiz.getQuizQuestions()) {
-                questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question));
+                questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
+            }
+            if(quiz.getIsSuffleQuestion()){
+                Collections.shuffle(questionDtos);
             }
             quizDto.setQuizQuestions(questionDtos);
         }
@@ -713,7 +716,7 @@ public class ConvertUtil {
             QuizSubmitAnswerDto answerDto = new QuizSubmitAnswerDto();
             answerDto.setId(answer.getId());
             answerDto.setAnswer(answer.getAnswer());
-            answerDto.setIsRight(answerDto.getIsRight());
+            answerDto.setIsRight(answer.getIsRight());
             if (!quizSubmitAnswers.isEmpty()) {
                 boolean isChosen = quizSubmitAnswers.stream()
                         .anyMatch(x -> x.getQuizAnswer().equals(answer));
@@ -724,12 +727,15 @@ public class ConvertUtil {
         return quizSubmitAnswerDtos;
     }
 
-    public static QuizQuestionDto convertQuizQuestionToQuizQuestionDto(QuizQuestion quizQuestion) {
+    public static QuizQuestionDto convertQuizQuestionToQuizQuestionDto(QuizQuestion quizQuestion, boolean isShuffle) {
         QuizQuestionDto question = ObjectUtil.copyProperties(quizQuestion, new QuizQuestionDto(), QuizQuestionDto.class);
         if (quizQuestion.getAnswers() != null || !question.getAnswers().isEmpty()) {
             List<QuizAnswerDto> answers = new ArrayList<>();
             for (QuizAnswer answer : quizQuestion.getAnswers()) {
                 answers.add(ConvertUtil.convertQuizAnswerToQuizAnswerDto(answer));
+            }
+            if(isShuffle){
+                Collections.shuffle(answers);
             }
             question.setAnswers(answers);
         }

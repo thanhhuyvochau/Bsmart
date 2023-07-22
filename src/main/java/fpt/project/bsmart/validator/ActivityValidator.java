@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.request.AddQuizRequest;
 import fpt.project.bsmart.util.MessageUtil;
 import fpt.project.bsmart.util.QuizUtil;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
@@ -18,8 +19,8 @@ import java.util.Objects;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.EMPTY_CODE;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.EMPTY_PASSWORD;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.START_TIME_AFTER_END_TIME;
 
+@Component
 public class ActivityValidator {
     private static MessageUtil messageUtil;
 
@@ -44,13 +45,16 @@ public class ActivityValidator {
         if (addQuizRequest.getCode().trim().isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_CODE));
         }
-        if (addQuizRequest.getStartDate().isBefore(Instant.now())
-                || addQuizRequest.getEndDate().isBefore(Instant.now())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(INVALID_QUIZ_ATTEMPT_TIME);
+        if (addQuizRequest.getStartDate().isAfter(Instant.now())){
+           throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_NOW_DATE));
+        }
+
+        if(addQuizRequest.getEndDate().isBefore(Instant.now())){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_END_NOW_DATE));
         }
 
         if (addQuizRequest.getStartDate().isAfter(addQuizRequest.getEndDate())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(START_TIME_AFTER_END_TIME));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_END_DATE));
         }
 
         if (addQuizRequest.getTime() < QuizUtil.MIN_QUIZ_TIME
