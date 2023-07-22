@@ -720,10 +720,8 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(QUIZ_NOT_FOUND_BY_ID) + id));
     }
 
-    private User validateUser(Long id) {
+    private User validateUser(Activity activity) {
         User user = SecurityUtil.getCurrentUser();
-        Activity activity = activityRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + id));
         Course course = activity.getCourse();
         Class classes = user.getStudentClasses().stream()
                 .map(StudentClass::getClazz)
@@ -755,9 +753,18 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         }
     }
 
+    private Quiz getQuizByActivityId(Long id){
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + id));
+        boolean isQuizActivity = ActivityUtil.isCorrectActivityType(activity, ECourseActivityType.QUIZ);
+        if(!isQuizActivity){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + id);
+        }
+        return activity.getQuiz();
+    }
     public QuizDto studentAttemptQuiz(Long id,StudentAttemptQuizRequest request) {
-        Quiz quiz = findQuizById(request.getQuizId());
-        User user = validateUser(id);
+        Quiz quiz = getQuizByActivityId(id);
+        User user = validateUser(quiz.getActivity());
         isAvailableToAttempt(quiz, user);
 
         if (request.getPassword().trim().isEmpty()) {
@@ -801,8 +808,8 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
 
 
     public Boolean studentSubmitQuiz(Long activityId,SubmitQuizRequest request) {
-        User user = validateUser(activityId);
-        Quiz quiz = findQuizById(request.getQuizId());
+        Quiz quiz = getQuizByActivityId(activityId);
+        User user = validateUser(quiz.getActivity());
         isAvailableToAttempt(quiz, user);
         List<SubmittedQuestionRequest> submittedQuestions = request.getSubmittedQuestions();
         List<QuizQuestion> quizQuestions = quiz.getQuizQuestions();
