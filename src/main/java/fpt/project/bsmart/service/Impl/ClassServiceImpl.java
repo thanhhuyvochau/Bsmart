@@ -678,6 +678,16 @@ public class ClassServiceImpl implements IClassService {
         }
         return workTimeResponses;
     }
+
+    @Override
+    public ApiPage<MentorGetClassDetailResponse> mentorGetClass(ECourseStatus status, Pageable pageable) {
+        User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        Page<Class> byMentorAndStatus = classRepository.findByMentorAndStatus(user, status, pageable);
+        List<MentorGetClassDetailResponse> classResponses = byMentorAndStatus.getContent().stream()
+                .map(ClassUtil::convertClassToMentorClassDetailResponse)
+                .collect(Collectors.toList());
+        return PageUtil.convert(new PageImpl<>(classResponses, pageable, byMentorAndStatus.getTotalElements()));
+    }
 }
 //    private final MessageUtil messageUtil;
 //    private final CourseRepository courseRepository;
