@@ -80,7 +80,7 @@ public class CourseSpecificationBuilder {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
-            Join<Course, Subject> courseSubjectJoin = root.join(Course_.SUBJECT, JoinType.INNER);
+            Join<Course, Subject> courseSubjectJoin = root.join(Course_.SUBJECT, JoinType.LEFT);
             Join<Subject, Category> categoryJoin = courseSubjectJoin.join(Subject_.CATEGORIES);
             Path<Object> objectPath = categoryJoin.get(Category_.ID);
             return criteriaBuilder.and(objectPath.in(categoryIds));

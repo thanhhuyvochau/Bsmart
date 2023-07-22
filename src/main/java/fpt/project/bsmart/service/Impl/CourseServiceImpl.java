@@ -291,7 +291,6 @@ public class CourseServiceImpl implements ICourseService {
         int completionPercentage = 0;
         int totalFields = 2;
 
-
         if (course.getClasses().size() > 0) {
             completionPercentage++;
         }
