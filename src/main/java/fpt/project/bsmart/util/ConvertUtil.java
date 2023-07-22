@@ -707,12 +707,13 @@ public class ConvertUtil {
             QuizSubmitAnswerDto answerDto = new QuizSubmitAnswerDto();
             answerDto.setId(answer.getId());
             answerDto.setAnswer(answer.getAnswer());
-            answerDto.setRight(answerDto.getRight());
+            answerDto.setIsRight(answerDto.getIsRight());
             if (!quizSubmitAnswers.isEmpty()) {
                 boolean isChosen = quizSubmitAnswers.stream()
                         .anyMatch(x -> x.getQuizAnswer().equals(answer));
-                answerDto.setChosen(isChosen);
+                answerDto.setIsChosen(isChosen);
             }
+            quizSubmitAnswerDtos.add(answerDto);
         }
         return quizSubmitAnswerDtos;
     }
