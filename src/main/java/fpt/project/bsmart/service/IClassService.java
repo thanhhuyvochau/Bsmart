@@ -2,6 +2,7 @@ package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.response.*;
@@ -23,9 +24,9 @@ public interface IClassService {
 
     MentorGetCourseClassResponse getAllClassOfCourse(Long id);
 
-    Long mentorCreateClassForCourse( Long id  ,MentorCreateClass mentorCreateClassRequest) throws ValidationErrorsException;
+    Long mentorCreateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) throws ValidationErrorsException;
 
-    Boolean mentorUpdateClassForCourse(Long id,  MentorCreateClass mentorCreateClassRequest);
+    Boolean mentorUpdateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest);
 
     ApiPage<MentorGetClassDetailResponse> mentorGetClassOfCourse(Long id, Pageable pageable);
 
@@ -36,10 +37,11 @@ public interface IClassService {
 
 
     ApiPage<BaseClassResponse> getAllClassesForManager(Pageable pageable);
+
     ManagerGetClassDetailResponse managerGetClassDetail(Long id);
 
 
-//    Boolean createClass(CreateClassRequest request);
+    //    Boolean createClass(CreateClassRequest request);
 //
 //    ApiPage<SimpleClassResponse> getClassFeedbacks(ClassFeedbackRequest classFeedbackRequest, Pageable pageable);
 //
@@ -50,4 +52,6 @@ public interface IClassService {
     ApiPage<SimpleClassResponse> getUserClasses(ClassFilterRequest request, Pageable pageable);
 
     List<WorkTimeResponse> getWorkingTime();
+
+    ApiPage<MentorGetClassDetailResponse> mentorGetClass(ECourseStatus status, Pageable pageable);
 }

@@ -16,17 +16,16 @@ public class NotificationService {
 
     public void sendGlobalNotification() {
         ResponseMessage message = new ResponseMessage("Global Notification");
-
-        messagingTemplate.convertAndSend("/topic/global-notifications", message);
+        messagingTemplate.convertAndSend("/topic/messages", message);
     }
 
     public void sendPrivateNotification(final String userId) {
         ResponseMessage message = new ResponseMessage("Private Notification");
 
-        messagingTemplate.convertAndSendToUser(userId,"/topic/private-notifications", message);
+        messagingTemplate.convertAndSendToUser(userId, "/topic/private-notifications", message);
     }
 
     public void sendSayHello() {
-        messagingTemplate.convertAndSend("/topic/greetings", "Just say hello");
+        messagingTemplate.convertAndSend("/topic/say-hello", "Just say hello");
     }
 }

@@ -220,9 +220,9 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public ApiPage<ManagerGetCourse> coursePendingToApprove(Pageable pageable) {
+    public ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status , Pageable pageable) {
         CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
-                .queryByCourseStatus(WAITING);
+                .queryByCourseStatus(status);
 
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseToManagerGetCourse));
@@ -291,13 +291,13 @@ public class CourseServiceImpl implements ICourseService {
         int completionPercentage = 0;
         int totalFields = 2;
 
-
         if (course.getClasses().size() > 0) {
             completionPercentage++;
         }
         if (course.getActivities().size() > 0) {
             completionPercentage++;
         }
+
         // Tính % hoàn thành dựa trên số lượng trường thông tin có giá trị
         completionPercentage = (int) Math.round(((double) completionPercentage / totalFields) * 100);
 

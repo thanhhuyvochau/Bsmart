@@ -4,6 +4,7 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 
@@ -86,6 +87,12 @@ public class ClassController {
     }
 
 
+    @Operation(summary = "mentor lấy các class  ")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("/mentor")
+    public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> mentorGetClass(ECourseStatus  status , Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorGetClass(status, pageable)));
+    }
 
     @Operation(summary = "Quản lý lấy danh sách các lớp học đang chờ và đã bắt đầu")
     @GetMapping()

@@ -38,6 +38,9 @@ public class MentorUtil {
         if (user.getFullName() != null) {
             mentorDto.setName(user.getFullName());
         }
+        if (user.getEmail()!= null){
+            mentorDto.setEmail(user.getEmail());
+        }
         List<UserImage> userImages = user.getUserImages();
         List<UserImage> avatar = userImages.stream().filter(userImage -> userImage.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
         if (userImages != null && avatar.size() > 0) {
