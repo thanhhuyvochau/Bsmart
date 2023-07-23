@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.repository.MentorProfileRepository;
@@ -158,10 +159,10 @@ public class MentorProfileImpl implements IMentorProfileService {
         MentorProfile mentorProfile = mentorProfileRepository.getMentorProfileByUser(user)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + user.getId()));
-        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING)
-                && !mentorProfile.getStatus().equals(EMentorProfileStatus.EDITREQUEST)) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_MENTOR_PROFILE_STATUS) + mentorProfile.getStatus());
-        }
+
+        MentorUtil.checkMentorStatusToUpdateInformation(mentorProfile);
+
+
         if (updateMentorProfileRequest.getIntroduce() != null) {
             mentorProfile.setIntroduce(updateMentorProfileRequest.getIntroduce());
         }
@@ -237,7 +238,8 @@ public class MentorProfileImpl implements IMentorProfileService {
 
         }
 
-        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING)) {
+        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING) &&
+                !mentorProfile.getStatus().equals(EMentorProfileStatus.EDITREQUEST) ) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
         }
@@ -276,6 +278,40 @@ public class MentorProfileImpl implements IMentorProfileService {
         }
 
         mentorProfile.setStatus(EMentorProfileStatus.WAITING);
+        mentorProfileRepository.save(mentorProfile);
+        return true;
+    }
+
+    @Override
+    public Boolean mentorRequestApprovalSkill( MentorSendAddSkill mentorSendAddSkill) {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
+        if (mentorProfile == null){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(MENTOR_PROFILE_NOT_FOUND_BY_USER);
+        }
+
+        List<MentorSkill> skills = mentorProfile.getSkills();
+        List<Long> skillIds = skills.stream().map(mentorSkill -> mentorSkill.getSkill().getId()).collect(Collectors.toList());
+        List<UpdateSkillRequest> mentorSkills = mentorSendAddSkill.getMentorSkills();
+
+        List<MentorSkill> mentorSkillList = new ArrayList<>();
+        for (UpdateSkillRequest mentorSkill : mentorSkills) {
+            if (skillIds.contains(mentorSkill.getSkillId())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage("Bạn đã có quyền dạy môn học này ! Không thể yêu cầu mở thêm ");
+            }
+            MentorSkill mentorSkill1 = new MentorSkill();
+            Subject subject = subjectRepository.findById(mentorSkill.getSkillId())
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(messageUtil.getLocalMessage(SKILL_NOT_FOUND_BY_ID)));
+            mentorSkill1.setSkill(subject);
+            mentorSkill1.setStatus(false);
+            mentorSkill1.setMentorProfile(mentorProfile);
+            mentorSkill1.setYearOfExperiences(mentorSkill.getYearOfExperiences());
+            mentorSkillList.add(mentorSkill1);
+        }
+        mentorProfile.setSkills(mentorSkillList);
         mentorProfileRepository.save(mentorProfile);
         return true;
     }

@@ -9,6 +9,7 @@ import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.request.ManagerApprovalAccountRequest;
 import fpt.project.bsmart.entity.request.MentorSearchRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
+import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import org.springframework.data.domain.Pageable;
@@ -27,4 +28,6 @@ public interface IMentorProfileService {
     CompletenessMentorProfileResponse getCompletenessMentorProfile();
 
     Boolean mentorRequestApprovalAccount(Long id) throws Exception, ValidationErrorsException;
+
+    Boolean mentorRequestApprovalSkill( MentorSendAddSkill mentorSendAddSkill);
 }
