@@ -629,7 +629,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             AssignmentFile newAssignmentFile = createAssignmentFile(attachFile, assignment, FileType.ATTACH);
             AssignmentFile existedAssignment = assignmentMapByName.get(newAssignmentFile.getName());
             if (existedAssignment != null) {
-                if (request.getOverWriteAttachFile()) {
+                if (request.isOverWriteAttachFile()) {
                     existedAssignmentFiles.remove(existedAssignment);
                     existedAssignmentFiles.add(newAssignmentFile);
                 } else {

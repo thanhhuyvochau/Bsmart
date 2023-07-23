@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.ACCOUNT_IS_NOT_MENTOR;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.ACCOUNT_STATUS_NOT_ALLOW;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_MENTOR_PROFILE_STATUS;
 
 
 @Component
@@ -31,6 +33,17 @@ public class MentorUtil {
         staticMessageUtil = messageUtil;
 
     }
+
+    public static Boolean checkMentorStatusToUpdateInformation(MentorProfile mentorProfile) {
+        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING)
+                && !mentorProfile.getStatus().equals(EMentorProfileStatus.EDITREQUEST)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(staticMessageUtil.getLocalMessage(INVALID_MENTOR_PROFILE_STATUS));
+        }
+        return true ;
+    }
+
+
 
     public static MentorDto convertUserToMentorDto(User user) {
         MentorProfile mentorProfile = user.getMentorProfile();

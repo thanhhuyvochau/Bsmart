@@ -137,10 +137,10 @@ public class UserServiceImpl implements IUserService {
 
     public Long uploadImageProfile(UploadImageRequest uploadImageRequest) throws IOException {
         User user = getCurrentLoginUser();
-
-
+        if (user.getMentorProfile() != null) {
+            MentorUtil.checkMentorStatusToUpdateInformation(user.getMentorProfile());
+        }
         List<UserImage> userImages = user.getUserImages();
-
 
         if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
             List<UserImage> avatarCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
@@ -351,6 +351,8 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Long editMentorPersonalProfile(MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest) {
         User user = getCurrentLoginUser();
+
+        MentorUtil.checkMentorStatusToUpdateInformation(user.getMentorProfile());
         if (mentorPersonalProfileEditRequest.getBirthday() != null) {
             if (!TimeUtil.isValidBirthday(mentorPersonalProfileEditRequest.getBirthday())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST)
