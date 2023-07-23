@@ -251,14 +251,18 @@ public class UserServiceImpl implements IUserService {
         User user = getCurrentLoginUser();
 
         if (socialProfileEditRequest.getFacebookLink() != null) {
-            if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
+            if(socialProfileEditRequest.getFacebookLink().isEmpty()){
+                user.setFacebookLink(null);
+            }else if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FACEBOOK_LINK));
             }
             user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
         }
 
         if (socialProfileEditRequest.getLinkedinLink() != null) {
-            if (!StringUtil.isValidLinkedinLink(socialProfileEditRequest.getLinkedinLink())) {
+            if(socialProfileEditRequest.getLinkedinLink().isEmpty()){
+                user.setLinkedinLink(null);
+            }else if (!StringUtil.isValidLinkedinLink(socialProfileEditRequest.getLinkedinLink())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_TWITTER_LINK));
             }
             user.setLinkedinLink(socialProfileEditRequest.getLinkedinLink());
@@ -267,7 +271,9 @@ public class UserServiceImpl implements IUserService {
         boolean isTeacher = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER);
         if (isTeacher) {
             if (socialProfileEditRequest.getWebsite() != null) {
-                if (!StringUtil.isValidWebsite(socialProfileEditRequest.getWebsite())) {
+                if(socialProfileEditRequest.getWebsite().isEmpty()){
+                    user.setWebsite(null);
+                }else if (!StringUtil.isValidWebsite(socialProfileEditRequest.getWebsite())) {
                     throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_WEBSITE));
                 }
                 user.setWebsite(socialProfileEditRequest.getWebsite());
@@ -315,7 +321,7 @@ public class UserServiceImpl implements IUserService {
         User user = getCurrentLoginUser();
 
         if (personalProfileEditRequest.getBirthday() != null) {
-            if (!TimeUtil.isValidBirthday(personalProfileEditRequest.getBirthday())) {
+            if (!TimeUtil.isValidBirthday(personalProfileEditRequest.getBirthday(), EUserRole.STUDENT)) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST)
                         .withMessage(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
             }
@@ -352,7 +358,7 @@ public class UserServiceImpl implements IUserService {
     public Long editMentorPersonalProfile(MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest) {
         User user = getCurrentLoginUser();
         if (mentorPersonalProfileEditRequest.getBirthday() != null) {
-            if (!TimeUtil.isValidBirthday(mentorPersonalProfileEditRequest.getBirthday())) {
+            if (!TimeUtil.isValidBirthday(mentorPersonalProfileEditRequest.getBirthday(), EUserRole.TEACHER)) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST)
                         .withMessage(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
             }
@@ -399,6 +405,9 @@ public class UserServiceImpl implements IUserService {
         }
         Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ROLE_NOT_FOUND_BY_CODE) + createAccountRequest.getRole()));
+        if (!TimeUtil.isValidBirthday(createAccountRequest.getBirthDay(), createAccountRequest.getRole())) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_BIRTH_DAY));
+        }
         user.setEmail(createAccountRequest.getEmail());
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());
@@ -430,9 +439,6 @@ public class UserServiceImpl implements IUserService {
         }
         if (!StringUtil.isValidEmailAddress(request.getEmail())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_EMAIL));
-        }
-        if (!TimeUtil.isValidBirthday(request.getBirthDay())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_BIRTH_DAY));
         }
         if (!StringUtil.isValidVietnameseMobilePhoneNumber(request.getPhone())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
