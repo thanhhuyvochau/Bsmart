@@ -105,7 +105,6 @@ public class ClassServiceImpl implements IClassService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
         MentorGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponsePage(course);
-        List<SectionDto> sectionDtoList = ActivityUtil.GetSectionOfCoursePage(course);
         List<Activity> sectionActivities = course.getActivities().stream()
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION) && activity.getFixed())
                 .collect(Collectors.toList());
@@ -678,6 +677,16 @@ public class ClassServiceImpl implements IClassService {
             }
         }
         return workTimeResponses;
+    }
+
+    @Override
+    public ApiPage<MentorGetClassDetailResponse> mentorGetClass(ECourseStatus status, Pageable pageable) {
+        User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        Page<Class> byMentorAndStatus = classRepository.findByMentorAndStatus(user, status, pageable);
+        List<MentorGetClassDetailResponse> classResponses = byMentorAndStatus.getContent().stream()
+                .map(ClassUtil::convertClassToMentorClassDetailResponse)
+                .collect(Collectors.toList());
+        return PageUtil.convert(new PageImpl<>(classResponses, pageable, byMentorAndStatus.getTotalElements()));
     }
 }
 //    private final MessageUtil messageUtil;

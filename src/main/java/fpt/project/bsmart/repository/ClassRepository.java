@@ -2,6 +2,7 @@ package fpt.project.bsmart.repository;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.Course;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,4 +21,6 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
     List<Class> findByCourseAndStatus(Course course , ECourseStatus status) ;
 
     Page<Class> findByCourse(Course course,  Pageable pageable) ;
+
+    Page<Class> findByMentorAndStatus(User user , ECourseStatus status,  Pageable pageable) ;
 }

@@ -21,7 +21,7 @@ public class MessageController {
     @MessageMapping("/message")
     @SendTo("/topic/messages")
     public ResponseMessage getMessage(final Message message) throws InterruptedException {
-        Thread.sleep(1000);
+
         notificationService.sendGlobalNotification();
         return new ResponseMessage(HtmlUtils.htmlEscape(message.getMessageContent()));
     }

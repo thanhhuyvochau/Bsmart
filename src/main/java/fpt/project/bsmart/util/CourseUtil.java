@@ -144,8 +144,6 @@ public class CourseUtil {
     }
 
     public static MentorGetCourseClassResponse convertCourseToCourseClassResponsePage(Course course) {
-
-
         MentorGetCourseClassResponse courseResponse = new MentorGetCourseClassResponse();
         courseResponse.setId(course.getId());
         courseResponse.setName(course.getName());
