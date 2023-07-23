@@ -23,7 +23,7 @@ public class QuizSubmittion extends BaseEntity {
     private Float point;
     @Column(name = "status")
     private QuizSubmittionStatus status;
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "quizSubmittion" )
     private List<QuizSubmitQuestion> submitQuestions = new ArrayList<>();
     @OneToOne
     @JoinColumn(name = "submitted_by")

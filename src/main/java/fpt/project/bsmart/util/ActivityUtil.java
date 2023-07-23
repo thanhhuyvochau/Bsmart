@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.Course;
 import fpt.project.bsmart.entity.Lesson;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
@@ -148,6 +149,24 @@ public class ActivityUtil {
 
         }
         return sectionDtoList;
+    }
+
+    public static boolean isCorrectActivityType(Activity activity, ECourseActivityType type){
+        switch (type){
+            case QUIZ:
+                return activity.getQuiz() != null;
+            case ANNOUNCEMENT:
+                return activity.getAnnouncement() != null;
+            case RESOURCE:
+                return activity.getResource() != null;
+            case ASSIGNMENT:
+                return activity.getAssignment() != null;
+            case LESSON:
+                return activity.getLesson() != null;
+            case SECTION:
+                return activity != null;
+        }
+        return false;
     }
 
     public static boolean haveAuthorizeToView(Activity activity, Class clazz) {
