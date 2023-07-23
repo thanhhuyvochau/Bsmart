@@ -4,10 +4,7 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.ECourseActivityType;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.EQuestionType;
-import fpt.project.bsmart.entity.constant.ETransactionStatus;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
@@ -610,7 +607,7 @@ public class ConvertUtil {
         ECourseActivityType type = activity.getType();
         switch (type) {
             case QUIZ:
-                activityDetailDto.setDetail(convertQuizToQuizDto(activity.getQuiz()));
+                activityDetailDto.setDetail(convertQuizToQuizDto(activity.getQuiz(), false));
                 break;
             case ASSIGNMENT:
                 activityDetailDto.setDetail(convertAssignmentToDto(activity.getAssignment()));
@@ -671,17 +668,26 @@ public class ConvertUtil {
 //        return activityTypeResponse;
 //    }
 
-    public static QuizDto convertQuizToQuizDto(Quiz quiz) {
+    public static QuizDto convertQuizToQuizDto(Quiz quiz, boolean isAttempt) {
         QuizDto quizDto = ObjectUtil.copyProperties(quiz, new QuizDto(), QuizDto.class);
-        if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
-            List<QuizQuestionDto> questionDtos = new ArrayList<>();
-            for (QuizQuestion question : quiz.getQuizQuestions()) {
-                questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
+        User user = SecurityUtil.getCurrentUser();
+        boolean isStudent = SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT);
+        if(isStudent){
+            quizDto.setDefaultPoint(null);
+            quizDto.setSuffleQuestion(null);
+            quizDto.setPassword(null);
+        }
+        if(isAttempt){
+            if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
+                List<QuizQuestionDto> questionDtos = new ArrayList<>();
+                for (QuizQuestion question : quiz.getQuizQuestions()) {
+                    questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
+                }
+                if(quiz.getIsSuffleQuestion()){
+                    Collections.shuffle(questionDtos);
+                }
+                quizDto.setQuizQuestions(questionDtos);
             }
-            if(quiz.getIsSuffleQuestion()){
-                Collections.shuffle(questionDtos);
-            }
-            quizDto.setQuizQuestions(questionDtos);
         }
         return quizDto;
     }

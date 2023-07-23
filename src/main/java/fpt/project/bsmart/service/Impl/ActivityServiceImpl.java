@@ -774,10 +774,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         if (!isMatchPassword) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
         }
-        QuizDto quizDto = ConvertUtil.convertQuizToQuizDto(quiz);
-        quizDto.setDefaultPoint(null);
-        quizDto.setSuffleQuestion(null);
-        quizDto.setPassword(null);
+        QuizDto quizDto = ConvertUtil.convertQuizToQuizDto(quiz, true);
         List<QuizQuestionDto> questions = quizDto.getQuizQuestions();
         for (QuizQuestionDto quizQuestionDto : questions) {
             quizQuestionDto.getAnswers().stream().forEach(x -> x.setRight(false));
