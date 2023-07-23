@@ -35,14 +35,17 @@ public class MentorUtil {
     }
 
     public static Boolean checkMentorStatusToUpdateInformation(MentorProfile mentorProfile) {
-        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING)
-                && !mentorProfile.getStatus().equals(EMentorProfileStatus.EDITREQUEST)) {
+
+        if (mentorProfile.getStatus().equals(EMentorProfileStatus.WAITING)){
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(staticMessageUtil.getLocalMessage(INVALID_MENTOR_PROFILE_STATUS));
+                    .withMessage("Tài khoản của bạn đang được hệ thống phê duyệt! Không thể cập nhật thông tin lúc này");
+        }
+        if (mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage("Tài khoản của bạn đã được hệ thống phê duyệt! Nếu muốn cập nhật thông tin vui lòng gửi yêu cầu cho admin");
         }
         return true ;
     }
-
 
 
     public static MentorDto convertUserToMentorDto(User user) {

@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.service.IMentorProfileService;
@@ -52,8 +53,6 @@ public class MentorProfileController {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getPendingMentorProfileList(request , pageable)));
     }
 
-
-
     @Operation(summary = "Manager phê duyêt / từ chối / yêu cầu thay đổi  hồ sơ mentor")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @PutMapping("/{id}/approval")
@@ -66,6 +65,14 @@ public class MentorProfileController {
     @PutMapping
     public ResponseEntity<ApiResponse<Long>> updateMentorProfile(@RequestBody UpdateMentorProfileRequest updateMentorProfileRequest){
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateMentorProfile(updateMentorProfileRequest)));
+    }
+
+    @Operation(summary = "mentor gửi yêu cầu dạy thêm môn học mới")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/request-approval-skill")
+    public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalSkill(
+            @RequestBody MentorSendAddSkill mentorSendAddSkill){
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorRequestApprovalSkill(mentorSendAddSkill)));
     }
 
     @Operation(summary = "CHƯA HỖ TRỢ --- Upload chứng chỉ của giảng viên")

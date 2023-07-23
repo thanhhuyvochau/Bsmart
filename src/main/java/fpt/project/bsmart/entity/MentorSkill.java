@@ -17,6 +17,9 @@ public class MentorSkill {
     @JoinColumn(name = "mentor_profile_id")
     private MentorProfile mentorProfile;
 
+    @Column(name = "status")
+    private Boolean status;
+
     public Long getId() {
         return Id;
     }
@@ -47,5 +50,13 @@ public class MentorSkill {
 
     public void setMentorProfile(MentorProfile mentorProfile) {
         this.mentorProfile = mentorProfile;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 }
