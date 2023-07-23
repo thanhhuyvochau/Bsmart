@@ -238,7 +238,8 @@ public class MentorProfileImpl implements IMentorProfileService {
 
         }
 
-        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING)) {
+        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING) &&
+                !mentorProfile.getStatus().equals(EMentorProfileStatus.EDITREQUEST) ) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
         }

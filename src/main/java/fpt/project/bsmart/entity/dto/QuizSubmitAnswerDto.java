@@ -22,19 +22,19 @@ public class QuizSubmitAnswerDto {
         this.answer = answer;
     }
 
-    public Boolean getRight() {
+    public Boolean getIsRight() {
         return isRight;
     }
 
-    public void setRight(Boolean right) {
+    public void setIsRight(Boolean right) {
         isRight = right;
     }
 
-    public Boolean getChosen() {
+    public Boolean getIsChosen() {
         return isChosen;
     }
 
-    public void setChosen(Boolean chosen) {
+    public void setIsChosen(Boolean chosen) {
         isChosen = chosen;
     }
 }
