@@ -119,7 +119,7 @@ public class ClassController {
     @Operation(summary = "mentor mở lớp học (lớp status : not start )")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PutMapping("/{id}/open")
-    public ResponseEntity<ApiResponse<Boolean>> mentorOpenClass(@PathVariable Long id ,  List<MentorCreateScheduleRequest> timeTableRequest) throws ValidationErrorsException {
+    public ResponseEntity<ApiResponse<Boolean>> mentorOpenClass(@PathVariable Long id, @RequestBody List<MentorCreateScheduleRequest> timeTableRequest) throws ValidationErrorsException {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorOpenClass(id, timeTableRequest)));
     }
     //     ################################## Manager ##########################################
