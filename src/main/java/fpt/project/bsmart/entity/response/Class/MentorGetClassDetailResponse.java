@@ -14,6 +14,8 @@ public class MentorGetClassDetailResponse {
 
     private Long id;
 
+    private Long courseId ;
+
     private String code;
 
     private Instant startDate;
@@ -44,6 +46,14 @@ public class MentorGetClassDetailResponse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(Long courseId) {
+        this.courseId = courseId;
     }
 
     public String getCode() {
