@@ -6,7 +6,7 @@ public class QuestionFilter {
     /**
      * Tạm thời filter trong question bank sẽ chỉ có subject => tương lai có thì thêm sau
      */
-    @NotNull
+    @NotNull(message = "subject id is not allowed to null")
     private Long subjectId;
     private int selection = 0; // -1 private, 0 all, 1 shared
 
