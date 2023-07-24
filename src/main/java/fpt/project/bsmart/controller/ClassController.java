@@ -5,20 +5,17 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
-
+import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
+import fpt.project.bsmart.entity.response.AttendanceStudentResponse;
+import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
+import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassResponse;
 import fpt.project.bsmart.entity.response.MentorGetCourseClassResponse;
-
-import fpt.project.bsmart.entity.response.AttendanceStudentResponse;
-import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
-import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
-
+import fpt.project.bsmart.entity.response.StudentClassResponse;
 import fpt.project.bsmart.service.AttendanceService;
-
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -90,28 +87,36 @@ public class ClassController {
     @Operation(summary = "mentor lấy các class  ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/mentor")
-    public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> mentorGetClass(ECourseStatus  status , Pageable pageable) {
+    public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> mentorGetClass(ECourseStatus status, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorGetClass(status, pageable)));
     }
 
     @Operation(summary = "Quản lý lấy danh sách các lớp học đang chờ và đã bắt đầu")
     @GetMapping()
     @PreAuthorize("hasAnyRole('MANAGER')")
-    public ResponseEntity<ApiResponse<ApiPage<BaseClassResponse>>> getAllClassesForManager(Pageable pageable){
+    public ResponseEntity<ApiResponse<ApiPage<BaseClassResponse>>> getAllClassesForManager(Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassesForManager(pageable)));
     }
 
     @Operation(summary = "manager lấy thông tin chi tiết lớp")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/{id}/detail")
-    public ResponseEntity<ApiResponse<ManagerGetClassDetailResponse>> managerGetClassDetail(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<ManagerGetClassDetailResponse>> managerGetClassDetail(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.managerGetClassDetail(id)));
     }
+
     @Operation(summary = "Lấy lớp chi tiết, bao gồm nội dung của lớp đang giảng dạy hoặc đã kết thúc")
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER','STUDENT','TEACHER')")
     public ResponseEntity<ApiResponse<ClassResponse>> getClassDetail(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getDetailClass(id)));
+    }
+
+    @Operation(summary = "mentor mở lớp học (lớp status : not start )")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/{id}/open")
+    public ResponseEntity<ApiResponse<Boolean>> mentorOpenClass(@PathVariable Long id, @RequestBody List<MentorCreateScheduleRequest> timeTableRequest) throws ValidationErrorsException {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.mentorOpenClass(id, timeTableRequest)));
     }
     //     ################################## Manager ##########################################
 
@@ -147,9 +152,9 @@ public class ClassController {
         return ResponseEntity.ok(ApiResponse.success(attendanceService.getAttendanceByClassForStudent(classId)));
     }
 
-//    @GetMapping("/{id}/time-tables")
-//    public ResponseEntity<ApiResponse<ApiPage<TimeTableResponse>>> getTimeTables(Long id, Pageable pageable) {
-//        return ResponseEntity.ok(ApiResponse.success(timeTableService.getTimeTableByClass(id, pageable)));
-//    }
+    @GetMapping("/{id}/members")
+    public ResponseEntity<ApiResponse<ApiPage<StudentClassResponse>>> getClassMembers(@PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassMembers(id, pageable)));
+    }
 
 }

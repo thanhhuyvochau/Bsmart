@@ -47,7 +47,7 @@ import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
 
 @Service
 @Transactional
-public class ActivityServiceImpl implements IActivityService, Cloneable {
+public class ActivityServiceImpl implements IActivityService {
 
 
     @Value("${minio.endpoint}")

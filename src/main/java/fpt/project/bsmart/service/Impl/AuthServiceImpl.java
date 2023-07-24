@@ -2,6 +2,7 @@ package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.config.security.jwt.JwtUtils;
 import fpt.project.bsmart.config.security.service.UserDetailsImpl;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.entity.request.LoginRequest;
@@ -20,9 +21,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.USERNAME_PASSWORD_INCORRECT;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.USER_NOT_FOUND_BY_ID;
 
 @Service
 public class AuthServiceImpl implements IAuthService {
@@ -47,6 +50,7 @@ public class AuthServiceImpl implements IAuthService {
     public JwtResponse userLogin(LoginRequest loginRequest) {
         Authentication authentication = null;
 
+
         try {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
@@ -62,6 +66,19 @@ public class AuthServiceImpl implements IAuthService {
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
+
+        Boolean firstLoginFlag = userRepository.callCheckFirstLoginProcedure(loginRequest.getEmail()) ;
+//        Boolean firstLoginFlag = userRepository.getFirstLoginFlag(loginRequest.getEmail());
+
+        System.out.println(firstLoginFlag);
+
+        if (firstLoginFlag == null || !firstLoginFlag) {
+            User user = userRepository.findByEmail(loginRequest.getEmail())
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + loginRequest.getEmail()));
+            user.setFirstLogin(true);
+            userRepository.save(user);
+        }
+
         return new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getEmail(),

@@ -62,8 +62,9 @@ public class TransactionService implements ITransactionService {
     private final ReferralCodeRepository referralCodeRepository;
     private final VnpConfig vnpConfig;
     private final ClassRepository classRepository;
+    private final WebSocketUtil webSocketUtil;
 
-    public TransactionService(WalletRepository walletRepository, TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, OrderDetailRepository orderDetailRepository, CourseRepository courseRepository, OrderRepository orderRepository, CartItemRepository cartItemRepository, ReferralCodeRepository referralCodeRepository, VnpConfig vnpConfig, ClassRepository classRepository) {
+    public TransactionService(WalletRepository walletRepository, TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, OrderDetailRepository orderDetailRepository, CourseRepository courseRepository, OrderRepository orderRepository, CartItemRepository cartItemRepository, ReferralCodeRepository referralCodeRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
@@ -76,6 +77,7 @@ public class TransactionService implements ITransactionService {
         this.referralCodeRepository = referralCodeRepository;
         this.vnpConfig = vnpConfig;
         this.classRepository = classRepository;
+        this.webSocketUtil = webSocketUtil;
     }
 
     @Override
@@ -292,6 +294,7 @@ public class TransactionService implements ITransactionService {
                 studentClass.setClazz(orderedClass);
                 orderedClass.getStudentClasses().add(studentClass);
             }
+            webSocketUtil.sendPrivateNotification("Order Successful!!");
             classRepository.saveAll(orderedClasses);
         }
 

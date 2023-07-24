@@ -54,6 +54,7 @@ logging:
     path: /logs
     name: /logs/application.log
 
+vnp_Returnurl: http://103.173.155.221:8080/api/transactions/pay/vnpay/result
 
 
 

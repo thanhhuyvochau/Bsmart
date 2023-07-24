@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
+import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
 import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 
@@ -54,4 +55,7 @@ public interface IClassService {
     List<WorkTimeResponse> getWorkingTime();
 
     ApiPage<MentorGetClassDetailResponse> mentorGetClass(ECourseStatus status, Pageable pageable);
+
+    Boolean mentorOpenClass(Long id,  List<MentorCreateScheduleRequest> timeTableRequest) throws ValidationErrorsException;
+    ApiPage<StudentClassResponse> getClassMembers(Long id, Pageable pageable);
 }

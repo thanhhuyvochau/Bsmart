@@ -11,7 +11,6 @@ import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.ActivityDto;
-import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
@@ -42,8 +41,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
-import static fpt.project.bsmart.entity.constant.ECourseStatus.WAITING;
+import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 
@@ -361,11 +359,11 @@ public class ClassServiceImpl implements IClassService {
         classFromRequest.setCourse(course);
         classRepository.save(classFromRequest);
 
-        classes.forEach(aClass -> {
-                    classCodes.add(aClass.getCode());
-                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
-                }
-        );
+//        classes.forEach(aClass -> {
+//                    classCodes.add(aClass.getCode());
+//                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
+//                }
+//        );
         return classFromRequest;
     }
 
@@ -474,11 +472,11 @@ public class ClassServiceImpl implements IClassService {
         course.setClasses(classes);
         courseRepository.save(course);
         // ghi log
-        classes.forEach(aClass -> {
-                    classCodes.add(aClass.getCode());
-                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
-                }
-        );
+//        classes.forEach(aClass -> {
+//                    classCodes.add(aClass.getCode());
+//                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
+//                }
+//        );
         return classCodes;
     }
 
@@ -688,6 +686,39 @@ public class ClassServiceImpl implements IClassService {
                 .collect(Collectors.toList());
         return PageUtil.convert(new PageImpl<>(classResponses, pageable, byMentorAndStatus.getTotalElements()));
     }
+
+    @Override
+    public Boolean mentorOpenClass(Long id, List<MentorCreateScheduleRequest> timeTableRequest) throws ValidationErrorsException {
+
+        User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
+        if (!clazz.getStatus().equals(NOTSTART)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(CLASS_STATUS_NOT_ALLOW);
+        }
+        mentorCreateScheduleForClass(clazz, timeTableRequest);
+        clazz.setStatus(STARTING);
+        classRepository.save(clazz);
+        return true;
+    }
+
+    @Override
+    public ApiPage<StudentClassResponse> getClassMembers(Long id, Pageable pageable) {
+        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
+        ECourseStatus status = clazz.getStatus();
+        boolean mentorOfClass = ClassValidator.isMentorOfClass(SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional()), clazz);
+        if (!mentorOfClass) {
+            throw ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
+        }
+        if (!Objects.equals(status, NOTSTART) && !Objects.equals(status, STARTING) && !Objects.equals(status, ENDED)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(messageUtil.getLocalMessage(CLASS_STATUS_NOT_ALLOW));
+        }
+        List<StudentClass> studentClasses = clazz.getStudentClasses();
+        Page<StudentClass> studentClassPage = new PageImpl<>(studentClasses, pageable, studentClasses.size());
+        return PageUtil.convert(studentClassPage.map(ConvertUtil::convertStudentClassToResponse));
+    }
 }
 //    private final MessageUtil messageUtil;
 //    private final CourseRepository courseRepository;
@@ -850,4 +881,3 @@ public class ClassServiceImpl implements IClassService {
 //        }
 //        return true;
 //    }
-

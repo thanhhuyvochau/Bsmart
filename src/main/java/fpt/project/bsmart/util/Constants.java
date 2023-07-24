@@ -57,6 +57,7 @@ public class Constants {
 
         public static final String COURSE_STATUS_NOT_ALLOW = "COURSE_STATUS_NOT_ALLOW";
 
+        public static final String CLASS_STATUS_NOT_ALLOW = "CLASS_STATUS_NOT_ALLOW";
         public static final String COURSE_DOES_NOT_BELONG_TO_THE_TEACHER = "COURSE_DOES_NOT_BELONG_TO_THE_TEACHER";
 
         public static final String SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED = "SCHEDULE_AND_SLOT_HAVE_BEEN_OVERLAPPED";

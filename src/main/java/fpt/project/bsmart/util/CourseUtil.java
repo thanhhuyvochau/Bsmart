@@ -9,7 +9,9 @@ import fpt.project.bsmart.entity.constant.EOrderStatus;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
+
 import fpt.project.bsmart.entity.response.MentorGetCourseClassResponse;
+
 import fpt.project.bsmart.repository.ClassRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -63,7 +65,7 @@ public class CourseUtil {
         return sb.toString();
     }
 
-    public static Boolean checkCourseValid(Course course, User user, List<Class> classesInRequest) {
+    public static Boolean checkCourseValidToSendApproval(Course course, User user, List<Class> classesInRequest) {
         if (!course.getStatus().equals(REQUESTING) && !course.getStatus().equals(EDITREQUEST)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(staticMessageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
         }
@@ -94,6 +96,41 @@ public class CourseUtil {
         for (Class aClass : classesInRequest) {
             if (!aClass.getStatus().equals(REQUESTING) && !aClass.getStatus().equals(EDITREQUEST)) {
                 throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(staticMessageUtil.getLocalMessage(CLASSES_ARE_CURRENTLY_STARTING_CANNOT_NOT_REQUEST_TO_APPROVAL));
+            }
+            if (aClass.getTimeTables() == null) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage(staticMessageUtil.getLocalMessage(THE_CLASS_HAS_NO_TIME_TABLE) + aClass.getId());
+            }
+
+        }
+
+        return true;
+    }
+
+    public static Boolean checkCourseValidToApproval(Course course, List<Class> classesInRequest) {
+        if (!course.getStatus().equals(WAITING)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(staticMessageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
+        }
+
+
+        // Kiem tra khóa học có nội dung chưa
+        if (course.getActivities().size() == 0) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(staticMessageUtil.getLocalMessage(THE_COURSE_HAS_NO_CONTENT) +  course.getId());
+        }
+
+        // kiểm tra course có  lớp học chưa
+        List<Class> classes = course.getClasses();
+        if (classes.size() == 0) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(staticMessageUtil.getLocalMessage(THE_COURSE_HAS_NO_CLASS_UNABLE_TO_SUBMIT_APPROVAL_REQUEST));
+        }
+
+
+        // Kiểm tra lớp học có thời khóa biểu chưaz
+        for (Class aClass : classesInRequest) {
+            if (!aClass.getStatus().equals(WAITING)) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(staticMessageUtil.getLocalMessage(CLASS_STATUS_NOT_ALLOW));
             }
             if (aClass.getTimeTables() == null) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST)
