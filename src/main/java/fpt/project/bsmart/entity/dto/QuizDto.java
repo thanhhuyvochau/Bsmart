@@ -12,6 +12,7 @@ public class QuizDto {
     private Instant startDate;
     private Instant endDate;
     private Integer time;
+    private Integer questionCount = 0;
     private QuizStatus status;
     private Float defaultPoint;
     private Boolean isSuffleQuestion;
@@ -61,6 +62,14 @@ public class QuizDto {
         this.time = time;
     }
 
+    public Integer getQuestionCount() {
+        return questionCount;
+    }
+
+    public void setQuestionCount(Integer questionCount) {
+        this.questionCount = questionCount;
+    }
+
     public QuizStatus getStatus() {
         return status;
     }
@@ -77,11 +86,11 @@ public class QuizDto {
         this.defaultPoint = defaultPoint;
     }
 
-    public Boolean getSuffleQuestion() {
+    public Boolean getIsSuffleQuestion() {
         return isSuffleQuestion;
     }
 
-    public void setSuffleQuestion(Boolean suffleQuestion) {
+    public void setIsSuffleQuestion(Boolean suffleQuestion) {
         isSuffleQuestion = suffleQuestion;
     }
 

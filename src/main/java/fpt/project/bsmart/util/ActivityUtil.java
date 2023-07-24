@@ -1,12 +1,11 @@
 package fpt.project.bsmart.util;
 
-import fpt.project.bsmart.entity.Activity;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.Course;
-import fpt.project.bsmart.entity.Lesson;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.Avtivity.MentorGetLessonForCourse;
@@ -22,8 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.util.Constants.ErrorMessage.CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_UPDATE;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_STATUS_NOT_ALLOW;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 @Component
 public class ActivityUtil {
@@ -175,6 +173,16 @@ public class ActivityUtil {
             return Objects.equals(authorizeClass.getId(), clazz.getId());
         }).count();
         return isAuthorized > 0;
+    }
+
+    public static boolean isBelongToMentor(Activity activity){
+        User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        boolean isMentor = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER);
+        if(!isMentor){
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(staticMessageUtil.getLocalMessage(FORBIDDEN));
+        }
+        boolean isBelongToMentor = Objects.equals(user, activity.getCourse().getCreator());
+        return isBelongToMentor;
     }
 }
 

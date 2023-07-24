@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.builder.ActivityBuilder;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.ActivityDetailDto;
 import fpt.project.bsmart.entity.dto.QuizDto;
@@ -15,14 +16,18 @@ import fpt.project.bsmart.entity.request.activity.MentorCreateAnnouncementForCla
 import fpt.project.bsmart.entity.request.activity.MentorCreateResourceRequest;
 import fpt.project.bsmart.entity.request.activity.MentorCreateSectionForCourse;
 import fpt.project.bsmart.entity.response.Avtivity.*;
+import fpt.project.bsmart.entity.response.QuizSubmissionResultResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IActivityService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.adapter.MinioAdapter;
+import fpt.project.bsmart.util.specification.QuizSubmissionSpecificationBuilder;
 import fpt.project.bsmart.validator.ActivityValidator;
 import fpt.project.bsmart.validator.AssignmentValidator;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -775,21 +780,56 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
         }
         QuizDto quizDto = ConvertUtil.convertQuizToQuizDto(quiz, true);
-        List<QuizQuestionDto> questions = quizDto.getQuizQuestions();
-        for (QuizQuestionDto quizQuestionDto : questions) {
-            quizQuestionDto.getAnswers().stream().forEach(x -> x.setRight(false));
-        }
-        quizDto.setQuizQuestions(questions);
         return quizDto;
     }
 
-    public QuizSubmittionDto studentReviewQuiz(Long id) {
+    public QuizSubmissionResultResponse studentViewQuizResult(Long id){
+        QuizSubmittion submittion = quizSubmissionRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(QUIZ_SUBMISSION_NOT_FOUND_BY_ID) + id));
+        User user = SecurityUtil.getCurrentUser();
+        boolean isBelongToMentorOrStudent;
+        if(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER)){
+            isBelongToMentorOrStudent = ActivityUtil.isBelongToMentor(submittion.getQuiz().getActivity());
+        }else{
+            isBelongToMentorOrStudent = Objects.equals(user, submittion.getSubmittedBy());
+        }
+        if(!isBelongToMentorOrStudent){
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
+        }
+        return ConvertUtil.convertQuizSubmissionToSubmissionResult(submittion);
+    }
+
+    public ApiPage<QuizSubmissionResultResponse> teacherViewQuizResult(Long id, QuizResultRequest request, Pageable pageable){
+        Quiz quiz = findQuizById(id);
+        boolean isBelongToMentor = ActivityUtil.isBelongToMentor(quiz.getActivity());
+        if(!isBelongToMentor){
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
+        }
+        QuizSubmissionSpecificationBuilder builder = QuizSubmissionSpecificationBuilder.quizSubmissionSpecificationBuilder()
+                .queryByQuiz(quiz.getId())
+                .queryByClass(request.getClassId())
+                .queryByPoint(request.getComparison(), request.getPoint())
+                .queryByStatus(request.getStatus())
+                .isAfter(request.getStartDate())
+                .isBefore(request.getEndDate());
+        Page<QuizSubmittion> quizSubmittionPage = quizSubmissionRepository.findAll(builder.build(), pageable);
+        return PageUtil.convert(quizSubmittionPage.map(ConvertUtil::convertQuizSubmissionToSubmissionResult));
+    }
+    public QuizSubmittionDto reviewQuiz(Long id) {
         User user = SecurityUtil.getCurrentUser();
         QuizSubmittion quizSubmittion = quizSubmissionRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(QUIZ_SUBMISSION_NOT_FOUND_BY_ID) + id));
         boolean isProposer = quizSubmittion.getSubmittedBy().equals(user);
         if (!isProposer) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
+            boolean isTeacher = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER);
+            if(isTeacher){
+                boolean isBelongToMentor = ActivityUtil.isBelongToMentor(quizSubmittion.getQuiz().getActivity());
+                if(!isBelongToMentor){
+                    throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
+                }
+            }else{
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
+            }
         }
         if (!quizSubmittion.getQuiz().getIsAllowReview()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(NOT_ALLOW_REVIEW_QUIZ));

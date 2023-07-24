@@ -5,11 +5,11 @@ import fpt.project.bsmart.entity.constant.QuestionType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QuizQuestionDto {
+public class QuizQuestionDto<T extends BaseQuizAnswerDto> {
     private Long id;
     private String question;
     private QuestionType type;
-    private List<QuizAnswerDto> answers = new ArrayList<>();
+    private List<T> answers = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -35,11 +35,11 @@ public class QuizQuestionDto {
         this.type = type;
     }
 
-    public List<QuizAnswerDto> getAnswers() {
+    public List<T> getAnswers() {
         return answers;
     }
 
-    public void setAnswers(List<QuizAnswerDto> answers) {
+    public void setAnswers(List<T> answers) {
         this.answers = answers;
     }
 }
