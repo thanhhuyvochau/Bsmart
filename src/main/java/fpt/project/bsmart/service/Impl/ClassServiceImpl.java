@@ -693,6 +693,10 @@ public class ClassServiceImpl implements IClassService {
 
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
+        if (!clazz.getStatus().equals(NOTSTART)){
+            throw ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(CLASS_STATUS_NOT_ALLOW);
+        }
         mentorCreateScheduleForClass(clazz, timeTableRequest);
         clazz.setStatus(STARTING);
         classRepository.save(clazz);
