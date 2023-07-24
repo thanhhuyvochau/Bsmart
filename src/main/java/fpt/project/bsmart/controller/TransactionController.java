@@ -79,7 +79,6 @@ public class TransactionController {
     @GetMapping("/pay/vnpay/result")
     public void getResultOfPayByVnPay(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         iTransactionService.executeAfterPayment(request);
-        
     }
 
 }

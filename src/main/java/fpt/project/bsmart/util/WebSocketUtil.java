@@ -1,6 +1,7 @@
 package fpt.project.bsmart.util;
 
 
+import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.notification.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -27,8 +28,8 @@ public class WebSocketUtil {
     }
 
     public void sendPrivateNotification(final String message) {
-        ResponseMessage res = new ResponseMessage(message);
+        ApiResponse<String> apiResponse = ApiResponse.success(message);
         Optional<String> usernameOptional = SecurityUtil.getCurrentUserName();
-        usernameOptional.ifPresent(s -> messagingTemplate.convertAndSendToUser(s, QUEUE_PRIVATE, res));
+        usernameOptional.ifPresent(s -> messagingTemplate.convertAndSendToUser(s, QUEUE_PRIVATE, apiResponse));
     }
 }
