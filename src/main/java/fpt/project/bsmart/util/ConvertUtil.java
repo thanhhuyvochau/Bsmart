@@ -763,8 +763,9 @@ public class ConvertUtil {
         response.setId(submittion.getId());
         response.setPoint(submittion.getPoint());
         response.setCorrectNumber(submittion.getCorrectNumber());
+        response.setTotalQuestion(submittion.getQuiz().getQuizQuestions().size());
         response.setStatus(submittion.getStatus());
-        response.setSubmitBy(submittion.getSubmittedBy().getFullName());
+        response.setSubmitBy(new QuizSubmissionResultResponse.UserInfo(submittion.getSubmittedBy().getId(), submittion.getSubmittedBy().getFullName()));
         response.setSubmitAt(submittion.getCreated());
         return response;
     }

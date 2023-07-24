@@ -140,7 +140,7 @@ public class ActivityController {
     }
 
     @Operation(summary = "xem kết quả quiz")
-    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER')")
+    @PreAuthorize("hasAnyRole('STUDENT')")
     @GetMapping("/quiz/result/{id}")
     public ResponseEntity<ApiResponse<QuizSubmissionResultResponse>> studentViewQuizResult(@PathVariable Long id){
         return ResponseEntity.ok(ApiResponse.success(activityService.studentViewQuizResult(id)));

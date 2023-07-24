@@ -816,29 +816,29 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         return PageUtil.convert(quizSubmittionPage.map(ConvertUtil::convertQuizSubmissionToSubmissionResult));
     }
     public QuizSubmittionDto reviewQuiz(Long id) {
-        User user = SecurityUtil.getCurrentUser();
         QuizSubmittion quizSubmittion = quizSubmissionRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(QUIZ_SUBMISSION_NOT_FOUND_BY_ID) + id));
-        boolean isProposer = quizSubmittion.getSubmittedBy().equals(user);
-        if (!isProposer) {
-            boolean isTeacher = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER);
-            if(isTeacher){
-                boolean isBelongToMentor = ActivityUtil.isBelongToMentor(quizSubmittion.getQuiz().getActivity());
-                if(!isBelongToMentor){
-                    throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
-                }
-            }else{
+        User user = SecurityUtil.getCurrentUser();
+        boolean isTeacher = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER);
+        if(isTeacher){
+            boolean isBelongToMentor = ActivityUtil.isBelongToMentor(quizSubmittion.getQuiz().getActivity());
+            if(!isBelongToMentor){
                 throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
             }
-        }
-        if (!quizSubmittion.getQuiz().getIsAllowReview()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(NOT_ALLOW_REVIEW_QUIZ));
-        }
-        long reviewAfter = quizSubmittion.getQuiz().getAllowReviewAfterMin();
-        Instant endTime = quizSubmittion.getCreated().plus(reviewAfter, ChronoUnit.MINUTES);
-        Instant now = Instant.now();
-        if (endTime.isAfter(now)) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(QUIZ_HAVE_NOT_FINISHED) + endTime);
+        }else {
+            boolean isProposer = quizSubmittion.getSubmittedBy().equals(user);
+            if (!isProposer) {
+                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
+            }
+            if (!quizSubmittion.getQuiz().getIsAllowReview()) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(NOT_ALLOW_REVIEW_QUIZ));
+            }
+            long reviewAfter = quizSubmittion.getQuiz().getAllowReviewAfterMin();
+            Instant endTime = quizSubmittion.getCreated().plus(reviewAfter, ChronoUnit.MINUTES);
+            Instant now = Instant.now();
+            if (endTime.isAfter(now)) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(QUIZ_HAVE_NOT_FINISHED) + endTime);
+            }
         }
         return ConvertUtil.convertQuizSubmittionToQuizSubmittionDto(quizSubmittion);
     }
