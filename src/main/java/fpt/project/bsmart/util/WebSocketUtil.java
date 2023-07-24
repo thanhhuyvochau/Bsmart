@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class WebSocketUtil {
 
@@ -24,8 +26,9 @@ public class WebSocketUtil {
         messagingTemplate.convertAndSend(BASE_TOPIC, res);
     }
 
-    public void sendPrivateNotification(final String message, final String id) {
+    public void sendPrivateNotification(final String message) {
         ResponseMessage res = new ResponseMessage(message);
-        messagingTemplate.convertAndSendToUser(id, QUEUE_PRIVATE, res);
+        Optional<String> usernameOptional = SecurityUtil.getCurrentUserName();
+        usernameOptional.ifPresent(s -> messagingTemplate.convertAndSendToUser(s, QUEUE_PRIVATE, res));
     }
 }

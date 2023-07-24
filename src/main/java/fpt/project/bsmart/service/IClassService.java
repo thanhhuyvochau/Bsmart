@@ -57,4 +57,5 @@ public interface IClassService {
     ApiPage<MentorGetClassDetailResponse> mentorGetClass(ECourseStatus status, Pageable pageable);
 
     Boolean mentorOpenClass(Long id,  List<MentorCreateScheduleRequest> timeTableRequest) throws ValidationErrorsException;
+    ApiPage<StudentClassResponse> getClassMembers(Long id, Pageable pageable);
 }

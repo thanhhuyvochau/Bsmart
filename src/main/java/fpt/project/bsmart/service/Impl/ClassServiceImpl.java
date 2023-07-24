@@ -11,7 +11,6 @@ import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.ActivityDto;
-import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
@@ -693,7 +692,7 @@ public class ClassServiceImpl implements IClassService {
 
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
-        if (!clazz.getStatus().equals(NOTSTART)){
+        if (!clazz.getStatus().equals(NOTSTART)) {
             throw ApiException.create(HttpStatus.NOT_FOUND)
                     .withMessage(CLASS_STATUS_NOT_ALLOW);
         }
@@ -701,6 +700,24 @@ public class ClassServiceImpl implements IClassService {
         clazz.setStatus(STARTING);
         classRepository.save(clazz);
         return true;
+    }
+
+    @Override
+    public ApiPage<StudentClassResponse> getClassMembers(Long id, Pageable pageable) {
+        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
+        ECourseStatus status = clazz.getStatus();
+        boolean mentorOfClass = ClassValidator.isMentorOfClass(SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional()), clazz);
+        if (!mentorOfClass) {
+            throw ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
+        }
+        if (!Objects.equals(status, NOTSTART) && !Objects.equals(status, STARTING) && !Objects.equals(status, ENDED)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(messageUtil.getLocalMessage(CLASS_STATUS_NOT_ALLOW));
+        }
+        List<StudentClass> studentClasses = clazz.getStudentClasses();
+        Page<StudentClass> studentClassPage = new PageImpl<>(studentClasses, pageable, studentClasses.size());
+        return PageUtil.convert(studentClassPage.map(ConvertUtil::convertStudentClassToResponse));
     }
 }
 //    private final MessageUtil messageUtil;
