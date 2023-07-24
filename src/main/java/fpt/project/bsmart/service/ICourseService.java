@@ -29,7 +29,7 @@ public interface ICourseService {
 
     Boolean mentorDeleteCourse(Long id);
 
-    ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status ,Pageable pageable);
+    ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status  ,Pageable pageable);
 
     List<ActivityDto> getAllActivityByCourseId(Long id);
 
@@ -37,7 +37,11 @@ public interface ICourseService {
 
     CompletenessCourseResponse getCompletenessCourse(Long id);
 
+
+
+
     Boolean managerApprovalCourseRequest(Long id, ManagerApprovalCourseRequest approvalCourseRequest);
+
 //
 //    List<CourseDto> getCoursesBySubject(Long subjectId);
 //    List<Long> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest);
@@ -68,7 +72,7 @@ public interface ICourseService {
 //
 //    ApiPage<CourseSubCourseResponse> coursePendingToApprove(ECourseStatus status, Pageable pageable);
 //
-//    Boolean managerApprovalCourseRequest(Long subCourseId, ManagerApprovalCourseRequest approvalCourseRequest);
+
 //
 //    Boolean managerCreateCourse(CreateCoursePublicRequest createCourseRequest);
 //

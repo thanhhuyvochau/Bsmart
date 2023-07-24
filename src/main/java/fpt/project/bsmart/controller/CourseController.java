@@ -72,7 +72,8 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.mentorDeleteCourse(id)));
     }
 
-    @Operation(summary = "Mentor lấy khoa hoc cua minh")
+    @Operation(summary = " Mentor lấy tất cả khóa học của minh")
+
     @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/mentor")
     public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseOfMentor(
@@ -100,6 +101,12 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getAllActivityByCourseId(id)));
     }
 
+
+
+    //     ################################## Manager ##########################################
+
+
+
     //     ################################## Manager ##########################################
 
     @Operation(summary = "Manager get tất cả yêu cầu mở khóa học của mentor")
@@ -110,6 +117,7 @@ public class CourseController {
     }
 
 
+
     @Operation(summary = "Manager phê duyêt / từ chối / yêu cầu thay đổi khoá học của mentor  ")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @PutMapping("/{id}/approval")
@@ -117,6 +125,7 @@ public class CourseController {
             , @RequestBody ManagerApprovalCourseRequest approvalCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.managerApprovalCourseRequest(id, approvalCourseRequest)));
     }
+
 
 
 
