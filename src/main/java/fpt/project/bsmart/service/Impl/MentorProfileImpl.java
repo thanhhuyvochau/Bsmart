@@ -135,7 +135,13 @@ public class MentorProfileImpl implements IMentorProfileService {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW) + mentorProfile.getStatus());
         }
-
+        List<MentorSkill> skills = mentorProfile.getSkills();
+        List<MentorSkill> skillsActive = new ArrayList<>( );
+        for (MentorSkill skill : skills) {
+            skill.setStatus(true);
+            skillsActive.add(skill);
+        }
+        mentorProfile.setSkills(skillsActive);
         mentorProfile.setStatus(managerApprovalAccountRequest.getStatus());
         ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser(), managerApprovalAccountRequest.getMessage());
 
@@ -204,6 +210,7 @@ public class MentorProfileImpl implements IMentorProfileService {
                 mentorSkill.setSkill(subject);
                 mentorSkill.setYearOfExperiences(mentorUpdateSkill.getYearOfExperiences());
                 mentorSkill.setMentorProfile(mentorProfile);
+                mentorSkill.setStatus(false);
                 mentorSkills.add(mentorSkill);
             }
             mentorProfile.setSkills(mentorSkills);
