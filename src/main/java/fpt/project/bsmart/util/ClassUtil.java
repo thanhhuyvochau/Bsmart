@@ -99,7 +99,7 @@ public class ClassUtil {
         clazz.getTimeInWeeks().forEach(timeInWeek -> {
             timeInWeekDTOS.add(ConvertUtil.convertTimeInWeekToDto(timeInWeek));
         });
-
+        classDetailResponse.setTimeInWeeks(timeInWeekDTOS);
         classDetailResponse.setImage(imageDto);
         if (userLogin != null) {
             List<Order> orders = userLogin.getOrder();
