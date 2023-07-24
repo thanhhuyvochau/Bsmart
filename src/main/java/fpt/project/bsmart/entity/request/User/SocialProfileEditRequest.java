@@ -3,7 +3,7 @@ package fpt.project.bsmart.entity.request.User;
 public class SocialProfileEditRequest {
     private String linkedinLink;
     private String facebookLink;
-
+    private String website;
 
     public String getLinkedinLink() {
         return linkedinLink;
@@ -21,5 +21,11 @@ public class SocialProfileEditRequest {
         this.facebookLink = facebookLink;
     }
 
+    public String getWebsite() {
+        return website;
+    }
 
+    public void setWebsite(String website) {
+        this.website = website;
+    }
 }

@@ -73,6 +73,18 @@ public class CourseServiceImpl implements ICourseService {
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
     }
 
+    public ApiPage<CourseResponse> studentGetCurrentCourse(CourseSearchRequest request,Pageable pageable){
+        User user = SecurityUtil.getCurrentUser();
+        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
+                .queryLike(request.getQ())
+                .queryByCourseStatus(STARTING)
+                .queryStudentCurrentCourse(user.getId())
+                .queryBySubjectId(request.getSubjectId())
+                .queryByCategoryId(request.getCategoryId());
+        Page<Course> coursePage = courseRepository.findAll(builder.build(), pageable);
+        return PageUtil.convert(coursePage.map(ConvertUtil::convertCourseCourseResponsePage));
+    }
+
     @Override
     public Long mentorCreateCourse(CreateCourseRequest createCourseRequest) {
 
