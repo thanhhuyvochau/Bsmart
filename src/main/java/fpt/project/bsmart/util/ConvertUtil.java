@@ -574,6 +574,18 @@ public class ConvertUtil {
         if (course != null) {
             simpleClassResponse.setCourse(convertCourseToCourseDTO(course));
         }
+        List<StudentClass> studentClasses = clazz.getStudentClasses();
+        simpleClassResponse.setNumberOfStudent(studentClasses.size());
+        ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
+        List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>();
+        clazz.getTimeInWeeks().forEach(timeInWeek -> {
+            timeInWeekDTOS.add(ConvertUtil.convertTimeInWeekToDto(timeInWeek));
+        });
+        simpleClassResponse.setTimeInWeeks(timeInWeekDTOS);
+        simpleClassResponse.setImage(imageDto);
+        if (clazz.getMentor() != null) {
+            simpleClassResponse.setMentor(MentorUtil.convertUserToMentorDto(clazz.getMentor()));
+        }
         return simpleClassResponse;
     }
 
