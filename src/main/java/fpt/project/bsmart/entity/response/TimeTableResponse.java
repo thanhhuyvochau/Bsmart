@@ -8,7 +8,6 @@ import java.time.Instant;
 public class TimeTableResponse {
     private Long id;
     private Instant date;
-    private String classRoom;
     private String classURL;
     private SlotDto slot;
 
@@ -26,14 +25,6 @@ public class TimeTableResponse {
 
     public void setDate(Instant date) {
         this.date = date;
-    }
-
-    public String getClassRoom() {
-        return classRoom;
-    }
-
-    public void setClassRoom(String classRoom) {
-        this.classRoom = classRoom;
     }
 
     public String getClassURL() {

@@ -2,11 +2,12 @@ package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
-import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.builder.ActivityBuilder;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.ActivityDetailDto;
+import fpt.project.bsmart.entity.dto.QuizDto;
+import fpt.project.bsmart.entity.dto.QuizQuestionDto;
 import fpt.project.bsmart.entity.dto.QuizSubmittionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
@@ -36,6 +37,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
 
 @Service
 @Transactional
@@ -51,7 +54,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
 
     private final LessonRepository lessonRepository;
     private final QuizSubmissionRepository quizSubmissionRepository;
-
+    private final QuizRepository quizRepository;
     private final MinioAdapter minioAdapter;
     private final MessageUtil messageUtil;
     private final PasswordEncoder encoder;
@@ -61,11 +64,12 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
     private final AssignmentRepository assignmentRepository;
     private final AssignmentSubmittionRepository assignmentSubmittionRepository;
 
-    public ActivityServiceImpl(CourseRepository courseRepository, ActivityRepository activityRepository, LessonRepository lessonRepository, QuizSubmissionRepository quizSubmissionRepository, MinioAdapter minioAdapter, MessageUtil messageUtil, PasswordEncoder encoder, AssignmentFileRepository assignmentFileRepository, ClassRepository classRepository, AssignmentRepository assignmentRepository, AssignmentSubmittionRepository assignmentSubmittionRepository) {
+    public ActivityServiceImpl(CourseRepository courseRepository, ActivityRepository activityRepository, LessonRepository lessonRepository, QuizSubmissionRepository quizSubmissionRepository, QuizRepository quizRepository, MinioAdapter minioAdapter, MessageUtil messageUtil, PasswordEncoder encoder, AssignmentFileRepository assignmentFileRepository, ClassRepository classRepository, AssignmentRepository assignmentRepository, AssignmentSubmittionRepository assignmentSubmittionRepository) {
         this.courseRepository = courseRepository;
         this.activityRepository = activityRepository;
         this.lessonRepository = lessonRepository;
         this.quizSubmissionRepository = quizSubmissionRepository;
+        this.quizRepository = quizRepository;
         this.minioAdapter = minioAdapter;
         this.messageUtil = messageUtil;
         this.encoder = encoder;
@@ -120,7 +124,11 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                 }
             }
         }
-        return createDetailActivity(activityRequest, type, activity);
+        boolean result = createDetailActivity(activityRequest, type, activity);
+        if (result) {
+            activityRepository.save(activity);
+        }
+        return result;
     }
 
     @Override
@@ -176,11 +184,9 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             case QUIZ:
                 Quiz quiz = addQuiz((AddQuizRequest) activityRequest, activity);
                 activity.setQuiz(quiz);
-                activityRepository.save(activity);
-                break;
+                return true;
             case ASSIGNMENT:
                 Assignment assignment = addAssignment((AssignmentRequest) activityRequest, activity);
-                activityRepository.save(activity);
                 return true;
             case SECTION:
                 // Just return for section -> section work as folder for others activities with no content inside
@@ -188,15 +194,43 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             case RESOURCE:
                 Resource resource = addResource((MentorCreateResourceRequest) activityRequest, activity);
                 activity.setResource(resource);
-                activityRepository.save(activity);
                 return true;
             case ANNOUNCEMENT:
                 ClassAnnouncement announcement = addAnnouncement((MentorCreateAnnouncementForClass) activityRequest, activity);
                 activity.setAnnouncement(announcement);
+                return true;
+            case LESSON:
+                Lesson lesson = addLesson((LessonRequest) activityRequest, activity);
+                return true;
+            default:
+                throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE) + type);
+        }
+    }
+
+    private boolean editDetailActivity(ActivityRequest activityRequest, ECourseActivityType type, Activity activity) throws IOException {
+        switch (type) {
+            case QUIZ:
+                Quiz quiz = editQuiz((AddQuizRequest) activityRequest, activity);
+                activity.setQuiz(quiz);
+                activityRepository.save(activity);
+                break;
+            case ASSIGNMENT:
+                editAssignment((AssignmentRequest) activityRequest, activity);
+                activityRepository.save(activity);
+                return true;
+            case SECTION:
+                // Just return for section -> section work as folder for others activities with no content inside
+                return true;
+            case RESOURCE:
+                editResource((MentorCreateResourceRequest) activityRequest, activity);
+                activityRepository.save(activity);
+                return true;
+            case ANNOUNCEMENT:
+                editAnnouncement((MentorCreateAnnouncementForClass) activityRequest, activity);
                 activityRepository.save(activity);
                 return true;
             case LESSON:
-                fpt.project.bsmart.entity.Lesson lesson = addLesson((LessonRequest) activityRequest, activity);
+                editLesson((LessonRequest) activityRequest, activity);
                 activityRepository.save(activity);
                 return true;
             default:
@@ -205,72 +239,46 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         return false;
     }
 
-
     public Quiz addQuiz(AddQuizRequest addQuizRequest, Activity activity) {
-        if (addQuizRequest.getCode().trim().isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Code is empty");
+        ActivityValidator.validateQuizInfo(addQuizRequest);
+        if(addQuizRequest.getQuizQuestions() == null){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_QUESTION_LIST));
         }
-
-        if (addQuizRequest.getStartDate().isBefore(Instant.now()) || addQuizRequest.getEndDate().isBefore(Instant.now())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Invalid start date or end date");
-        }
-
-        if (addQuizRequest.getStartDate().isAfter(addQuizRequest.getEndDate())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Start day can not after end date");
-        }
-
-        if (addQuizRequest.getTime() < 0) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Invalid quiz time");
-        }
-        if (addQuizRequest.getDefaultPoint() < 0) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Invalid default point " + addQuizRequest.getDefaultPoint());
-        }
-        if (addQuizRequest.getIsAllowReview() && addQuizRequest.getAllowReviewAfterMin() < 0) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Invalid number of allow review after min: " + addQuizRequest.getAllowReviewAfterMin());
-        }
-
-        if (addQuizRequest.getPassword().trim().isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Quiz password is empty");
-        }
-
         List<QuizQuestionRequest> questions = addQuizRequest.getQuizQuestions();
         if (questions.size() < QuizUtil.MIN_QUESTIONS_PER_QUIZ || questions.size() > QuizUtil.MAX_QUESTIONS_PER_QUIZ) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Invalid number of questions");
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_QUESTION_LIST_SIZE) + questions.size());
         }
         Quiz quiz = new Quiz();
         List<QuizQuestion> quizQuestions = new ArrayList<>();
         for (QuizQuestionRequest question : questions) {
             if (question.getQuestion().trim().isEmpty()) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("there is a empty question"));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_QUESTION));
             }
             List<QuizAnswerRequest> answers = question.getAnswers();
             if (answers.size() < QuizUtil.MIN_ANSWERS_PER_QUESTION || answers.size() > QuizUtil.MAX_ANSWERS_PER_QUESTION) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("");
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(SINGLE_RIGHT_ANSWER_IN_MULTIPLE_TYPE_QUESTION));
             }
             boolean isContainEmptyAnswer = answers.stream().anyMatch(x -> x.getAnswer().trim().isEmpty());
             if (isContainEmptyAnswer) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("There is an empty answer");
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_ANSWER));
             }
 
-            long numOfRightAnswer = answers.stream().filter(x -> x.getIsRight()).count();
-            switch (question.getQuestionType()) {
-                case SINGLE:
-                    if (numOfRightAnswer > 1) {
-                        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + numOfRightAnswer);
-                    }
-                    break;
-                case MULTIPLE:
-                    if (numOfRightAnswer < 2 || numOfRightAnswer == answers.size()) {
-                        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage("") + numOfRightAnswer);
-                    }
-                    break;
+            long numOfRightAnswer = answers.stream()
+                    .filter(QuizAnswerRequest::getRight)
+                    .count();
+            if(numOfRightAnswer == 0){
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(MISSING_RIGHT_ANSWER_IN_QUESTION));
             }
+            if (question.getQuestionType().equals(QuestionType.SINGLE) && numOfRightAnswer > 1) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(MULTIPLE_RIGHT_ANSWER_IN_SINGLE_TYPE_QUESTION) + numOfRightAnswer);
+            }
+
             QuizQuestion quizQuestion = new QuizQuestion();
             List<QuizAnswer> quizAnswers = new ArrayList<>();
             for (QuizAnswerRequest answer : answers) {
                 QuizAnswer quizAnswer = new QuizAnswer();
                 quizAnswer.setAnswer(answer.getAnswer());
-                quizAnswer.setIsRight(answer.getIsRight());
+                quizAnswer.setIsRight(answer.getRight());
                 quizAnswer.setQuizQuestion(quizQuestion);
                 quizAnswers.add(quizAnswer);
             }
@@ -295,26 +303,29 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         return quiz;
     }
 
-    public ClassAnnouncement addAnnouncement(MentorCreateAnnouncementForClass request, Activity activity){
-        if(StringUtil.isNullOrEmpty(request.getContent())){
+    public ClassAnnouncement addAnnouncement(MentorCreateAnnouncementForClass request, Activity activity) {
+        if (StringUtil.isNullOrEmpty(request.getContent())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("content is empty");
         }
-        if(StringUtil.isNullOrEmpty(request.getTitle())){
+        if (StringUtil.isNullOrEmpty(request.getTitle())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("title is empty");
         }
-        boolean isOnlyClassId = request.getAuthorizeClasses().size() == 1;
-        if(!isOnlyClassId){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Announcement is only belong to 1 class");
-        }
-        Course course = courseRepository.findById(request.getCourseId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + request.getCourseId()));
-        Long classId = request.getAuthorizeClasses().get(0);
-        Class clazz = course.getClasses().stream()
-                .filter(x -> x.getId().equals(classId))
-                .findFirst()
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
         ClassAnnouncement announcement = new ClassAnnouncement();
+        announcement.setTitle(request.getTitle());
+        announcement.setContent(request.getContent());
+        announcement.setVisible(request.getVisible());
+        announcement.setActivity(activity);
+        return announcement;
+    }
+
+    public ClassAnnouncement editAnnouncement(MentorCreateAnnouncementForClass request, Activity activity) {
+        if (StringUtil.isNullOrEmpty(request.getContent())) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("content is empty");
+        }
+        if (StringUtil.isNullOrEmpty(request.getTitle())) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("title is empty");
+        }
+        ClassAnnouncement announcement = activity.getAnnouncement();
         announcement.setTitle(request.getTitle());
         announcement.setContent(request.getContent());
         announcement.setVisible(request.getVisible());
@@ -329,6 +340,12 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         return resource;
     }
 
+    private Resource editResource(MentorCreateResourceRequest request, Activity activity) throws IOException {
+        Resource resource = activity.getResource();
+        resource.setUrl(createResource(request.getFile()));
+        return resource;
+    }
+
     private String createResource(MultipartFile file) throws IOException {
         ObjectWriteResponse response = minioAdapter.uploadFile(file.getOriginalFilename(), file.getContentType(), file.getInputStream(), file.getSize());
         return UrlUtil.buildUrl(minioUrl, response);
@@ -339,8 +356,14 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         Instant startDate = request.getStartDate();
         Instant endDate = request.getEndDate();
 
-        if (startDate.isBefore(now) || endDate.isBefore(now) || startDate.isAfter(endDate)) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ASSIGNMENT_DATE));
+        if (startDate.isBefore(now)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Invalid.INVALID_START_NOW_DATE));
+        }
+        if (endDate.isBefore(now)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Invalid.INVALID_END_NOW_DATE));
+        }
+        if (startDate.isAfter(endDate)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Invalid.INVALID_START_END_DATE));
         }
 
         Assignment assignment = new Assignment();
@@ -382,9 +405,9 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         if (activity.getFixed()) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Could not delete fixed activity");
         }
-        User subCourseMentor = activity.getCourse().getCreator();
+        User creator = activity.getCourse().getCreator();
         User currentUser = SecurityUtil.getCurrentUser();
-        if (!Objects.equals(subCourseMentor.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
+        if (!Objects.equals(creator.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN, EUserRole.TEACHER)) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
         activityRepository.delete(activity);
@@ -406,7 +429,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         activity.setVisible(activity.isVisible());
         return true;
     }
-
+//
     @Override
     public Boolean submitAssignment(Long id, SubmitAssignmentRequest request) throws IOException {
         Activity activity = activityRepository.findById(id)
@@ -523,48 +546,77 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         return true;
     }
 
-//    @Override
-//    public Boolean editActivity(Long id, ActivityRequest activityRequest) throws IOException {
-//        User currentUser = SecurityUtil.getCurrentUser();
-//        ClassSection classSection = classSectionRepository.findById(activityRequest.getClassSectionId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-//                .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SECTION_NOT_FOUND_BY_ID) + activityRequest.getClassSectionId()));
-//        Class clazz = classSection.getClazz();
-//        User mentor = clazz.getSubCourse().getMentor();
-//        if (!SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER) && !Objects.equals(currentUser.getId(), mentor.getId())) {
-//            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
-//        }
-//        ActivityType activityType = activityTypeRepository.findById(activityRequest.getActivityTypeId())
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-//                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_TYPE_NOT_FOUND_BY_ID) + activityRequest.getActivityTypeId()));
-//
-//        Activity activity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
-//        activity.setName(activityRequest.getName());
-//        activity.setVisible(activityRequest.getIsVisible());
-//        activity.setClassSection(classSection);
-//        String code = activityType.getCode();
-//        switch (code) {
-//            case "QUIZ":
-//                break; // Xử lý tương tự cho quiz activity ở đây
-//            case "ASSIGNMENT":
-//                Assignment assignment = editAssignment((AssignmentRequest) activityRequest, activity);
-//                activity.setAssignment(assignment);
-//                activityRepository.save(activity);
-//                return true;
-//            default:
-//                throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE));
-//        }
-//        return false;
-//    }
+    @Override
+    public Boolean editActivity(Long id, ActivityRequest activityRequest, ECourseActivityType type) throws IOException {
+        User currentUser = SecurityUtil.getCurrentUser();
+        Course course = courseRepository.findById(activityRequest.getCourseId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID) + activityRequest.getCourseId()));
+        Activity editedActivity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + id));
+        if (editedActivity.getFixed()) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_STATUS_HAS_FIXED));
+        }
+        User mentor = course.getCreator();
+        if (!SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER) && !Objects.equals(currentUser.getId(), mentor.getId())) {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
+        }
+        List<Long> authorizeClassesId = activityRequest.getAuthorizeClasses();
+        List<Class> authorizeClasses = classRepository.findAllById(authorizeClassesId);
+        ActivityBuilder activityBuilder = ActivityBuilder.getBuilder()
+                .withName(activityRequest.getName())
+                .withVisible(activityRequest.getVisible())
+                .withCourse(course)
+                .withType(type);
+
+        Activity parentActivity = null;
+        List<ActivityAuthorize> parentActivityAuthorize = null;
+        if (!Objects.equals(type, ECourseActivityType.SECTION)) {
+            parentActivity = activityRepository.findByIdAndType(activityRequest.getParentActivityId(), ECourseActivityType.SECTION).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SECTION_NOT_FOUND_BY_ID) + activityRequest.getParentActivityId()));
+            parentActivityAuthorize = parentActivity.getActivityAuthorizes();
+            activityBuilder.withParent(parentActivity);
+        }
+        Activity activity = activityBuilder.modify(editedActivity);
+        activity.getActivityAuthorizes().clear();
+        List<ActivityAuthorize> activityAuthorizes = activity.getActivityAuthorizes();
+        for (Class authorizeClass : authorizeClasses) {
+            ActivityAuthorize activityAuthorize = new ActivityAuthorize();
+            activityAuthorize.setActivity(activity);
+            activityAuthorize.setAuthorizeClass(authorizeClass);
+            activityAuthorizes.add(activityAuthorize);
+            if (parentActivityAuthorize != null) {
+                boolean existInParent = parentActivityAuthorize.stream()
+                        .anyMatch(authorize -> Objects.equals(authorize.getAuthorizeClass().getId(), authorizeClass.getId()));
+                if (!existInParent) {
+                    ActivityAuthorize newParentActivityAuthorize = new ActivityAuthorize();
+                    newParentActivityAuthorize.setActivity(parentActivity);
+                    newParentActivityAuthorize.setAuthorizeClass(authorizeClass);
+                    parentActivityAuthorize.add(newParentActivityAuthorize);
+                }
+            }
+        }
+        return editDetailActivity(activityRequest, type, activity);
+    }
 
     private Assignment editAssignment(AssignmentRequest request, Activity activity) throws IOException {
         Instant now = Instant.now();
+        Assignment assignment = activity.getAssignment();
         Instant startDate = request.getStartDate();
         Instant endDate = request.getEndDate();
+        long minDiffOfStartDate = TimeUtil.compareTwoInstantTruncated(startDate, assignment.getStartDate(), ChronoUnit.MINUTES);
+        long minDiffOfEndDate = TimeUtil.compareTwoInstantTruncated(endDate, assignment.getEndDate(), ChronoUnit.MINUTES);
+        if (minDiffOfEndDate == 0 && minDiffOfStartDate == 0) {
+            if (startDate.isBefore(now)) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Invalid.INVALID_START_NOW_DATE));
+            }
+            if (endDate.isBefore(now)) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Invalid.INVALID_END_NOW_DATE));
 
-        if (startDate.isBefore(now) || endDate.isBefore(now) || startDate.isAfter(endDate)) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_DAY));
+            }
+            if (startDate.isAfter(endDate)) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Invalid.INVALID_START_END_DATE));
+            }
         }
-        Assignment assignment = activity.getAssignment();
         assignment.setDescription(request.getDescription());
         assignment.setStartDate(request.getStartDate());
         assignment.setEndDate(request.getEndDate());
@@ -580,7 +632,7 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             AssignmentFile newAssignmentFile = createAssignmentFile(attachFile, assignment, FileType.ATTACH);
             AssignmentFile existedAssignment = assignmentMapByName.get(newAssignmentFile.getName());
             if (existedAssignment != null) {
-                if (request.getIsOverWriteAttachFile()) {
+                if (request.isOverWriteAttachFile()) {
                     existedAssignmentFiles.remove(existedAssignment);
                     existedAssignmentFiles.add(newAssignmentFile);
                 } else {
@@ -591,6 +643,46 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
             }
         }
         return assignment;
+    }
+
+    private Quiz editQuiz(AddQuizRequest request, Activity activity) {
+        Quiz quiz = activity.getQuiz();
+        if (quiz == null) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(""));
+        }
+        if (!quiz.getStatus().equals(QuizStatus.PENDING)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+        }
+        Instant now = Instant.now();
+        boolean isValidQuizDate = request.getStartDate().isAfter(now) || request.getEndDate().isAfter(now)
+                || request.getStartDate().isBefore(request.getEndDate());
+        if (isValidQuizDate) {
+            quiz.setStartDate(request.getStartDate());
+            quiz.setEndDate(request.getEndDate());
+        }
+        if (request.getIsSuffleQuestion() != null) {
+            quiz.setIsSuffleQuestion(request.getIsSuffleQuestion());
+        }
+        if (StringUtil.isNotNullOrEmpty(request.getPassword())) {
+            quiz.setPassword(request.getPassword());
+        }
+        if (request.getIsAllowReview() != null) {
+            quiz.setIsAllowReview(request.getIsAllowReview());
+        }
+        if (request.getAllowReviewAfterMin() != null && request.getAllowReviewAfterMin() > 0) {
+            quiz.setAllowReviewAfterMin(request.getAllowReviewAfterMin());
+        }
+        if (request.getDefaultPoint() != null && request.getDefaultPoint() >= 0
+                && request.getDefaultPoint() <= 10) {
+            quiz.setDefaultPoint(request.getDefaultPoint());
+        }
+        if (request.getTime() != null && request.getTime() > 0) {
+            quiz.setTime(request.getTime());
+        }
+        if (StringUtil.isNotNullOrEmpty(request.getCode())) {
+            quiz.setCode(request.getCode());
+        }
+        return quiz;
     }
 
     @Override
@@ -623,34 +715,32 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         }
     }
 
-//    private Quiz findQuizById(Long id) {
-//        return quizRepository.findById(id)
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("")));
-//    }
-//
-//    private User validateUser(Long classSectionId) {
-//        User user = SecurityUtil.getCurrentUser();
-//        boolean isStudent = SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT);
-//        if (!isStudent) {
-//            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
-//        }
-//        ClassSection classSection = classSectionRepository.findById(classSectionId)
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SECTION_NOT_FOUND_BY_ID) + classSectionId));
-//        List<StudentClass> studentClass = classSection.getClazz().getStudentClasses();
-//        boolean isStudentBelongToClass = studentClass.stream().anyMatch(x -> user.equals(x.getStudent()));
-//        if (!isStudentBelongToClass) {
-//            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
-//        }
-//        return user;
-//    }
+    private Quiz findQuizById(Long id) {
+        return quizRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(QUIZ_NOT_FOUND_BY_ID) + id));
+    }
+
+    private User validateUser(Activity activity) {
+        User user = SecurityUtil.getCurrentUser();
+        Course course = activity.getCourse();
+        Class classes = user.getStudentClasses().stream()
+                .map(StudentClass::getClazz)
+                .filter(x -> x.getCourse().getId().equals(course.getId()))
+                .findFirst()
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS)));
+        if(!ActivityValidator.isAuthorizeForClass(classes, activity)){
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_AUTHORIZED_FOR_YOUR_CLASS) + classes.getId());
+        }
+        return user;
+    }
 
     private void isAvailableToAttempt(Quiz quiz, User user) {
         Instant currentTime = Instant.now();
         if (currentTime.isBefore(quiz.getStartDate()) || currentTime.isAfter(quiz.getEndDate())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_QUIZ_ATTEMPT_TIME));
         }
         if (!quiz.getStatus().equals(QuizStatus.OPENING)) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_QUIZ_STATUS_FOR_ATTEMPT));
         }
         if (!quiz.getIsUnlimitedAttempt()) {
             int submitTimes = quiz.getQuizSubmittions().stream()
@@ -658,110 +748,119 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                     .collect(Collectors.toList()).size();
             boolean isAvailableToAttempt = submitTimes < quiz.getAttemptNumber();
             if (!isAvailableToAttempt) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_NUMBER_OF_STUDENT_ATTEMPT) + quiz.getAttemptNumber());
             }
         }
     }
 
-//    public QuizDto studentAttemptQuiz(StudentAttemptQuizRequest request) {
-//        User user = validateUser(request.getClassSectionId());
-//        Quiz quiz = findQuizById(request.getQuizId());
-//        isAvailableToAttempt(quiz, user);
-//
-//        if (request.getPassword().trim().isEmpty()) {
-//            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
-//        }
-//        boolean isMatchPassword = encoder.matches(request.getPassword(), quiz.getPassword());
-//        if (!isMatchPassword) {
-//            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
-//        }
-//        QuizDto quizDto = ConvertUtil.convertQuizToQuizDto(quiz);
-//        quizDto.setDefaultPoint(null);
-//        quizDto.setSuffleQuestion(null);
-//        quizDto.setPassword(null);
-//        List<QuizQuestionDto> questions = quizDto.getQuizQuestions();
-//        for (QuizQuestionDto quizQuestionDto : questions) {
-//            quizQuestionDto.getAnswers().stream().forEach(x -> x.setRight(false));
-//        }
-//        if (quiz.getIsSuffleQuestion()) {
-//            Collections.shuffle(questions);
-//        }
-//        quizDto.setQuizQuestions(questions);
-//        return quizDto;
-//    }
+    private Quiz getQuizByActivityId(Long id){
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + id));
+        boolean isQuizActivity = ActivityUtil.isCorrectActivityType(activity, ECourseActivityType.QUIZ);
+        if(!isQuizActivity){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + id);
+        }
+        return activity.getQuiz();
+    }
+    public QuizDto studentAttemptQuiz(Long id,StudentAttemptQuizRequest request) {
+        Quiz quiz = getQuizByActivityId(id);
+        User user = validateUser(quiz.getActivity());
+        isAvailableToAttempt(quiz, user);
+
+        if (request.getPassword().trim().isEmpty()) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_PASSWORD));
+        }
+        boolean isMatchPassword = encoder.matches(request.getPassword(), quiz.getPassword());
+        if (!isMatchPassword) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
+        }
+        QuizDto quizDto = ConvertUtil.convertQuizToQuizDto(quiz, true);
+        List<QuizQuestionDto> questions = quizDto.getQuizQuestions();
+        for (QuizQuestionDto quizQuestionDto : questions) {
+            quizQuestionDto.getAnswers().stream().forEach(x -> x.setRight(false));
+        }
+        quizDto.setQuizQuestions(questions);
+        return quizDto;
+    }
 
     public QuizSubmittionDto studentReviewQuiz(Long id) {
         User user = SecurityUtil.getCurrentUser();
         QuizSubmittion quizSubmittion = quizSubmissionRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("")));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(QUIZ_SUBMISSION_NOT_FOUND_BY_ID) + id));
         boolean isProposer = quizSubmittion.getSubmittedBy().equals(user);
         if (!isProposer) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
         }
         if (!quizSubmittion.getQuiz().getIsAllowReview()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(NOT_ALLOW_REVIEW_QUIZ));
         }
         long reviewAfter = quizSubmittion.getQuiz().getAllowReviewAfterMin();
         Instant endTime = quizSubmittion.getCreated().plus(reviewAfter, ChronoUnit.MINUTES);
         Instant now = Instant.now();
         if (endTime.isAfter(now)) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(QUIZ_HAVE_NOT_FINISHED) + endTime);
         }
-        return null;
+        return ConvertUtil.convertQuizSubmittionToQuizSubmittionDto(quizSubmittion);
     }
 
 
-//    public boolean studentSubmitQuiz(SubmitQuizRequest request) {
-//        User user = validateUser(request.getClassSectionId());
-//        Quiz quiz = findQuizById(request.getQuizId());
-//        isAvailableToAttempt(quiz, user);
-//        List<SubmittedQuestionRequest> submittedQuestions = request.getSubmittedQuestions();
-//        List<QuizQuestion> quizQuestions = quiz.getQuizQuestions();
-//        QuizSubmittion quizSubmittion = new QuizSubmittion();
-//        List<QuizSubmitQuestion> submitQuestions = new ArrayList<>();
-//        for (QuizQuestion quizQuestion : quizQuestions) {
-//            SubmittedQuestionRequest submittedQuestion = submittedQuestions.stream()
-//                    .filter(x -> x.getQuestionId().equals(quizQuestion.getId())).findFirst()
-//                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("")));
-//            QuizSubmitQuestion submitQuestion = new QuizSubmitQuestion();
-//            submitQuestion.setQuizSubmittion(quizSubmittion);
-//            submitQuestion.setQuizQuestion(quizQuestion);
-//
-//            List<QuizSubmitAnswer> quizSubmitAnswers;
-//            List<QuizAnswer> quizAnswers = quizQuestion.getAnswers();
-//            List<Long> submittedAnswers = submittedQuestion.getAnswerId();
-//            switch (quizQuestion.getType()) {
-//                case SINGLE:
-//                    quizSubmitAnswers = handleSingleChoice(submittedAnswers, quizAnswers, submitQuestion);
-//                    break;
-//                case MULTIPLE:
-//                    quizSubmitAnswers = handleMultipleChoice(submittedAnswers, quizAnswers, submitQuestion);
-//                    break;
-//                default:
-//                    throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(""));
-//            }
-//            submitQuestion.setQuizSubmitAnswers(quizSubmitAnswers);
-//            submitQuestions.add(submitQuestion);
-//        }
-//        int correctNumber = getCorrectNumberFromSubmission(submitQuestions);
-//        quizSubmittion.setQuiz(quiz);
-//        quizSubmittion.setStatus(request.getStatus());
-//        quizSubmittion.setSubmittedBy(user);
-//        quizSubmittion.setSubmitQuestions(submitQuestions);
-//        quizSubmittion.setCorrectNumber(correctNumber);
-//        quizSubmittion.setIncorrectNumber(quiz.getQuizQuestions().size() - correctNumber);
-//        quizSubmissionRepository.save(quizSubmittion);
-//        return true;
-//    }
+    public Boolean studentSubmitQuiz(Long activityId,SubmitQuizRequest request) {
+        Quiz quiz = getQuizByActivityId(activityId);
+        User user = validateUser(quiz.getActivity());
+        isAvailableToAttempt(quiz, user);
+        List<SubmittedQuestionRequest> submittedQuestions = request.getSubmittedQuestions();
+        List<QuizQuestion> quizQuestions = quiz.getQuizQuestions();
+        QuizSubmittion quizSubmittion = new QuizSubmittion();
+        List<QuizSubmitQuestion> submitQuestions = new ArrayList<>();
+        for (QuizQuestion quizQuestion : quizQuestions) {
+            SubmittedQuestionRequest submittedQuestion = submittedQuestions.stream()
+                    .filter(x -> x.getQuestionId().equals(quizQuestion.getId())).findFirst()
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(QUESTION_NOT_FOUND_BY_ID) + quizQuestion.getId()));
+            QuizSubmitQuestion submitQuestion = new QuizSubmitQuestion();
+            submitQuestion.setQuizSubmittion(quizSubmittion);
+            submitQuestion.setQuizQuestion(quizQuestion);
 
-    private int getCorrectNumberFromSubmission(List<QuizSubmitQuestion> quizSubmitQuestions) {
+            List<QuizSubmitAnswer> quizSubmitAnswers;
+            List<QuizAnswer> quizAnswers = quizQuestion.getAnswers();
+            List<Long> submittedAnswers = submittedQuestion.getAnswerId();
+            switch (quizQuestion.getType()) {
+                case SINGLE:
+                    quizSubmitAnswers = handleSingleChoice(submittedAnswers, quizAnswers, submitQuestion);
+                    break;
+                case MULTIPLE:
+                    quizSubmitAnswers = handleMultipleChoice(submittedAnswers, quizAnswers, submitQuestion);
+                    break;
+                default:
+                    throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(INVALID_QUESTION_TYPE) + quizQuestion.getType());
+            }
+            submitQuestion.setQuizSubmitAnswers(quizSubmitAnswers);
+            submitQuestions.add(submitQuestion);
+        }
+        Map<String, Float> submissionResultMap = calculateSubmissionResult(submitQuestions);
+        int correctNumber = submissionResultMap.get(QuizUtil.CORRECT_QUESTION_NUMBER_KEY).intValue();
+        float point = submissionResultMap.get(QuizUtil.POINT_KEY);
+        quizSubmittion.setQuiz(quiz);
+        quizSubmittion.setStatus(request.getStatus());
+        quizSubmittion.setSubmittedBy(user);
+        quizSubmittion.setSubmitQuestions(submitQuestions);
+        quizSubmittion.setCorrectNumber(correctNumber);
+        quizSubmittion.setIncorrectNumber(quiz.getQuizQuestions().size() - correctNumber);
+        quizSubmittion.setPoint(point < quiz.getDefaultPoint() ? quiz.getDefaultPoint() : point);
+        quizSubmissionRepository.save(quizSubmittion);
+        return true;
+    }
+
+    private Map<String, Float> calculateSubmissionResult(List<QuizSubmitQuestion> quizSubmitQuestions) {
         int correctNumber = 0;
+        float totalPoint = 0;
         for (QuizSubmitQuestion quizSubmitQuestion : quizSubmitQuestions) {
+            long pointPerQuestion = 10 / quizSubmitQuestions.size();
             List<QuizSubmitAnswer> quizSubmitAnswers = quizSubmitQuestion.getQuizSubmitAnswers();
             if (!quizSubmitAnswers.isEmpty()) {
                 if (quizSubmitQuestion.getQuizQuestion().getType().equals(QuestionType.SINGLE)) {
                     if (quizSubmitAnswers.get(0).getQuizAnswer().getIsRight()) {
                         correctNumber++;
+                        totalPoint += pointPerQuestion;
                     }
                 } else {
                     List<QuizAnswer> quizAnswers = quizSubmitQuestion.getQuizQuestion().getAnswers();
@@ -771,23 +870,28 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
                     long quizCorrectAnswerCount = quizAnswers.stream()
                             .filter(x -> x.getIsRight())
                             .count();
-                    if (submittedCorrectAnswerCount == quizCorrectAnswerCount) {
+                    if (submittedCorrectAnswerCount > 0) {
                         correctNumber++;
+                        long correctPercentage = submittedCorrectAnswerCount / quizCorrectAnswerCount;
+                        totalPoint += pointPerQuestion * correctPercentage;
                     }
                 }
             }
         }
-        return correctNumber;
+        Map<String, Float> resultMap = new HashMap<>();
+        resultMap.put(QuizUtil.CORRECT_QUESTION_NUMBER_KEY, (float) correctNumber);
+        resultMap.put(QuizUtil.POINT_KEY, totalPoint);
+        return resultMap;
     }
 
     private List<QuizSubmitAnswer> handleSingleChoice(List<Long> submittedAnswers, List<QuizAnswer> quizAnswers, QuizSubmitQuestion quizSubmitQuestion) {
         List<QuizSubmitAnswer> quizSubmitAnswers = new ArrayList<>();
         if (!submittedAnswers.isEmpty()) {
             boolean isOnlyOneAnswer = submittedAnswers.size() == 1;
-            Long submittedAnswerId = submittedAnswers.get(0);
             if (!isOnlyOneAnswer) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(MULTIPLE_RIGHT_ANSWER_IN_SINGLE_TYPE_QUESTION));
             }
+            Long submittedAnswerId = submittedAnswers.get(0);
             QuizSubmitAnswer quizSubmitAnswer = getQuizSubmitAnswerBySubmittedId(quizAnswers, submittedAnswerId, quizSubmitQuestion);
             quizSubmitAnswers.add(quizSubmitAnswer);
         }
@@ -810,15 +914,22 @@ public class ActivityServiceImpl implements IActivityService, Cloneable {
         QuizSubmitAnswer quizSubmitAnswer = new QuizSubmitAnswer();
         QuizAnswer quizAnswer = quizAnswers.stream()
                 .filter(x -> x.getId().equals(submittedAnswerId)).findFirst()
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("")));
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ANSWER_NOT_FOUND_BY_ID) + submittedAnswerId));
         quizSubmitAnswer.setQuizAnswer(quizAnswer);
         quizSubmitAnswer.setQuizSubmitQuestion(quizSubmitQuestion);
         return quizSubmitAnswer;
     }
 
 
-    private fpt.project.bsmart.entity.Lesson addLesson(LessonRequest request, Activity activity) throws IOException {
-        fpt.project.bsmart.entity.Lesson lesson = new fpt.project.bsmart.entity.Lesson(request.getDescription(), activity);
+    private Lesson addLesson(LessonRequest request, Activity activity) throws IOException {
+        Lesson lesson = new Lesson(request.getDescription(), activity);
+        lessonRepository.save(lesson);
+        return lesson;
+    }
+
+    private Lesson editLesson(LessonRequest request, Activity activity) throws IOException {
+        Lesson lesson = activity.getLesson();
+        lesson.setDescription(request.getDescription());
         lessonRepository.save(lesson);
         return lesson;
     }

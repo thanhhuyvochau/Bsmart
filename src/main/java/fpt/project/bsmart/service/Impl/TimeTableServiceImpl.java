@@ -1,16 +1,15 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.DayOfWeek;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ValidationErrors;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
-import fpt.project.bsmart.entity.dto.SlotDto;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
 import fpt.project.bsmart.entity.request.timetable.GenerateScheduleRequest;
 import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
+import fpt.project.bsmart.entity.response.TimeTableResponse;
 import fpt.project.bsmart.entity.response.timetable.GenerateScheduleResponse;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.DayOfWeekRepository;
@@ -19,17 +18,23 @@ import fpt.project.bsmart.repository.TimeTableRepository;
 import fpt.project.bsmart.service.ITimeTableService;
 import fpt.project.bsmart.util.ConvertUtil;
 import fpt.project.bsmart.util.MessageUtil;
+import fpt.project.bsmart.util.SecurityUtil;
+import fpt.project.bsmart.util.TimeUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.*;
-
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.CLASS_NOT_FOUND_BY_ID;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.TIME_TABLE_NOT_FOUND_BY_ID;
 
 @Service
 @Transactional
@@ -53,81 +58,45 @@ public class TimeTableServiceImpl implements ITimeTableService {
 
     @Override
     public List<GenerateScheduleResponse> generateScheduleForClass(GenerateScheduleRequest request) {
-
-        List<DayOfWeek> allDayOfWeek = dayOfWeekRepository.findAll();
-
-        Map<Long, DayOfWeek> dayOfWeekMap = new HashMap<>();
-        Map<EDayOfWeekCode, DayOfWeek> dayOfWeekCodeMap = new HashMap<>();
-
-        for (DayOfWeek dayOfWeek : allDayOfWeek) {
-            dayOfWeekMap.put(dayOfWeek.getId(), dayOfWeek);
-            dayOfWeekCodeMap.put(dayOfWeek.getCode(), dayOfWeek);
-        }
-        List<Slot> allSlot = slotRepository.findAll();
-        Map<Long, Slot> slotMap = new HashMap<>();
-        for (Slot slot : allSlot) {
-            slotMap.put(slot.getId(), slot);
-        }
-
-
-        List<DayOfWeek> dayOfWeeks = new ArrayList<>();
-        List<Slot> slots = new ArrayList<>();
         List<TimeInWeekRequest> timeInWeekRequests = request.getTimeInWeekRequests();
-        for (TimeInWeekRequest timeInWeekRequest : timeInWeekRequests) {
-            Long dayOfWeekId = timeInWeekRequest.getDayOfWeekId();
-            DayOfWeek dayOfWeek = dayOfWeekMap.get(dayOfWeekId);
+        Map<Long, Slot> slotMap = slotRepository.findAll().stream().collect(Collectors.toMap(Slot::getId, Function.identity()));
+        Map<Long, DayOfWeek> dowMap = dayOfWeekRepository.findAll().stream().collect(Collectors.toMap(DayOfWeek::getId, Function.identity()));
 
-            dayOfWeeks.add(dayOfWeek);
+        List<EDayOfWeekCode> availableDOW = timeInWeekRequests.stream().map(timeInWeek -> dowMap.get(timeInWeek.getDayOfWeekId()).getCode())
+                .distinct()
+                .collect(Collectors.toList());
 
-            Long slotId = timeInWeekRequest.getSlotId();
-            Slot slot = slotMap.get(slotId);
-            slots.add(slot);
-        }
+        List<GenerateScheduleResponse> generateScheduleResponses = new ArrayList<>();
 
-        // lấy tất cả ngày ở giữa start-end
-        List<LocalDate> localDatesBetween = getLocalDatesBetween(instantToLocalDate(request.getStartDate()), instantToLocalDate(request.getEndDate()));
-        int totalDatesBetween = localDatesBetween.size();
-
-        List<GenerateScheduleResponse> result = new ArrayList<>();
-
-        int numberOfSlot = 0;
-
-        for (LocalDate date : localDatesBetween) {
-
-            java.time.DayOfWeek dayOfWeek = date.getDayOfWeek();
-            EDayOfWeekCode dayOfWeekCode = EDayOfWeekCode.valueOf(dayOfWeek.toString());
-            List<EDayOfWeekCode> collectCodeDOW = dayOfWeeks.stream().map(DayOfWeek::getCode).collect(Collectors.toList());
-
-
-            if (collectCodeDOW.contains(dayOfWeekCode)) {
-                GenerateScheduleResponse generateScheduleResponse = new GenerateScheduleResponse();
-                generateScheduleResponse.setDate(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
-                generateScheduleResponse.setNumberOfSlot(++numberOfSlot);
-                generateScheduleResponse.setDayOfWeek(ConvertUtil.convertDayOfWeekToDto(dayOfWeekCodeMap.get(dayOfWeekCode)));
-
-                DayOfWeek dayOfWeekInRequest = dayOfWeekCodeMap.get(dayOfWeekCode);
-                List<TimeInWeekRequest> collect = timeInWeekRequests.stream()
-                        .filter(timeInWeekRequest -> timeInWeekRequest.getDayOfWeekId().equals(dayOfWeekInRequest.getId())).collect(Collectors.toList());
-                TimeInWeekRequest inWeekRequest = collect.stream().findFirst().get();
-                Slot slot = slotMap.get(inWeekRequest.getSlotId());
-                SlotDto slotDto = ConvertUtil.convertSlotToSlotDto(slot);
-
-                generateScheduleResponse.setSlot(slotDto);
-
-                result.add(generateScheduleResponse);
-
+        Instant date = request.getStartDate();
+        Integer numberOfSlot = request.getNumberOfSlot();
+        int i = numberOfSlot;
+        while (i > 0) {
+            EDayOfWeekCode dayOfWeekCode = TimeUtil.getDayOfWeek(date);
+            if (dayOfWeekCode == null) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không thể nhận diện thứ trong tuần, lỗi hệ thống vui lòng liên hệ Admin!");
             }
-            if (result.size() == request.getNumberOfSlot()) {
-                return result;
+            if (availableDOW.contains(dayOfWeekCode)) {
+                List<TimeInWeekRequest> dateOfWeeks = timeInWeekRequests.stream().filter(timeInWeek -> {
+                    DayOfWeek dayOfWeek = dowMap.get(timeInWeek.getDayOfWeekId());
+                    return Objects.equals(dayOfWeek.getCode(), dayOfWeekCode);
+                }).collect(Collectors.toList());
+                for (TimeInWeekRequest dow : dateOfWeeks) {
+                    if (i <= 0) break;
+                    GenerateScheduleResponse generateScheduleResponse = new GenerateScheduleResponse();
+                    generateScheduleResponse.setDate(date);
+                    generateScheduleResponse.setNumberOfSlot((numberOfSlot - i) + 1);
+                    Slot slot = slotMap.get(dow.getSlotId());
+                    generateScheduleResponse.setSlot(ConvertUtil.convertSlotToSlotDto(slot));
+                    generateScheduleResponses.add(generateScheduleResponse);
+                    DayOfWeek dayOfWeek = dowMap.get(dow.getDayOfWeekId());
+                    generateScheduleResponse.setDayOfWeek(ConvertUtil.convertDayOfWeekToDto(dayOfWeek));
+                    i--;
+                }
             }
+            date = date.plus(1, ChronoUnit.DAYS);
         }
-
-//         Kiểm tra tổng ngày giữa start - end với number of slot
-        if (result.size() < request.getNumberOfSlot()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage("Số lượng ngày học từ ngày bắt đầu đến ngày kết thúc không đủ cho số slot dạy! Vui lòng chỉnh sửa"));
-        }
-        return result;
+        return generateScheduleResponses;
 
 
     }
@@ -183,13 +152,15 @@ public class TimeTableServiceImpl implements ITimeTableService {
             timeTable.setSlot(slot);
             timeTable.setClazz(aClass);
             timeTables.add(timeTable);
+
         }
-        if (duplicateDate.size()> 0){
+        if (duplicateDate.size() > 0) {
             throw new ValidationErrorsException(vaErr.getError().getInvalidParams(), vaErr.getError().getMessage());
         }
 
         timeTableRepository.saveAll(timeTables);
-
+//        aClass.setTimeTables(timeTables);
+//        classRepository.save(aClass) ;
         return true;
     }
 
@@ -208,10 +179,10 @@ public class TimeTableServiceImpl implements ITimeTableService {
 //        return null;
 //    }
 
-//    @Override
-//    public ApiPage<TimeTableResponse> getTimeTableByClass(Long id, Pageable pageable) {
-//        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
-//        User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+    @Override
+    public List<TimeTableResponse> getTimeTableByClass(Long id) {
+        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
+        User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
 //        if (ClassValidator.isMentorOfClass(currentUser, clazz) || ClassValidator.isStudentOfClass(clazz, currentUser)) {
 //            List<TimeTable> timeTables = clazz.getTimeTables();
 //            List<TimeTableResponse> timeTableResponses = new ArrayList<>();
@@ -221,8 +192,14 @@ public class TimeTableServiceImpl implements ITimeTableService {
 //            }
 //            return PageUtil.convert(new PageImpl<>(timeTableResponses, pageable, timeTableResponses.size()));
 //        }
-//        return new ApiPage<>();
-//    }
+        List<TimeTable> timeTables = clazz.getTimeTables();
+        List<TimeTableResponse> timeTableResponses = new ArrayList<>();
+        for (TimeTable timeTable : timeTables) {
+            TimeTableResponse timeTableResponse = ConvertUtil.convertTimeTableToResponse(timeTable);
+            timeTableResponses.add(timeTableResponse);
+        }
+        return timeTableResponses;
+    }
 
 
     private TimeTable getOrThrow(Long id) {

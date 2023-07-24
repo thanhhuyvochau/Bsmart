@@ -2,7 +2,6 @@ package fpt.project.bsmart.entity;
 
 
 import fpt.project.bsmart.entity.constant.EGenderType;
-import fpt.project.bsmart.entity.dto.ImageDto;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -14,7 +13,7 @@ import java.util.List;
 @Table(name = "user")
 
 
-public class  User extends BaseEntity {
+public class User extends BaseEntity {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -87,6 +86,7 @@ public class  User extends BaseEntity {
     @Column(name = "provider")
     private String provider;
 
+
     public Boolean getFirstLogin() {
         return isFirstLogin;
     }
@@ -94,6 +94,10 @@ public class  User extends BaseEntity {
     public void setFirstLogin(Boolean firstLogin) {
         isFirstLogin = firstLogin;
     }
+
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Course> courses = new ArrayList<>();
+
 
     public Long getId() {
         return id;
@@ -304,5 +308,11 @@ public class  User extends BaseEntity {
         this.provider = provider;
     }
 
+    public List<Course> getCourses() {
+        return courses;
+    }
 
+    public void setCourses(List<Course> courses) {
+        this.courses = courses;
+    }
 }

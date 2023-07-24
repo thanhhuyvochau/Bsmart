@@ -4,9 +4,7 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.EQuestionType;
-import fpt.project.bsmart.entity.constant.ETransactionStatus;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
@@ -332,7 +330,7 @@ public class ConvertUtil {
         classes.forEach(clazz -> {
 
             if (clazz.getMentor() != null) {
-                if (mentorName.size() == 0) {
+                if (mentorName.isEmpty()) {
                     mentorName.add(clazz.getMentor().getFullName());
                 }
 
@@ -390,14 +388,25 @@ public class ConvertUtil {
                 }
             }
         }
+        int totalClassToApproval = 0;
+        List<Class> classes = course.getClasses();
+        if (classes != null) {
+            for (Class aClass : classes) {
+                if (aClass.getStatus().equals(ECourseStatus.WAITING)) {
+                    ++totalClassToApproval;
+                }
+            }
+        }
+        courseResponse.setTotalClass(totalClassToApproval);
+
 
         return courseResponse;
     }
 
-    public static CourseClassResponse convertCourseToCourseClassResponsePage(Course course) {
+    public static MentorGetCourseClassResponse convertCourseToCourseClassResponsePage(Course course) {
 
 
-        CourseClassResponse courseResponse = new CourseClassResponse();
+        MentorGetCourseClassResponse courseResponse = new MentorGetCourseClassResponse();
         courseResponse.setId(course.getId());
         courseResponse.setName(course.getName());
         courseResponse.setCode(course.getCode());
@@ -559,16 +568,26 @@ public class ConvertUtil {
         return userFeedbackResponse;
     }
 
-//    public static SimpleClassResponse convertClassToSimpleClassResponse(Class clazz) {
-//        SimpleClassResponse simpleClassResponse = ObjectUtil.copyProperties(clazz, new SimpleClassResponse(), SimpleClassResponse.class);
-//        if (clazz.getSubCourse() != null) {
-//            simpleClassResponse.setSubCourseName(clazz.getSubCourse().getTitle());
-//        }
-//        if (clazz.getSubCourse().getMentor() != null) {
-//            simpleClassResponse.setMentorName(clazz.getSubCourse().getMentor().getFullName());
-//        }
-//        return simpleClassResponse;
-//    }
+    public static SimpleClassResponse convertClassToSimpleClassResponse(Class clazz) {
+        SimpleClassResponse simpleClassResponse = ObjectUtil.copyProperties(clazz, new SimpleClassResponse(), SimpleClassResponse.class);
+        Course course = clazz.getCourse();
+        if (course != null) {
+            simpleClassResponse.setCourse(convertCourseToCourseDTO(course));
+        }
+        List<StudentClass> studentClasses = clazz.getStudentClasses();
+        simpleClassResponse.setNumberOfStudent(studentClasses.size());
+        ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
+        List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>();
+        clazz.getTimeInWeeks().forEach(timeInWeek -> {
+            timeInWeekDTOS.add(ConvertUtil.convertTimeInWeekToDto(timeInWeek));
+        });
+        simpleClassResponse.setTimeInWeeks(timeInWeekDTOS);
+        simpleClassResponse.setImage(imageDto);
+        if (clazz.getMentor() != null) {
+            simpleClassResponse.setMentor(MentorUtil.convertUserToMentorDto(clazz.getMentor()));
+        }
+        return simpleClassResponse;
+    }
 
     public static QuestionDto convertQuestionToQuestionDto(Question question) {
         QuestionDto questionDto = ObjectUtil.copyProperties(question, new QuestionDto(), QuestionDto.class, true);
@@ -591,11 +610,44 @@ public class ConvertUtil {
     }
 
     public static ActivityDetailDto convertActivityDetailToDto(Activity activity) { // Convert ra đơn giản để show cho user xem
-        return null;
+        ActivityDetailDto activityDetailDto = ObjectUtil.copyProperties(activity, new ActivityDetailDto(), ActivityDetailDto.class, true);
+        Activity parent = activity.getParent();
+        if (parent != null) {
+            activityDetailDto.setParentActivityId(parent.getId());
+        }
+
+        ECourseActivityType type = activity.getType();
+        switch (type) {
+            case QUIZ:
+                activityDetailDto.setDetail(convertQuizToQuizDto(activity.getQuiz(), false));
+                break;
+            case ASSIGNMENT:
+                activityDetailDto.setDetail(convertAssignmentToDto(activity.getAssignment()));
+                break;
+            case SECTION:
+                // Just return for section -> section work as folder for others activities with no content inside
+                break;
+            case RESOURCE:
+                activityDetailDto.setDetail(convertResourceToDto(activity.getResource()));
+                break;
+            case ANNOUNCEMENT:
+                activityDetailDto.setDetail(convertClassAnnouncementToDto(activity.getAnnouncement()));
+                break;
+            case LESSON:
+                activityDetailDto.setDetail(convertLessonToDto(activity.getLesson()));
+                break;
+            default:
+                throw ApiException.create(HttpStatus.NO_CONTENT).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_ACTIVITY_TYPE) + type);
+        }
+        return activityDetailDto;
     }
 
     public static LessonDto convertLessonToDto(Lesson lesson) { // Convert ra đơn giản để show cho user xem
         return ObjectUtil.copyProperties(lesson, new LessonDto(), LessonDto.class, true);
+    }
+
+    public static ResourceDto convertResourceToDto(Resource resource) { // Convert ra đơn giản để show cho user xem
+        return ObjectUtil.copyProperties(resource, new ResourceDto(), ResourceDto.class, true);
     }
 
     private static AssignmentDto convertAssignmentToDto(Assignment assignment) {
@@ -628,14 +680,26 @@ public class ConvertUtil {
 //        return activityTypeResponse;
 //    }
 
-    public static QuizDto convertQuizToQuizDto(Quiz quiz) {
+    public static QuizDto convertQuizToQuizDto(Quiz quiz, boolean isAttempt) {
         QuizDto quizDto = ObjectUtil.copyProperties(quiz, new QuizDto(), QuizDto.class);
-        if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
-            List<QuizQuestionDto> questionDtos = new ArrayList<>();
-            for (QuizQuestion question : quiz.getQuizQuestions()) {
-                questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question));
+        User user = SecurityUtil.getCurrentUser();
+        boolean isStudent = SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT);
+        if(isStudent){
+            quizDto.setDefaultPoint(null);
+            quizDto.setSuffleQuestion(null);
+            quizDto.setPassword(null);
+        }
+        if(isAttempt){
+            if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
+                List<QuizQuestionDto> questionDtos = new ArrayList<>();
+                for (QuizQuestion question : quiz.getQuizQuestions()) {
+                    questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
+                }
+                if(quiz.getIsSuffleQuestion()){
+                    Collections.shuffle(questionDtos);
+                }
+                quizDto.setQuizQuestions(questionDtos);
             }
-            quizDto.setQuizQuestions(questionDtos);
         }
         return quizDto;
     }
@@ -670,22 +734,26 @@ public class ConvertUtil {
             QuizSubmitAnswerDto answerDto = new QuizSubmitAnswerDto();
             answerDto.setId(answer.getId());
             answerDto.setAnswer(answer.getAnswer());
-            answerDto.setRight(answerDto.getRight());
+            answerDto.setIsRight(answer.getIsRight());
             if (!quizSubmitAnswers.isEmpty()) {
                 boolean isChosen = quizSubmitAnswers.stream()
                         .anyMatch(x -> x.getQuizAnswer().equals(answer));
-                answerDto.setChosen(isChosen);
+                answerDto.setIsChosen(isChosen);
             }
+            quizSubmitAnswerDtos.add(answerDto);
         }
         return quizSubmitAnswerDtos;
     }
 
-    public static QuizQuestionDto convertQuizQuestionToQuizQuestionDto(QuizQuestion quizQuestion) {
+    public static QuizQuestionDto convertQuizQuestionToQuizQuestionDto(QuizQuestion quizQuestion, boolean isShuffle) {
         QuizQuestionDto question = ObjectUtil.copyProperties(quizQuestion, new QuizQuestionDto(), QuizQuestionDto.class);
         if (quizQuestion.getAnswers() != null || !question.getAnswers().isEmpty()) {
             List<QuizAnswerDto> answers = new ArrayList<>();
             for (QuizAnswer answer : quizQuestion.getAnswers()) {
                 answers.add(ConvertUtil.convertQuizAnswerToQuizAnswerDto(answer));
+            }
+            if(isShuffle){
+                Collections.shuffle(answers);
             }
             question.setAnswers(answers);
         }
@@ -720,17 +788,23 @@ public class ConvertUtil {
         if (creator != null) {
             classResponse.setMentor(convertUsertoUserDto(creator));
         }
-        List<ActivityDto> activityDtos = convertActivityAsTree(authorizeSectionActivities);
+        List<ActivityDto> activityDtos = convertActivityAsTree(authorizeSectionActivities, false);
         classResponse.getActivities().addAll(activityDtos);
         return classResponse;
     }
 
-    public static List<ActivityDto> convertActivityAsTree(List<Activity> authorizeSectionActivities) {
+    public static List<ActivityDto> convertActivityAsTree(List<Activity> authorizeSectionActivities, boolean isFixed) {
         List<ActivityDto> activityDtos = new ArrayList<>();
         for (Activity activity : authorizeSectionActivities) {
+            if (isFixed && !activity.getFixed()) {
+                continue;
+            }
             ActivityDto activityDto = convertActivityToDto(activity);
             List<Activity> children = activity.getChildren();
             for (Activity child : children) {
+                if (isFixed && !child.getFixed()) {
+                    continue;
+                }
                 activityDto.getSubActivities().add(convertActivityToDto(child));
             }
             activityDtos.add(activityDto);

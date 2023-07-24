@@ -1,14 +1,37 @@
 package fpt.project.bsmart.entity.response;
 
+import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.dto.CourseDto;
+import fpt.project.bsmart.entity.dto.ImageDto;
+import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
+import fpt.project.bsmart.entity.dto.mentor.MentorDto;
+
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 public class SimpleClassResponse {
     private Long id;
     private Instant startDate;
     private Instant endDate;
     private Integer numberOfStudent = 0;
-    private String subCourseName;
-    private String mentorName;
+    private CourseDto course;
+    private MentorDto mentor;
+
+
+    private Integer numberOfSlot ;
+
+
+    private ECourseStatus status;
+
+    private BigDecimal price;
+
+    private int minStudent;
+
+    private int maxStudent;
+
+    private ImageDto image;
+    private List<TimeInWeekDTO> timeInWeeks;
 
     public Long getId() {
         return id;
@@ -42,19 +65,75 @@ public class SimpleClassResponse {
         this.numberOfStudent = numberOfStudent;
     }
 
-    public String getSubCourseName() {
-        return subCourseName;
+    public MentorDto getMentor() {
+        return mentor;
     }
 
-    public void setSubCourseName(String subCourseName) {
-        this.subCourseName = subCourseName;
+    public void setMentor(MentorDto mentor) {
+        this.mentor = mentor;
     }
 
-    public String getMentorName() {
-        return mentorName;
+    public CourseDto getCourse() {
+        return course;
     }
 
-    public void setMentorName(String mentorName) {
-        this.mentorName = mentorName;
+    public void setCourse(CourseDto course) {
+        this.course = course;
+    }
+
+    public Integer getNumberOfSlot() {
+        return numberOfSlot;
+    }
+
+    public void setNumberOfSlot(Integer numberOfSlot) {
+        this.numberOfSlot = numberOfSlot;
+    }
+
+    public ECourseStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ECourseStatus status) {
+        this.status = status;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public int getMinStudent() {
+        return minStudent;
+    }
+
+    public void setMinStudent(int minStudent) {
+        this.minStudent = minStudent;
+    }
+
+    public int getMaxStudent() {
+        return maxStudent;
+    }
+
+    public void setMaxStudent(int maxStudent) {
+        this.maxStudent = maxStudent;
+    }
+
+    public ImageDto getImage() {
+        return image;
+    }
+
+    public void setImage(ImageDto image) {
+        this.image = image;
+    }
+
+    public List<TimeInWeekDTO> getTimeInWeeks() {
+        return timeInWeeks;
+    }
+
+    public void setTimeInWeeks(List<TimeInWeekDTO> timeInWeeks) {
+        this.timeInWeeks = timeInWeeks;
     }
 }

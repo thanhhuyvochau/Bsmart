@@ -1,8 +1,8 @@
 package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.config.vnpay.VnpConfig;
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
@@ -265,6 +265,7 @@ public class TransactionService implements ITransactionService {
         //Add Params of 2.0.1 Version
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
         SimpleDateFormat formatterCheck = new SimpleDateFormat("dd-MM-yyyy");
+        vnp_Params.put("vnp_OrderType", orderType);
         System.out.println("EXPIRED:" + formatterCheck.format(cld.getTime()));
         return vnp_Params;
     }
@@ -279,8 +280,20 @@ public class TransactionService implements ITransactionService {
                 .findById(Long.valueOf(transactionId)).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(TRANSACTION_NOT_FOUND_BY_ID) + transactionId));
         if (transactionStatus.equals("00") && responseCode.equals("00")) {
-            transaction.getOrder().setStatus(EOrderStatus.SUCCESS);
+            Order order = transaction.getOrder();
+            order.setStatus(EOrderStatus.SUCCESS);
             transaction.setStatus(ETransactionStatus.SUCCESS);
+
+            User user = order.getUser();
+            List<Class> orderedClasses = order.getOrderDetails().stream().map(OrderDetail::getClazz).collect(Collectors.toList());
+            for (Class orderedClass : orderedClasses) {
+                StudentClass studentClass = new StudentClass();
+                studentClass.setStudent(user);
+                studentClass.setClazz(orderedClass);
+                orderedClass.getStudentClasses().add(studentClass);
+            }
+            classRepository.saveAll(orderedClasses);
         }
+
     }
 }

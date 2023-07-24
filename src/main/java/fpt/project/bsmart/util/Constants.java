@@ -67,7 +67,8 @@ public class Constants {
         public static final String PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE = "PLEASE_SELECT_THE_CATEGORY_FOR_THE_COURSE";
         public static final String PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE = "PLEASE_SELECT_THE_SUBJECT_FOR_THE_COURSE";
 
-        public static final String YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT= "YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT";
+        public static final String YOU_ONLY_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT_MATCH_TO_YOUR_SKILL = "YOU_ONLY_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT_MATCH_TO_YOUR_SKILL";
+
         public static final String PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE = "PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE";
 
         public static final String USER_NOT_HAVE_PERMISSION_TO_VIEW_THIS_COURSE = "USER_NOT_HAVE_PERMISSION_TO_VIEW_THIS_COURSE";
@@ -80,18 +81,23 @@ public class Constants {
         public static final String YOU_DO_NOT_HAVE_PERMISSION_TO_VIEW_CLASS_FOR_THIS_COURSE = "YOU_DO_NOT_HAVE_PERMISSION_TO_VIEW_CLASS_FOR_THIS_COURSE";
         public static final String YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_SECTION_FOR_THIS_COURSE = "YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_SECTION_FOR_THIS_COURSE";
 
-        public static final String  CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_DELETE  = "CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_DELETE";
+        public static final String CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_DELETE = "CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_DELETE";
 
-        public static final String  CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_UPDATE  = "CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_UPDATE";
+        public static final String CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_UPDATE = "CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_UPDATE";
 
-        public static final String  CLASSES_ARE_CURRENTLY_STARTING_CANNOT_NOT_REQUEST_TO_APPROVAL  = "CLASSES_ARE_CURRENTLY_STARTING_CANNOT_NOT_REQUEST_TO_APPROVAL";
-        public static final String  COURSE_STATUS_IS_NOT_START_NOT_ALLOW_TO_DELETE= "COURSE_STATUS_IS_NOT_START_NOT_ALLOW_TO_DELETE";
-        public static final String  COURSE_STATUS_IS_NOT_STARTING_ALLOW_TO_DELETE= "COURSE_STATUS_IS_NOT_STARTING_NOT_ALLOW_TO_DELETE";
+        public static final String CLASSES_ARE_CURRENTLY_STARTING_CANNOT_NOT_REQUEST_TO_APPROVAL = "CLASSES_ARE_CURRENTLY_STARTING_CANNOT_NOT_REQUEST_TO_APPROVAL";
+        public static final String COURSE_STATUS_IS_NOT_START_NOT_ALLOW_TO_DELETE = "COURSE_STATUS_IS_NOT_START_NOT_ALLOW_TO_DELETE";
+        public static final String COURSE_STATUS_IS_NOT_STARTING_ALLOW_TO_DELETE = "COURSE_STATUS_IS_NOT_STARTING_NOT_ALLOW_TO_DELETE";
 
-        public static final String  THE_COURSE_HAS_NO_CLASS_UNABLE_TO_SUBMIT_APPROVAL_REQUEST = "THE_COURSE_HAS_NO_CLASS_UNABLE_TO_SUBMIT_APPROVAL_REQUEST";
-        public static final String  THE_CLASS_HAS_NO_TIME_TABLE = "THE_CLASS_HAS_NO_TIME_TABLE";
+        public static final String THE_COURSE_HAS_NO_CLASS_UNABLE_TO_SUBMIT_APPROVAL_REQUEST = "THE_COURSE_HAS_NO_CLASS_UNABLE_TO_SUBMIT_APPROVAL_REQUEST";
+        public static final String THE_CLASS_HAS_NO_TIME_TABLE = "THE_CLASS_HAS_NO_TIME_TABLE";
 
-        public static final String  THE_COURSE_HAS_NO_CONTENT = "THE_COURSE_HAS_NO_CONTENT";
+        public static final String THE_COURSE_HAS_NO_CONTENT = "THE_COURSE_HAS_NO_CONTENT";
+        public static final String ACTIVITY_STATUS_HAS_FIXED = "ACTIVITY_STATUS_HAS_FIXED";
+        public static final String QUIZ_NOT_FOUND_BY_ID = "QUIZ_NOT_FOUND_BY_ID";
+        public static final String QUIZ_SUBMISSION_NOT_FOUND_BY_ID = "QUIZ_SUBMISSION_NOT_FOUND_BY_ID";
+        public static final String ANSWER_NOT_FOUND_BY_ID = "ANSWER_NOT_FOUND_BY_ID";
+
         public static class Invalid {
             public static final String INVALID_EMAIL = "INVALID_EMAIL";
             public static final String INVALID_BIRTH_DAY = "INVALID_BIRTH_DAY";
@@ -100,7 +106,7 @@ public class Constants {
             public static final String INVALID_FACEBOOK_LINK = "INVALID_FACEBOOK_LINK";
             public static final String INVALID_INSTAGRAM_LINK = "INVALID_INSTAGRAM_LINK";
             public static final String INVALID_TWITTER_LINK = "INVALID_TWITTER_LINK";
-            public static final String INVALID_DAY = "INVALID_DAY";
+            public static final String INVALID_BIRTHDAY = "INVALID_BIRTHDAY";
             public static final String INVALID_PHONE_NUMBER = "INVALID_PHONE_NUMBER";
             public static final String INVALID_PASSWORD = "INVALID_PASSWORD";
             public static final String INVALID_SOCIAL_LINK = "INVALID_SOCIAL_LINK";
@@ -120,6 +126,17 @@ public class Constants {
             public static final String INVALID_ITEM_IN_CART = "INVALID_ITEM_IN_CART";
             public static final String INVALID_COURSE_STATUS_TO_PURCHASE = "INVALID_COURSE_STATUS_TO_PURCHASE";
             public static final String INVALID_WEBSITE = "INVALID_WEBSITE";
+            public static final String INVALID_MENTOR_PROFILE_STATUS = "INVALID_MENTOR_PROFILE_STATUS";
+            public static final String INVALID_QUIZ_ATTEMPT_TIME = "INVALID_QUIZ_ATTEMPT_TIME";
+            public static final String INVALID_QUIZ_STATUS_FOR_ATTEMPT = "INVALID_QUIZ_STATUS_FOR_ATTEMPT";
+            public static final String INVALID_NUMBER_OF_STUDENT_ATTEMPT = "INVALID_NUMBER_OF_STUDENT_ATTEMPT";
+            public static final String INVALID_QUIZ_TIME = "INVALID_QUIZ_TIME";
+            public static final String INVALID_QUIZ_DEFAULT_POINT = "INVALID_QUIZ_DEFAULT_POINT";
+            public static final String INVALID_ALLOW_REVIEW_AFTER_MIN = "INVALID_ALLOW_REVIEW_AFTER_MIN";
+            public static final String INVALID_START_NOW_DATE = "INVALID_START_NOW_DATE";
+            public static final String INVALID_END_NOW_DATE = "INVALID_END_NOW_DATE";
+            public static final String INVALID_START_END_DATE = "INVALID_START_END_DATE";
+
         }
 
         public static class Empty {
@@ -136,6 +153,9 @@ public class Constants {
             public static final String EMPTY_QUESTION_LIST = "EMPTY_QUESTION_LIST";
             public static final String EMPTY_FEEDBACK_TEMPLATE_ID = "EMPTY_FEEDBACK_TEMPLATE_ID";
             public static final String EMPTY_FEEDBACK_ANSWER = "EMPTY_FEEDBACK_ANSWER";
+            public static final String EMPTY_QUESTION = "EMPTY_QUESTION";
+            public static final String EMPTY_ANSWER = "EMPTY_ANSWER";
+            public static final String EMPTY_CODE = "EMPTY_CODE";
         }
 
         public static final String MISSING_MULTI_CHOICE_FEEDBACK_QUESTION = "MISSING_MULTI_CHOICE_FEEDBACK_QUESTION";
@@ -156,6 +176,7 @@ public class Constants {
         public static final String DUPLICATE_STUDENT_ATTENDANCE = "DUPLICATE_STUDENT_ATTENDANCE";
         public static final String BEFORE_CLASS_START_TIME = "BEFORE_CLASS_START_TIME";
         public static final String MULTIPLE_RIGHT_ANSWER_IN_SINGLE_TYPE_QUESTION = "MULTIPLE_RIGHT_ANSWER_IN_SINGLE_TYPE_QUESTION";
+        public static final String SINGLE_RIGHT_ANSWER_IN_MULTIPLE_TYPE_QUESTION = "SINGLE_RIGHT_ANSWER_IN_MULTIPLE_TYPE_QUESTION";
         public static final String MISSING_RIGHT_ANSWER_IN_QUESTION = "MISSING_RIGHT_ANSWER_IN_QUESTION";
         public static final String SUB_COURSE_CAN_NOT_CREATE_TIME_IN_WEEK = "SUB_COURSE_CAN_NOT_CREATE_TIME_IN_WEEK";
         public static final String DUPLICATE_SLOT_AND_TIME_IN_WEEK = "DUPLICATE_SLOT_AND_TIME_IN_WEEK";
@@ -167,6 +188,10 @@ public class Constants {
         public static final String REGISTERED_USER_ID = "REGISTERED_USER_ID";
         public static final String VERIFIED_ACCOUNT = "VERIFIED_ACCOUNT";
         public static final String INCORRECT_PROVIDER_LOGIN = "INCORRECT_PROVIDER_LOGIN";
+        public static final String ACTIVITY_NOT_AUTHORIZED_FOR_YOUR_CLASS = "ACTIVITY_NOT_AUTHORIZED_FOR_YOUR_CLASS";
+        public static final String NOT_ALLOW_REVIEW_QUIZ = "NOT_ALLOW_REVIEW_QUIZ";
+        public static final String QUIZ_HAVE_NOT_FINISHED = "QUIZ_HAVE_NOT_FINISHED";
+        public static final String START_TIME_AFTER_END_TIME = "START_TIME_AFTER_END_TIME";
     }
 
     public static class DefaultData {

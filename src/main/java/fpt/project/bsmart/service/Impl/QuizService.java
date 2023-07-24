@@ -1,10 +1,10 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.request.SubmittedQuestionRequest;
 import fpt.project.bsmart.repository.ActivityRepository;
 import fpt.project.bsmart.repository.QuizRepository;
 import fpt.project.bsmart.service.IQuizService;
-import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.MessageUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class QuizService implements IQuizService {

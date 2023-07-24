@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.ACCOUNT_IS_NOT_MENTOR;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.ACCOUNT_STATUS_NOT_ALLOW;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_MENTOR_PROFILE_STATUS;
 
 
 @Component
@@ -32,9 +34,29 @@ public class MentorUtil {
 
     }
 
+    public static Boolean checkMentorStatusToUpdateInformation(MentorProfile mentorProfile) {
+
+        if (mentorProfile.getStatus().equals(EMentorProfileStatus.WAITING)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage("Tài khoản của bạn đang được hệ thống phê duyệt! Không thể cập nhật thông tin lúc này");
+        }
+        if (mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage("Tài khoản của bạn đã được hệ thống phê duyệt! Nếu muốn cập nhật thông tin vui lòng gửi yêu cầu cho admin");
+        }
+        return true ;
+    }
+
+
     public static MentorDto convertUserToMentorDto(User user) {
         MentorProfile mentorProfile = user.getMentorProfile();
         MentorDto mentorDto = ObjectUtil.copyProperties(mentorProfile, new MentorDto(), MentorDto.class);
+        if (user.getFullName() != null) {
+            mentorDto.setName(user.getFullName());
+        }
+        if (user.getEmail()!= null){
+            mentorDto.setEmail(user.getEmail());
+        }
         List<UserImage> userImages = user.getUserImages();
         List<UserImage> avatar = userImages.stream().filter(userImage -> userImage.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
         if (userImages != null && avatar.size() > 0) {
@@ -131,7 +153,7 @@ public class MentorUtil {
         if (user.getAddress() == null || user.getAddress().isEmpty()) {
             fieldRequired = new CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field();
             fieldRequired.setField("address");
-            fieldRequired.setName("Đại chỉ");
+            fieldRequired.setName("Địa chỉ");
             requiredInfoFiled.add(fieldRequired);
         } else {
             completionPercentage++;

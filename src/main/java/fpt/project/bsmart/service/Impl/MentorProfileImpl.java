@@ -10,8 +10,9 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.*;
-import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
+import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
+import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.MentorSkillRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
@@ -32,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_MENTOR_PROFILE_STATUS;
 
 @Service
 public class MentorProfileImpl implements IMentorProfileService {
@@ -97,11 +99,17 @@ public class MentorProfileImpl implements IMentorProfileService {
     }
 
     @Override
-    public ApiPage<UserDto> getPendingMentorProfileList(EMentorProfileStatus accountStatus, Pageable pageable) {
+    public ApiPage<UserDto> getPendingMentorProfileList(MentorSearchRequest request, Pageable pageable) {
+        MentorProfileSpecificationBuilder builder = MentorProfileSpecificationBuilder.specificationBuilder()
+                .queryLike(request.getQ())
+                .queryByStatus(EMentorProfileStatus.WAITING);
 
-        List<MentorProfile> pendingMentorProfileList = mentorProfileRepository.findAllByStatus(accountStatus);
+
+        Page<MentorProfile> mentorProfilePage = mentorProfileRepository.findAll(builder.build(), pageable);
+        List<MentorProfile> mentorProfiles = mentorProfilePage.stream().collect(Collectors.toList());
+
         List<UserDto> userDtoList = new ArrayList<>();
-        for (MentorProfile mentorProfile : pendingMentorProfileList) {
+        for (MentorProfile mentorProfile : mentorProfiles) {
             User user = mentorProfile.getUser();
             UserDto userDto = ConvertUtil.convertUsertoUserDto(user);
             userDto.setWallet(null);
@@ -125,9 +133,10 @@ public class MentorProfileImpl implements IMentorProfileService {
 
         if (mentorProfile.getStatus() != EMentorProfileStatus.WAITING) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
+                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW) + mentorProfile.getStatus());
         }
-        mentorProfile.setStatus(EMentorProfileStatus.STARTING);
+
+        mentorProfile.setStatus(managerApprovalAccountRequest.getStatus());
         ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser(), managerApprovalAccountRequest.getMessage());
 
         return mentorProfileRepository.save(mentorProfile).getId();
@@ -150,6 +159,9 @@ public class MentorProfileImpl implements IMentorProfileService {
         MentorProfile mentorProfile = mentorProfileRepository.getMentorProfileByUser(user)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + user.getId()));
+
+        MentorUtil.checkMentorStatusToUpdateInformation(mentorProfile);
+
 
         if (updateMentorProfileRequest.getIntroduce() != null) {
             mentorProfile.setIntroduce(updateMentorProfileRequest.getIntroduce());
@@ -220,13 +232,14 @@ public class MentorProfileImpl implements IMentorProfileService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + id));
 
-        if (!currentUserAccountLogin.getMentorProfile().equals(mentorProfile)){
+        if (!currentUserAccountLogin.getMentorProfile().equals(mentorProfile)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(MENTOR_PROFILE_NOT_FOUND_BY_USER) );
+                    .withMessage(messageUtil.getLocalMessage(MENTOR_PROFILE_NOT_FOUND_BY_USER));
 
         }
 
-        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING)) {
+        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING) &&
+                !mentorProfile.getStatus().equals(EMentorProfileStatus.EDITREQUEST) ) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
         }
@@ -245,7 +258,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         CompletenessMentorProfileResponse response = MentorUtil.checkCompletenessMentorProfile();
         List<CompletenessMentorProfileResponse.MissingInformation.RequiredInfo> requiredInfoList
                 = response.getMissingInformation().stream().map(CompletenessMentorProfileResponse.MissingInformation::getRequiredInfo).collect(Collectors.toList());
-        ValidationErrors.ValidationError validationError = new ValidationErrors.ValidationError() ;
+        ValidationErrors.ValidationError validationError = new ValidationErrors.ValidationError();
 
         ArrayList<String> invalidParams = new ArrayList<String>();
 
@@ -265,8 +278,42 @@ public class MentorProfileImpl implements IMentorProfileService {
         }
 
         mentorProfile.setStatus(EMentorProfileStatus.WAITING);
-        mentorProfileRepository.save(mentorProfile) ;
-        return true ;
+        mentorProfileRepository.save(mentorProfile);
+        return true;
+    }
+
+    @Override
+    public Boolean mentorRequestApprovalSkill( MentorSendAddSkill mentorSendAddSkill) {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
+        if (mentorProfile == null){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(MENTOR_PROFILE_NOT_FOUND_BY_USER);
+        }
+
+        List<MentorSkill> skills = mentorProfile.getSkills();
+        List<Long> skillIds = skills.stream().map(mentorSkill -> mentorSkill.getSkill().getId()).collect(Collectors.toList());
+        List<UpdateSkillRequest> mentorSkills = mentorSendAddSkill.getMentorSkills();
+
+        List<MentorSkill> mentorSkillList = new ArrayList<>();
+        for (UpdateSkillRequest mentorSkill : mentorSkills) {
+            if (skillIds.contains(mentorSkill.getSkillId())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage("Bạn đã có quyền dạy môn học này ! Không thể yêu cầu mở thêm ");
+            }
+            MentorSkill mentorSkill1 = new MentorSkill();
+            Subject subject = subjectRepository.findById(mentorSkill.getSkillId())
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(messageUtil.getLocalMessage(SKILL_NOT_FOUND_BY_ID)));
+            mentorSkill1.setSkill(subject);
+            mentorSkill1.setStatus(false);
+            mentorSkill1.setMentorProfile(mentorProfile);
+            mentorSkill1.setYearOfExperiences(mentorSkill.getYearOfExperiences());
+            mentorSkillList.add(mentorSkill1);
+        }
+        mentorProfile.setSkills(mentorSkillList);
+        mentorProfileRepository.save(mentorProfile);
+        return true;
     }
 
 

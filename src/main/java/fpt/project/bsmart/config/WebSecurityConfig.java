@@ -25,7 +25,6 @@ import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorH
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
-import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -81,9 +80,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/v3/api-docs/**").permitAll()
-                .antMatchers("/websocket/**", "/gs-guide-websocket/**", "/socket.io/**", "/send-notification").permitAll()
+                .antMatchers("/websocket/**").permitAll()
+                .antMatchers("/send-message/**").permitAll()
+                .antMatchers("/say-hello/**").permitAll()
                 .antMatchers("/api/ocr/**").permitAll()
-                .antMatchers("/api/users/register", "/api/users/login", "/api/test/user", "/api/**", "/oauth2/**").permitAll().anyRequest().authenticated()
+
+                .antMatchers("/api/users/register", "/api/users/login", "/api/test/user", "/api/**","/oauth2/**").permitAll().anyRequest().authenticated()
                 .and().exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .and()
@@ -109,7 +111,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //        http.addFilter(new UsernamePasswordAuthenticationFilter(authenticationManager()));
         http.addFilterBefore(secFilter, UsernamePasswordAuthenticationFilter.class);
     }
-
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.httpFirewall(new DefaultHttpFirewall());
@@ -127,6 +128,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 
 
     @Bean

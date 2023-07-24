@@ -33,17 +33,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.ParameterMode;
-import javax.persistence.StoredProcedureQuery;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 @Service
 @Transactional
@@ -96,13 +94,15 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id));
     }
 
-    public ApiPage<UserDto> adminGetUser(UserSearchRequest request,Pageable pageable){
+
+    @Override
+    public ApiPage<UserDto> adminGetAllUser(UserSearchRequest request, Pageable pageable) {
+
         UserSpecificationBuilder builder = UserSpecificationBuilder.specificationBuilder()
-                .searchByName(request.getName())
-                .searchByEmail(request.getEmail())
+                .queryLike(request.getQ())
                 .hasRole(request.getRole())
                 .isVerified(request.getIsVerified());
-        Page<User> userPage = userRepository.findAll(builder.build(),pageable);
+        Page<User> userPage = userRepository.findAll(builder.build(), pageable);
         List<UserDto> userInfoResponses = userPage.getContent().stream()
                 .map(ConvertUtil::convertUsertoUserDto)
                 .collect(Collectors.toList());
@@ -135,14 +135,12 @@ public class UserServiceImpl implements IUserService {
         return userRepository.save(user).getId();
     }
 
-
-
     public Long uploadImageProfile(UploadImageRequest uploadImageRequest) throws IOException {
         User user = getCurrentLoginUser();
-
-
+        if (user.getMentorProfile() != null) {
+            MentorUtil.checkMentorStatusToUpdateInformation(user.getMentorProfile());
+        }
         List<UserImage> userImages = user.getUserImages();
-
 
         if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
             List<UserImage> avatarCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
@@ -253,23 +251,29 @@ public class UserServiceImpl implements IUserService {
         User user = getCurrentLoginUser();
 
         if (socialProfileEditRequest.getFacebookLink() != null) {
-            if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
+            if(socialProfileEditRequest.getFacebookLink().isEmpty()){
+                user.setFacebookLink(null);
+            }else if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FACEBOOK_LINK));
             }
             user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
         }
 
         if (socialProfileEditRequest.getLinkedinLink() != null) {
-            if (!StringUtil.isValidLinkedinLink(socialProfileEditRequest.getLinkedinLink())) {
+            if(socialProfileEditRequest.getLinkedinLink().isEmpty()){
+                user.setLinkedinLink(null);
+            }else if (!StringUtil.isValidLinkedinLink(socialProfileEditRequest.getLinkedinLink())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_TWITTER_LINK));
             }
             user.setLinkedinLink(socialProfileEditRequest.getLinkedinLink());
         }
 
         boolean isTeacher = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER);
-        if(isTeacher){
-            if(socialProfileEditRequest.getWebsite() != null){
-                if(!StringUtil.isValidWebsite(socialProfileEditRequest.getWebsite())){
+        if (isTeacher) {
+            if (socialProfileEditRequest.getWebsite() != null) {
+                if(socialProfileEditRequest.getWebsite().isEmpty()){
+                    user.setWebsite(null);
+                }else if (!StringUtil.isValidWebsite(socialProfileEditRequest.getWebsite())) {
                     throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_WEBSITE));
                 }
                 user.setWebsite(socialProfileEditRequest.getWebsite());
@@ -317,9 +321,9 @@ public class UserServiceImpl implements IUserService {
         User user = getCurrentLoginUser();
 
         if (personalProfileEditRequest.getBirthday() != null) {
-            if (!TimeUtil.isValidBirthday(personalProfileEditRequest.getBirthday())) {
+            if (!TimeUtil.isValidBirthday(personalProfileEditRequest.getBirthday(), EUserRole.STUDENT)) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage(INVALID_DAY));
+                        .withMessage(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
             }
             user.setBirthday(personalProfileEditRequest.getBirthday());
         }
@@ -353,10 +357,12 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Long editMentorPersonalProfile(MentorPersonalProfileEditRequest mentorPersonalProfileEditRequest) {
         User user = getCurrentLoginUser();
+
+        MentorUtil.checkMentorStatusToUpdateInformation(user.getMentorProfile());
         if (mentorPersonalProfileEditRequest.getBirthday() != null) {
-            if (!TimeUtil.isValidBirthday(mentorPersonalProfileEditRequest.getBirthday())) {
+            if (!TimeUtil.isValidBirthday(mentorPersonalProfileEditRequest.getBirthday(), EUserRole.TEACHER)) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage(INVALID_DAY));
+                        .withMessage(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
             }
             user.setBirthday(mentorPersonalProfileEditRequest.getBirthday());
         }
@@ -401,6 +407,9 @@ public class UserServiceImpl implements IUserService {
         }
         Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ROLE_NOT_FOUND_BY_CODE) + createAccountRequest.getRole()));
+        if (!TimeUtil.isValidBirthday(createAccountRequest.getBirthDay(), createAccountRequest.getRole())) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_BIRTH_DAY));
+        }
         user.setEmail(createAccountRequest.getEmail());
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());
@@ -410,14 +419,14 @@ public class UserServiceImpl implements IUserService {
         user.getRoles().add(role);
         user.setBirthday(createAccountRequest.getBirthDay());
         user.setIsVerified(false);
-        if (role.getCode().equals(EUserRole.STUDENT)) {
-            user.setStatus(true);
-        } else if (role.getCode().equals(EUserRole.TEACHER)) {
+        if (role.getCode().equals(EUserRole.TEACHER)) {
             user.setStatus(false);
             MentorProfile mentorProfile = new MentorProfile();
             mentorProfile.setUser(user);
             mentorProfile.setStatus(EMentorProfileStatus.REQUESTING);
             mentorProfileRepository.save(mentorProfile);
+        } else {
+            user.setStatus(true);
         }
         User savedUser = userRepository.save(user);
         // Send verify mail
@@ -426,27 +435,24 @@ public class UserServiceImpl implements IUserService {
         return savedUser.getId();
     }
 
-    public void validateCreateAccountRequest(CreateAccountRequest request){
-        if(StringUtil.isNullOrEmpty(request.getEmail())){
+    public void validateCreateAccountRequest(CreateAccountRequest request) {
+        if (StringUtil.isNullOrEmpty(request.getEmail())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_EMAIL));
         }
-        if(!StringUtil.isValidEmailAddress(request.getEmail())){
+        if (!StringUtil.isValidEmailAddress(request.getEmail())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_EMAIL));
         }
-        if(!TimeUtil.isValidBirthday(request.getBirthDay())){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_BIRTH_DAY));
-        }
-        if(!StringUtil.isValidVietnameseMobilePhoneNumber(request.getPhone())){
+        if (!StringUtil.isValidVietnameseMobilePhoneNumber(request.getPhone())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
         }
-        if(StringUtil.isNullOrEmpty(request.getFullName())){
+        if (StringUtil.isNullOrEmpty(request.getFullName())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_FULL_NAME));
         }
         boolean isValidGender = request.getGender().equals(EGenderType.MALE) || request.getGender().equals(EGenderType.FEMALE);
-        if(!isValidGender){
+        if (!isValidGender) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_GENDER));
         }
-        if(!PasswordUtil.validationPassword(request.getPassword())){
+        if (!PasswordUtil.validationPassword(request.getPassword())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
         }
     }
@@ -551,7 +557,6 @@ public class UserServiceImpl implements IUserService {
         return user;
     }
 }
-
 
 
 

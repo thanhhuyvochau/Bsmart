@@ -1,7 +1,7 @@
 package fpt.project.bsmart.entity.request.clazz;
 
-import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
+import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -27,7 +27,7 @@ public class MentorCreateClass {
 
     private List<TimeInWeekRequest> timeInWeekRequests = new ArrayList<>();
 
-
+//    private List<MentorCreateScheduleRequest> timeTableRequest;
 
     public Long getImageId() {
         return imageId;
@@ -92,4 +92,12 @@ public class MentorCreateClass {
     public void setTimeInWeekRequests(List<TimeInWeekRequest> timeInWeekRequests) {
         this.timeInWeekRequests = timeInWeekRequests;
     }
+
+//    public List<MentorCreateScheduleRequest> getTimeTableRequest() {
+//        return timeTableRequest;
+//    }
+//
+//    public void setTimeTableRequest(List<MentorCreateScheduleRequest> timeTableRequest) {
+//        this.timeTableRequest = timeTableRequest;
+//    }
 }

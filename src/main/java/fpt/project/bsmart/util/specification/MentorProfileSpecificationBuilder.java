@@ -1,8 +1,12 @@
 package fpt.project.bsmart.util.specification;
 
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
+import fpt.project.bsmart.util.SpecificationUtil;
+import fpt.project.bsmart.util.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
 
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
@@ -34,6 +38,29 @@ public class MentorProfileSpecificationBuilder {
             Path<Object> objectPath = join.get(MentorSkill_.SKILL);
             return criteriaBuilder.and(objectPath.in(skillIds));
         });
+        return this;
+    }
+
+    public MentorProfileSpecificationBuilder queryLike(String q){
+        if(StringUtil.isNullOrEmpty(q)){
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            Join<MentorProfile, User> mentorProfileUserJoin = root.join(MentorProfile_.USER, JoinType.INNER);
+            Expression<String> name = mentorProfileUserJoin.get(User_.FULL_NAME);
+            Expression<String> email = mentorProfileUserJoin.get(User_.EMAIL);
+            Expression<String> stringExpression = SpecificationUtil.concat(criteriaBuilder, " ", name, email);
+            String search = q.replaceAll("\\s\\s+", " ").trim();
+            return criteriaBuilder.like(stringExpression,'%' + search + '%');
+        });
+        return this;
+    }
+
+    public MentorProfileSpecificationBuilder queryByStatus(EMentorProfileStatus status){
+        if(status == null){
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(MentorProfile_.STATUS), status));
         return this;
     }
 

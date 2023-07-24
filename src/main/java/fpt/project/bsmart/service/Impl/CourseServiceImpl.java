@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
@@ -73,7 +74,7 @@ public class CourseServiceImpl implements ICourseService {
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
     }
 
-    public ApiPage<CourseResponse> studentGetCurrentCourse(CourseSearchRequest request,Pageable pageable){
+    public ApiPage<CourseResponse> studentGetCurrentCourse(CourseSearchRequest request, Pageable pageable) {
         User user = SecurityUtil.getCurrentUser();
         CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
                 .queryLike(request.getQ())
@@ -111,10 +112,10 @@ public class CourseServiceImpl implements ICourseService {
 
         // check skill of mentor is match with subject input
         List<Subject> skillOfMentor = currentUserAccountLogin.getMentorProfile().getSkills().stream().map(MentorSkill::getSkill).collect(Collectors.toList());
-
+        List<String> skillNames = skillOfMentor.stream().map(Subject::getName).collect(Collectors.toList());
         if (!skillOfMentor.contains(subject)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT));
+                    .withMessage(messageUtil.getLocalMessage(YOU_ONLY_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT_MATCH_TO_YOUR_SKILL) + skillNames);
         }
 
         Course course = new Course();
@@ -162,9 +163,10 @@ public class CourseServiceImpl implements ICourseService {
         // check skill of mentor is match with subject input
         List<Subject> skillOfMentor = currentUserAccountLogin.getMentorProfile().getSkills().stream().map(MentorSkill::getSkill).collect(Collectors.toList());
 
+        List<String> skillNames = skillOfMentor.stream().map(Subject::getName).collect(Collectors.toList());
         if (!skillOfMentor.contains(subject)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT));
+                    .withMessage(messageUtil.getLocalMessage(YOU_ONLY_HAVE_PERMISSION_TO_CREATE_THIS_SUBJECT_MATCH_TO_YOUR_SKILL) + skillNames);
         }
 
         checkCourseOwnership(course, currentUserAccountLogin);
@@ -217,9 +219,9 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public ApiPage<ManagerGetCourse> coursePendingToApprove(Pageable pageable) {
+    public ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status, Pageable pageable) {
         CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
-                .queryByCourseStatus(WAITING);
+                .queryByCourseStatus(status);
 
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseToManagerGetCourse));
@@ -240,7 +242,7 @@ public class CourseServiceImpl implements ICourseService {
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
                 .collect(Collectors.toList());
         ResponseUtil.responseForRole(EUserRole.TEACHER);
-        return ConvertUtil.convertActivityAsTree(sectionActivities);
+        return ConvertUtil.convertActivityAsTree(sectionActivities, false);
     }
 
     @Override
@@ -288,13 +290,13 @@ public class CourseServiceImpl implements ICourseService {
         int completionPercentage = 0;
         int totalFields = 2;
 
-
         if (course.getClasses().size() > 0) {
             completionPercentage++;
         }
         if (course.getActivities().size() > 0) {
             completionPercentage++;
         }
+
         // Tính % hoàn thành dựa trên số lượng trường thông tin có giá trị
         completionPercentage = (int) Math.round(((double) completionPercentage / totalFields) * 100);
 
@@ -304,32 +306,27 @@ public class CourseServiceImpl implements ICourseService {
         return response;
     }
 
-    @Transactional
     @Override
     public Boolean managerApprovalCourseRequest(Long id, ManagerApprovalCourseRequest approvalCourseRequest) {
+
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 
+
         validateApprovalCourseRequest(approvalCourseRequest.getStatus());
+
         if (course.getStatus() != WAITING) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
         }
-
-
-        List<Long> classIds = approvalCourseRequest.getClassId();
+        List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
         List<Class> classList = new ArrayList<>();
-        for (Long classId : classIds) {
-            Class aClass = classRepository.findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                    .withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
-
+        for (Class aClass : classToApproval) {
             aClass.setStatus(approvalCourseRequest.getStatus());
             classList.add(aClass);
         }
-        CourseUtil.checkCourseValidToApproval(course, classList);
         classRepository.saveAll(classList);
-        // log history
-        ActivityHistoryUtil.logHistoryForCourseApprove(course.getCreator().getId(), course, approvalCourseRequest.getMessage());
+        course.setStatus(approvalCourseRequest.getStatus());
         courseRepository.save(course);
         return true;
     }
@@ -339,6 +336,7 @@ public class CourseServiceImpl implements ICourseService {
         if (!ALLOWED_STATUSES.contains(statusRequest)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
+
         }
     }
 }

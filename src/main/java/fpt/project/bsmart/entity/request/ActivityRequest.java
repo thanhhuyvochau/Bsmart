@@ -1,7 +1,5 @@
 package fpt.project.bsmart.entity.request;
 
-import fpt.project.bsmart.entity.constant.ECourseActivityType;
-
 import java.util.List;
 
 public class ActivityRequest {

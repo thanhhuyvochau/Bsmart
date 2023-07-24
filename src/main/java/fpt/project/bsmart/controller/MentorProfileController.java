@@ -5,10 +5,8 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
-import fpt.project.bsmart.entity.request.ImageRequest;
-import fpt.project.bsmart.entity.request.ManagerApprovalAccountRequest;
-import fpt.project.bsmart.entity.request.MentorSearchRequest;
-import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
+import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.service.IMentorProfileService;
@@ -48,14 +46,12 @@ public class MentorProfileController {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getAllMentorProfiles()));
     }
 
-    @Operation(summary = "Lấy danh sách giảng viên chờ duyệt")
+    @Operation(summary = "Manager Lấy danh sách giảng viên chờ duyệt")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/pending")
-    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getPendingMentorProfile(@RequestParam EMentorProfileStatus accountStatus , Pageable pageable){
-        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getPendingMentorProfileList(accountStatus , pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getPendingMentorProfile(@Nullable MentorSearchRequest request, Pageable pageable){
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getPendingMentorProfileList(request , pageable)));
     }
-
-
 
     @Operation(summary = "Manager phê duyêt / từ chối / yêu cầu thay đổi  hồ sơ mentor")
     @PreAuthorize("hasAnyRole('MANAGER')")
@@ -69,6 +65,14 @@ public class MentorProfileController {
     @PutMapping
     public ResponseEntity<ApiResponse<Long>> updateMentorProfile(@RequestBody UpdateMentorProfileRequest updateMentorProfileRequest){
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateMentorProfile(updateMentorProfileRequest)));
+    }
+
+    @Operation(summary = "mentor gửi yêu cầu dạy thêm môn học mới")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/request-approval-skill")
+    public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalSkill(
+            @RequestBody MentorSendAddSkill mentorSendAddSkill){
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorRequestApprovalSkill(mentorSendAddSkill)));
     }
 
     @Operation(summary = "CHƯA HỖ TRỢ --- Upload chứng chỉ của giảng viên")

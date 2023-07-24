@@ -9,6 +9,7 @@ import fpt.project.bsmart.entity.request.ImageRequest;
 import fpt.project.bsmart.entity.request.ManagerApprovalAccountRequest;
 import fpt.project.bsmart.entity.request.MentorSearchRequest;
 import fpt.project.bsmart.entity.request.UpdateMentorProfileRequest;
+import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,7 @@ public interface IMentorProfileService {
     MentorProfileDTO getMentorProfile(Long id);
     ApiPage<MentorProfileDTO> getAllMentors(MentorSearchRequest mentorSearchRequest, Pageable pageable);
     List<MentorProfileResponse> getAllMentorProfiles();
-    ApiPage<UserDto> getPendingMentorProfileList(EMentorProfileStatus accountStatus  , Pageable pageable);
+    ApiPage<UserDto> getPendingMentorProfileList(MentorSearchRequest request  , Pageable pageable);
     Long approveMentorProfile(Long id,  ManagerApprovalAccountRequest managerApprovalAccountRequest);
     Long updateMentorProfile(UpdateMentorProfileRequest updateMentorProfileRequest);
     List<Long> updateCertificate(List<ImageRequest> imageRequests);
@@ -27,4 +28,6 @@ public interface IMentorProfileService {
     CompletenessMentorProfileResponse getCompletenessMentorProfile();
 
     Boolean mentorRequestApprovalAccount(Long id) throws Exception, ValidationErrorsException;
+
+    Boolean mentorRequestApprovalSkill( MentorSendAddSkill mentorSendAddSkill);
 }

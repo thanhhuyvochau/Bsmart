@@ -4,11 +4,7 @@ import fpt.project.bsmart.entity.constant.ECourseLevel;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
-import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
-import fpt.project.bsmart.entity.response.ClassDetailResponse;
-
-import java.util.List;
 
 public class ManagerGetCourse {
     private Long id;
@@ -27,6 +23,9 @@ public class ManagerGetCourse {
 
 
     private MentorDto mentor;
+
+    private Integer totalClass ;
+
 
     public Long getId() {
         return id;
@@ -98,5 +97,13 @@ public class ManagerGetCourse {
 
     public void setMentor(MentorDto mentor) {
         this.mentor = mentor;
+    }
+
+    public Integer getTotalClass() {
+        return totalClass;
+    }
+
+    public void setTotalClass(Integer totalClass) {
+        this.totalClass = totalClass;
     }
 }

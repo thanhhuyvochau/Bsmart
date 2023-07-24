@@ -1,13 +1,11 @@
 package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
+import fpt.project.bsmart.entity.constant.EUserRole;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
@@ -63,9 +61,14 @@ public class TimeUtil {
 
     }
 
-    public static boolean isValidBirthday(Instant birthday) {
-        LocalDate localDate = birthday.atOffset(ZoneOffset.UTC).toLocalDate();
-        return localDate.isBefore(LocalDate.now());
+    public static boolean isValidBirthday(Instant birthday, EUserRole role) {
+        LocalDate targetDate = birthday.atZone(ZoneOffset.UTC).toLocalDate();
+        LocalDate currentDate = Instant.now().atZone(ZoneOffset.UTC).toLocalDate();
+        Period period = Period.between(targetDate, currentDate);
+        if(role.equals(EUserRole.TEACHER)){
+            return period.getYears() >= 18;
+        }
+        return period.getYears() >= 16;
     }
 
     public static EDayOfWeekCode getDayOfWeek(Instant instant) {
@@ -106,5 +109,10 @@ public class TimeUtil {
         Duration difference = Duration.between(instant.truncatedTo(ChronoUnit.DAYS), currentInstant.truncatedTo(ChronoUnit.DAYS));
         long differenceInDay = difference.toDays();
         return Math.abs(differenceInDay) <= duration;
+    }
+
+    public static long compareTwoInstantTruncated(Instant start, Instant end, ChronoUnit unit) {
+        Duration difference = Duration.between(start.truncatedTo(unit), end.truncatedTo(unit));
+        return difference.toMinutes();
     }
 }

@@ -1,9 +1,7 @@
 package fpt.project.bsmart.controller;
 
-import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.request.AttendanceRequest;
-import fpt.project.bsmart.entity.response.AttendanceResponse;
 import fpt.project.bsmart.entity.response.AttendanceResponseWrapper;
 import fpt.project.bsmart.service.AttendanceService;
 import io.swagger.v3.oas.annotations.Operation;

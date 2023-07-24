@@ -2,6 +2,7 @@ package fpt.project.bsmart.service;
 
 
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
@@ -18,7 +19,8 @@ public interface ICourseService {
 
     ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest courseSearchRequest, Pageable pageable);
 
-    ApiPage<CourseResponse> studentGetCurrentCourse(CourseSearchRequest request,Pageable pageable);
+    ApiPage<CourseResponse> studentGetCurrentCourse(CourseSearchRequest request, Pageable pageable);
+
     Long mentorCreateCourse(CreateCourseRequest mentorCreateClassRequest);
 
     Long mentorUpdateCourse(Long id, CreateCourseRequest createCourseRequest);
@@ -27,7 +29,7 @@ public interface ICourseService {
 
     Boolean mentorDeleteCourse(Long id);
 
-    ApiPage<ManagerGetCourse> coursePendingToApprove(Pageable pageable);
+    ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status  ,Pageable pageable);
 
     List<ActivityDto> getAllActivityByCourseId(Long id);
 
@@ -35,7 +37,11 @@ public interface ICourseService {
 
     CompletenessCourseResponse getCompletenessCourse(Long id);
 
-    Boolean managerApprovalCourseRequest(Long subCourseId,ManagerApprovalCourseRequest  approvalCourseRequest);
+
+
+
+    Boolean managerApprovalCourseRequest(Long id, ManagerApprovalCourseRequest approvalCourseRequest);
+
 //
 //    List<CourseDto> getCoursesBySubject(Long subjectId);
 //    List<Long> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest);

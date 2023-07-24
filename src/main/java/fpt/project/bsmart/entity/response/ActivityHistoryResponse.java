@@ -1,10 +1,8 @@
 package fpt.project.bsmart.entity.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import fpt.project.bsmart.entity.constant.EActivityAction;
 import fpt.project.bsmart.entity.constant.EActivityType;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
 

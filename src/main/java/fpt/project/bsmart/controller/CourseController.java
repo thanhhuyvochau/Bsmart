@@ -3,13 +3,13 @@ package fpt.project.bsmart.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.request.ManagerApprovalCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.course.CompletenessCourseResponse;
-import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,7 +47,7 @@ public class CourseController {
     @Operation(summary = "Student get current course")
     @GetMapping("/user")
     @PreAuthorize("hasAnyRole('STUDENT')")
-    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> studentGetCurrentCourse(@Nullable CourseSearchRequest request, Pageable pageable){
+    public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> studentGetCurrentCourse(@Nullable CourseSearchRequest request, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.studentGetCurrentCourse(request, pageable)));
     }
 
@@ -73,6 +73,7 @@ public class CourseController {
     }
 
     @Operation(summary = " Mentor lấy tất cả khóa học của minh")
+
     @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/mentor")
     public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseOfMentor(
@@ -101,14 +102,20 @@ public class CourseController {
     }
 
 
+
+    //     ################################## Manager ##########################################
+
+
+
     //     ################################## Manager ##########################################
 
     @Operation(summary = "Manager get tất cả yêu cầu mở khóa học của mentor")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/pending")
-    public ResponseEntity<ApiResponse<ApiPage<ManagerGetCourse>>> coursePendingToApprove(Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<ManagerGetCourse>>> coursePendingToApprove(ECourseStatus status ,Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(status ,pageable)));
     }
+
 
 
     @Operation(summary = "Manager phê duyêt / từ chối / yêu cầu thay đổi khoá học của mentor  ")
@@ -118,6 +125,11 @@ public class CourseController {
             , @RequestBody ManagerApprovalCourseRequest approvalCourseRequest) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.managerApprovalCourseRequest(id, approvalCourseRequest)));
     }
+
+
+
+
+
 
 //    @Operation(summary = "lấy tất cả các course theo subject id")
 //    @GetMapping("/subject/{subjectId}")

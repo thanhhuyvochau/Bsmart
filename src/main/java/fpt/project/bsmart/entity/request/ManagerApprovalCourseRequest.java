@@ -8,17 +8,16 @@ import java.util.List;
 
 public class ManagerApprovalCourseRequest implements Serializable {
 
-    private List<Long> classId ;
+    List<Long> classIds;
     private ECourseStatus status;
-    private String message ;
+    private String message;
 
-
-    public List<Long> getClassId() {
-        return classId;
+    public List<Long> getClassIds() {
+        return classIds;
     }
 
-    public void setClassId(List<Long> classId) {
-        this.classId = classId;
+    public void setClassIds(List<Long> classIds) {
+        this.classIds = classIds;
     }
 
     public ECourseStatus getStatus() {

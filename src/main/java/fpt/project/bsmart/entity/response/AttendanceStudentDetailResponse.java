@@ -5,7 +5,7 @@ import java.time.Instant;
 public class AttendanceStudentDetailResponse {
     private Instant date;
     private Integer slotNum;
-    private boolean isAttendance;
+    private boolean attendance;
     private String note;
 
     public Instant getDate() {
@@ -24,12 +24,12 @@ public class AttendanceStudentDetailResponse {
         this.slotNum = slotNum;
     }
 
-    public boolean isAttendance() {
-        return isAttendance;
+    public boolean getAttendance() {
+        return attendance;
     }
 
     public void setAttendance(boolean attendance) {
-        isAttendance = attendance;
+        this.attendance = attendance;
     }
 
     public String getNote() {

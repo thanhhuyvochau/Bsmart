@@ -1,25 +1,25 @@
 package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.*;
 
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 
-import fpt.project.bsmart.entity.*;
-import fpt.project.bsmart.entity.common.ApiException;
-
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
+import fpt.project.bsmart.entity.dto.UserDto;
+import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
+import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import org.springframework.http.HttpStatus;
-
 import org.springframework.stereotype.Component;
-
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
@@ -99,7 +99,7 @@ public class ClassUtil {
         clazz.getTimeInWeeks().forEach(timeInWeek -> {
             timeInWeekDTOS.add(ConvertUtil.convertTimeInWeekToDto(timeInWeek));
         });
-        classDetailResponse.setTimeInWeeks(timeInWeekDTOS);
+
         classDetailResponse.setImage(imageDto);
         if (userLogin != null) {
             List<Order> orders = userLogin.getOrder();
@@ -122,6 +122,9 @@ public class ClassUtil {
 
     public static MentorGetClassDetailResponse convertClassToMentorClassDetailResponse(Class clazz) {
         MentorGetClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new MentorGetClassDetailResponse(), MentorGetClassDetailResponse.class);
+        if (clazz.getCourse()!= null){
+            classDetailResponse.setCourseId(clazz.getCourse().getId());
+        }
         List<StudentClass> studentClasses = clazz.getStudentClasses();
         classDetailResponse.setNumberOfStudent(studentClasses.size());
         ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
@@ -135,12 +138,37 @@ public class ClassUtil {
         return classDetailResponse;
     }
 
+    public static ManagerGetClassDetailResponse convertClassToManagerGetClassResponse(Class clazz){
+        ManagerGetClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ManagerGetClassDetailResponse(), ManagerGetClassDetailResponse.class);
+        classDetailResponse.setNumberOfStudent(clazz.getStudentClasses().size());
+        List<StudentClass> studentClasses = clazz.getStudentClasses();
+        if(studentClasses != null){
+            List<UserDto> students = studentClasses.stream()
+                    .map(StudentClass::getStudent)
+                    .map(ConvertUtil::convertUsertoUserDto)
+                    .collect(Collectors.toList());
+            classDetailResponse.setStudents(students);
+        }
+        if(clazz.getMentor() !=  null){
+            classDetailResponse.setMentor(ConvertUtil.convertUsertoUserDto(clazz.getMentor()));
+        }
+        return classDetailResponse;
+    }
+
+    public static BaseClassResponse convertClassToBaseclassResponse(Class clazz){
+        BaseClassResponse classResponse = ObjectUtil.copyProperties(clazz, new BaseClassResponse(), BaseClassResponse.class);
+        classResponse.setNumberOfStudent(clazz.getStudentClasses().size());
+        return classResponse;
+    }
+
     public static StudentClass findUserInClass(Class clazz, User user) {
         List<StudentClass> studentClasses = clazz.getStudentClasses();
         Optional<StudentClass> optionalStudentClass = studentClasses.stream().filter(studentClass -> Objects.equals(studentClass.getStudent().getId(), user.getId())).findFirst();
         StudentClass studentClass = optionalStudentClass.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy học sinh trong lớp"));
         return studentClass;
     }
+
+
 
 }
 
