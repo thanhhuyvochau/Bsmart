@@ -1,5 +1,6 @@
 package fpt.project.bsmart.controller;
 
+import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import fpt.project.bsmart.entity.dto.ActivityDetailDto;
@@ -8,12 +9,15 @@ import fpt.project.bsmart.entity.dto.QuizSubmittionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.activity.MentorCreateAnnouncementForClass;
 import fpt.project.bsmart.entity.request.activity.MentorCreateResourceRequest;
+import fpt.project.bsmart.entity.response.QuizSubmissionResultResponse;
 import fpt.project.bsmart.service.IActivityService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Nullable;
 import javax.validation.Valid;
 import java.io.IOException;
 
@@ -135,11 +139,24 @@ public class ActivityController {
         return ResponseEntity.ok(ApiResponse.success(activityService.studentSubmitQuiz(id, request)));
     }
 
-    @Operation(summary = "học sinh xem bài làm quiz")
+    @Operation(summary = "xem kết quả quiz")
     @PreAuthorize("hasAnyRole('STUDENT')")
+    @GetMapping("/quiz/result/{id}")
+    public ResponseEntity<ApiResponse<QuizSubmissionResultResponse>> studentViewQuizResult(@PathVariable Long id){
+        return ResponseEntity.ok(ApiResponse.success(activityService.studentViewQuizResult(id)));
+    }
+
+    @Operation(summary = "Giáo viên xem kết quả quiz")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("/quiz/{id}/result")
+    public ResponseEntity<ApiResponse<ApiPage<QuizSubmissionResultResponse>>> teacherViewQuizResult(@PathVariable Long id, @Nullable QuizResultRequest request, Pageable pageable){
+        return ResponseEntity.ok(ApiResponse.success(activityService.teacherViewQuizResult(id, request, pageable)));
+    }
+    @Operation(summary = "giáo viên/học sinh xem bài làm quiz")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER')")
     @GetMapping("quiz/review/{id}")
-    public ResponseEntity<ApiResponse<QuizSubmittionDto>> studentReviewQuiz(@PathVariable("id")Long id){
-        return ResponseEntity.ok(ApiResponse.success(activityService.studentReviewQuiz(id)));
+    public ResponseEntity<ApiResponse<QuizSubmittionDto>> reviewQuiz(@PathVariable("id")Long id){
+        return ResponseEntity.ok(ApiResponse.success(activityService.reviewQuiz(id)));
     }
     @PutMapping("/visible/{id}")
     @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")

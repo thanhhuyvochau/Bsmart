@@ -682,14 +682,12 @@ public class ConvertUtil {
 
     public static QuizDto convertQuizToQuizDto(Quiz quiz, boolean isAttempt) {
         QuizDto quizDto = ObjectUtil.copyProperties(quiz, new QuizDto(), QuizDto.class);
-        User user = SecurityUtil.getCurrentUser();
-        boolean isStudent = SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT);
-        if(isStudent){
-            quizDto.setDefaultPoint(null);
-            quizDto.setSuffleQuestion(null);
-            quizDto.setPassword(null);
-        }
+        quizDto.setQuestionCount(quiz.getQuizQuestions().size());
+        quizDto.setPassword(null);
         if(isAttempt){
+            quizDto.setDefaultPoint(null);
+            quizDto.setIsSuffleQuestion(null);
+            quizDto.setPassword(null);
             if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
                 List<QuizQuestionDto> questionDtos = new ArrayList<>();
                 for (QuizQuestion question : quiz.getQuizQuestions()) {
@@ -748,9 +746,9 @@ public class ConvertUtil {
     public static QuizQuestionDto convertQuizQuestionToQuizQuestionDto(QuizQuestion quizQuestion, boolean isShuffle) {
         QuizQuestionDto question = ObjectUtil.copyProperties(quizQuestion, new QuizQuestionDto(), QuizQuestionDto.class);
         if (quizQuestion.getAnswers() != null || !question.getAnswers().isEmpty()) {
-            List<QuizAnswerDto> answers = new ArrayList<>();
+            List<BaseQuizAnswerDto> answers = new ArrayList<>();
             for (QuizAnswer answer : quizQuestion.getAnswers()) {
-                answers.add(ConvertUtil.convertQuizAnswerToQuizAnswerDto(answer));
+                answers.add(ObjectUtil.copyProperties(answer, new BaseQuizAnswerDto(), BaseQuizAnswerDto.class));
             }
             if(isShuffle){
                 Collections.shuffle(answers);
@@ -760,8 +758,16 @@ public class ConvertUtil {
         return question;
     }
 
-    public static QuizAnswerDto convertQuizAnswerToQuizAnswerDto(QuizAnswer quizAnswer) {
-        return ObjectUtil.copyProperties(quizAnswer, new QuizAnswerDto(), QuizAnswerDto.class);
+    public static QuizSubmissionResultResponse convertQuizSubmissionToSubmissionResult(QuizSubmittion submittion){
+        QuizSubmissionResultResponse response = new QuizSubmissionResultResponse();
+        response.setId(submittion.getId());
+        response.setPoint(submittion.getPoint());
+        response.setCorrectNumber(submittion.getCorrectNumber());
+        response.setTotalQuestion(submittion.getQuiz().getQuizQuestions().size());
+        response.setStatus(submittion.getStatus());
+        response.setSubmitBy(new QuizSubmissionResultResponse.UserInfo(submittion.getSubmittedBy().getId(), submittion.getSubmittedBy().getFullName()));
+        response.setSubmitAt(submittion.getCreated());
+        return response;
     }
 
 
