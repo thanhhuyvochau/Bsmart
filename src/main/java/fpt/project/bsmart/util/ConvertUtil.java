@@ -4,10 +4,7 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.ECourseActivityType;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.EQuestionType;
-import fpt.project.bsmart.entity.constant.ETransactionStatus;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
@@ -577,6 +574,18 @@ public class ConvertUtil {
         if (course != null) {
             simpleClassResponse.setCourse(convertCourseToCourseDTO(course));
         }
+        List<StudentClass> studentClasses = clazz.getStudentClasses();
+        simpleClassResponse.setNumberOfStudent(studentClasses.size());
+        ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
+        List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>();
+        clazz.getTimeInWeeks().forEach(timeInWeek -> {
+            timeInWeekDTOS.add(ConvertUtil.convertTimeInWeekToDto(timeInWeek));
+        });
+        simpleClassResponse.setTimeInWeeks(timeInWeekDTOS);
+        simpleClassResponse.setImage(imageDto);
+        if (clazz.getMentor() != null) {
+            simpleClassResponse.setMentor(MentorUtil.convertUserToMentorDto(clazz.getMentor()));
+        }
         return simpleClassResponse;
     }
 
@@ -610,7 +619,7 @@ public class ConvertUtil {
         ECourseActivityType type = activity.getType();
         switch (type) {
             case QUIZ:
-                activityDetailDto.setDetail(convertQuizToQuizDto(activity.getQuiz()));
+                activityDetailDto.setDetail(convertQuizToQuizDto(activity.getQuiz(), false));
                 break;
             case ASSIGNMENT:
                 activityDetailDto.setDetail(convertAssignmentToDto(activity.getAssignment()));
@@ -671,14 +680,26 @@ public class ConvertUtil {
 //        return activityTypeResponse;
 //    }
 
-    public static QuizDto convertQuizToQuizDto(Quiz quiz) {
+    public static QuizDto convertQuizToQuizDto(Quiz quiz, boolean isAttempt) {
         QuizDto quizDto = ObjectUtil.copyProperties(quiz, new QuizDto(), QuizDto.class);
-        if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
-            List<QuizQuestionDto> questionDtos = new ArrayList<>();
-            for (QuizQuestion question : quiz.getQuizQuestions()) {
-                questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question));
+        User user = SecurityUtil.getCurrentUser();
+        boolean isStudent = SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT);
+        if(isStudent){
+            quizDto.setDefaultPoint(null);
+            quizDto.setSuffleQuestion(null);
+            quizDto.setPassword(null);
+        }
+        if(isAttempt){
+            if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
+                List<QuizQuestionDto> questionDtos = new ArrayList<>();
+                for (QuizQuestion question : quiz.getQuizQuestions()) {
+                    questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
+                }
+                if(quiz.getIsSuffleQuestion()){
+                    Collections.shuffle(questionDtos);
+                }
+                quizDto.setQuizQuestions(questionDtos);
             }
-            quizDto.setQuizQuestions(questionDtos);
         }
         return quizDto;
     }
@@ -713,22 +734,26 @@ public class ConvertUtil {
             QuizSubmitAnswerDto answerDto = new QuizSubmitAnswerDto();
             answerDto.setId(answer.getId());
             answerDto.setAnswer(answer.getAnswer());
-            answerDto.setRight(answerDto.getRight());
+            answerDto.setIsRight(answer.getIsRight());
             if (!quizSubmitAnswers.isEmpty()) {
                 boolean isChosen = quizSubmitAnswers.stream()
                         .anyMatch(x -> x.getQuizAnswer().equals(answer));
-                answerDto.setChosen(isChosen);
+                answerDto.setIsChosen(isChosen);
             }
+            quizSubmitAnswerDtos.add(answerDto);
         }
         return quizSubmitAnswerDtos;
     }
 
-    public static QuizQuestionDto convertQuizQuestionToQuizQuestionDto(QuizQuestion quizQuestion) {
+    public static QuizQuestionDto convertQuizQuestionToQuizQuestionDto(QuizQuestion quizQuestion, boolean isShuffle) {
         QuizQuestionDto question = ObjectUtil.copyProperties(quizQuestion, new QuizQuestionDto(), QuizQuestionDto.class);
         if (quizQuestion.getAnswers() != null || !question.getAnswers().isEmpty()) {
             List<QuizAnswerDto> answers = new ArrayList<>();
             for (QuizAnswer answer : quizQuestion.getAnswers()) {
                 answers.add(ConvertUtil.convertQuizAnswerToQuizAnswerDto(answer));
+            }
+            if(isShuffle){
+                Collections.shuffle(answers);
             }
             question.setAnswers(answers);
         }

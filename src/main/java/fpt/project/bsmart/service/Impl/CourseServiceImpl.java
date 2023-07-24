@@ -15,7 +15,6 @@ import fpt.project.bsmart.entity.request.ManagerApprovalCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.course.CompletenessCourseResponse;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
-import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.repository.ActivityRepository;
 import fpt.project.bsmart.repository.CategoryRepository;
 import fpt.project.bsmart.repository.ClassRepository;
@@ -29,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -191,7 +191,6 @@ public class CourseServiceImpl implements ICourseService {
 
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
-
     }
 
     @Override
@@ -220,7 +219,7 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status , Pageable pageable) {
+    public ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status, Pageable pageable) {
         CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
                 .queryByCourseStatus(status);
 
@@ -243,7 +242,7 @@ public class CourseServiceImpl implements ICourseService {
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
                 .collect(Collectors.toList());
         ResponseUtil.responseForRole(EUserRole.TEACHER);
-        return ConvertUtil.convertActivityAsTree(sectionActivities,false);
+        return ConvertUtil.convertActivityAsTree(sectionActivities, false);
     }
 
     @Override
@@ -263,7 +262,7 @@ public class CourseServiceImpl implements ICourseService {
                         .withMessage("Lớp học với mã " + aClassId + " không thuộc khóa học " + course.getId());
             }
         }
-        Boolean isValidCourse = CourseUtil.checkCourseValid(course, user, classesInRequest);
+        Boolean isValidCourse = CourseUtil.checkCourseValidToSendApproval(course, user, classesInRequest);
 
         if (isValidCourse) {
             course.setStatus(WAITING);
@@ -307,7 +306,6 @@ public class CourseServiceImpl implements ICourseService {
         return response;
     }
 
-
     @Override
     public Boolean managerApprovalCourseRequest(Long id, ManagerApprovalCourseRequest approvalCourseRequest) {
 
@@ -328,7 +326,7 @@ public class CourseServiceImpl implements ICourseService {
             classList.add(aClass);
         }
         classRepository.saveAll(classList);
-
+        course.setStatus(approvalCourseRequest.getStatus());
         courseRepository.save(course);
         return true;
     }
@@ -878,28 +876,7 @@ public class CourseServiceImpl implements ICourseService {
 //        return PageUtil.convert(subCoursesPedingPage.map(ConvertUtil::subCourseToCourseSubCourseResponseConverter));
 //    }
 //
-//    @Transactional
-//    @Override
-//    public Boolean managerApprovalCourseRequest(Long subCourseId, ManagerApprovalCourseRequest approvalCourseRequest) {
-//
-//        SubCourse subCourse = subCourseRepository.findById(subCourseId).
-//                orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + subCourseId));
-//
-//
-//        validateApprovalCourseRequest(approvalCourseRequest.getStatus());
-//
-//        if (subCourse.getStatus() != WAITING) {
-//            throw ApiException.create(HttpStatus.BAD_REQUEST)
-//                    .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
-//        }
-//
-//        subCourse.setStatus(approvalCourseRequest.getStatus());
-//
-//        // log history
-//        ActivityHistoryUtil.logHistoryForCourseApprove(subCourse.getMentor().getId(), subCourse, approvalCourseRequest.getMessage());
-//        subCourseRepository.save(subCourse);
-//        return true;
-//    }
+
 //
 //    @Override
 //    public Boolean managerCreateCourse(CreateCoursePublicRequest createCourseRequest) {

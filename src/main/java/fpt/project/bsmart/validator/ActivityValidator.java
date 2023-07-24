@@ -8,14 +8,21 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import fpt.project.bsmart.entity.request.AddQuizRequest;
 import fpt.project.bsmart.util.MessageUtil;
+import fpt.project.bsmart.util.QuizUtil;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.EMPTY_CODE;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.EMPTY_PASSWORD;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
+
+@Component
 public class ActivityValidator {
-    private final MessageUtil messageUtil;
+    private static MessageUtil messageUtil;
 
     public ActivityValidator(MessageUtil messageUtil) {
         this.messageUtil = messageUtil;
@@ -36,29 +43,37 @@ public class ActivityValidator {
 
     public static void validateQuizInfo(AddQuizRequest addQuizRequest){
         if (addQuizRequest.getCode().trim().isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Code is empty");
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_CODE));
+        }
+        if (addQuizRequest.getStartDate().isAfter(Instant.now())){
+           throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_NOW_DATE));
         }
 
-        if (addQuizRequest.getStartDate().isBefore(Instant.now()) || addQuizRequest.getEndDate().isBefore(Instant.now())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Invalid start date or end date");
+        if(addQuizRequest.getEndDate().isBefore(Instant.now())){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_END_NOW_DATE));
         }
 
         if (addQuizRequest.getStartDate().isAfter(addQuizRequest.getEndDate())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Start day can not after end date");
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_END_DATE));
         }
 
-        if (addQuizRequest.getTime() < 0) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Invalid quiz time");
+        if (addQuizRequest.getTime() < QuizUtil.MIN_QUIZ_TIME
+                || addQuizRequest.getTime() > QuizUtil.MAX_QUIZ_TIME) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_QUIZ_TIME) + addQuizRequest.getTime());
         }
-        if (addQuizRequest.getDefaultPoint() < 0) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Invalid default point " + addQuizRequest.getDefaultPoint());
+        if (addQuizRequest.getDefaultPoint() < 0
+                || addQuizRequest.getDefaultPoint() > 10) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_QUIZ_DEFAULT_POINT) + addQuizRequest.getDefaultPoint());
         }
-        if (addQuizRequest.getIsAllowReview() && addQuizRequest.getAllowReviewAfterMin() < 0) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Invalid number of allow review after min: " + addQuizRequest.getAllowReviewAfterMin());
+        if (addQuizRequest.getIsAllowReview()){
+            if(addQuizRequest.getAllowReviewAfterMin() < 0
+                    || addQuizRequest.getAllowReviewAfterMin() > QuizUtil.MAX_ALLOW_REVIEW_AFTER_MIN) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_ALLOW_REVIEW_AFTER_MIN) + addQuizRequest.getAllowReviewAfterMin());
+            }
         }
 
         if (addQuizRequest.getPassword().trim().isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Quiz password is empty");
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_PASSWORD));
         }
     }
 

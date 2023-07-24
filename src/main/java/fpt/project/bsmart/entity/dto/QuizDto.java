@@ -85,11 +85,11 @@ public class QuizDto {
         isSuffleQuestion = suffleQuestion;
     }
 
-    public Boolean getAllowReview() {
+    public Boolean getIsAllowReview() {
         return isAllowReview;
     }
 
-    public void setAllowReview(Boolean allowReview) {
+    public void setIsAllowReview(Boolean allowReview) {
         isAllowReview = allowReview;
     }
 

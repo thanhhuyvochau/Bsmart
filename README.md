@@ -26,7 +26,9 @@ monitoring and reporting.
 ```
 http://103.173.155.221:8080/swagger-ui/index.html#/ 
 ssh: ssh root@103.173.155.221 -p 9020
-password: s_IFvbN797b^lH 
+password: s_IFvbN797b^lH
+
+
 ```
 
 ### Technologies reference for knowledge

@@ -122,6 +122,9 @@ public class ClassUtil {
 
     public static MentorGetClassDetailResponse convertClassToMentorClassDetailResponse(Class clazz) {
         MentorGetClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new MentorGetClassDetailResponse(), MentorGetClassDetailResponse.class);
+        if (clazz.getCourse()!= null){
+            classDetailResponse.setCourseId(clazz.getCourse().getId());
+        }
         List<StudentClass> studentClasses = clazz.getStudentClasses();
         classDetailResponse.setNumberOfStudent(studentClasses.size());
         ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());

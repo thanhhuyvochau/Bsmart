@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.ACCOUNT_IS_NOT_MENTOR;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.ACCOUNT_STATUS_NOT_ALLOW;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_MENTOR_PROFILE_STATUS;
 
 
 @Component
@@ -31,6 +33,20 @@ public class MentorUtil {
         staticMessageUtil = messageUtil;
 
     }
+
+    public static Boolean checkMentorStatusToUpdateInformation(MentorProfile mentorProfile) {
+
+        if (mentorProfile.getStatus().equals(EMentorProfileStatus.WAITING)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage("Tài khoản của bạn đang được hệ thống phê duyệt! Không thể cập nhật thông tin lúc này");
+        }
+        if (mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage("Tài khoản của bạn đã được hệ thống phê duyệt! Nếu muốn cập nhật thông tin vui lòng gửi yêu cầu cho admin");
+        }
+        return true ;
+    }
+
 
     public static MentorDto convertUserToMentorDto(User user) {
         MentorProfile mentorProfile = user.getMentorProfile();

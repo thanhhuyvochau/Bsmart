@@ -104,14 +104,22 @@ public class ClassSpecificationBuilder {
         if (status == null) {
             return this;
         }
-        switch (status) {
-            case STARTING:
-                return getStartingClass();
-            case ENDED:
-                return getEndClass();
-            default:
-                return this;
+        if (status.equals(ECourseStatus.ALL)){
+            return this;
         }
+
+        specifications.add((root, query, criteriaBuilder) -> {
+            return criteriaBuilder.and(root.get(Course_.STATUS).in(status));
+        });
+        return this;
+//        switch (status) {
+//            case STARTING:
+//                return getStartingClass();
+//            case ENDED:
+//                return getEndClass();
+//            default:
+//                return this;
+//        }
     }
 
     public ClassSpecificationBuilder filterByCategories(List<Category> categories) {
