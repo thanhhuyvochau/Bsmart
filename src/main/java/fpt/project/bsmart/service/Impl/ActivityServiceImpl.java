@@ -408,7 +408,7 @@ public class ActivityServiceImpl implements IActivityService {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ACTIVITY_NOT_FOUND_BY_ID) + id));
         if (activity.getFixed()) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Could not delete fixed activity");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_STATUS_HAS_FIXED));
         }
         User creator = activity.getCourse().getCreator();
         User currentUser = SecurityUtil.getCurrentUser();
@@ -426,7 +426,7 @@ public class ActivityServiceImpl implements IActivityService {
         User subCourseMentor = activity.getCourse().getCreator();
         User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         if (activity.getFixed()) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Could not edit fixed activity");
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_STATUS_HAS_FIXED));
         }
         if (!Objects.equals(subCourseMentor.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
