@@ -136,6 +136,7 @@ public class Constants {
             public static final String INVALID_START_NOW_DATE = "INVALID_START_NOW_DATE";
             public static final String INVALID_END_NOW_DATE = "INVALID_END_NOW_DATE";
             public static final String INVALID_START_END_DATE = "INVALID_START_END_DATE";
+            public static final String INVALID_CLASS_FILTER_ROLE = "INVALID_CLASS_FILTER_ROLE";
 
         }
 
