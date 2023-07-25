@@ -1,6 +1,8 @@
 package fpt.project.bsmart.repository;
 
 import fpt.project.bsmart.entity.ActivityHistory;
+import fpt.project.bsmart.entity.Course;
+import fpt.project.bsmart.entity.constant.EActivityType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +16,7 @@ public interface ActivityHistoryRepository extends JpaRepository<ActivityHistory
 
     Page<ActivityHistory> findByUserId(Long userId, Pageable pageable);
 
+    ActivityHistory findByUserIdAndType(Long userId, EActivityType type);
 
-
+    ActivityHistory findByType( EActivityType type);
 }

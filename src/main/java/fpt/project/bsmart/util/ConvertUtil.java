@@ -9,6 +9,7 @@ import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
+import fpt.project.bsmart.repository.ActivityHistoryRepository;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,9 +28,11 @@ public class ConvertUtil {
 
     private static String failIcon;
 
-    public ConvertUtil(ClassRepository classRepository, UserRepository userRepository) {
-        staticClassRepository = classRepository;
+    private static ActivityHistoryRepository staticActivityHistoryRepository;
 
+    public ConvertUtil(ClassRepository classRepository, UserRepository userRepository, ActivityHistoryRepository activityHistoryRepository) {
+        staticClassRepository = classRepository;
+        staticActivityHistoryRepository = activityHistoryRepository;
     }
 
     @Value("${icon.success}")
@@ -330,12 +333,10 @@ public class ConvertUtil {
         List<Class> classes = course.getClasses();
         List<ImageDto> images = new ArrayList<>();
         classes.forEach(clazz -> {
-
             if (clazz.getMentor() != null) {
                 if (mentorName.isEmpty()) {
                     mentorName.add(clazz.getMentor().getFullName());
                 }
-
             }
             if (clazz.getClassImage() != null) {
                 images.add(ObjectUtil.copyProperties(clazz.getClassImage(), new ImageDto(), ImageDto.class));
@@ -364,9 +365,14 @@ public class ConvertUtil {
     }
 
     public static ManagerGetCourse convertCourseToManagerGetCourse(Course course) {
-
+        ActivityHistory byUserCourse = staticActivityHistoryRepository.findByType(EActivityType.COURSE);
 
         ManagerGetCourse courseResponse = new ManagerGetCourse();
+        if (byUserCourse != null) {
+            courseResponse.setCount(byUserCourse.getCount());
+            courseResponse.setTimeSendRequest(course.getLastModified());
+        }
+
         courseResponse.setId(course.getId());
         courseResponse.setName(course.getName());
         courseResponse.setCode(course.getCode());
@@ -686,7 +692,7 @@ public class ConvertUtil {
         QuizDto quizDto = ObjectUtil.copyProperties(quiz, new QuizDto(), QuizDto.class);
         quizDto.setQuestionCount(quiz.getQuizQuestions().size());
         quizDto.setPassword(null);
-        if(isAttempt){
+        if (isAttempt) {
             quizDto.setDefaultPoint(null);
             quizDto.setIsSuffleQuestion(null);
             quizDto.setPassword(null);
@@ -695,7 +701,7 @@ public class ConvertUtil {
                 for (QuizQuestion question : quiz.getQuizQuestions()) {
                     questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
                 }
-                if(quiz.getIsSuffleQuestion()){
+                if (quiz.getIsSuffleQuestion()) {
                     Collections.shuffle(questionDtos);
                 }
                 quizDto.setQuizQuestions(questionDtos);
@@ -752,7 +758,7 @@ public class ConvertUtil {
             for (QuizAnswer answer : quizQuestion.getAnswers()) {
                 answers.add(ObjectUtil.copyProperties(answer, new BaseQuizAnswerDto(), BaseQuizAnswerDto.class));
             }
-            if(isShuffle){
+            if (isShuffle) {
                 Collections.shuffle(answers);
             }
             question.setAnswers(answers);
@@ -760,7 +766,7 @@ public class ConvertUtil {
         return question;
     }
 
-    public static QuizSubmissionResultResponse convertQuizSubmissionToSubmissionResult(QuizSubmittion submittion){
+    public static QuizSubmissionResultResponse convertQuizSubmissionToSubmissionResult(QuizSubmittion submittion) {
         QuizSubmissionResultResponse response = new QuizSubmissionResultResponse();
         response.setId(submittion.getId());
         response.setPoint(submittion.getPoint());
@@ -777,9 +783,9 @@ public class ConvertUtil {
         User student = studentClass.getStudent();
         StudentClassResponse studentClassResponse = new StudentClassResponse();
         List<UserImage> userImages = student.getUserImages();
-        List<UserImage> avatar  = userImages.stream().filter(userImage -> userImage.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
+        List<UserImage> avatar = userImages.stream().filter(userImage -> userImage.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
 
-        if (avatar.size() > 0){
+        if (avatar.size() > 0) {
             ImageDto imageDto = ConvertUtil.convertUserImageToUserImageDto(avatar.stream().findFirst().get());
             studentClassResponse.setImages(imageDto);
         }

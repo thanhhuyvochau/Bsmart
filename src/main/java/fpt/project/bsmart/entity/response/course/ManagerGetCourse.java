@@ -6,6 +6,8 @@ import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 
+import java.time.Instant;
+
 public class ManagerGetCourse {
     private Long id;
     private String code;
@@ -13,18 +15,18 @@ public class ManagerGetCourse {
 
     private String description;
 
-    private ECourseLevel level ;
+    private ECourseLevel level;
     private CategoryDto categoryResponse;
 
     private SubjectDto subjectResponse;
 
-
     private ECourseStatus status;
-
 
     private MentorDto mentor;
 
-    private Integer totalClass ;
+    private Integer totalClass;
+    private Instant timeSendRequest;
+    private Integer count;
 
 
     public Long getId() {
@@ -105,5 +107,21 @@ public class ManagerGetCourse {
 
     public void setTotalClass(Integer totalClass) {
         this.totalClass = totalClass;
+    }
+
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
+    }
+
+    public Instant getTimeSendRequest() {
+        return timeSendRequest;
+    }
+
+    public void setTimeSendRequest(Instant timeSendRequest) {
+        this.timeSendRequest = timeSendRequest;
     }
 }

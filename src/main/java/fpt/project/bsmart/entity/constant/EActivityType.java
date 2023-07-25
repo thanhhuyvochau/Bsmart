@@ -1,7 +1,8 @@
 package fpt.project.bsmart.entity.constant;
 
 public enum EActivityType {
-    SUBCOURSE,
+    ClASS,
+    COURSE,
     ORDER,
 
     USER;
