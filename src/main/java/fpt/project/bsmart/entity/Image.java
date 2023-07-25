@@ -25,10 +25,6 @@ public class Image extends BaseEntity {
 //    @OneToOne(mappedBy = "image")
 //    private SubCourse subCourse;
 
-    @ManyToOne
-    @JoinColumn(name = "report_id")
-    private ReportFeedback reportFeedback;
-
     public Long getId() {
         return id;
     }
