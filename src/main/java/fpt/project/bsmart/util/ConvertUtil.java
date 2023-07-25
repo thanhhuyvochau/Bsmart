@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.repository.ClassRepository;
+import fpt.project.bsmart.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -26,8 +27,9 @@ public class ConvertUtil {
 
     private static String failIcon;
 
-    public ConvertUtil(ClassRepository classRepository) {
+    public ConvertUtil(ClassRepository classRepository, UserRepository userRepository) {
         staticClassRepository = classRepository;
+
     }
 
     @Value("${icon.success}")
@@ -774,6 +776,14 @@ public class ConvertUtil {
     public static StudentClassResponse convertStudentClassToResponse(StudentClass studentClass) {
         User student = studentClass.getStudent();
         StudentClassResponse studentClassResponse = new StudentClassResponse();
+        List<UserImage> userImages = student.getUserImages();
+        List<UserImage> avatar  = userImages.stream().filter(userImage -> userImage.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
+
+        if (avatar.size() > 0){
+            ImageDto imageDto = ConvertUtil.convertUserImageToUserImageDto(avatar.stream().findFirst().get());
+            studentClassResponse.setImages(imageDto);
+        }
+
         studentClassResponse.setEmail(student.getEmail());
         studentClassResponse.setId(studentClass.getId());
         studentClassResponse.setName(student.getFullName());

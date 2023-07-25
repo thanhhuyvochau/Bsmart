@@ -99,13 +99,16 @@ public class ClassServiceImpl implements IClassService {
 
     @Override
     public MentorGetCourseClassResponse getAllClassOfCourse(Long id) {
+
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
         MentorGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponsePage(course);
+
         List<Activity> sectionActivities = course.getActivities().stream()
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION) && activity.getFixed())
                 .collect(Collectors.toList());
+
         ResponseUtil.responseForRole(EUserRole.TEACHER);
         List<ActivityDto> activityDtos = ConvertUtil.convertActivityAsTree(sectionActivities, true);
         response.setActivities(activityDtos);
