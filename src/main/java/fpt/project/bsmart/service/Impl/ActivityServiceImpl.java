@@ -469,7 +469,6 @@ public class ActivityServiceImpl implements IActivityService {
         List<AssignmentFile> assignmentFiles = assignmentSubmition.getAssignmentFiles();
         for (MultipartFile submittedFile : request.getSubmittedFiles()) {
             AssignmentFile assignmentFile = createAssignmentFile(submittedFile, assignment, FileType.SUBMIT);
-            assignmentFile.setNote(request.getNote());
             assignmentFile.setAssignmentSubmition(assignmentSubmition);
             assignmentFiles.add(assignmentFile);
         }
