@@ -102,7 +102,7 @@ public class MentorProfileImpl implements IMentorProfileService {
     public ApiPage<UserDto> getPendingMentorProfileList(MentorSearchRequest request, Pageable pageable) {
         MentorProfileSpecificationBuilder builder = MentorProfileSpecificationBuilder.specificationBuilder()
                 .queryLike(request.getQ())
-                .queryByStatus(EMentorProfileStatus.WAITING);
+                .queryByStatus(request.getAccountStatus());
 
 
         Page<MentorProfile> mentorProfilePage = mentorProfileRepository.findAll(builder.build(), pageable);
