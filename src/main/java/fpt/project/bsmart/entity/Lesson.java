@@ -8,7 +8,8 @@ public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "description")
+    @Lob
+    @Column(name = "description", columnDefinition="BLOB")
     private String description;
     @OneToOne
     @JoinColumn(name = "activity_id")

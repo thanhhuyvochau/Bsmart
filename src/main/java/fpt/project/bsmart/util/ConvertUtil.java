@@ -523,59 +523,6 @@ public class ConvertUtil {
         return courseCartResponse;
     }
 
-    public static FeedbackQuestionDto convertFeedbackQuestionToFeedbackQuestionDto(FeedbackQuestion question) {
-        FeedbackQuestionDto feedbackQuestionDto = ObjectUtil.copyProperties(question, new FeedbackQuestionDto(), FeedbackQuestionDto.class);
-        if (feedbackQuestionDto.getQuestionType() == EQuestionType.MULTIPLE_CHOICE) {
-            feedbackQuestionDto.setPossibleAnswer(FeedbackQuestionUtil.convertAnswerAndScoreStringToPossibleAnswer(question.getPossibleAnswer(), question.getPossibleScore()));
-        } else {
-            feedbackQuestionDto.setPossibleAnswer(null);
-        }
-        return feedbackQuestionDto;
-    }
-
-    public static FeedbackTemplateDto convertTemplateToTemplateDto(FeedbackTemplate feedbackTemplate) {
-        FeedbackTemplateDto feedbackTemplateDto = ObjectUtil.copyProperties(feedbackTemplate, new FeedbackTemplateDto(), FeedbackTemplateDto.class);
-        if (feedbackTemplate.getQuestions() != null) {
-            List<FeedbackQuestionDto> questions = new ArrayList<>();
-            for (FeedbackQuestion feedbackQuestion : feedbackTemplate.getQuestions()) {
-                questions.add(convertFeedbackQuestionToFeedbackQuestionDto(feedbackQuestion));
-            }
-            feedbackTemplateDto.setQuestions(questions);
-        }
-        return feedbackTemplateDto;
-    }
-
-    public static UserFeedbackResponse convertFeedbackAnswerToUserFeedbackResponse(FeedbackAnswer feedbackAnswer) {
-        UserFeedbackResponse userFeedbackResponse = new UserFeedbackResponse();
-        List<String> answerList = FeedbackQuestionUtil.convertAnswerStringToAnswerList(feedbackAnswer.getAnswer());
-        userFeedbackResponse.setFeedbackAnswerId(feedbackAnswer.getId());
-        if (feedbackAnswer.getFeedbackTemplate() != null) {
-            HashMap<String, String> feedbackAnswers = new HashMap<>();
-            List<FeedbackQuestion> questionList = feedbackAnswer.getFeedbackTemplate().getQuestions();
-            for (int i = 0; i < questionList.size(); i++) {
-                String question = questionList.get(i).getQuestion();
-                String answer = answerList.get(i);
-                if (questionList.get(i).getQuestionType().equals(EQuestionType.FILL_THE_ANSWER)) {
-                    feedbackAnswers.put(question, answer);
-                } else {
-                    int answerIndex;
-                    try {
-                        answerIndex = Integer.parseInt(answer);
-                    } catch (NumberFormatException e) {
-                        throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("");
-                    }
-                    List<String> possibleAnswers = FeedbackQuestionUtil.convertAnswerStringToAnswerList(questionList.get(i).getPossibleAnswer());
-                    String chosenAnswer = possibleAnswers.get(answerIndex);
-                    feedbackAnswers.put(question, chosenAnswer);
-                }
-            }
-        }
-        if (feedbackAnswer.getFeedbackUser() != null) {
-            userFeedbackResponse.setUserName(feedbackAnswer.getFeedbackUser().getFullName());
-        }
-        return userFeedbackResponse;
-    }
-
     public static SimpleClassResponse convertClassToSimpleClassResponse(Class clazz) {
         SimpleClassResponse simpleClassResponse = ObjectUtil.copyProperties(clazz, new SimpleClassResponse(), SimpleClassResponse.class);
         Course course = clazz.getCourse();

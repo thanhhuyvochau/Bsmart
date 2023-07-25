@@ -43,9 +43,6 @@ public class Class extends BaseEntity {
     @JoinColumn(name = "course_id")
     private Course course;
 
-    @OneToOne
-    @JoinColumn(name = "feedback_template_id")
-    private FeedbackTemplate feedbackTemplate;
     @OneToOne(mappedBy = "aClass", cascade = CascadeType.ALL)
     private ClassImage classImage;
 
@@ -182,14 +179,6 @@ public class Class extends BaseEntity {
 
     public void setCourse(Course course) {
         this.course = course;
-    }
-
-    public FeedbackTemplate getFeedbackTemplate() {
-        return feedbackTemplate;
-    }
-
-    public void setFeedbackTemplate(FeedbackTemplate feedbackTemplate) {
-        this.feedbackTemplate = feedbackTemplate;
     }
 
     public ClassImage getClassImage() {
