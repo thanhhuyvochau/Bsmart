@@ -22,8 +22,6 @@ public class AssignmentRequest extends ActivityRequest {
     private Integer maxFileSize = 5; // đơn vị MB
 
     private List<MultipartFile> attachFiles = new ArrayList<>();
-
-    private boolean overWriteAttachFile = false;
     private Long passPoint = 5L;
 
     public String getDescription() {
@@ -80,14 +78,6 @@ public class AssignmentRequest extends ActivityRequest {
 
     public void setAttachFiles(List<MultipartFile> attachFiles) {
         this.attachFiles = attachFiles;
-    }
-
-    public boolean isOverWriteAttachFile() {
-        return overWriteAttachFile;
-    }
-
-    public void setOverWriteAttachFile(boolean overWriteAttachFile) {
-        this.overWriteAttachFile = overWriteAttachFile;
     }
 
     public Long getPassPoint() {

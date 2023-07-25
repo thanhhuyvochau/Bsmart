@@ -8,7 +8,6 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.ActivityDetailDto;
 import fpt.project.bsmart.entity.dto.QuizDto;
-import fpt.project.bsmart.entity.dto.QuizQuestionDto;
 import fpt.project.bsmart.entity.dto.QuizSubmittionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
@@ -38,7 +37,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
@@ -246,7 +244,7 @@ public class ActivityServiceImpl implements IActivityService {
 
     public Quiz addQuiz(AddQuizRequest addQuizRequest, Activity activity) {
         ActivityValidator.validateQuizInfo(addQuizRequest);
-        if(addQuizRequest.getQuizQuestions() == null){
+        if (addQuizRequest.getQuizQuestions() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_QUESTION_LIST));
         }
         List<QuizQuestionRequest> questions = addQuizRequest.getQuizQuestions();
@@ -271,7 +269,7 @@ public class ActivityServiceImpl implements IActivityService {
             long numOfRightAnswer = answers.stream()
                     .filter(QuizAnswerRequest::getRight)
                     .count();
-            if(numOfRightAnswer == 0){
+            if (numOfRightAnswer == 0) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(MISSING_RIGHT_ANSWER_IN_QUESTION));
             }
             if (question.getQuestionType().equals(QuestionType.SINGLE) && numOfRightAnswer > 1) {
@@ -434,7 +432,8 @@ public class ActivityServiceImpl implements IActivityService {
         activity.setVisible(activity.isVisible());
         return true;
     }
-//
+
+    //
     @Override
     public Boolean submitAssignment(Long id, SubmitAssignmentRequest request) throws IOException {
         Activity activity = activityRepository.findById(id)
@@ -632,20 +631,9 @@ public class ActivityServiceImpl implements IActivityService {
         // Lấy file đính kèm của assignment
         List<MultipartFile> attachFiles = request.getAttachFiles();
         List<AssignmentFile> existedAssignmentFiles = assignment.getAssignmentFiles();
-        Map<String, AssignmentFile> assignmentMapByName = existedAssignmentFiles.stream().collect(Collectors.toMap(AssignmentFile::getName, Function.identity()));
         for (MultipartFile attachFile : attachFiles) {
             AssignmentFile newAssignmentFile = createAssignmentFile(attachFile, assignment, FileType.ATTACH);
-            AssignmentFile existedAssignment = assignmentMapByName.get(newAssignmentFile.getName());
-            if (existedAssignment != null) {
-                if (request.isOverWriteAttachFile()) {
-                    existedAssignmentFiles.remove(existedAssignment);
-                    existedAssignmentFiles.add(newAssignmentFile);
-                } else {
-                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(Constants.ErrorMessage.CAN_NOT_UPLOAD_ASSIGNMENT);
-                }
-            } else {
-                existedAssignmentFiles.add(newAssignmentFile);
-            }
+            existedAssignmentFiles.add(newAssignmentFile);
         }
         return assignment;
     }
@@ -733,7 +721,7 @@ public class ActivityServiceImpl implements IActivityService {
                 .filter(x -> x.getCourse().getId().equals(course.getId()))
                 .findFirst()
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS)));
-        if(!ActivityValidator.isAuthorizeForClass(classes, activity)){
+        if (!ActivityValidator.isAuthorizeForClass(classes, activity)) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_AUTHORIZED_FOR_YOUR_CLASS) + classes.getId());
         }
         return user;
@@ -758,16 +746,17 @@ public class ActivityServiceImpl implements IActivityService {
         }
     }
 
-    private Quiz getQuizByActivityId(Long id){
+    private Quiz getQuizByActivityId(Long id) {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + id));
         boolean isQuizActivity = ActivityUtil.isCorrectActivityType(activity, ECourseActivityType.QUIZ);
-        if(!isQuizActivity){
+        if (!isQuizActivity) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + id);
         }
         return activity.getQuiz();
     }
-    public QuizDto studentAttemptQuiz(Long id,StudentAttemptQuizRequest request) {
+
+    public QuizDto studentAttemptQuiz(Long id, StudentAttemptQuizRequest request) {
         Quiz quiz = getQuizByActivityId(id);
         User user = validateUser(quiz.getActivity());
         isAvailableToAttempt(quiz, user);
@@ -783,26 +772,26 @@ public class ActivityServiceImpl implements IActivityService {
         return quizDto;
     }
 
-    public QuizSubmissionResultResponse studentViewQuizResult(Long id){
+    public QuizSubmissionResultResponse studentViewQuizResult(Long id) {
         QuizSubmittion submittion = quizSubmissionRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(QUIZ_SUBMISSION_NOT_FOUND_BY_ID) + id));
         User user = SecurityUtil.getCurrentUser();
         boolean isBelongToMentorOrStudent;
-        if(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER)){
+        if (SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER)) {
             isBelongToMentorOrStudent = ActivityUtil.isBelongToMentor(submittion.getQuiz().getActivity());
-        }else{
+        } else {
             isBelongToMentorOrStudent = Objects.equals(user, submittion.getSubmittedBy());
         }
-        if(!isBelongToMentorOrStudent){
+        if (!isBelongToMentorOrStudent) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
         }
         return ConvertUtil.convertQuizSubmissionToSubmissionResult(submittion);
     }
 
-    public ApiPage<QuizSubmissionResultResponse> teacherViewQuizResult(Long id, QuizResultRequest request, Pageable pageable){
+    public ApiPage<QuizSubmissionResultResponse> teacherViewQuizResult(Long id, QuizResultRequest request, Pageable pageable) {
         Quiz quiz = findQuizById(id);
         boolean isBelongToMentor = ActivityUtil.isBelongToMentor(quiz.getActivity());
-        if(!isBelongToMentor){
+        if (!isBelongToMentor) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
         }
         QuizSubmissionSpecificationBuilder builder = QuizSubmissionSpecificationBuilder.quizSubmissionSpecificationBuilder()
@@ -815,17 +804,18 @@ public class ActivityServiceImpl implements IActivityService {
         Page<QuizSubmittion> quizSubmittionPage = quizSubmissionRepository.findAll(builder.build(), pageable);
         return PageUtil.convert(quizSubmittionPage.map(ConvertUtil::convertQuizSubmissionToSubmissionResult));
     }
+
     public QuizSubmittionDto reviewQuiz(Long id) {
         QuizSubmittion quizSubmittion = quizSubmissionRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(QUIZ_SUBMISSION_NOT_FOUND_BY_ID) + id));
         User user = SecurityUtil.getCurrentUser();
         boolean isTeacher = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER);
-        if(isTeacher){
+        if (isTeacher) {
             boolean isBelongToMentor = ActivityUtil.isBelongToMentor(quizSubmittion.getQuiz().getActivity());
-            if(!isBelongToMentor){
+            if (!isBelongToMentor) {
                 throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
             }
-        }else {
+        } else {
             boolean isProposer = quizSubmittion.getSubmittedBy().equals(user);
             if (!isProposer) {
                 throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
@@ -844,7 +834,7 @@ public class ActivityServiceImpl implements IActivityService {
     }
 
 
-    public Boolean studentSubmitQuiz(Long activityId,SubmitQuizRequest request) {
+    public Boolean studentSubmitQuiz(Long activityId, SubmitQuizRequest request) {
         Quiz quiz = getQuizByActivityId(activityId);
         User user = validateUser(quiz.getActivity());
         isAvailableToAttempt(quiz, user);
