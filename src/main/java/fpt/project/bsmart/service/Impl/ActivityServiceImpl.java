@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.ActivityDetailDto;
+import fpt.project.bsmart.entity.dto.AssignmentSubmitionDto;
 import fpt.project.bsmart.entity.dto.QuizDto;
 import fpt.project.bsmart.entity.dto.QuizSubmittionDto;
 import fpt.project.bsmart.entity.request.*;
@@ -961,5 +962,19 @@ public class ActivityServiceImpl implements IActivityService {
         lesson.setDescription(request.getDescription());
         lessonRepository.save(lesson);
         return lesson;
+    }
+
+    @Override
+    public ApiPage<AssignmentSubmitionDto> getAssignmentSubmit(long assignmentId, Pageable pageable) {
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Assignment không tìm thấy với id:" + assignmentId));
+        Page<AssignmentSubmition> assignmentSubmitionPage = assignmentSubmittionRepository.findAllByAssignment(assignment, pageable);
+        return PageUtil.convert(assignmentSubmitionPage.map(ConvertUtil::convertAssignmentSubmitToDto));
+    }
+
+    @Override
+    public boolean gradeAssignmentSubmit(long assignmentId, List<GradeAssignmentSubmitionRequest> gradeAssignmentSubmitionRequests) {
+        return false;
     }
 }

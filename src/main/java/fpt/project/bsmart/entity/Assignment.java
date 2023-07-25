@@ -31,10 +31,13 @@ public class Assignment extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "activity_id")
     private Activity activity;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "assignment")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "assignment", fetch = FetchType.LAZY)
     private List<AssignmentFile> assignmentFiles = new ArrayList<>();
     @Column(name = "pass_point")
     private Long passPoint = 5L; // Default 5
+
+    @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<AssignmentSubmition> assignmentSubmitions = new ArrayList<>();
 
     public Assignment(String description, Instant startDate, Instant endDate, Integer editBeForSubmitMin, Integer maxFileSubmit, Integer maxFileSize, EAssignmentStatus status, Activity activity, List<AssignmentFile> assignmentFiles, Long passPoint) {
         this.description = description;
@@ -140,4 +143,11 @@ public class Assignment extends BaseEntity {
         this.passPoint = passPoint;
     }
 
+    public List<AssignmentSubmition> getAssignmentSubmitions() {
+        return assignmentSubmitions;
+    }
+
+    public void setAssignmentSubmitions(List<AssignmentSubmition> assignmentSubmitions) {
+        this.assignmentSubmitions = assignmentSubmitions;
+    }
 }
