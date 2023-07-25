@@ -627,6 +627,8 @@ public class ClassServiceImpl implements IClassService {
             builder.byMentor(user);
         } else if (request.getAsRole() == 1) {
             builder.byStudent(user);
+        } else {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Invalid.INVALID_CLASS_FILTER_ROLE));
         }
         if (!request.getCategoryId().isEmpty()) {
             List<Category> categories = categoryRepository.findAllById(request.getCategoryId());
