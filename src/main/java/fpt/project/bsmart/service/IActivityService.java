@@ -51,7 +51,7 @@ public interface IActivityService {
 
     Boolean editActivity(Long id, ActivityRequest activityRequest, ECourseActivityType type) throws IOException;
 
-    ApiPage<AssignmentSubmitionDto> getAssignmentSubmit(long assignmentId, Pageable pageable);
+    ApiPage<AssignmentSubmitionDto> getAllAssignmentSubmit(long assignmentId, List<Long> classId, Pageable pageable);
 
     boolean gradeAssignmentSubmit(long assignmentId, List<GradeAssignmentSubmitionRequest> gradeAssignmentSubmitionRequests);
 }

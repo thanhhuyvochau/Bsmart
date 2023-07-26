@@ -24,6 +24,7 @@ import fpt.project.bsmart.util.adapter.MinioAdapter;
 import fpt.project.bsmart.util.specification.QuizSubmissionSpecificationBuilder;
 import fpt.project.bsmart.validator.ActivityValidator;
 import fpt.project.bsmart.validator.AssignmentValidator;
+import fpt.project.bsmart.validator.CourseValidator;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
@@ -965,16 +967,33 @@ public class ActivityServiceImpl implements IActivityService {
     }
 
     @Override
-    public ApiPage<AssignmentSubmitionDto> getAssignmentSubmit(long assignmentId, Pageable pageable) {
+    public ApiPage<AssignmentSubmitionDto> getAllAssignmentSubmit(long assignmentId, List<Long> classId, Pageable pageable) {
         Assignment assignment = assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Assignment không tìm thấy với id:" + assignmentId));
-        Page<AssignmentSubmition> assignmentSubmitionPage = assignmentSubmittionRepository.findAllByAssignment(assignment, pageable);
+        Page<AssignmentSubmition> assignmentSubmitionPage = assignmentSubmittionRepository.findAllByAssignment(assignment, classId, pageable);
         return PageUtil.convert(assignmentSubmitionPage.map(ConvertUtil::convertAssignmentSubmitToDto));
     }
 
     @Override
     public boolean gradeAssignmentSubmit(long assignmentId, List<GradeAssignmentSubmitionRequest> gradeAssignmentSubmitionRequests) {
-        return false;
+        User mentor = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Assignment không tìm thấy với id:" + assignmentId));
+        Course course = assignment.getActivity().getCourse();
+        if (!CourseValidator.isMentorOfCourse(mentor, course)) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
+        }
+        List<Long> submitsId = gradeAssignmentSubmitionRequests.stream().map(GradeAssignmentSubmitionRequest::getId).collect(Collectors.toList());
+        Map<Long, GradeAssignmentSubmitionRequest> assignmentSubmitionRequestMap = gradeAssignmentSubmitionRequests.stream().collect(Collectors.toMap(GradeAssignmentSubmitionRequest::getId, Function.identity()));
+        List<AssignmentSubmition> assignmentSubmitions = assignmentSubmittionRepository.findAllById(submitsId);
+        for (AssignmentSubmition assignmentSubmition : assignmentSubmitions) {
+            GradeAssignmentSubmitionRequest gradeAssignmentSubmitionRequest = assignmentSubmitionRequestMap.get(assignmentSubmition.getId());
+            gradeAssignmentSubmitionRequest.setNote(gradeAssignmentSubmitionRequest.getNote());
+            gradeAssignmentSubmitionRequest.setPoint(gradeAssignmentSubmitionRequest.getPoint());
+        }
+        assignmentSubmittionRepository.saveAll(assignmentSubmitions);
+        return true;
     }
 }

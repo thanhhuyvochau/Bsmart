@@ -184,8 +184,8 @@ public class ActivityController {
 
     @GetMapping("/assignments/{assignmentId}/submits")
     @PreAuthorize("hasAnyRole('TEACHER')")
-    public ResponseEntity<ApiResponse<ApiPage<AssignmentSubmitionDto>>> getAssignmentSubmit(@PathVariable Long assignmentId, Pageable pageable) throws IOException {
-        return ResponseEntity.ok(ApiResponse.success(activityService.getAssignmentSubmit(assignmentId, pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<AssignmentSubmitionDto>>> getAssignmentSubmit(@PathVariable Long assignmentId, List<Long> classIds, Pageable pageable) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(activityService.getAllAssignmentSubmit(assignmentId, classIds, pageable)));
     }
 
 }
