@@ -23,25 +23,45 @@ public class ActivityHistoryUtil {
     }
 
 
-    public static void logHistoryForCourseApprove(Long userId, Course course, String message) {
-        logHistoryForCourse(userId,EActivityAction.APPROVE,course, message);
+//    public static void logHistoryForCourseApprove(Long userId, Course course, String message) {
+//        logHistoryForCourse(userId,EActivityAction.APPROVE,course, message);
+//    }
+
+    public static void logHistoryForMentorSendRequestClass(Long userId,Class clazz) {
+        ActivityHistory activityHistory = new ActivityHistory();
+        activityHistory.setType(EActivityType.ClASS);
+        activityHistory.setAction( EActivityAction.REQUEST );
+        activityHistory.setActivityTime(LocalDateTime.now());
+        activityHistory.setActivityId(clazz.getId());
+        activityHistory.setActivityName(clazz.getCode());
+        activityHistory.setUserId(userId);
+        activityHistory.setDetail("Đã gửi yêu cầu phê duyệt lớp hoc!");
+        staticActivityHistoryRepository.save(activityHistory);
     }
 
-    public static void logHistoryForCourseCreated(Long userId, Course course) {
-        logHistoryForCourse(userId, EActivityAction.CREATED  ,course, "Đã tạo khóa học !");
+    public static void logHistoryForMentorSendRequestCourse(Long userId,Course course) {
+        ActivityHistory activityHistory = new ActivityHistory();
+        activityHistory.setType(EActivityType.COURSE);
+        activityHistory.setAction( EActivityAction.REQUEST);
+        activityHistory.setActivityTime(LocalDateTime.now());
+        activityHistory.setActivityId(course.getId());
+        activityHistory.setActivityName(course.getCode());
+        activityHistory.setUserId(userId);
+        activityHistory.setDetail("Đã gửi yêu cầu phê duyệt khóa học !");
+        staticActivityHistoryRepository.save(activityHistory);
     }
+
 //
 //    public static void logHistoryForCourseDeleted(Long userId, SubCourse subCourse) {
 //        logHistoryForCourse(userId,EActivityAction.DELETED , subCourse,  "Đã xóa khóa học!");
 //    }
 
-    private static void logHistoryForCourse(Long userId, EActivityAction action ,Course course, String detail) {
+    private static void logHistoryForCourse(Long userId, EActivityAction action ,Class clazz, String detail) {
         ActivityHistory activityHistory = new ActivityHistory();
-        activityHistory.setType(EActivityType.SUBCOURSE);
+        activityHistory.setType(EActivityType.ClASS);
         activityHistory.setAction(action);
         activityHistory.setActivityTime(LocalDateTime.now());
-        activityHistory.setActivityId(course.getId());
-        activityHistory.setActivityName(course.getCode());
+
         activityHistory.setUserId(userId);
         activityHistory.setDetail(detail);
         staticActivityHistoryRepository.save(activityHistory);

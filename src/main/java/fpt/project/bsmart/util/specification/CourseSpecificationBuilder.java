@@ -59,7 +59,7 @@ public class CourseSpecificationBuilder {
         }
         specifications.add((root, query, criteriaBuilder) -> {
             Path<Subject> objectPath = root.get(Course_.SUBJECT);
-            return criteriaBuilder.and(objectPath.get(Subject_.ID).in(subjectId));
+            return criteriaBuilder.or(objectPath.get(Subject_.ID).in(subjectId));
         });
         return this;
     }
@@ -83,7 +83,7 @@ public class CourseSpecificationBuilder {
             Join<Course, Subject> courseSubjectJoin = root.join(Course_.SUBJECT, JoinType.LEFT);
             Join<Subject, Category> categoryJoin = courseSubjectJoin.join(Subject_.CATEGORIES);
             Path<Object> objectPath = categoryJoin.get(Category_.ID);
-            return criteriaBuilder.and(objectPath.in(categoryIds));
+            return criteriaBuilder.or(objectPath.in(categoryIds));
         });
         return this;
     }

@@ -118,6 +118,13 @@ public class ClassController {
     public ResponseEntity<ApiResponse<Boolean>> mentorOpenClass(@PathVariable Long id, @RequestBody List<MentorCreateScheduleRequest> timeTableRequest) throws ValidationErrorsException {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorOpenClass(id, timeTableRequest)));
     }
+
+    @Operation(summary = "Mentor xem danh sách học sinh của lớp")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("/{id}/members")
+    public ResponseEntity<ApiResponse<ApiPage<StudentClassResponse>>> getClassMembers(@PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassMembers(id, pageable)));
+    }
     //     ################################## Manager ##########################################
 
     @Operation(summary = "MANAGER lấy tất cả các class của course để phê duyệt")
@@ -126,9 +133,24 @@ public class ClassController {
     public ResponseEntity<ApiResponse<ManagerGetCourseClassResponse>> getAllClassOfCourseForManager(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourseForManager(id)));
     }
+    //     ################################## STUDENT ##########################################
+
+    @Operation(summary = "Học sinh lấy điểm danh của lớp học")
+    @PreAuthorize("hasAnyRole('STUDENT')")
+    @GetMapping("/{classId}/student/attendances")
+    public ResponseEntity<ApiResponse<AttendanceStudentResponse>> getDetailStudentAttendance(@PathVariable long classId) {
+        return ResponseEntity.ok(ApiResponse.success(attendanceService.getAttendanceByClassForStudent(classId)));
+    }
+
+    @Operation(summary = "Manager lấy các class  ")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("/manager")
+    public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> managerGetClass(ECourseStatus status, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.managerGetClass(status, pageable)));
+    }
 
 
-//    @Operation(summary = "mentor tao lớp học")
+    //    @Operation(summary = "mentor tao lớp học")
 //    @PostMapping
 //    public ResponseEntity<ApiResponse<Boolean>> mentorCreateClass(@Valid @RequestBody CreateClassRequest request) {
 //        return ResponseEntity.ok(ApiResponse.success(iClassService.createClass(request)));
@@ -145,16 +167,5 @@ public class ClassController {
 //    public ResponseEntity<ApiResponse<ClassProgressTimeDto>> getClassProgression(@Valid @RequestParam Long classId) {
 //        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassProgression(classId)));
 //    }
-
-    @Operation(summary = "Học sinh lấy điểm danh của lớp học")
-    @GetMapping("/{classId}/student/attendances")
-    public ResponseEntity<ApiResponse<AttendanceStudentResponse>> getDetailStudentAttendance(@PathVariable long classId) {
-        return ResponseEntity.ok(ApiResponse.success(attendanceService.getAttendanceByClassForStudent(classId)));
-    }
-
-    @GetMapping("/{id}/members")
-    public ResponseEntity<ApiResponse<ApiPage<StudentClassResponse>>> getClassMembers(@PathVariable Long id, Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassMembers(id, pageable)));
-    }
 
 }

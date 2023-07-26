@@ -16,7 +16,7 @@ monitoring and reporting.
 ## Tech Stack
 
 **Server:** Spring Boot, Keycloak, MySQL, Docker, Spring Security, MinIo, Moodle
-
+g
 ## Enable Local Profile
 
 -DSpring.profiles.active=local

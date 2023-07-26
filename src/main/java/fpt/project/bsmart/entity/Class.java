@@ -64,6 +64,7 @@ public class Class extends BaseEntity {
     @OneToMany(mappedBy = "authorizeClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ActivityAuthorize> activityAuthorizes = new ArrayList<>();
 
+
     public Long getId() {
         return id;
     }

@@ -1,8 +1,12 @@
 package fpt.project.bsmart.entity.response;
 
 
+import fpt.project.bsmart.entity.dto.ImageDto;
+
 public class StudentClassResponse {
     private Long id;
+
+    private ImageDto images ;
 
     private String email;
 
@@ -15,6 +19,14 @@ public class StudentClassResponse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public ImageDto getImages() {
+        return images;
+    }
+
+    public void setImages(ImageDto images) {
+        this.images = images;
     }
 
     public String getEmail() {

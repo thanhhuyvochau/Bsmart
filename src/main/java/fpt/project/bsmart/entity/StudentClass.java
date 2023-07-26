@@ -7,7 +7,7 @@ import java.util.List;
 @Entity
 @Table(name = "student_class")
 public class StudentClass {
-    @Id
+        @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
