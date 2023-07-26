@@ -118,6 +118,7 @@ public class ClassController {
     public ResponseEntity<ApiResponse<Boolean>> mentorOpenClass(@PathVariable Long id, @RequestBody List<MentorCreateScheduleRequest> timeTableRequest) throws ValidationErrorsException {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorOpenClass(id, timeTableRequest)));
     }
+
     @Operation(summary = "Mentor xem danh sách học sinh của lớp")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/{id}/members")
@@ -141,6 +142,12 @@ public class ClassController {
         return ResponseEntity.ok(ApiResponse.success(attendanceService.getAttendanceByClassForStudent(classId)));
     }
 
+    @Operation(summary = "Manager lấy các class  ")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("/manager")
+    public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> managerGetClass(ECourseStatus status, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.managerGetClass(status, pageable)));
+    }
 
 
     //    @Operation(summary = "mentor tao lớp học")

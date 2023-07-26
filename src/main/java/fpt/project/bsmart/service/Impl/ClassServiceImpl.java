@@ -724,6 +724,17 @@ public class ClassServiceImpl implements IClassService {
         Page<StudentClass> studentClassPage = new PageImpl<>(studentClasses, pageable, studentClasses.size());
         return PageUtil.convert(studentClassPage.map(ConvertUtil::convertStudentClassToResponse));
     }
+
+    @Override
+    public ApiPage<MentorGetClassDetailResponse> managerGetClass(ECourseStatus status, Pageable pageable) {
+
+        Page<Class> byStatus = classRepository.findByStatus( status, pageable);
+        List<MentorGetClassDetailResponse> classResponses = byStatus.getContent().stream()
+                .map(ClassUtil::convertClassToMentorClassDetailResponse)
+                .collect(Collectors.toList());
+        return PageUtil.convert(new PageImpl<>(classResponses, pageable, byStatus.getTotalElements()));
+
+    }
 }
 //    private final MessageUtil messageUtil;
 //    private final CourseRepository courseRepository;
