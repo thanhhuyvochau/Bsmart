@@ -17,17 +17,17 @@ public class Activity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @JoinColumn(name = "type")
     private ECourseActivityType type;
-    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Quiz quiz;
-    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Assignment assignment;
-    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Lesson lesson;
-    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Resource resource;
-    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ClassAnnouncement announcement;
-    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Section section;
     @Column(name = "is_fixed")
     private Boolean fixed = false;

@@ -17,14 +17,9 @@ public class AssignmentFile extends BaseEntity {
     private Instant uploadTime;
     @Column(name = "file_type")
     private FileType fileType;
-    @Column(name = "point")
-    private Float point;
-    @Column(name = "note")
-    private String note;
     @ManyToOne
     @JoinColumn(name = "assignment_id")
     private Assignment assignment;
-
     @Column(name = "name")
     private String name;
     @ManyToOne
@@ -61,22 +56,6 @@ public class AssignmentFile extends BaseEntity {
 
     public void setFileType(FileType fileType) {
         this.fileType = fileType;
-    }
-
-    public Float getPoint() {
-        return point;
-    }
-
-    public void setPoint(Float point) {
-        this.point = point;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
     }
 
     public AssignmentSubmition getAssignmentSubmition() {

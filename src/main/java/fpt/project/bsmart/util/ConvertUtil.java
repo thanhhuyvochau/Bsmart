@@ -4,7 +4,9 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.*;
+import fpt.project.bsmart.entity.constant.ECourseActivityType;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
@@ -618,15 +620,19 @@ public class ConvertUtil {
         return assignmentDto;
     }
 
+    public static AssignmentSubmitionDto convertAssignmentSubmitToDto(AssignmentSubmition assignmentSubmition) {
+        AssignmentSubmitionDto assignmentSubmitionDto = ObjectUtil.copyProperties(assignmentSubmition, new AssignmentSubmitionDto(), AssignmentSubmitionDto.class, true);
+        StudentClass studentClass = assignmentSubmition.getStudentClass();
+        if (studentClass != null) {
+            assignmentSubmitionDto.setStudentClass(convertStudentClassToResponse(studentClass));
+        }
+        List<AssignmentFileDto> assignmentFileDtos = assignmentSubmition.getAssignmentFiles().stream().map(ConvertUtil::convertAssignmentFileToDto).collect(Collectors.toList());
+        assignmentSubmitionDto.setAssignmentFiles(assignmentFileDtos);
+        return assignmentSubmitionDto;
+    }
+
     public static AssignmentFileDto convertAssignmentFileToDto(AssignmentFile assignmentFile) {
-        AssignmentFileDto assignmentFileDto = ObjectUtil.copyProperties(assignmentFile, new AssignmentFileDto(), AssignmentFileDto.class, true);
-//        if (Objects.equals(assignmentFile.getFileType(), FileType.SUBMIT)) {
-//            Optional<User> student = Optional.ofNullable(assignmentFile.getStudentClass().getStudent());
-//            if (student.isPresent()) {
-//                assignmentFileDto.setSubmiter(ConvertUtil.convertUsertoUserDto(student.get()));
-//            }
-//        }
-        return assignmentFileDto;
+        return ObjectUtil.copyProperties(assignmentFile, new AssignmentFileDto(), AssignmentFileDto.class, true);
     }
 
 //    public static ActivityTypeDto convertActivityTypeToDto(ActivityType activityType) {
