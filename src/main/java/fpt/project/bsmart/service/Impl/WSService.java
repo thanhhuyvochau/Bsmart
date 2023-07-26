@@ -1,7 +1,7 @@
 package fpt.project.bsmart.service.Impl;
 
 
-import fpt.project.bsmart.entity.dto.notification.ResponseMessage;
+import fpt.project.bsmart.entity.response.websocket.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -19,17 +19,15 @@ public class WSService {
     }
 
     public void notifyFrontend() {
-//        ResponseMessage response = new ResponseMessage("test send message");
-        notificationService.sendGlobalNotification();
-        messagingTemplate.convertAndSend("/topic/messages", "test send message");
-
+        ResponseMessage response = new ResponseMessage("test send message");
+        messagingTemplate.convertAndSend("/topic/messages", response);
     }
 
     public void notifyUser(final String id, final String message) {
-        ResponseMessage response = new ResponseMessage(message);
+        fpt.project.bsmart.entity.dto.notification.ResponseMessage ResponseMessage = new fpt.project.bsmart.entity.dto.notification.ResponseMessage(message);
 
         notificationService.sendPrivateNotification(id);
-        messagingTemplate.convertAndSendToUser(id, "/topic/private-messages", response);
+        messagingTemplate.convertAndSendToUser(id, "/topic/private-messages", ResponseMessage);
     }
 
     public String sayHello() {

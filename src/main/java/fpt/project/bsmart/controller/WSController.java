@@ -29,6 +29,6 @@ public class WSController {
     public String sayHello() {
         String s = service.sayHello();
         System.out.println(s);
-        return s ;
+        return s;
     }
 }
