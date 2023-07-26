@@ -618,15 +618,19 @@ public class ConvertUtil {
         return assignmentDto;
     }
 
+    public static AssignmentSubmitionDto convertAssignmentSubmitToDto(AssignmentSubmition assignmentSubmition) {
+        AssignmentSubmitionDto assignmentSubmitionDto = ObjectUtil.copyProperties(assignmentSubmition, new AssignmentSubmitionDto(), AssignmentSubmitionDto.class, true);
+        StudentClass studentClass = assignmentSubmition.getStudentClass();
+        if (studentClass != null) {
+            assignmentSubmitionDto.setStudentClass(convertStudentClassToResponse(studentClass));
+        }
+        List<AssignmentFileDto> assignmentFileDtos = assignmentSubmition.getAssignmentFiles().stream().map(ConvertUtil::convertAssignmentFileToDto).collect(Collectors.toList());
+        assignmentSubmitionDto.setAssignmentFiles(assignmentFileDtos);
+        return assignmentSubmitionDto;
+    }
+
     public static AssignmentFileDto convertAssignmentFileToDto(AssignmentFile assignmentFile) {
-        AssignmentFileDto assignmentFileDto = ObjectUtil.copyProperties(assignmentFile, new AssignmentFileDto(), AssignmentFileDto.class, true);
-//        if (Objects.equals(assignmentFile.getFileType(), FileType.SUBMIT)) {
-//            Optional<User> student = Optional.ofNullable(assignmentFile.getStudentClass().getStudent());
-//            if (student.isPresent()) {
-//                assignmentFileDto.setSubmiter(ConvertUtil.convertUsertoUserDto(student.get()));
-//            }
-//        }
-        return assignmentFileDto;
+        return ObjectUtil.copyProperties(assignmentFile, new AssignmentFileDto(), AssignmentFileDto.class, true);
     }
 
 //    public static ActivityTypeDto convertActivityTypeToDto(ActivityType activityType) {
@@ -753,6 +757,12 @@ public class ConvertUtil {
         if (course == null) {
             throw ApiException.create(HttpStatus.CONFLICT).withMessage("Lớp không thuộc về bất kì khóa học nào, vui lòng liên hệ với admin");
         }
+        classResponse.setCourse(ConvertUtil.convertCourseToCourseDTO(course));
+        List<TimeInWeekDTO> timeInWeekDTOS = clazz.getTimeInWeeks().stream().map(ConvertUtil::convertTimeInWeekToDto).collect(Collectors.toList());
+        classResponse.setTimeInWeeks(timeInWeekDTOS);
+        classResponse.setNumberOfCurrentStudent(clazz.getStudentClasses().size());
+        ClassProgressTimeDto percentageOfClassTime = ClassUtil.getPercentageOfClassTime(clazz);
+        classResponse.setProgress(percentageOfClassTime);
         User creator = course.getCreator();
         if (creator != null) {
             classResponse.setMentor(convertUsertoUserDto(creator));

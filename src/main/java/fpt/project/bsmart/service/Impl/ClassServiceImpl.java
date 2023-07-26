@@ -602,6 +602,9 @@ public class ClassServiceImpl implements IClassService {
             return ConvertUtil.convertClassToClassResponse(clazz, sectionActivities);
         } else if (memberOfClassAsRole.equals(EUserRole.STUDENT)) {
             List<Activity> authorizeActivities = sectionActivities.stream().filter(activity -> {
+                if (activity.getFixed()) {
+                    return true;
+                }
                 long isAuthorized = activity.getActivityAuthorizes().stream().filter(activityAuthorize -> {
                     Class authorizeClass = activityAuthorize.getAuthorizeClass();
                     return Objects.equals(authorizeClass.getId(), clazz.getId());
