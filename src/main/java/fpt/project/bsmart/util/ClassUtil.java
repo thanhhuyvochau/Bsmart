@@ -2,10 +2,8 @@ package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
-
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
@@ -40,22 +38,35 @@ public class ClassUtil {
     }
 
     public static ClassProgressTimeDto getPercentageOfClassTime(Class clazz) {
+        ClassProgressTimeDto classProgressTimeDto = new ClassProgressTimeDto();
+        if (Objects.equals(clazz.getStatus(), ECourseStatus.ENDED)) {
+            classProgressTimeDto.setPercentage(100);
+            classProgressTimeDto.setCurrentSlot(clazz.getNumberOfSlot());
+            return classProgressTimeDto;
+        } else if (!Objects.equals(clazz.getStatus(), ECourseStatus.STARTING)) {
+            classProgressTimeDto.setPercentage(0);
+            classProgressTimeDto.setCurrentSlot(0);
+            return classProgressTimeDto;
+        }
         List<TimeTable> timeTables = clazz.getTimeTables();
         Instant now = Instant.now();
-        Optional<TimeTable> nearestTimeTable = timeTables.stream().filter(timeTable -> timeTable.getDate().compareTo(now) <= 0).max(new Comparator<TimeTable>() {
-            @Override
-            public int compare(TimeTable o1, TimeTable o2) {
-                return o1.getDate().compareTo(o2.getDate());
+        TimeTable nearestTimeTable = null;
+
+        for (TimeTable timeTable : timeTables) {
+            Instant timeTableDate = timeTable.getDate();
+            if (timeTableDate.isBefore(now) || timeTableDate.equals(now)) {
+                if (nearestTimeTable == null || timeTableDate.isAfter(nearestTimeTable.getDate())) {
+                    nearestTimeTable = timeTable;
+                }
             }
-        });
-        if (nearestTimeTable.isPresent()) {
-            TimeTable presentTimeTable = nearestTimeTable.get();
-            Integer currentSlotNums = presentTimeTable.getCurrentSlotNum();
-//            Integer numberOfSlot = clazz.getSubCourse().getNumberOfSlot();
-//            double percentage = (double) currentSlotNums / (double) numberOfSlot;
-//            return new ClassProgressTimeDto(currentSlotNums, BigDecimal.valueOf(percentage).setScale(2, RoundingMode.UP).doubleValue());
         }
-        return null;
+        if (nearestTimeTable != null) {
+            Integer currentSlotNum = nearestTimeTable.getCurrentSlotNum();
+            classProgressTimeDto.setPercentage(currentSlotNum / clazz.getNumberOfSlot());
+            classProgressTimeDto.setCurrentSlot(clazz.getNumberOfSlot());
+            return classProgressTimeDto;
+        }
+        return classProgressTimeDto;
     }
 
     public static String generateCode(String code) {
@@ -101,7 +112,7 @@ public class ClassUtil {
         Optional<StudentClass> byClassAndStudent = staticStudentClassRepository.findByClazzAndStudent(clazz, currentUserAccountLogin);
         if (byClassAndStudent.isPresent()) {
             classDetailResponse.setPurchase(true);
-        }else {
+        } else {
             classDetailResponse.setPurchase(false);
         }
         ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());

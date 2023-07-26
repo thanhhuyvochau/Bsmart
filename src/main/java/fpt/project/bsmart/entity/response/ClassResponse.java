@@ -3,9 +3,7 @@ package fpt.project.bsmart.entity.response;
 import com.fasterxml.jackson.annotation.JsonView;
 import fpt.project.bsmart.config.json.View;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.dto.ActivityDto;
-import fpt.project.bsmart.entity.dto.ImageDto;
-import fpt.project.bsmart.entity.dto.UserDto;
+import fpt.project.bsmart.entity.dto.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -31,6 +29,11 @@ public class ClassResponse {
     private ImageDto classImage;
     private UserDto mentor;
     private List<ActivityDto> activities = new ArrayList<>();
+    private List<TimeInWeekDTO> timeInWeeks = new ArrayList<>();
+    private CourseDto course;
+    private int numberOfCurrentStudent;
+    private ClassProgressTimeDto progress;
+
     public Long getId() {
         return id;
     }
@@ -141,5 +144,37 @@ public class ClassResponse {
 
     public void setActivities(List<ActivityDto> activities) {
         this.activities = activities;
+    }
+
+    public List<TimeInWeekDTO> getTimeInWeeks() {
+        return timeInWeeks;
+    }
+
+    public void setTimeInWeeks(List<TimeInWeekDTO> timeInWeeks) {
+        this.timeInWeeks = timeInWeeks;
+    }
+
+    public CourseDto getCourse() {
+        return course;
+    }
+
+    public void setCourse(CourseDto course) {
+        this.course = course;
+    }
+
+    public int getNumberOfCurrentStudent() {
+        return numberOfCurrentStudent;
+    }
+
+    public void setNumberOfCurrentStudent(int numberOfCurrentStudent) {
+        this.numberOfCurrentStudent = numberOfCurrentStudent;
+    }
+
+    public ClassProgressTimeDto getProgress() {
+        return progress;
+    }
+
+    public void setProgress(ClassProgressTimeDto progress) {
+        this.progress = progress;
     }
 }
