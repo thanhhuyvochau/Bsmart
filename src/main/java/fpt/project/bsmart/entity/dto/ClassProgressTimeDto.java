@@ -2,9 +2,9 @@ package fpt.project.bsmart.entity.dto;
 
 public class ClassProgressTimeDto {
     private Integer currentSlot;
-    private Double percentage;
+    private Integer percentage;
 
-    public ClassProgressTimeDto(Integer currentSlot, Double percentage) {
+    public ClassProgressTimeDto(Integer currentSlot, Integer percentage) {
         this.currentSlot = currentSlot;
         this.percentage = percentage;
     }
@@ -20,11 +20,11 @@ public class ClassProgressTimeDto {
         this.currentSlot = currentSlot;
     }
 
-    public Double getPercentage() {
+    public Integer getPercentage() {
         return percentage;
     }
 
-    public void setPercentage(Double percentage) {
+    public void setPercentage(Integer percentage) {
         this.percentage = percentage;
     }
 }

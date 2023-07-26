@@ -4,9 +4,7 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.ECourseActivityType;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.ETransactionStatus;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
@@ -759,6 +757,12 @@ public class ConvertUtil {
         if (course == null) {
             throw ApiException.create(HttpStatus.CONFLICT).withMessage("Lớp không thuộc về bất kì khóa học nào, vui lòng liên hệ với admin");
         }
+        classResponse.setCourse(ConvertUtil.convertCourseToCourseDTO(course));
+        List<TimeInWeekDTO> timeInWeekDTOS = clazz.getTimeInWeeks().stream().map(ConvertUtil::convertTimeInWeekToDto).collect(Collectors.toList());
+        classResponse.setTimeInWeeks(timeInWeekDTOS);
+        classResponse.setNumberOfCurrentStudent(clazz.getStudentClasses().size());
+        ClassProgressTimeDto percentageOfClassTime = ClassUtil.getPercentageOfClassTime(clazz);
+        classResponse.setProgress(percentageOfClassTime);
         User creator = course.getCreator();
         if (creator != null) {
             classResponse.setMentor(convertUsertoUserDto(creator));
