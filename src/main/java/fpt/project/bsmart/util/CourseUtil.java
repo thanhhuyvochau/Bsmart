@@ -181,6 +181,7 @@ public class CourseUtil {
     }
 
     public static MentorGetCourseClassResponse convertCourseToCourseClassResponsePage(Course course) {
+
         MentorGetCourseClassResponse courseResponse = new MentorGetCourseClassResponse();
         courseResponse.setId(course.getId());
         courseResponse.setName(course.getName());
@@ -210,6 +211,7 @@ public class CourseUtil {
         List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
         List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART);
         classes.forEach(aClass -> {
+
             classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(course.getCreator(), aClass));
         });
         courseResponse.setClasses(classDetailResponses);

@@ -5,7 +5,7 @@ public enum EActivityAction {
 
     APPROVE ,
 
-    CREATED ,
+    REQUEST ,
     DELETED,
 
     ENROLL,
