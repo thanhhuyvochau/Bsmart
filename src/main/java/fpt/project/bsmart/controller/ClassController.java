@@ -143,7 +143,7 @@ public class ClassController {
     }
 
     @Operation(summary = "Manager lấy các class  ")
-    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/manager")
     public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> managerGetClass(ECourseStatus status, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.managerGetClass(status, pageable)));
