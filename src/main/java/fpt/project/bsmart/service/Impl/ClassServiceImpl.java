@@ -6,10 +6,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ValidationErrors;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
-import fpt.project.bsmart.entity.constant.ECourseActivityType;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
-import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
@@ -62,11 +59,12 @@ public class ClassServiceImpl implements IClassService {
 
     private final ClassImageRepository classImageRepository;
     private final ActivityAuthorizeRepository activityAuthorizeRepository;
+    private final FeedbackTemplateRepository feedbackTemplateRepository;
 
     private final TimeTableRepository timeTableRepository;
     private final SubjectRepository subjectRepository;
 
-    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, TimeTableRepository timeTableRepository, SubjectRepository subjectRepository) {
+    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, FeedbackTemplateRepository feedbackTemplateRepository, TimeTableRepository timeTableRepository, SubjectRepository subjectRepository) {
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.classRepository = classRepository;
@@ -76,6 +74,7 @@ public class ClassServiceImpl implements IClassService {
         this.courseRepository = courseRepository;
         this.classImageRepository = classImageRepository;
         this.activityAuthorizeRepository = activityAuthorizeRepository;
+        this.feedbackTemplateRepository = feedbackTemplateRepository;
         this.timeTableRepository = timeTableRepository;
         this.subjectRepository = subjectRepository;
     }
@@ -698,8 +697,13 @@ public class ClassServiceImpl implements IClassService {
             throw ApiException.create(HttpStatus.NOT_FOUND)
                     .withMessage(CLASS_STATUS_NOT_ALLOW);
         }
+        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findByTypeAndIsDefault(EFeedbackType.COURSE, true);
+        if(feedbackTemplate == null){
+            throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage(messageUtil.getLocalMessage(""));
+        }
         mentorCreateScheduleForClass(clazz, timeTableRequest);
         clazz.setStatus(STARTING);
+        clazz.setFeedbackTemplate(feedbackTemplate);
         classRepository.save(clazz);
         return true;
     }

@@ -63,6 +63,9 @@ public class Class extends BaseEntity {
 
     @OneToMany(mappedBy = "authorizeClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ActivityAuthorize> activityAuthorizes = new ArrayList<>();
+    @OneToOne
+    @JoinColumn(name = "feedback_template")
+    private FeedbackTemplate feedbackTemplate;
 
     public Long getId() {
         return id;
@@ -220,5 +223,11 @@ public class Class extends BaseEntity {
         this.activityAuthorizes = activityAuthorizes;
     }
 
+    public FeedbackTemplate getFeedbackTemplate() {
+        return feedbackTemplate;
+    }
 
+    public void setFeedbackTemplate(FeedbackTemplate feedbackTemplate) {
+        this.feedbackTemplate = feedbackTemplate;
+    }
 }

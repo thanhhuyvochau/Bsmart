@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.ArrayList;
+
 @Configuration
 public class AppConfig {
     @Bean
@@ -31,6 +33,21 @@ public class AppConfig {
     @Bean
     public String orderTemplate() {
         return ResourceReader.readFileToString("order.txt");
+    }
+
+    @Bean
+    public ArrayList<String> offensiveWord(){
+        String offensiveWordString = ResourceReader.readFileToString("offensive-word.txt");
+        String[] elements = offensiveWordString.split(",");
+        ArrayList<String> offensiveWords = new ArrayList<>();
+        for(String element : elements){
+            String trimmedElement = element.trim();
+            if(trimmedElement.startsWith("'") && trimmedElement.endsWith("'")){
+                offensiveWords.add(trimmedElement.substring(1, trimmedElement.length() - 1));
+            }
+        }
+        System.out.println("Generate offensive word list success, total element: " + offensiveWords.size());
+        return offensiveWords;
     }
 
     @Bean

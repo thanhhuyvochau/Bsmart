@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.*;
+import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
@@ -785,5 +786,26 @@ public class ConvertUtil {
     public static SimpleClassAnnouncementResponse convertClassAnnouncementToSimpleResponse(ClassAnnouncement classAnnouncement) {
         SimpleClassAnnouncementResponse cimpleClassAnnouncementResponse = ObjectUtil.copyProperties(classAnnouncement, new SimpleClassAnnouncementResponse(), SimpleClassAnnouncementResponse.class, true);
         return cimpleClassAnnouncementResponse;
+    }
+
+    public static FeedbackTemplateDto convertFeedbackToFeedbackTemplateDto(FeedbackTemplate feedbackTemplate){
+        FeedbackTemplateDto feedbackTemplateDto = ObjectUtil.copyProperties(feedbackTemplate, new FeedbackTemplateDto(), FeedbackTemplateDto.class);
+        if(feedbackTemplate.getQuestions() != null){
+            ArrayList<FeedbackTemplateDto.FeedbackQuestionDto> questionDtos = new ArrayList<>();
+            for(FeedbackQuestion question : feedbackTemplate.getQuestions()){
+                FeedbackTemplateDto.FeedbackQuestionDto questionDto = ObjectUtil.copyProperties(question, new FeedbackTemplateDto.FeedbackQuestionDto(), FeedbackTemplateDto.FeedbackQuestionDto.class);
+                if(question.getAnswers() != null){
+                    ArrayList<FeedbackTemplateDto.FeedbackAnswerDto> answerDtos = new ArrayList<>();
+                    for(FeedbackAnswer answer : question.getAnswers()){
+                        FeedbackTemplateDto.FeedbackAnswerDto answerDto = ObjectUtil.copyProperties(answer, new FeedbackTemplateDto.FeedbackAnswerDto(), FeedbackTemplateDto.FeedbackAnswerDto.class);
+                        answerDtos.add(answerDto);
+                    }
+                    questionDto.setAnswers(answerDtos);
+                }
+                questionDtos.add(questionDto);
+            }
+            feedbackTemplateDto.setQuestions(questionDtos);
+        }
+        return feedbackTemplateDto;
     }
 }
