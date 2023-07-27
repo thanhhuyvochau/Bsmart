@@ -48,7 +48,7 @@ public class UserController {
     }
 
     @Operation(summary = "Admin lấy toàn bộ user")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping
 
     public ResponseEntity<ApiResponse<ApiPage<UserDto>>> adminGetAllUser(@Nullable UserSearchRequest request, Pageable pageable) {
