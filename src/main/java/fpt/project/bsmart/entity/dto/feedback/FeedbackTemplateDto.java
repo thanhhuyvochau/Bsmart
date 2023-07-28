@@ -37,19 +37,19 @@ public class FeedbackTemplateDto {
         this.type = type;
     }
 
-    public Boolean getDefault() {
+    public Boolean getIsDefault() {
         return isDefault;
     }
 
-    public void setDefault(Boolean aDefault) {
+    public void setIsDefault(Boolean aDefault) {
         isDefault = aDefault;
     }
 
-    public Boolean getFixed() {
+    public Boolean getIsFixed() {
         return isFixed;
     }
 
-    public void setFixed(Boolean fixed) {
+    public void setIsFixed(Boolean fixed) {
         isFixed = fixed;
     }
 

@@ -808,4 +808,30 @@ public class ConvertUtil {
         }
         return feedbackTemplateDto;
     }
+
+    public static FeedbackSubmissionResponse convertFeedbackSubmissionToResponse(FeedbackSubmission feedbackSubmission){
+        FeedbackSubmissionResponse response = ObjectUtil.copyProperties(feedbackSubmission, new FeedbackSubmissionResponse(), FeedbackSubmissionResponse.class);
+        if(feedbackSubmission.getSubmitBy() != null){
+            response.setSubmitBy(convertUsertoUserDto(feedbackSubmission.getSubmitBy()));
+        }
+        List<FeedbackQuestion> feedbackQuestions = feedbackSubmission.getTemplate().getQuestions();
+        List<FeedbackSubmissionResponse.FeedbackSubmitQuestion> submitQuestions = new ArrayList<>();
+        for(FeedbackQuestion feedbackQuestion : feedbackQuestions){
+            FeedbackSubmissionResponse.FeedbackSubmitQuestion questionDto = new FeedbackSubmissionResponse.FeedbackSubmitQuestion();
+            questionDto.setQuestion(feedbackQuestion.getQuestion());
+            ArrayList<FeedbackSubmissionResponse.FeedbackSubmitAnswer> answerDtos = new ArrayList<>();
+            for(FeedbackAnswer feedbackAnswer : feedbackQuestion.getAnswers()){
+                FeedbackSubmissionResponse.FeedbackSubmitAnswer answerDto = new FeedbackSubmissionResponse.FeedbackSubmitAnswer();
+                Boolean isChosen = feedbackSubmission.getAnswers().stream()
+                        .anyMatch(x -> x.getAnswer().getId().equals(feedbackAnswer.getId()));
+                answerDto.setIsChosen(isChosen);
+                answerDto.setAnswer(feedbackAnswer.getAnswer());
+                answerDtos.add(answerDto);
+            }
+            questionDto.setAnswers(answerDtos);
+            submitQuestions.add(questionDto);
+        }
+        response.setQuestions(submitQuestions);
+        return response;
+    }
 }

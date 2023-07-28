@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.request.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
+import fpt.project.bsmart.entity.response.FeedbackSubmissionResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface IFeedbackService {
@@ -15,4 +16,5 @@ public interface IFeedbackService {
     Boolean assignFeedbackTemplateForClass(Long templateId, Long classId);
     Boolean changeDefaultTemplate(Long id);
     Long studentSubmitFeedback(Long classId, StudentSubmitFeedbackRequest request);
+    ApiPage<FeedbackSubmissionResponse> teacherViewClassFeedback(Long clazzId, Pageable pageable);
 }
