@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.*;
+import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
@@ -811,5 +812,52 @@ public class ConvertUtil {
     public static SimpleClassAnnouncementResponse convertClassAnnouncementToSimpleResponse(ClassAnnouncement classAnnouncement) {
         SimpleClassAnnouncementResponse cimpleClassAnnouncementResponse = ObjectUtil.copyProperties(classAnnouncement, new SimpleClassAnnouncementResponse(), SimpleClassAnnouncementResponse.class, true);
         return cimpleClassAnnouncementResponse;
+    }
+
+    public static FeedbackTemplateDto convertFeedbackToFeedbackTemplateDto(FeedbackTemplate feedbackTemplate){
+        FeedbackTemplateDto feedbackTemplateDto = ObjectUtil.copyProperties(feedbackTemplate, new FeedbackTemplateDto(), FeedbackTemplateDto.class);
+        if(feedbackTemplate.getQuestions() != null){
+            ArrayList<FeedbackTemplateDto.FeedbackQuestionDto> questionDtos = new ArrayList<>();
+            for(FeedbackQuestion question : feedbackTemplate.getQuestions()){
+                FeedbackTemplateDto.FeedbackQuestionDto questionDto = ObjectUtil.copyProperties(question, new FeedbackTemplateDto.FeedbackQuestionDto(), FeedbackTemplateDto.FeedbackQuestionDto.class);
+                if(question.getAnswers() != null){
+                    ArrayList<FeedbackTemplateDto.FeedbackAnswerDto> answerDtos = new ArrayList<>();
+                    for(FeedbackAnswer answer : question.getAnswers()){
+                        FeedbackTemplateDto.FeedbackAnswerDto answerDto = ObjectUtil.copyProperties(answer, new FeedbackTemplateDto.FeedbackAnswerDto(), FeedbackTemplateDto.FeedbackAnswerDto.class);
+                        answerDtos.add(answerDto);
+                    }
+                    questionDto.setAnswers(answerDtos);
+                }
+                questionDtos.add(questionDto);
+            }
+            feedbackTemplateDto.setQuestions(questionDtos);
+        }
+        return feedbackTemplateDto;
+    }
+
+    public static FeedbackSubmissionResponse convertFeedbackSubmissionToResponse(FeedbackSubmission feedbackSubmission){
+        FeedbackSubmissionResponse response = ObjectUtil.copyProperties(feedbackSubmission, new FeedbackSubmissionResponse(), FeedbackSubmissionResponse.class);
+        if(feedbackSubmission.getSubmitBy() != null){
+            response.setSubmitBy(convertUsertoUserDto(feedbackSubmission.getSubmitBy()));
+        }
+        List<FeedbackQuestion> feedbackQuestions = feedbackSubmission.getTemplate().getQuestions();
+        List<FeedbackSubmissionResponse.FeedbackSubmitQuestion> submitQuestions = new ArrayList<>();
+        for(FeedbackQuestion feedbackQuestion : feedbackQuestions){
+            FeedbackSubmissionResponse.FeedbackSubmitQuestion questionDto = new FeedbackSubmissionResponse.FeedbackSubmitQuestion();
+            questionDto.setQuestion(feedbackQuestion.getQuestion());
+            ArrayList<FeedbackSubmissionResponse.FeedbackSubmitAnswer> answerDtos = new ArrayList<>();
+            for(FeedbackAnswer feedbackAnswer : feedbackQuestion.getAnswers()){
+                FeedbackSubmissionResponse.FeedbackSubmitAnswer answerDto = new FeedbackSubmissionResponse.FeedbackSubmitAnswer();
+                Boolean isChosen = feedbackSubmission.getAnswers().stream()
+                        .anyMatch(x -> x.getAnswer().getId().equals(feedbackAnswer.getId()));
+                answerDto.setIsChosen(isChosen);
+                answerDto.setAnswer(feedbackAnswer.getAnswer());
+                answerDtos.add(answerDto);
+            }
+            questionDto.setAnswers(answerDtos);
+            submitQuestions.add(questionDto);
+        }
+        response.setQuestions(submitQuestions);
+        return response;
     }
 }
