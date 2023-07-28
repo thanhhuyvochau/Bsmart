@@ -10,7 +10,9 @@ import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
+import fpt.project.bsmart.repository.ActivityHistoryRepository;
 import fpt.project.bsmart.repository.ClassRepository;
+import fpt.project.bsmart.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -27,8 +29,11 @@ public class ConvertUtil {
 
     private static String failIcon;
 
-    public ConvertUtil(ClassRepository classRepository) {
+    private static ActivityHistoryRepository staticActivityHistoryRepository;
+
+    public ConvertUtil(ClassRepository classRepository, UserRepository userRepository, ActivityHistoryRepository activityHistoryRepository) {
         staticClassRepository = classRepository;
+        staticActivityHistoryRepository = activityHistoryRepository;
     }
 
     @Value("${icon.success}")
@@ -329,12 +334,10 @@ public class ConvertUtil {
         List<Class> classes = course.getClasses();
         List<ImageDto> images = new ArrayList<>();
         classes.forEach(clazz -> {
-
             if (clazz.getMentor() != null) {
                 if (mentorName.isEmpty()) {
                     mentorName.add(clazz.getMentor().getFullName());
                 }
-
             }
             if (clazz.getClassImage() != null) {
                 images.add(ObjectUtil.copyProperties(clazz.getClassImage(), new ImageDto(), ImageDto.class));
@@ -363,9 +366,14 @@ public class ConvertUtil {
     }
 
     public static ManagerGetCourse convertCourseToManagerGetCourse(Course course) {
-
+        ActivityHistory byUserCourse = staticActivityHistoryRepository.findByType(EActivityType.COURSE);
 
         ManagerGetCourse courseResponse = new ManagerGetCourse();
+        if (byUserCourse != null) {
+            courseResponse.setCount(byUserCourse.getCount());
+            courseResponse.setTimeSendRequest(course.getLastModified());
+        }
+
         courseResponse.setId(course.getId());
         courseResponse.setName(course.getName());
         courseResponse.setCode(course.getCode());
@@ -611,15 +619,19 @@ public class ConvertUtil {
         return assignmentDto;
     }
 
+    public static AssignmentSubmitionDto convertAssignmentSubmitToDto(AssignmentSubmition assignmentSubmition) {
+        AssignmentSubmitionDto assignmentSubmitionDto = ObjectUtil.copyProperties(assignmentSubmition, new AssignmentSubmitionDto(), AssignmentSubmitionDto.class, true);
+        StudentClass studentClass = assignmentSubmition.getStudentClass();
+        if (studentClass != null) {
+            assignmentSubmitionDto.setStudentClass(convertStudentClassToResponse(studentClass));
+        }
+        List<AssignmentFileDto> assignmentFileDtos = assignmentSubmition.getAssignmentFiles().stream().map(ConvertUtil::convertAssignmentFileToDto).collect(Collectors.toList());
+        assignmentSubmitionDto.setAssignmentFiles(assignmentFileDtos);
+        return assignmentSubmitionDto;
+    }
+
     public static AssignmentFileDto convertAssignmentFileToDto(AssignmentFile assignmentFile) {
-        AssignmentFileDto assignmentFileDto = ObjectUtil.copyProperties(assignmentFile, new AssignmentFileDto(), AssignmentFileDto.class, true);
-//        if (Objects.equals(assignmentFile.getFileType(), FileType.SUBMIT)) {
-//            Optional<User> student = Optional.ofNullable(assignmentFile.getStudentClass().getStudent());
-//            if (student.isPresent()) {
-//                assignmentFileDto.setSubmiter(ConvertUtil.convertUsertoUserDto(student.get()));
-//            }
-//        }
-        return assignmentFileDto;
+        return ObjectUtil.copyProperties(assignmentFile, new AssignmentFileDto(), AssignmentFileDto.class, true);
     }
 
 //    public static ActivityTypeDto convertActivityTypeToDto(ActivityType activityType) {
@@ -632,7 +644,7 @@ public class ConvertUtil {
         QuizDto quizDto = ObjectUtil.copyProperties(quiz, new QuizDto(), QuizDto.class);
         quizDto.setQuestionCount(quiz.getQuizQuestions().size());
         quizDto.setPassword(null);
-        if(isAttempt){
+        if (isAttempt) {
             quizDto.setDefaultPoint(null);
             quizDto.setIsSuffleQuestion(null);
             quizDto.setPassword(null);
@@ -641,7 +653,7 @@ public class ConvertUtil {
                 for (QuizQuestion question : quiz.getQuizQuestions()) {
                     questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
                 }
-                if(quiz.getIsSuffleQuestion()){
+                if (quiz.getIsSuffleQuestion()) {
                     Collections.shuffle(questionDtos);
                 }
                 quizDto.setQuizQuestions(questionDtos);
@@ -698,7 +710,7 @@ public class ConvertUtil {
             for (QuizAnswer answer : quizQuestion.getAnswers()) {
                 answers.add(ObjectUtil.copyProperties(answer, new BaseQuizAnswerDto(), BaseQuizAnswerDto.class));
             }
-            if(isShuffle){
+            if (isShuffle) {
                 Collections.shuffle(answers);
             }
             question.setAnswers(answers);
@@ -706,7 +718,7 @@ public class ConvertUtil {
         return question;
     }
 
-    public static QuizSubmissionResultResponse convertQuizSubmissionToSubmissionResult(QuizSubmittion submittion){
+    public static QuizSubmissionResultResponse convertQuizSubmissionToSubmissionResult(QuizSubmittion submittion) {
         QuizSubmissionResultResponse response = new QuizSubmissionResultResponse();
         response.setId(submittion.getId());
         response.setPoint(submittion.getPoint());
@@ -722,6 +734,14 @@ public class ConvertUtil {
     public static StudentClassResponse convertStudentClassToResponse(StudentClass studentClass) {
         User student = studentClass.getStudent();
         StudentClassResponse studentClassResponse = new StudentClassResponse();
+        List<UserImage> userImages = student.getUserImages();
+        List<UserImage> avatar = userImages.stream().filter(userImage -> userImage.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
+
+        if (avatar.size() > 0) {
+            ImageDto imageDto = ConvertUtil.convertUserImageToUserImageDto(avatar.stream().findFirst().get());
+            studentClassResponse.setImages(imageDto);
+        }
+
         studentClassResponse.setEmail(student.getEmail());
         studentClassResponse.setId(studentClass.getId());
         studentClassResponse.setName(student.getFullName());
@@ -738,6 +758,12 @@ public class ConvertUtil {
         if (course == null) {
             throw ApiException.create(HttpStatus.CONFLICT).withMessage("Lớp không thuộc về bất kì khóa học nào, vui lòng liên hệ với admin");
         }
+        classResponse.setCourse(ConvertUtil.convertCourseToCourseDTO(course));
+        List<TimeInWeekDTO> timeInWeekDTOS = clazz.getTimeInWeeks().stream().map(ConvertUtil::convertTimeInWeekToDto).collect(Collectors.toList());
+        classResponse.setTimeInWeeks(timeInWeekDTOS);
+        classResponse.setNumberOfCurrentStudent(clazz.getStudentClasses().size());
+        ClassProgressTimeDto percentageOfClassTime = ClassUtil.getPercentageOfClassTime(clazz);
+        classResponse.setProgress(percentageOfClassTime);
         User creator = course.getCreator();
         if (creator != null) {
             classResponse.setMentor(convertUsertoUserDto(creator));

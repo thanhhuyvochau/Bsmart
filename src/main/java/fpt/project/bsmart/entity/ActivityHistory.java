@@ -20,7 +20,6 @@ public class ActivityHistory extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private EActivityAction action;
 
-
     @Column(name = "activity_time", nullable = false)
     private LocalDateTime activityTime;
 
@@ -36,6 +35,9 @@ public class ActivityHistory extends BaseEntity {
 
     @JoinColumn(name = "user_id")
     private Long userId;
+
+    @JoinColumn(name = "count")
+    private Integer count;
 
     public Long getId() {
         return id;
@@ -99,5 +101,13 @@ public class ActivityHistory extends BaseEntity {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
     }
 }

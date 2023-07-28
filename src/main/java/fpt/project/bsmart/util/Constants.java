@@ -97,6 +97,8 @@ public class Constants {
         public static final String QUIZ_NOT_FOUND_BY_ID = "QUIZ_NOT_FOUND_BY_ID";
         public static final String QUIZ_SUBMISSION_NOT_FOUND_BY_ID = "QUIZ_SUBMISSION_NOT_FOUND_BY_ID";
         public static final String ANSWER_NOT_FOUND_BY_ID = "ANSWER_NOT_FOUND_BY_ID";
+        public static final String ASSINGMENT_FILE_NOT_FOUNND_BY_ID = "ASSINGMENT_FILE_NOT_FOUNND_BY_ID";
+        public static final String ASSIGNMENT_FILE_NOT_BELONG = "ASSIGNMENT_FILE_NOT_BELONG";
 
         public static class Invalid {
             public static final String INVALID_EMAIL = "INVALID_EMAIL";

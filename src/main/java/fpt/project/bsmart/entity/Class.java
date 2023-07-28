@@ -67,6 +67,7 @@ public class Class extends BaseEntity {
     @JoinColumn(name = "feedback_template")
     private FeedbackTemplate feedbackTemplate;
 
+
     public Long getId() {
         return id;
     }

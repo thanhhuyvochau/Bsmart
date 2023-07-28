@@ -2,10 +2,8 @@ package fpt.project.bsmart.util;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
-
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-
 import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
@@ -14,6 +12,7 @@ import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
+import fpt.project.bsmart.repository.StudentClassRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -26,33 +25,48 @@ import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 @Component
 public class ClassUtil {
     private static MessageUtil staticMessageUtil;
+    private static StudentClassRepository staticStudentClassRepository;
 
 
     public static double CLASS_PERCENTAGE_FOR_FIRST_FEEDBACK = 0.5f;
     public static double CLASS_PERCENTAGE_FOR_SECOND_FEEDBACK = 0.8f;
     public static double PERCENTAGE_RANGE = 0.1f;
 
-    public ClassUtil(MessageUtil messageUtil) {
+    public ClassUtil(MessageUtil messageUtil, StudentClassRepository studentClassRepository) {
+        staticStudentClassRepository = studentClassRepository;
         staticMessageUtil = messageUtil;
     }
 
     public static ClassProgressTimeDto getPercentageOfClassTime(Class clazz) {
+        ClassProgressTimeDto classProgressTimeDto = new ClassProgressTimeDto();
+        if (Objects.equals(clazz.getStatus(), ECourseStatus.ENDED)) {
+            classProgressTimeDto.setPercentage(100);
+            classProgressTimeDto.setCurrentSlot(clazz.getNumberOfSlot());
+            return classProgressTimeDto;
+        } else if (!Objects.equals(clazz.getStatus(), ECourseStatus.STARTING)) {
+            classProgressTimeDto.setPercentage(0);
+            classProgressTimeDto.setCurrentSlot(0);
+            return classProgressTimeDto;
+        }
         List<TimeTable> timeTables = clazz.getTimeTables();
         Instant now = Instant.now();
-        Optional<TimeTable> nearestTimeTable = timeTables.stream().filter(timeTable -> timeTable.getDate().compareTo(now) <= 0).max(new Comparator<TimeTable>() {
-            @Override
-            public int compare(TimeTable o1, TimeTable o2) {
-                return o1.getDate().compareTo(o2.getDate());
+        TimeTable nearestTimeTable = null;
+
+        for (TimeTable timeTable : timeTables) {
+            Instant timeTableDate = timeTable.getDate();
+            if (timeTableDate.isBefore(now) || timeTableDate.equals(now)) {
+                if (nearestTimeTable == null || timeTableDate.isAfter(nearestTimeTable.getDate())) {
+                    nearestTimeTable = timeTable;
+                }
             }
-        });
-        if (nearestTimeTable.isPresent()) {
-            TimeTable presentTimeTable = nearestTimeTable.get();
-            Integer currentSlotNums = presentTimeTable.getCurrentSlotNum();
-//            Integer numberOfSlot = clazz.getSubCourse().getNumberOfSlot();
-//            double percentage = (double) currentSlotNums / (double) numberOfSlot;
-//            return new ClassProgressTimeDto(currentSlotNums, BigDecimal.valueOf(percentage).setScale(2, RoundingMode.UP).doubleValue());
         }
-        return null;
+        if (nearestTimeTable != null) {
+            Integer currentSlotNum = nearestTimeTable.getCurrentSlotNum();
+            classProgressTimeDto.setPercentage(currentSlotNum / clazz.getNumberOfSlot());
+            classProgressTimeDto.setCurrentSlot(clazz.getNumberOfSlot());
+            return classProgressTimeDto;
+        }
+        return classProgressTimeDto;
     }
 
     public static String generateCode(String code) {
@@ -79,12 +93,12 @@ public class ClassUtil {
 
     }
 
-    public static void checkClassStatusToDelete(Class aClass , Course course) {
-     if (aClass.getStatus().equals(ECourseStatus.NOTSTART)){
-         throw ApiException.create(HttpStatus.BAD_REQUEST)
-                 .withMessage(staticMessageUtil.getLocalMessage(COURSE_STATUS_IS_NOT_START_NOT_ALLOW_TO_DELETE));
-     }
-        if (aClass.getStatus().equals(ECourseStatus.STARTING)){
+    public static void checkClassStatusToDelete(Class aClass, Course course) {
+        if (aClass.getStatus().equals(ECourseStatus.NOTSTART)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage(staticMessageUtil.getLocalMessage(COURSE_STATUS_IS_NOT_START_NOT_ALLOW_TO_DELETE));
+        }
+        if (aClass.getStatus().equals(ECourseStatus.STARTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(staticMessageUtil.getLocalMessage(COURSE_STATUS_IS_NOT_STARTING_ALLOW_TO_DELETE));
         }
@@ -92,8 +106,15 @@ public class ClassUtil {
     }
 
     public static ClassDetailResponse convertClassToClassDetailResponse(User userLogin, Class clazz) {
-        ClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ClassDetailResponse(), ClassDetailResponse.class);
 
+        ClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ClassDetailResponse(), ClassDetailResponse.class);
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        Optional<StudentClass> byClassAndStudent = staticStudentClassRepository.findByClazzAndStudent(clazz, currentUserAccountLogin);
+        if (byClassAndStudent.isPresent()) {
+            classDetailResponse.setPurchase(true);
+        } else {
+            classDetailResponse.setPurchase(false);
+        }
         ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
         List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>();
         clazz.getTimeInWeeks().forEach(timeInWeek -> {
@@ -122,7 +143,7 @@ public class ClassUtil {
 
     public static MentorGetClassDetailResponse convertClassToMentorClassDetailResponse(Class clazz) {
         MentorGetClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new MentorGetClassDetailResponse(), MentorGetClassDetailResponse.class);
-        if (clazz.getCourse()!= null){
+        if (clazz.getCourse() != null) {
             classDetailResponse.setCourseId(clazz.getCourse().getId());
         }
         List<StudentClass> studentClasses = clazz.getStudentClasses();
@@ -138,24 +159,24 @@ public class ClassUtil {
         return classDetailResponse;
     }
 
-    public static ManagerGetClassDetailResponse convertClassToManagerGetClassResponse(Class clazz){
+    public static ManagerGetClassDetailResponse convertClassToManagerGetClassResponse(Class clazz) {
         ManagerGetClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ManagerGetClassDetailResponse(), ManagerGetClassDetailResponse.class);
         classDetailResponse.setNumberOfStudent(clazz.getStudentClasses().size());
         List<StudentClass> studentClasses = clazz.getStudentClasses();
-        if(studentClasses != null){
+        if (studentClasses != null) {
             List<UserDto> students = studentClasses.stream()
                     .map(StudentClass::getStudent)
                     .map(ConvertUtil::convertUsertoUserDto)
                     .collect(Collectors.toList());
             classDetailResponse.setStudents(students);
         }
-        if(clazz.getMentor() !=  null){
+        if (clazz.getMentor() != null) {
             classDetailResponse.setMentor(ConvertUtil.convertUsertoUserDto(clazz.getMentor()));
         }
         return classDetailResponse;
     }
 
-    public static BaseClassResponse convertClassToBaseclassResponse(Class clazz){
+    public static BaseClassResponse convertClassToBaseclassResponse(Class clazz) {
         BaseClassResponse classResponse = ObjectUtil.copyProperties(clazz, new BaseClassResponse(), BaseClassResponse.class);
         classResponse.setNumberOfStudent(clazz.getStudentClasses().size());
         return classResponse;
@@ -167,7 +188,6 @@ public class ClassUtil {
         StudentClass studentClass = optionalStudentClass.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy học sinh trong lớp"));
         return studentClass;
     }
-
 
 
 }

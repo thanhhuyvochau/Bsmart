@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.constant.EActivityType;
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
@@ -15,10 +16,7 @@ import fpt.project.bsmart.entity.request.ManagerApprovalCourseRequest;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.course.CompletenessCourseResponse;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
-import fpt.project.bsmart.repository.ActivityRepository;
-import fpt.project.bsmart.repository.CategoryRepository;
-import fpt.project.bsmart.repository.ClassRepository;
-import fpt.project.bsmart.repository.CourseRepository;
+import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ICourseService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.CourseSpecificationBuilder;
@@ -28,10 +26,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
@@ -51,13 +47,16 @@ public class CourseServiceImpl implements ICourseService {
 
     private final ClassRepository classRepository;
 
+    private final ActivityHistoryRepository activityHistoryRepository;
 
-    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository, ClassRepository classRepository) {
+
+    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository, ClassRepository classRepository, ActivityHistoryRepository activityHistoryRepository) {
         this.courseRepository = courseRepository;
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.activityRepository = activityRepository;
         this.classRepository = classRepository;
+        this.activityHistoryRepository = activityHistoryRepository;
     }
 
 
@@ -270,9 +269,17 @@ public class CourseServiceImpl implements ICourseService {
             classesInRequest
                     .forEach(aClass -> {
                         aClass.setStatus(WAITING);
+                        ActivityHistoryUtil.logHistoryForMentorSendRequestClass(user.getId(), aClass);
                         classRepository.save(aClass);
                     });
             return true;
+        }
+        ActivityHistory byUserIdAndCourse = activityHistoryRepository.findByUserIdAndType(user.getId(), EActivityType.COURSE);
+        if (byUserIdAndCourse == null) {
+            ActivityHistoryUtil.logHistoryForMentorSendRequestCourse(user.getId(), course);
+        } else {
+            byUserIdAndCourse.setCount(byUserIdAndCourse.getCount() + 1);
+            activityHistoryRepository.save(byUserIdAndCourse);
         }
 
         return false;

@@ -12,6 +12,8 @@ import java.util.List;
 
 public class SimpleClassResponse {
     private Long id;
+
+    private String code;
     private Instant startDate;
     private Instant endDate;
     private Integer numberOfStudent = 0;
@@ -19,7 +21,7 @@ public class SimpleClassResponse {
     private MentorDto mentor;
 
 
-    private Integer numberOfSlot ;
+    private Integer numberOfSlot;
 
 
     private ECourseStatus status;
@@ -39,6 +41,15 @@ public class SimpleClassResponse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public Instant getStartDate() {

@@ -98,13 +98,16 @@ public class ClassServiceImpl implements IClassService {
 
     @Override
     public MentorGetCourseClassResponse getAllClassOfCourse(Long id) {
+
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
         MentorGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponsePage(course);
+
         List<Activity> sectionActivities = course.getActivities().stream()
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION) && activity.getFixed())
                 .collect(Collectors.toList());
+
         ResponseUtil.responseForRole(EUserRole.TEACHER);
         List<ActivityDto> activityDtos = ConvertUtil.convertActivityAsTree(sectionActivities, true);
         response.setActivities(activityDtos);
@@ -598,6 +601,9 @@ public class ClassServiceImpl implements IClassService {
             return ConvertUtil.convertClassToClassResponse(clazz, sectionActivities);
         } else if (memberOfClassAsRole.equals(EUserRole.STUDENT)) {
             List<Activity> authorizeActivities = sectionActivities.stream().filter(activity -> {
+                if (activity.getFixed()) {
+                    return true;
+                }
                 long isAuthorized = activity.getActivityAuthorizes().stream().filter(activityAuthorize -> {
                     Class authorizeClass = activityAuthorize.getAuthorizeClass();
                     return Objects.equals(authorizeClass.getId(), clazz.getId());
@@ -724,6 +730,17 @@ public class ClassServiceImpl implements IClassService {
         List<StudentClass> studentClasses = clazz.getStudentClasses();
         Page<StudentClass> studentClassPage = new PageImpl<>(studentClasses, pageable, studentClasses.size());
         return PageUtil.convert(studentClassPage.map(ConvertUtil::convertStudentClassToResponse));
+    }
+
+    @Override
+    public ApiPage<MentorGetClassDetailResponse> managerGetClass(ECourseStatus status, Pageable pageable) {
+
+        Page<Class> byStatus = classRepository.findByStatus( status, pageable);
+        List<MentorGetClassDetailResponse> classResponses = byStatus.getContent().stream()
+                .map(ClassUtil::convertClassToMentorClassDetailResponse)
+                .collect(Collectors.toList());
+        return PageUtil.convert(new PageImpl<>(classResponses, pageable, byStatus.getTotalElements()));
+
     }
 }
 //    private final MessageUtil messageUtil;
