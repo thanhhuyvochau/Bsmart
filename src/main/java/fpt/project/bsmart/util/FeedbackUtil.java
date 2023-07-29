@@ -91,4 +91,15 @@ public class FeedbackUtil {
                 PREFIX +
                 user.getFullName();
     }
+
+    public static Double calculateCourseRate(List<FeedbackSubmission> submissions){
+        if(submissions == null || submissions.isEmpty()){
+            return 0.0;
+        }
+        Double totalRate = submissions.stream()
+                .mapToDouble(FeedbackSubmission::getRate)
+                .sum();
+        Double rate = totalRate / submissions.size();
+        return rate;
+    }
 }

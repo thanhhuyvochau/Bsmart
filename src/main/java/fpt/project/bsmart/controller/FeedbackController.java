@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.request.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
 import fpt.project.bsmart.entity.response.FeedbackSubmissionResponse;
+import fpt.project.bsmart.entity.response.MentorFeedbackResponse;
 import fpt.project.bsmart.service.IFeedbackService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -85,5 +86,10 @@ public class FeedbackController {
     @GetMapping("submission/class/{id}")
     public ResponseEntity<ApiResponse<ApiPage<FeedbackSubmissionResponse>>> teacherViewClassFeedback(@PathVariable Long id, Pageable pageable){
         return ResponseEntity.ok(ApiResponse.success(feedbackService.teacherViewClassFeedback(id, pageable)));
+    }
+
+    @GetMapping("/rate/mentor/{id}")
+    public ResponseEntity<ApiResponse<MentorFeedbackResponse>> getMentorFeedbackRate(@PathVariable Long id){
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.getMentorFeedback(id)));
     }
 }
