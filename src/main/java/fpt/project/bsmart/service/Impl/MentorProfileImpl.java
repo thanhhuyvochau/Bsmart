@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ValidationErrors;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
+import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
@@ -16,6 +17,7 @@ import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileRespon
 import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.MentorSkillRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
+import fpt.project.bsmart.repository.UserImageRepository;
 import fpt.project.bsmart.service.IMentorProfileService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.MentorProfileSpecificationBuilder;
@@ -33,7 +35,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_MENTOR_PROFILE_STATUS;
 
 @Service
 public class MentorProfileImpl implements IMentorProfileService {
@@ -41,15 +42,17 @@ public class MentorProfileImpl implements IMentorProfileService {
     private final SubjectRepository subjectRepository;
     private final MessageUtil messageUtil;
 
-    public MentorProfileImpl(MentorProfileRepository mentorProfileRepository, MentorSkillRepository mentorSkillRepository, SubjectRepository subjectRepository, MessageUtil messageUtil) {
+    private final UserImageRepository userImageRepository;
+
+    public MentorProfileImpl(MentorProfileRepository mentorProfileRepository, MentorSkillRepository mentorSkillRepository, SubjectRepository subjectRepository, MessageUtil messageUtil, UserImageRepository userImageRepository) {
         this.mentorProfileRepository = mentorProfileRepository;
         this.subjectRepository = subjectRepository;
         this.messageUtil = messageUtil;
+        this.userImageRepository = userImageRepository;
     }
 
     private MentorProfile findById(Long id) {
-        return mentorProfileRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_PROFILE_NOT_FOUND_BY_ID) + id));
+        return mentorProfileRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_PROFILE_NOT_FOUND_BY_ID) + id));
     }
 
     @Override
@@ -71,9 +74,7 @@ public class MentorProfileImpl implements IMentorProfileService {
 
     @Override
     public ApiPage<MentorProfileDTO> getAllMentors(MentorSearchRequest mentorSearchRequest, Pageable pageable) {
-        MentorProfileSpecificationBuilder builder = MentorProfileSpecificationBuilder.specificationBuilder()
-                .searchByUserName(mentorSearchRequest.getQ())
-                .searchBySkill(mentorSearchRequest.getSkills());
+        MentorProfileSpecificationBuilder builder = MentorProfileSpecificationBuilder.specificationBuilder().searchByUserName(mentorSearchRequest.getQ()).searchBySkill(mentorSearchRequest.getSkills());
         Page<MentorProfile> mentorProfilePage = mentorProfileRepository.findAll(builder.build(), pageable);
         List<MentorProfile> mentorProfiles = mentorProfilePage.stream().collect(Collectors.toList());
         List<MentorProfileDTO> mentorProfileDTOS = new ArrayList<>();
@@ -100,9 +101,7 @@ public class MentorProfileImpl implements IMentorProfileService {
 
     @Override
     public ApiPage<UserDto> getPendingMentorProfileList(MentorSearchRequest request, Pageable pageable) {
-        MentorProfileSpecificationBuilder builder = MentorProfileSpecificationBuilder.specificationBuilder()
-                .queryLike(request.getQ())
-                .queryByStatus(request.getAccountStatus());
+        MentorProfileSpecificationBuilder builder = MentorProfileSpecificationBuilder.specificationBuilder().queryLike(request.getQ()).queryByStatus(request.getAccountStatus());
 
 
         Page<MentorProfile> mentorProfilePage = mentorProfileRepository.findAll(builder.build(), pageable);
@@ -125,18 +124,16 @@ public class MentorProfileImpl implements IMentorProfileService {
         MentorProfile mentorProfile = findById(id);
 
         if (mentorProfile.getUser() == null) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
 
         validateApprovalAccountRequest(managerApprovalAccountRequest.getStatus());
 
         if (mentorProfile.getStatus() != EMentorProfileStatus.WAITING) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW) + mentorProfile.getStatus());
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW) + mentorProfile.getStatus());
         }
         List<MentorSkill> skills = mentorProfile.getSkills();
-        List<MentorSkill> skillsActive = new ArrayList<>( );
+        List<MentorSkill> skillsActive = new ArrayList<>();
         for (MentorSkill skill : skills) {
             skill.setStatus(true);
             skillsActive.add(skill);
@@ -153,8 +150,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         List<EMentorProfileStatus> ALLOWED_STATUSES = Arrays.asList(EMentorProfileStatus.STARTING, EMentorProfileStatus.EDITREQUEST, EMentorProfileStatus.REJECTED);
 
         if (!ALLOWED_STATUSES.contains(accountStatus)) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
         }
     }
 
@@ -162,9 +158,7 @@ public class MentorProfileImpl implements IMentorProfileService {
     @Override
     public Long updateMentorProfile(UpdateMentorProfileRequest updateMentorProfileRequest) {
         User user = SecurityUtil.getCurrentUser();
-        MentorProfile mentorProfile = mentorProfileRepository.getMentorProfileByUser(user)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + user.getId()));
+        MentorProfile mentorProfile = mentorProfileRepository.getMentorProfileByUser(user).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + user.getId()));
 
         MentorUtil.checkMentorStatusToUpdateInformation(mentorProfile);
 
@@ -182,31 +176,26 @@ public class MentorProfileImpl implements IMentorProfileService {
             Set<Long> skillIds = new HashSet<>();
             for (UpdateSkillRequest mentorUpdateSkill : mentorUpdateSkills) {
                 if (mentorUpdateSkill.getYearOfExperiences() <= 0) {
-                    throw ApiException.create(HttpStatus.BAD_REQUEST)
-                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.NEGATIVE_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.NEGATIVE_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
                 }
                 ZonedDateTime userBirthYear = mentorProfile.getUser().getBirthday().atZone(ZoneOffset.UTC);
                 int userAge = Year.now().getValue() - userBirthYear.getYear();
                 boolean validMaximumYearOfExperience = userAge - mentorUpdateSkill.getYearOfExperiences() > 1;
                 if (!validMaximumYearOfExperience) {
-                    throw ApiException.create(HttpStatus.BAD_REQUEST)
-                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
                 }
                 if (mentorUpdateSkill.getSkillId() == null) {
-                    throw ApiException.create(HttpStatus.BAD_REQUEST)
-                            .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_SKILL));
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_SKILL));
                 }
                 if (!skillIds.add(mentorUpdateSkill.getSkillId())) {
                     // Duplicate skillId found, raise error
-                    throw ApiException.create(HttpStatus.BAD_REQUEST)
-                            .withMessage(messageUtil.getLocalMessage(SUBJECT_ID_DUPLICATE) + mentorUpdateSkill.getSkillId());
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(SUBJECT_ID_DUPLICATE) + mentorUpdateSkill.getSkillId());
                 }
             }
             List<MentorSkill> mentorSkills = new ArrayList<>();
             for (UpdateSkillRequest mentorUpdateSkill : mentorUpdateSkills) {
                 MentorSkill mentorSkill = new MentorSkill();
-                Subject subject = subjectRepository.findById(mentorUpdateSkill.getSkillId())
-                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + mentorUpdateSkill.getSkillId()));
+                Subject subject = subjectRepository.findById(mentorUpdateSkill.getSkillId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + mentorUpdateSkill.getSkillId()));
                 mentorSkill.setSkill(subject);
                 mentorSkill.setYearOfExperiences(mentorUpdateSkill.getYearOfExperiences());
                 mentorSkill.setMentorProfile(mentorProfile);
@@ -235,45 +224,35 @@ public class MentorProfileImpl implements IMentorProfileService {
     public Boolean mentorRequestApprovalAccount(Long id) throws Exception {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
 
-        MentorProfile mentorProfile = mentorProfileRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + id));
+        MentorProfile mentorProfile = mentorProfileRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + id));
 
         if (!currentUserAccountLogin.getMentorProfile().equals(mentorProfile)) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(MENTOR_PROFILE_NOT_FOUND_BY_USER));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(MENTOR_PROFILE_NOT_FOUND_BY_USER));
 
         }
 
-        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING) &&
-                !mentorProfile.getStatus().equals(EMentorProfileStatus.EDITREQUEST) ) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
+        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING) && !mentorProfile.getStatus().equals(EMentorProfileStatus.EDITREQUEST)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
         }
 
         List<Role> roles = currentUserAccountLogin.getRoles();
         List<Boolean> checkRoleTeacher = roles.stream().map(role -> role.getCode().equals(EUserRole.TEACHER)).collect(Collectors.toList());
 
         if (checkRoleTeacher.isEmpty()) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
 
 
         ValidationErrors vaErr = new ValidationErrors();
 
         CompletenessMentorProfileResponse response = MentorUtil.checkCompletenessMentorProfile();
-        List<CompletenessMentorProfileResponse.MissingInformation.RequiredInfo> requiredInfoList
-                = response.getMissingInformation().stream().map(CompletenessMentorProfileResponse.MissingInformation::getRequiredInfo).collect(Collectors.toList());
+        List<CompletenessMentorProfileResponse.MissingInformation.RequiredInfo> requiredInfoList = response.getMissingInformation().stream().map(CompletenessMentorProfileResponse.MissingInformation::getRequiredInfo).collect(Collectors.toList());
         ValidationErrors.ValidationError validationError = new ValidationErrors.ValidationError();
 
         ArrayList<String> invalidParams = new ArrayList<String>();
 
         requiredInfoList.forEach(requiredInfo -> {
-            requiredInfo.getFields().stream()
-                    .map(CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field::getField)
-                    .findFirst()
-                    .ifPresent(invalidParams::add);
+            requiredInfo.getFields().stream().map(CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field::getField).findFirst().ifPresent(invalidParams::add);
 
         });
         validationError.setMessage("Vui lòng cập nhật đây đủ thông tin trước khi yêu cầu phê duyệt tài khoản");
@@ -289,13 +268,13 @@ public class MentorProfileImpl implements IMentorProfileService {
         return true;
     }
 
+    @Transactional
     @Override
-    public Boolean mentorRequestApprovalSkill( MentorSendAddSkill mentorSendAddSkill) {
+    public Boolean mentorRequestApprovalSkill(MentorSendAddSkill mentorSendAddSkill) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
         MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
-        if (mentorProfile == null){
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(MENTOR_PROFILE_NOT_FOUND_BY_USER);
+        if (mentorProfile == null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(MENTOR_PROFILE_NOT_FOUND_BY_USER);
         }
 
         List<MentorSkill> skills = mentorProfile.getSkills();
@@ -305,20 +284,33 @@ public class MentorProfileImpl implements IMentorProfileService {
         List<MentorSkill> mentorSkillList = new ArrayList<>();
         for (UpdateSkillRequest mentorSkill : mentorSkills) {
             if (skillIds.contains(mentorSkill.getSkillId())) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage("Bạn đã có quyền dạy môn học này ! Không thể yêu cầu mở thêm ");
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Bạn đã có quyền dạy môn học này ! Không thể yêu cầu mở thêm ");
             }
             MentorSkill mentorSkill1 = new MentorSkill();
-            Subject subject = subjectRepository.findById(mentorSkill.getSkillId())
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage(messageUtil.getLocalMessage(SKILL_NOT_FOUND_BY_ID)));
+            Subject subject = subjectRepository.findById(mentorSkill.getSkillId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SKILL_NOT_FOUND_BY_ID)));
             mentorSkill1.setSkill(subject);
             mentorSkill1.setStatus(false);
             mentorSkill1.setMentorProfile(mentorProfile);
             mentorSkill1.setYearOfExperiences(mentorSkill.getYearOfExperiences());
             mentorSkillList.add(mentorSkill1);
         }
-        mentorProfile.setSkills(mentorSkillList);
+        mentorProfile.getSkills().addAll(mentorSkillList);
+
+        List<UserImage> SkillFilesInRequest = userImageRepository.findAllById(mentorSendAddSkill.getFileIds());
+
+        List<UserImage> updateDegrees = new ArrayList<>();
+        SkillFilesInRequest.forEach(userImage -> {
+            if (!userImage.getType().equals(EImageType.DEGREE)) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Vui lòng nộp bằng cấp liên quan môn học bạn muốn giảng dạy!");
+            }
+            if (userImage.getUser() != null) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Bằng cấp này đang được sử dụng! vui lòng kiểm tra lại");
+            }
+            userImage.setUser(currentUserAccountLogin);
+            updateDegrees.add(userImage);
+        });
+        userImageRepository.saveAll(updateDegrees);
+
         mentorProfileRepository.save(mentorProfile);
         return true;
     }
