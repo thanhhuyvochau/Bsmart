@@ -1,7 +1,7 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.EFeedbackType;
@@ -10,11 +10,11 @@ import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.request.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
 import fpt.project.bsmart.entity.response.FeedbackSubmissionResponse;
-import fpt.project.bsmart.repository.ClassRepository;
-import fpt.project.bsmart.repository.FeedbackSubmissionRepository;
-import fpt.project.bsmart.repository.FeedbackTemplateRepository;
+import fpt.project.bsmart.entity.response.MentorFeedbackResponse;
+import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IFeedbackService;
 import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.specification.FeedbackSubmissionSpecificationBuilder;
 import fpt.project.bsmart.util.specification.FeedbackTemplateSpecificationBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -29,21 +29,26 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.*;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.EMPTY_FEEDBACK_TEMPLATE_ID;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.EMPTY_QUESTION_LIST;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_FEEDBACK_TYPE;
 
 @Service
 public class FeedbackServiceImpl implements IFeedbackService {
     private final FeedbackTemplateRepository feedbackTemplateRepository;
     private final FeedbackSubmissionRepository feedbackSubmissionRepository;
     private final ClassRepository classRepository;
+    private final CourseRepository courseRepository;
+    private final MentorProfileRepository mentorProfileRepository;
     private final MessageUtil messageUtil;
     @Qualifier("offensiveWord")
     private final ArrayList<String> offensiveWord;
-    public FeedbackServiceImpl(FeedbackTemplateRepository feedbackTemplateRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, ClassRepository classRepository, MessageUtil messageUtil, ArrayList<String> offensiveWord) {
+    public FeedbackServiceImpl(FeedbackTemplateRepository feedbackTemplateRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, ClassRepository classRepository, CourseRepository courseRepository, MentorProfileRepository mentorProfileRepository, MessageUtil messageUtil, ArrayList<String> offensiveWord) {
         this.feedbackTemplateRepository = feedbackTemplateRepository;
         this.feedbackSubmissionRepository = feedbackSubmissionRepository;
         this.classRepository = classRepository;
+        this.courseRepository = courseRepository;
+        this.mentorProfileRepository = mentorProfileRepository;
         this.messageUtil = messageUtil;
         this.offensiveWord = offensiveWord;
     }
@@ -232,5 +237,21 @@ public class FeedbackServiceImpl implements IFeedbackService {
                 .map(ConvertUtil::convertFeedbackSubmissionToResponse)
                 .collect(Collectors.toList());
         return PageUtil.convert(new PageImpl<>(responses, pageable, feedbackSubmissionPage.getTotalElements()));
+    }
+
+    public MentorFeedbackResponse getMentorFeedback(Long mentorId){
+        MentorProfile mentorProfile = mentorProfileRepository.findById(mentorId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_PROFILE_NOT_FOUND_BY_ID) + mentorId));
+        FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
+                .filterByMentor(mentorProfile.getUser().getId());
+        List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(builder.build());
+        MentorFeedbackResponse response = new MentorFeedbackResponse();
+        List<MentorFeedbackResponse.FeedbackSubmission> submissions = feedbackSubmissions.stream()
+                .map(ConvertUtil::convertFeedbackSubmissionToMentorFeedbackResponse)
+                .collect(Collectors.toList());
+        response.setSubmissions(submissions);
+        response.setAverageRate(FeedbackUtil.calculateCourseRate(feedbackSubmissions));
+        response.setSubmissionCount(feedbackSubmissions.size());
+        return response;
     }
 }
