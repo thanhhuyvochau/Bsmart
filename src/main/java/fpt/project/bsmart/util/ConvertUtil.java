@@ -860,4 +860,12 @@ public class ConvertUtil {
         response.setQuestions(submitQuestions);
         return response;
     }
+
+    public static MentorFeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToMentorFeedbackResponse(FeedbackSubmission feedbackSubmission){
+        MentorFeedbackResponse.FeedbackSubmission submission = new MentorFeedbackResponse.FeedbackSubmission();
+        submission.setRate(feedbackSubmission.getRate());
+        submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());
+        submission.setComment(feedbackSubmission.getComment());
+        return submission;
+    }
 }
