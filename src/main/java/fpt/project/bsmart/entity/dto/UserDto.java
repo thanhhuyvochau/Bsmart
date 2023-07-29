@@ -2,6 +2,7 @@ package fpt.project.bsmart.entity.dto;
 
 
 import fpt.project.bsmart.entity.constant.EGenderType;
+import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -42,6 +43,8 @@ public class UserDto {
     private WalletDto wallet;
 
     private MentorProfileDTO mentorProfile;
+
+    private TeachInformationDTO teachInformation ;
     private boolean isVerified = false;
 
     public Long getId() {
@@ -180,6 +183,22 @@ public class UserDto {
     }
 
     public void setIsVerified(boolean verified) {
+        isVerified = verified;
+    }
+
+    public TeachInformationDTO getTeachInformation() {
+        return teachInformation;
+    }
+
+    public void setTeachInformation(TeachInformationDTO teachInformation) {
+        this.teachInformation = teachInformation;
+    }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
         isVerified = verified;
     }
 }

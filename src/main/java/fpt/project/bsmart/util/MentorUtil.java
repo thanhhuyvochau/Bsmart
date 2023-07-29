@@ -2,6 +2,7 @@ package fpt.project.bsmart.util;
 
 
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
@@ -9,6 +10,7 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.MentorSkillDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
+import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -36,15 +38,27 @@ public class MentorUtil {
 
     public static Boolean checkMentorStatusToUpdateInformation(MentorProfile mentorProfile) {
 
-        if (mentorProfile.getStatus().equals(EMentorProfileStatus.WAITING)){
+        if (mentorProfile.getStatus().equals(EMentorProfileStatus.WAITING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage("Tài khoản của bạn đang được hệ thống phê duyệt! Không thể cập nhật thông tin lúc này");
         }
-        if (mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)){
+        if (mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage("Tài khoản của bạn đã được hệ thống phê duyệt! Nếu muốn cập nhật thông tin vui lòng gửi yêu cầu cho admin");
         }
-        return true ;
+        return true;
+    }
+
+    public static TeachInformationDTO getTeachingInformation(User user) {
+        TeachInformationDTO teachInformationDTO = new TeachInformationDTO();
+        List<Course> courses = user.getCourses();
+        List<StudentClass> studentClasses = user.getStudentClasses();
+        List<Class> classesOfMentor = studentClasses.stream().map(StudentClass::getClazz).distinct().collect(Collectors.toList());
+        List<User> membersOfMentor = studentClasses.stream().map(StudentClass::getStudent).distinct().collect(Collectors.toList());
+        teachInformationDTO.setNumberOfCourse(courses.size());
+        teachInformationDTO.setNumberOfClass(classesOfMentor.size());
+        teachInformationDTO.setNumberOfMember(membersOfMentor.size());
+        return teachInformationDTO;
     }
 
 
@@ -54,7 +68,7 @@ public class MentorUtil {
         if (user.getFullName() != null) {
             mentorDto.setName(user.getFullName());
         }
-        if (user.getEmail()!= null){
+        if (user.getEmail() != null) {
             mentorDto.setEmail(user.getEmail());
         }
         List<UserImage> userImages = user.getUserImages();
