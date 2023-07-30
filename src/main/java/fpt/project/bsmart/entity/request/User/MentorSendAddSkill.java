@@ -8,8 +8,6 @@ import java.util.List;
 public class MentorSendAddSkill {
     private List<UpdateSkillRequest> mentorSkills = new ArrayList<>();
 
-    private List<Long> fileIds;
-
 
     public List<UpdateSkillRequest> getMentorSkills() {
         return mentorSkills;
@@ -19,11 +17,4 @@ public class MentorSendAddSkill {
         this.mentorSkills = mentorSkills;
     }
 
-    public List<Long> getFileIds() {
-        return fileIds;
-    }
-
-    public void setFileIds(List<Long> fileIds) {
-        this.fileIds = fileIds;
-    }
 }

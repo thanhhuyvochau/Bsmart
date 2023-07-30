@@ -25,7 +25,7 @@ public interface IClassService {
 
     MentorGetCourseClassResponse getAllClassOfCourse(Long id);
 
-    Long mentorCreateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) throws ValidationErrorsException;
+    Long mentorCreateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) throws Exception;
 
     Boolean mentorUpdateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest);
 

@@ -17,6 +17,7 @@ import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.mentor.ManagerGetRequestApprovalSkillResponse;
+import fpt.project.bsmart.entity.response.mentor.MentorGetRequestApprovalSkillResponse;
 import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.MentorSkillRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
@@ -275,9 +276,9 @@ public class MentorProfileImpl implements IMentorProfileService {
         return true;
     }
 
-    @Transactional
+
     @Override
-    public Boolean mentorRequestApprovalSkill(MentorSendAddSkill mentorSendAddSkill) {
+    public Boolean mentorCreateApprovalSkill(MentorSendAddSkill mentorSendAddSkill) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
         MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
         if (mentorProfile == null) {
@@ -297,26 +298,27 @@ public class MentorProfileImpl implements IMentorProfileService {
             Subject subject = subjectRepository.findById(mentorSkill.getSkillId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SKILL_NOT_FOUND_BY_ID)));
             mentorSkill1.setSkill(subject);
             mentorSkill1.setStatus(false);
+            mentorSkill1.setVerified(false);
             mentorSkill1.setMentorProfile(mentorProfile);
             mentorSkill1.setYearOfExperiences(mentorSkill.getYearOfExperiences());
             mentorSkillList.add(mentorSkill1);
         }
         mentorProfile.getSkills().addAll(mentorSkillList);
 
-        List<UserImage> SkillFilesInRequest = userImageRepository.findAllById(mentorSendAddSkill.getFileIds());
-
-        List<UserImage> updateDegrees = new ArrayList<>();
-        SkillFilesInRequest.forEach(userImage -> {
-            if (!userImage.getType().equals(EImageType.DEGREE)) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Vui lòng nộp bằng cấp liên quan môn học bạn muốn giảng dạy!");
-            }
-            if (userImage.getUser() != null) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Bằng cấp này đang được sử dụng! vui lòng kiểm tra lại");
-            }
-            userImage.setUser(currentUserAccountLogin);
-            updateDegrees.add(userImage);
-        });
-        userImageRepository.saveAll(updateDegrees);
+//        List<UserImage> SkillFilesInRequest = userImageRepository.findAllById(mentorSendAddSkill.getFileIds());
+//
+//        List<UserImage> updateDegrees = new ArrayList<>();
+//        SkillFilesInRequest.forEach(userImage -> {
+//            if (!userImage.getType().equals(EImageType.DEGREE)) {
+//                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Vui lòng nộp bằng cấp liên quan môn học bạn muốn giảng dạy!");
+//            }
+//            if (userImage.getUser() != null) {
+//                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Bằng cấp này đang được sử dụng! vui lòng kiểm tra lại");
+//            }
+//            userImage.setUser(currentUserAccountLogin);
+//            updateDegrees.add(userImage);
+//        });
+//        userImageRepository.saveAll(updateDegrees);
 
         mentorProfileRepository.save(mentorProfile);
         return true;
@@ -330,7 +332,7 @@ public class MentorProfileImpl implements IMentorProfileService {
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + id));
 
 
-        List<MentorSkill> byMentorProfileAndStatus = mentorSkillRepository.findByMentorProfileAndStatus(mentorProfile, false);
+        List<MentorSkill> byMentorProfileAndStatus = mentorSkillRepository.findByMentorProfileAndStatusAndVerified(mentorProfile, true, false);
 
         // check request & DB
         List<Long> skillIds = managerApprovalSkillRequest.getSkillIds();
@@ -372,15 +374,14 @@ public class MentorProfileImpl implements IMentorProfileService {
 
         List<MentorSkill> mentorSkillToApproval = new ArrayList<>();
         byMentorProfileAndStatus.forEach(mentorSkill -> {
-            mentorSkill.setStatus(managerApprovalSkillRequest.getStatus());
+            mentorSkill.setVerified(managerApprovalSkillRequest.getStatus());
             mentorSkillToApproval.add(mentorSkill);
         });
 
 
         List<UserImage> userImageList = new ArrayList<>();
         byUserAndStatus.forEach(userImage -> {
-            userImage.setStatus(managerApprovalSkillRequest.getStatus());
-            ;
+            userImage.setVerified(managerApprovalSkillRequest.getStatus());
             userImageList.add(userImage);
         });
         userImageRepository.saveAll(userImageList);
@@ -392,7 +393,7 @@ public class MentorProfileImpl implements IMentorProfileService {
     public List<ManagerGetRequestApprovalSkillResponse> managerGetRequestApprovalSkill() {
         List<ManagerGetRequestApprovalSkillResponse> responseList = new ArrayList<>();
 
-        List<MentorSkill> byStatus = mentorSkillRepository.findByStatus(false);
+        List<MentorSkill> byStatus = mentorSkillRepository.findByStatus(true);
         List<MentorProfile> mentorProfileSkillStatusIsFalse = byStatus.stream().map(MentorSkill::getMentorProfile).collect(Collectors.toList());
         List<MentorProfile> mentorProfiles = mentorProfileSkillStatusIsFalse.stream().filter(mentorProfile -> mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)).collect(Collectors.toList());
 
@@ -403,7 +404,7 @@ public class MentorProfileImpl implements IMentorProfileService {
             ManagerGetRequestApprovalSkillResponse response = new ManagerGetRequestApprovalSkillResponse();
             UserDto userDto = ConvertUtil.convertUsertoUserDto(user);
 
-            List<MentorSkill> byMentorProfileAndStatus = mentorSkillRepository.findByMentorProfileAndStatus(mentorProfile, false);
+            List<MentorSkill> byMentorProfileAndStatus = mentorSkillRepository.findByMentorProfileAndStatusAndVerified(mentorProfile, true, false);
 
 
             if (!byMentorProfileAndStatus.isEmpty()) {
@@ -417,7 +418,7 @@ public class MentorProfileImpl implements IMentorProfileService {
                 response.setMentorSkillRequest(skillList);
 
             }
-            List<UserImage> byUserAndStatus = userImageRepository.findByUserAndTypeAndStatus(user, EImageType.DEGREE, false);
+            List<UserImage> byUserAndStatus = userImageRepository.findByUserAndTypeAndStatusAndVerified(user, EImageType.DEGREE, true, false);
             if (!byUserAndStatus.isEmpty()) {
                 List<ImageDto> imageDtoList = new ArrayList<>();
                 for (UserImage image : byUserAndStatus) {
@@ -430,6 +431,80 @@ public class MentorProfileImpl implements IMentorProfileService {
             response.setUser(userDto);
             responseList.add(response);
         });
+
+
+        return responseList;
+    }
+
+    @Override
+    public Boolean mentorRequestApprovalSkill(MentorSendSkillRequest mentorSendAddSkill) {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
+
+        List<MentorSkill> mentorSkillList = new ArrayList<>();
+        for (Long skillId : mentorSendAddSkill.getSkillIds()) {
+            MentorSkill bySkillIdAndStatus = mentorSkillRepository.findByMentorProfileAndSkillIdAndStatus(mentorProfile, skillId, false)
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage("Môn học với ID " + skillId + " không tìm thấy "));
+
+            bySkillIdAndStatus.setStatus(true);
+            mentorSkillList.add(bySkillIdAndStatus);
+
+        }
+        List<UserImage> userImageList = new ArrayList<>();
+        List<Long> degreeIds = mentorSendAddSkill.getDegreeIds();
+        for (Long degreeId : degreeIds) {
+            UserImage userImage = userImageRepository.findByIdAndUserAndTypeAndStatus(degreeId, mentorProfile.getUser(), EImageType.DEGREE, false)
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage("Bằng cấp với ID " + degreeId + " không tìm thấy"));
+            userImage.setStatus(true);
+            userImageList.add(userImage);
+        }
+
+        mentorSkillRepository.saveAll(mentorSkillList);
+        userImageRepository.saveAll(userImageList);
+
+        return true;
+    }
+
+    @Override
+    public List<MentorGetRequestApprovalSkillResponse> ManagerGetRequestApprovalSkillResponse() {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
+        List<MentorGetRequestApprovalSkillResponse> responseList = new ArrayList<>();
+
+
+        User user = mentorProfile.getUser();
+
+        MentorGetRequestApprovalSkillResponse response = new MentorGetRequestApprovalSkillResponse();
+
+
+        List<MentorSkill> byMentorProfileAndStatus = mentorSkillRepository.findByMentorProfileAndStatusAndVerified(mentorProfile, false, false);
+
+
+        if (!byMentorProfileAndStatus.isEmpty()) {
+            List<MentorSkillDto> skillList = new ArrayList<>();
+            for (MentorSkill mentorSkill : byMentorProfileAndStatus) {
+                MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
+                skillList.add(mentorSkillDto);
+
+            }
+            response.setTotalSkillRequest(byMentorProfileAndStatus.size());
+            response.setMentorSkillRequest(skillList);
+
+        }
+        List<UserImage> byUserAndStatus = userImageRepository.findByUserAndTypeAndStatusAndVerified(user, EImageType.DEGREE, false, false);
+        if (!byUserAndStatus.isEmpty()) {
+            List<ImageDto> imageDtoList = new ArrayList<>();
+            for (UserImage image : byUserAndStatus) {
+                imageDtoList.add(convertUserImageToUserImageDto(image));
+                response.setCreated(image.getCreated());
+            }
+            response.setDegreeRequest(imageDtoList);
+            response.setTotalDegreeRequest(byUserAndStatus.size());
+        }
+
+        responseList.add(response);
 
 
         return responseList;

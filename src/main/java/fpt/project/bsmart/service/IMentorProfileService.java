@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.entity.response.mentor.ManagerGetRequestApprovalSkillResponse;
+import fpt.project.bsmart.entity.response.mentor.MentorGetRequestApprovalSkillResponse;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -27,9 +28,13 @@ public interface IMentorProfileService {
 
     Boolean mentorRequestApprovalAccount(Long id) throws Exception, ValidationErrorsException;
 
-    Boolean mentorRequestApprovalSkill( MentorSendAddSkill mentorSendAddSkill);
+    Boolean mentorCreateApprovalSkill( MentorSendAddSkill mentorSendAddSkill);
 
     Boolean managerHandleRequestApprovalSkill(Long id, ManagerApprovalSkillRequest managerApprovalSkillRequest);
 
     List<ManagerGetRequestApprovalSkillResponse> managerGetRequestApprovalSkill();
+
+    Boolean mentorRequestApprovalSkill( MentorSendSkillRequest mentorSendAddSkill);
+
+    List<MentorGetRequestApprovalSkillResponse> ManagerGetRequestApprovalSkillResponse();
 }
