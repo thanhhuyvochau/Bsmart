@@ -12,6 +12,7 @@ import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.repository.ActivityHistoryRepository;
+import fpt.project.bsmart.repository.ClassImageRepository;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,9 +33,12 @@ public class ConvertUtil {
 
     private static ActivityHistoryRepository staticActivityHistoryRepository;
 
-    public ConvertUtil(ClassRepository classRepository, UserRepository userRepository, ActivityHistoryRepository activityHistoryRepository) {
+    private static ClassImageRepository staticClassImageRepository;
+
+    public ConvertUtil(ClassRepository classRepository, UserRepository userRepository, ActivityHistoryRepository activityHistoryRepository, ClassImageRepository classImageRepository) {
         staticClassRepository = classRepository;
         staticActivityHistoryRepository = activityHistoryRepository;
+        staticClassImageRepository = classImageRepository;
     }
 
     @Value("${icon.success}")
@@ -164,7 +168,7 @@ public class ConvertUtil {
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (UserImage image : user.getUserImages()) {
-                if (image.isStatus()) {
+                if (image.isStatus() && image.getVerified()) {
                     imageDtoList.add(convertUserImageToUserImageDto(image));
                 }
 
@@ -212,7 +216,6 @@ public class ConvertUtil {
                 }
             }
         }
-
 
         return response;
     }
@@ -336,12 +339,20 @@ public class ConvertUtil {
 
         List<Class> classes = course.getClasses();
         List<ImageDto> images = new ArrayList<>();
+        if (classes.isEmpty()) {
+            ClassImage byType = staticClassImageRepository.findByType(EImageType.DEFAULT);
+            if (byType != null) {
+                images.add(ObjectUtil.copyProperties(byType, new ImageDto(), ImageDto.class));
+            }
+        }
+
         classes.forEach(clazz -> {
             if (clazz.getMentor() != null) {
                 if (mentorName.isEmpty()) {
                     mentorName.add(clazz.getMentor().getFullName());
                 }
             }
+
             if (clazz.getClassImage() != null) {
                 images.add(ObjectUtil.copyProperties(clazz.getClassImage(), new ImageDto(), ImageDto.class));
             }
@@ -473,7 +484,7 @@ public class ConvertUtil {
         if (mentorProfile.getSkills() != null) {
             List<MentorSkillDto> skillList = new ArrayList<>();
             for (MentorSkill mentorSkill : mentorProfile.getSkills()) {
-                if (mentorSkill.getStatus()) {
+                if (mentorSkill.getStatus() && mentorSkill.getVerified()) {
                     MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
                     skillList.add(mentorSkillDto);
                 }
@@ -481,7 +492,7 @@ public class ConvertUtil {
             }
             mentorProfileDTO.setMentorSkills(skillList);
         }
-        if(mentorProfile.getUser() != null){
+        if (mentorProfile.getUser() != null) {
             User temp = mentorProfile.getUser();
             temp.setMentorProfile(null);
             mentorProfileDTO.setUser(convertUsertoUserDto(temp));
@@ -872,7 +883,7 @@ public class ConvertUtil {
         return response;
     }
 
-    public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToFeedbackResponse(FeedbackSubmission feedbackSubmission){
+    public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToFeedbackResponse(FeedbackSubmission feedbackSubmission) {
         FeedbackResponse.FeedbackSubmission submission = new FeedbackResponse.FeedbackSubmission();
         submission.setRate(feedbackSubmission.getRate());
         submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());

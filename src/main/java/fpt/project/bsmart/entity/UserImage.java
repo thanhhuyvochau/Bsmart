@@ -20,11 +20,13 @@ public class UserImage extends BaseEntity {
     private String url;
 
     @Column(name = "status")
-    private boolean status;
+    private Boolean status ;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+    @Column(name = "verified")
+    private Boolean verified ;
 
 
     public Long getId() {
@@ -52,11 +54,11 @@ public class UserImage extends BaseEntity {
     }
 
 
-    public boolean isStatus() {
+    public Boolean isStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(Boolean status) {
         this.status = status;
     }
 
@@ -77,5 +79,15 @@ public class UserImage extends BaseEntity {
         this.url = url;
     }
 
+    public Boolean getStatus() {
+        return status;
+    }
 
+    public Boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(Boolean verified) {
+        this.verified = verified;
+    }
 }

@@ -14,9 +14,11 @@ import java.util.Optional;
 public interface UserImageRepository extends JpaRepository<UserImage, Long> {
 
 
-    List<UserImage> findByUserAndStatus(User user, Boolean b);
+    List<UserImage> findByUserAndTypeAndStatusAndVerified(User user, EImageType type, Boolean status , Boolean verified );
+
 
     List<UserImage> findByUserAndTypeAndStatus(User user, EImageType type, Boolean b);
 
     Optional<UserImage> findByIdAndUserAndTypeAndStatus(Long id , User user, EImageType type, Boolean b);
+
 }
