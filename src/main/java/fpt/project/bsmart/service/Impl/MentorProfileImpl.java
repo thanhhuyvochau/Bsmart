@@ -8,12 +8,15 @@ import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
+import fpt.project.bsmart.entity.dto.MentorSkillDto;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
+import fpt.project.bsmart.entity.response.mentor.ManagerGetRequestApprovalSkillResponse;
 import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.MentorSkillRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
@@ -35,6 +38,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.ConvertUtil.*;
 
 @Service
 public class MentorProfileImpl implements IMentorProfileService {
@@ -44,11 +48,14 @@ public class MentorProfileImpl implements IMentorProfileService {
 
     private final UserImageRepository userImageRepository;
 
-    public MentorProfileImpl(MentorProfileRepository mentorProfileRepository, MentorSkillRepository mentorSkillRepository, SubjectRepository subjectRepository, MessageUtil messageUtil, UserImageRepository userImageRepository) {
+    private final MentorSkillRepository mentorSkillRepository;
+
+    public MentorProfileImpl(MentorProfileRepository mentorProfileRepository, MentorSkillRepository mentorSkillRepository, SubjectRepository subjectRepository, MessageUtil messageUtil, UserImageRepository userImageRepository, MentorSkillRepository mentorSkillRepository1) {
         this.mentorProfileRepository = mentorProfileRepository;
         this.subjectRepository = subjectRepository;
         this.messageUtil = messageUtil;
         this.userImageRepository = userImageRepository;
+        this.mentorSkillRepository = mentorSkillRepository1;
     }
 
     private MentorProfile findById(Long id) {
@@ -68,7 +75,7 @@ public class MentorProfileImpl implements IMentorProfileService {
 //                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
 //            }
 //        }
-        MentorProfileDTO mentorProfileDTO = ConvertUtil.convertMentorProfileToMentorProfileDto(mentorProfile);
+        MentorProfileDTO mentorProfileDTO = convertMentorProfileToMentorProfileDto(mentorProfile);
         return mentorProfileDTO;
     }
 
@@ -79,7 +86,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         List<MentorProfile> mentorProfiles = mentorProfilePage.stream().collect(Collectors.toList());
         List<MentorProfileDTO> mentorProfileDTOS = new ArrayList<>();
         for (MentorProfile mentorProfile : mentorProfiles) {
-            mentorProfileDTOS.add(ConvertUtil.convertMentorProfileToMentorProfileDto(mentorProfile));
+            mentorProfileDTOS.add(convertMentorProfileToMentorProfileDto(mentorProfile));
         }
         Page<MentorProfileDTO> page = new PageImpl<>(mentorProfileDTOS);
         return PageUtil.convert(page);
@@ -313,6 +320,119 @@ public class MentorProfileImpl implements IMentorProfileService {
 
         mentorProfileRepository.save(mentorProfile);
         return true;
+    }
+
+    @Transactional
+    @Override
+    public Boolean managerHandleRequestApprovalSkill(Long id, ManagerApprovalSkillRequest managerApprovalSkillRequest) {
+        MentorProfile mentorProfile = mentorProfileRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + id));
+
+
+        List<MentorSkill> byMentorProfileAndStatus = mentorSkillRepository.findByMentorProfileAndStatus(mentorProfile, false);
+
+        // check request & DB
+        List<Long> skillIds = managerApprovalSkillRequest.getSkillIds();
+        for (Long skillId : skillIds) {
+            MentorSkill bySkillIdAndStatus = mentorSkillRepository.findByMentorProfileAndSkillIdAndStatus(mentorProfile, skillId, false)
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage("Môn học với ID " + skillId + " không có sẵn trong yêu cầu phê duyệt của giáo viên "));
+
+            if (!byMentorProfileAndStatus.contains(bySkillIdAndStatus)) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage("Môn học với ID " + skillId + " không có sẵn trong yêu cầu phê duyệt của giáo viên ");
+            }
+        }
+
+
+        if (byMentorProfileAndStatus.size() > managerApprovalSkillRequest.getSkillIds().size()) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Có " + byMentorProfileAndStatus.size() + " môn học cần được phê duyệt ! Vui lòng kiểm tra lại số môn học bạn đang duyệt !  ");
+        }
+
+        List<UserImage> byUserAndStatus = userImageRepository.findByUserAndTypeAndStatus(mentorProfile.getUser(), EImageType.DEGREE, false);
+
+        // check request & DB
+        List<Long> degreeIds = managerApprovalSkillRequest.getDegreeIds();
+        for (Long degreeId : degreeIds) {
+            UserImage userImage = userImageRepository.findByIdAndUserAndTypeAndStatus(degreeId, mentorProfile.getUser(), EImageType.DEGREE, false)
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage("Bằng cấp với ID " + degreeId + " không có sẵn trong yêu cầu phê duyệt của giáo viên "));
+
+            if (!byUserAndStatus.contains(userImage)) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage("Bằng cấp với ID " + degreeId + " không có sẵn trong yêu cầu phê duyệt của giáo viên ");
+            }
+        }
+
+        if (byUserAndStatus.size() > managerApprovalSkillRequest.getDegreeIds().size()) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Có " + byUserAndStatus.size() + " bằng cấp cần được phê duyệt ! Vui lòng kiểm tra lại số bằng cấp bạn đang duyệt !");
+        }
+
+
+        List<MentorSkill> mentorSkillToApproval = new ArrayList<>();
+        byMentorProfileAndStatus.forEach(mentorSkill -> {
+            mentorSkill.setStatus(managerApprovalSkillRequest.getStatus());
+            mentorSkillToApproval.add(mentorSkill);
+        });
+
+
+        List<UserImage> userImageList = new ArrayList<>();
+        byUserAndStatus.forEach(userImage -> {
+            userImage.setStatus(managerApprovalSkillRequest.getStatus());
+            ;
+            userImageList.add(userImage);
+        });
+        userImageRepository.saveAll(userImageList);
+        mentorSkillRepository.saveAll(mentorSkillToApproval);
+        return true;
+    }
+
+    @Override
+    public List<ManagerGetRequestApprovalSkillResponse> managerGetRequestApprovalSkill() {
+        List<ManagerGetRequestApprovalSkillResponse> responseList = new ArrayList<>();
+
+        List<MentorSkill> byStatus = mentorSkillRepository.findByStatus(false);
+        List<MentorProfile> mentorProfileSkillStatusIsFalse = byStatus.stream().map(MentorSkill::getMentorProfile).collect(Collectors.toList());
+        List<MentorProfile> mentorProfiles = mentorProfileSkillStatusIsFalse.stream().filter(mentorProfile -> mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)).collect(Collectors.toList());
+
+        mentorProfiles.forEach(mentorProfile -> {
+
+            User user = mentorProfile.getUser();
+
+            ManagerGetRequestApprovalSkillResponse response = new ManagerGetRequestApprovalSkillResponse();
+            UserDto userDto = ConvertUtil.convertUsertoUserDto(user);
+
+            List<MentorSkill> byMentorProfileAndStatus = mentorSkillRepository.findByMentorProfileAndStatus(mentorProfile, false);
+
+
+            if (!byMentorProfileAndStatus.isEmpty()) {
+                List<MentorSkillDto> skillList = new ArrayList<>();
+                for (MentorSkill mentorSkill : byMentorProfileAndStatus) {
+                    MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
+                    skillList.add(mentorSkillDto);
+
+                }
+                response.setTotalSkillRequest(byMentorProfileAndStatus.size());
+                response.setMentorSkillRequest(skillList);
+
+            }
+            List<UserImage> byUserAndStatus = userImageRepository.findByUserAndTypeAndStatus(user, EImageType.DEGREE, false);
+            if (!byUserAndStatus.isEmpty()) {
+                List<ImageDto> imageDtoList = new ArrayList<>();
+                for (UserImage image : byUserAndStatus) {
+                    imageDtoList.add(convertUserImageToUserImageDto(image));
+                    response.setCreated(image.getCreated());
+                }
+                response.setDegreeRequest(imageDtoList);
+                response.setTotalDegreeRequest(byUserAndStatus.size());
+            }
+            response.setUser(userDto);
+            responseList.add(response);
+        });
+
+
+        return responseList;
     }
 
 

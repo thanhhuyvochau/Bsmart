@@ -115,7 +115,7 @@ public class ImageServiceImpl implements ImageService {
             image.setName(objectWriteResponse.object());
             image.setType(EImageType.DEGREE);
             image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
-            image.setStatus(true);
+            image.setStatus(false);
             UserImage save = userImageRepository.save(image);
 
 

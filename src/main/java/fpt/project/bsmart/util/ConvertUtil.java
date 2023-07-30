@@ -473,8 +473,11 @@ public class ConvertUtil {
         if (mentorProfile.getSkills() != null) {
             List<MentorSkillDto> skillList = new ArrayList<>();
             for (MentorSkill mentorSkill : mentorProfile.getSkills()) {
-                MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
-                skillList.add(mentorSkillDto);
+                if (mentorSkill.getStatus()) {
+                    MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
+                    skillList.add(mentorSkillDto);
+                }
+
             }
             mentorProfileDTO.setMentorSkills(skillList);
         }
@@ -864,7 +867,7 @@ public class ConvertUtil {
         return response;
     }
 
-    public static MentorFeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToMentorFeedbackResponse(FeedbackSubmission feedbackSubmission){
+    public static MentorFeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToMentorFeedbackResponse(FeedbackSubmission feedbackSubmission) {
         MentorFeedbackResponse.FeedbackSubmission submission = new MentorFeedbackResponse.FeedbackSubmission();
         submission.setRate(feedbackSubmission.getRate());
         submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());
