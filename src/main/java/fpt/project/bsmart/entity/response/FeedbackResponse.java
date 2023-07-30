@@ -3,7 +3,7 @@ package fpt.project.bsmart.entity.response;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MentorFeedbackResponse {
+public class FeedbackResponse {
     private Integer submissionCount = 0;
     private Double averageRate = 0.0;
     private List<FeedbackSubmission> submissions = new ArrayList<>();

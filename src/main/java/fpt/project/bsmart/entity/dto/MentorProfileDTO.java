@@ -6,6 +6,7 @@ import java.util.List;
 
 public class MentorProfileDTO {
     private Long id;
+    private String fullName;
     private String introduce;
     private String workingExperience;
 
@@ -19,6 +20,14 @@ public class MentorProfileDTO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getIntroduce() {

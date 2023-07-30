@@ -20,7 +20,7 @@ public class FeedbackSubmission extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "template")
     private FeedbackTemplate template;
-    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FeedbackSubmitAnswer> answers = new ArrayList<>();
     @Column(name = "rate")
     private Integer rate = 1;
@@ -72,7 +72,10 @@ public class FeedbackSubmission extends BaseEntity{
     }
 
     public void setAnswers(List<FeedbackSubmitAnswer> answers) {
-        this.answers = answers;
+        this.answers.clear();
+        if(answers != null){
+            this.answers.addAll(answers);
+        }
     }
 
     public Integer getRate() {

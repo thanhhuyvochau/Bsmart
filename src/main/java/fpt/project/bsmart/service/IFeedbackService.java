@@ -5,10 +5,8 @@ import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.request.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
 import fpt.project.bsmart.entity.response.FeedbackSubmissionResponse;
-import fpt.project.bsmart.entity.response.MentorFeedbackResponse;
+import fpt.project.bsmart.entity.response.FeedbackResponse;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 public interface IFeedbackService {
     Long createFeedbackTemplate(FeedbackTemplateDto request);
@@ -19,6 +17,8 @@ public interface IFeedbackService {
     Boolean assignFeedbackTemplateForClass(Long templateId, Long classId);
     Boolean changeDefaultTemplate(Long id);
     Long studentSubmitFeedback(Long classId, StudentSubmitFeedbackRequest request);
+    Long studentUpdateFeedback(Long submissionId, StudentSubmitFeedbackRequest request);
     ApiPage<FeedbackSubmissionResponse> teacherViewClassFeedback(Long clazzId, Pageable pageable);
-    MentorFeedbackResponse getMentorFeedback(Long mentorId);
+    FeedbackResponse getCourseFeedback(Long courseId);
+    FeedbackResponse getMentorFeedback(Long mentorId);
 }
