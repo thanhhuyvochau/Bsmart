@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.entity.response.mentor.ManagerGetRequestApprovalSkillResponse;
+import fpt.project.bsmart.entity.response.mentor.MentorGetRequestApprovalSkillResponse;
 import fpt.project.bsmart.service.IMentorProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -111,6 +112,13 @@ public class MentorProfileController {
     @PutMapping("/{id}/request-approval")
     public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalCourse(@PathVariable Long id) throws Exception {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorRequestApprovalAccount(id)));
+    }
+
+    @Operation(summary = "mentor lấy các cầu dạy thêm môn học mới chưa gửi phê duyệt")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("/request-approval")
+    public ResponseEntity<ApiResponse< List<MentorGetRequestApprovalSkillResponse>>> ManagerGetRequestApprovalSkillResponse() throws Exception {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.ManagerGetRequestApprovalSkillResponse()));
     }
 
     @Operation(summary = "manager lấy yêu câu  mở  thêm môn học mới của mentor ")

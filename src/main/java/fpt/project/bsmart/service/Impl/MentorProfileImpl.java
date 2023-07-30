@@ -17,6 +17,7 @@ import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.mentor.ManagerGetRequestApprovalSkillResponse;
+import fpt.project.bsmart.entity.response.mentor.MentorGetRequestApprovalSkillResponse;
 import fpt.project.bsmart.repository.MentorProfileRepository;
 import fpt.project.bsmart.repository.MentorSkillRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
@@ -417,7 +418,7 @@ public class MentorProfileImpl implements IMentorProfileService {
                 response.setMentorSkillRequest(skillList);
 
             }
-            List<UserImage> byUserAndStatus = userImageRepository.findByUserAndTypeAndStatusAndVerified(user, EImageType.DEGREE, true , false);
+            List<UserImage> byUserAndStatus = userImageRepository.findByUserAndTypeAndStatusAndVerified(user, EImageType.DEGREE, true, false);
             if (!byUserAndStatus.isEmpty()) {
                 List<ImageDto> imageDtoList = new ArrayList<>();
                 for (UserImage image : byUserAndStatus) {
@@ -464,6 +465,49 @@ public class MentorProfileImpl implements IMentorProfileService {
         userImageRepository.saveAll(userImageList);
 
         return true;
+    }
+
+    @Override
+    public List<MentorGetRequestApprovalSkillResponse> ManagerGetRequestApprovalSkillResponse() {
+        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
+        List<MentorGetRequestApprovalSkillResponse> responseList = new ArrayList<>();
+
+
+        User user = mentorProfile.getUser();
+
+        MentorGetRequestApprovalSkillResponse response = new MentorGetRequestApprovalSkillResponse();
+
+
+        List<MentorSkill> byMentorProfileAndStatus = mentorSkillRepository.findByMentorProfileAndStatusAndVerified(mentorProfile, false, false);
+
+
+        if (!byMentorProfileAndStatus.isEmpty()) {
+            List<MentorSkillDto> skillList = new ArrayList<>();
+            for (MentorSkill mentorSkill : byMentorProfileAndStatus) {
+                MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
+                skillList.add(mentorSkillDto);
+
+            }
+            response.setTotalSkillRequest(byMentorProfileAndStatus.size());
+            response.setMentorSkillRequest(skillList);
+
+        }
+        List<UserImage> byUserAndStatus = userImageRepository.findByUserAndTypeAndStatusAndVerified(user, EImageType.DEGREE, false, false);
+        if (!byUserAndStatus.isEmpty()) {
+            List<ImageDto> imageDtoList = new ArrayList<>();
+            for (UserImage image : byUserAndStatus) {
+                imageDtoList.add(convertUserImageToUserImageDto(image));
+                response.setCreated(image.getCreated());
+            }
+            response.setDegreeRequest(imageDtoList);
+            response.setTotalDegreeRequest(byUserAndStatus.size());
+        }
+
+        responseList.add(response);
+
+
+        return responseList;
     }
 
 

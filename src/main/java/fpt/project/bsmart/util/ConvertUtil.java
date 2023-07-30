@@ -168,7 +168,7 @@ public class ConvertUtil {
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (UserImage image : user.getUserImages()) {
-                if (image.isStatus()) {
+                if (image.isStatus() && image.getVerified()) {
                     imageDtoList.add(convertUserImageToUserImageDto(image));
                 }
 
@@ -216,7 +216,6 @@ public class ConvertUtil {
                 }
             }
         }
-
 
         return response;
     }
@@ -354,7 +353,7 @@ public class ConvertUtil {
                 }
             }
 
-             if(clazz.getClassImage() != null ) {
+            if (clazz.getClassImage() != null) {
                 images.add(ObjectUtil.copyProperties(clazz.getClassImage(), new ImageDto(), ImageDto.class));
             }
         });
@@ -485,7 +484,7 @@ public class ConvertUtil {
         if (mentorProfile.getSkills() != null) {
             List<MentorSkillDto> skillList = new ArrayList<>();
             for (MentorSkill mentorSkill : mentorProfile.getSkills()) {
-                if (mentorSkill.getStatus()) {
+                if (mentorSkill.getStatus() && mentorSkill.getVerified()) {
                     MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
                     skillList.add(mentorSkillDto);
                 }
@@ -493,7 +492,7 @@ public class ConvertUtil {
             }
             mentorProfileDTO.setMentorSkills(skillList);
         }
-        if(mentorProfile.getUser() != null){
+        if (mentorProfile.getUser() != null) {
             User temp = mentorProfile.getUser();
             temp.setMentorProfile(null);
             mentorProfileDTO.setUser(convertUsertoUserDto(temp));
@@ -884,7 +883,7 @@ public class ConvertUtil {
         return response;
     }
 
-    public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToFeedbackResponse(FeedbackSubmission feedbackSubmission){
+    public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToFeedbackResponse(FeedbackSubmission feedbackSubmission) {
         FeedbackResponse.FeedbackSubmission submission = new FeedbackResponse.FeedbackSubmission();
         submission.setRate(feedbackSubmission.getRate());
         submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());
