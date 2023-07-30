@@ -493,6 +493,11 @@ public class ConvertUtil {
             }
             mentorProfileDTO.setMentorSkills(skillList);
         }
+        if(mentorProfile.getUser() != null){
+            User temp = mentorProfile.getUser();
+            temp.setMentorProfile(null);
+            mentorProfileDTO.setUser(convertUsertoUserDto(temp));
+        }
         mentorProfileDTO.setWorkingExperience(mentorProfile.getWorkingExperience());
         return mentorProfileDTO;
     }
@@ -879,8 +884,8 @@ public class ConvertUtil {
         return response;
     }
 
-    public static MentorFeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToMentorFeedbackResponse(FeedbackSubmission feedbackSubmission) {
-        MentorFeedbackResponse.FeedbackSubmission submission = new MentorFeedbackResponse.FeedbackSubmission();
+    public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToFeedbackResponse(FeedbackSubmission feedbackSubmission){
+        FeedbackResponse.FeedbackSubmission submission = new FeedbackResponse.FeedbackSubmission();
         submission.setRate(feedbackSubmission.getRate());
         submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());
         submission.setComment(feedbackSubmission.getComment());

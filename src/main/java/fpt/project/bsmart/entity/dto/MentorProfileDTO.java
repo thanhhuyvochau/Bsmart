@@ -10,6 +10,7 @@ public class MentorProfileDTO {
     private String workingExperience;
 
     private EMentorProfileStatus status;
+    private UserDto user;
 
     private List<MentorSkillDto> mentorSkills;
 
@@ -19,6 +20,14 @@ public class MentorProfileDTO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public UserDto getUser() {
+        return user;
+    }
+
+    public void setUser(UserDto user) {
+        this.user = user;
     }
 
     public String getIntroduce() {

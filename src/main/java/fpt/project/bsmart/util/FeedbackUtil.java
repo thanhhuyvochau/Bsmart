@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -101,5 +102,25 @@ public class FeedbackUtil {
                 .sum();
         Double rate = totalRate / submissions.size();
         return rate;
+    }
+
+    public static ArrayList<FeedbackSubmitAnswer> validateSubmittedAnswer(FeedbackSubmission feedbackSubmission, StudentSubmitFeedbackRequest request){
+        ArrayList<FeedbackSubmitAnswer> submitAnswers = new ArrayList<>();
+        for(FeedbackQuestion feedbackQuestion : feedbackSubmission.getTemplate().getQuestions()){
+            Boolean isRequestContainQuestionInTemplate = request.getSubmitAnswers().containsKey(feedbackQuestion.getId());
+            if(Boolean.FALSE.equals(isRequestContainQuestionInTemplate)){
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(staticMessageUtil.getLocalMessage(""));
+            }
+            Long answerId = request.getSubmitAnswers().get(feedbackQuestion.getId());
+            FeedbackAnswer feedbackAnswer = feedbackQuestion.getAnswers().stream()
+                    .filter(x -> x.getId().equals(answerId))
+                    .findFirst()
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(staticMessageUtil.getLocalMessage("")));
+            FeedbackSubmitAnswer submitAnswer = new FeedbackSubmitAnswer();
+            submitAnswer.setAnswer(feedbackAnswer);
+            submitAnswer.setSubmission(feedbackSubmission);
+            submitAnswers.add(submitAnswer);
+        }
+        return submitAnswers;
     }
 }
