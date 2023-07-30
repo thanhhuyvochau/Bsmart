@@ -250,30 +250,57 @@ public class CourseServiceImpl implements ICourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 
-        List<Class> classesInRequest = classRepository.findAllById(classIds);
+        if(!course.getApproved()){
+            List<Class> classesInRequest = classRepository.findAllById(classIds);
 
-        List<Class> classesOfCourse = course.getClasses();
-        // kiểm tra lớp trong request có phai lớp của khóa học không ?
-        List<Long> classIdOfCourseList = classesOfCourse.stream().map(Class::getId).collect(Collectors.toList());
-        for (Long aClassId : classIds) {
-            if (!classIdOfCourseList.contains(aClassId)) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage("Lớp học với mã " + aClassId + " không thuộc khóa học " + course.getId());
+            List<Class> classesOfCourse = course.getClasses();
+            // kiểm tra lớp trong request có phai lớp của khóa học không ?
+            List<Long> classIdOfCourseList = classesOfCourse.stream().map(Class::getId).collect(Collectors.toList());
+            for (Long aClassId : classIds) {
+                if (!classIdOfCourseList.contains(aClassId)) {
+                    throw ApiException.create(HttpStatus.BAD_REQUEST)
+                            .withMessage("Lớp học với mã " + aClassId + " không thuộc khóa học " + course.getId());
+                }
+            }
+
+            Boolean isValidCourse = CourseUtil.checkCourseValidToSendApproval(course, user, classesInRequest);
+
+            if (isValidCourse) {
+                course.setStatus(WAITING);
+                courseRepository.save(course);
+                classesInRequest
+                        .forEach(aClass -> {
+                            aClass.setStatus(WAITING);
+                            ActivityHistoryUtil.logHistoryForMentorSendRequestClass(user.getId(), aClass);
+                            classRepository.save(aClass);
+                        });
+                return true;
+            }
+        }else {
+            List<Class> classesInRequest = classRepository.findAllById(classIds);
+
+            List<Class> classesOfCourse = course.getClasses();
+            // kiểm tra lớp trong request có phai lớp của khóa học không ?
+            List<Long> classIdOfCourseList = classesOfCourse.stream().map(Class::getId).collect(Collectors.toList());
+            for (Long aClassId : classIds) {
+                if (!classIdOfCourseList.contains(aClassId)) {
+                    throw ApiException.create(HttpStatus.BAD_REQUEST)
+                            .withMessage("Lớp học với mã " + aClassId + " không thuộc khóa học " + course.getId());
+                }
+            }
+            Boolean isValidCourse = CourseUtil.checkCourseIsApprovalValidToSendApproval(course, user, classesInRequest);
+
+            if (isValidCourse) {
+                classesInRequest
+                        .forEach(aClass -> {
+                            aClass.setStatus(WAITING);
+                            ActivityHistoryUtil.logHistoryForMentorSendRequestClass(user.getId(), aClass);
+                            classRepository.save(aClass);
+                        });
+                return true;
             }
         }
-        Boolean isValidCourse = CourseUtil.checkCourseValidToSendApproval(course, user, classesInRequest);
 
-        if (isValidCourse) {
-            course.setStatus(WAITING);
-            courseRepository.save(course);
-            classesInRequest
-                    .forEach(aClass -> {
-                        aClass.setStatus(WAITING);
-                        ActivityHistoryUtil.logHistoryForMentorSendRequestClass(user.getId(), aClass);
-                        classRepository.save(aClass);
-                    });
-            return true;
-        }
         ActivityHistory byUserIdAndCourse = activityHistoryRepository.findByUserIdAndType(user.getId(), EActivityType.COURSE);
         if (byUserIdAndCourse == null) {
             ActivityHistoryUtil.logHistoryForMentorSendRequestCourse(user.getId(), course);
