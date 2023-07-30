@@ -481,7 +481,9 @@ public class ConvertUtil {
             }
             mentorProfileDTO.setMentorSkills(skillList);
         }
-        mentorProfileDTO.setFullName(mentorProfile.getUser().getFullName());
+        if(mentorProfile.getUser() != null){
+            mentorProfileDTO.setUser(convertUsertoUserDto(mentorProfile.getUser()));
+        }
         mentorProfileDTO.setWorkingExperience(mentorProfile.getWorkingExperience());
         return mentorProfileDTO;
     }

@@ -6,11 +6,11 @@ import java.util.List;
 
 public class MentorProfileDTO {
     private Long id;
-    private String fullName;
     private String introduce;
     private String workingExperience;
 
     private EMentorProfileStatus status;
+    private UserDto user;
 
     private List<MentorSkillDto> mentorSkills;
 
@@ -22,12 +22,12 @@ public class MentorProfileDTO {
         this.id = id;
     }
 
-    public String getFullName() {
-        return fullName;
+    public UserDto getUser() {
+        return user;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setUser(UserDto user) {
+        this.user = user;
     }
 
     public String getIntroduce() {
