@@ -12,6 +12,10 @@ import fpt.project.bsmart.entity.dto.MentorSkillDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
+import fpt.project.bsmart.repository.ClassRepository;
+import fpt.project.bsmart.repository.FeedbackSubmissionRepository;
+import fpt.project.bsmart.util.specification.ClassSpecificationBuilder;
+import fpt.project.bsmart.util.specification.FeedbackSubmissionSpecificationBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -30,9 +34,13 @@ public class MentorUtil {
 
 
     private static MessageUtil staticMessageUtil;
+    private static FeedbackSubmissionRepository staticFeedbackSubmissionRepository;
+    private static ClassRepository staticClassRepository;
 
-    public MentorUtil(MessageUtil messageUtil) {
+    public MentorUtil(MessageUtil messageUtil, FeedbackSubmissionRepository feedbackSubmissionRepository, ClassRepository classRepository) {
         staticMessageUtil = messageUtil;
+        staticFeedbackSubmissionRepository = feedbackSubmissionRepository;
+        staticClassRepository = classRepository;
 
     }
 
@@ -52,12 +60,25 @@ public class MentorUtil {
     public static TeachInformationDTO getTeachingInformation(User user) {
         TeachInformationDTO teachInformationDTO = new TeachInformationDTO();
         List<Course> courses = user.getCourses();
-        List<StudentClass> studentClasses = user.getStudentClasses();
-        List<Class> classesOfMentor = studentClasses.stream().map(StudentClass::getClazz).distinct().collect(Collectors.toList());
-        List<User> membersOfMentor = studentClasses.stream().map(StudentClass::getStudent).distinct().collect(Collectors.toList());
+        ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
+                .byMentor(user);
+        List<Class> classes = staticClassRepository.findAll(classSpecificationBuilder.build());
+
+        Integer numberOfMember = classes.stream()
+                .map(Class::getStudentClasses)
+                .distinct()
+                .collect(Collectors.toList()).stream()
+                .map(x ->  x.size())
+                .mapToInt(Integer::intValue)
+                .sum();
+        FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
+                        .filterByMentor(user.getId());
+        List<FeedbackSubmission> feedbackSubmissions = staticFeedbackSubmissionRepository.findAll(builder.build());
         teachInformationDTO.setNumberOfCourse(courses.size());
-        teachInformationDTO.setNumberOfClass(classesOfMentor.size());
-        teachInformationDTO.setNumberOfMember(membersOfMentor.size());
+        teachInformationDTO.setNumberOfClass(classes.size());
+        teachInformationDTO.setNumberOfMember(numberOfMember);
+        teachInformationDTO.setScoreFeedback(FeedbackUtil.calculateCourseRate(feedbackSubmissions));
+        teachInformationDTO.setNumberOfFeedBack(feedbackSubmissions.size());
         return teachInformationDTO;
     }
 
