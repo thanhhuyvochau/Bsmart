@@ -179,10 +179,10 @@ public class ConvertUtil {
         }
         if (user.getMentorProfile() != null) {
             userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
+            TeachInformationDTO teachingInformation = MentorUtil.getTeachingInformation(user);
+            userDto.setTeachInformation(teachingInformation);
         }
 
-        TeachInformationDTO teachingInformation = MentorUtil.getTeachingInformation(user);
-        userDto.setTeachInformation(teachingInformation);
         return userDto;
     }
 //

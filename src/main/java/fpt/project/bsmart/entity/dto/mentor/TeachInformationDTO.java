@@ -5,7 +5,7 @@ public class TeachInformationDTO {
     private int numberOfClass = 0;
     private int numberOfMember = 0;
 
-    private Long scoreFeedback = 0L ;
+    private Double scoreFeedback = 0.0 ;
 
     private int numberOfFeedBack = 0;
 
@@ -33,11 +33,11 @@ public class TeachInformationDTO {
         this.numberOfMember = numberOfMember;
     }
 
-    public Long getScoreFeedback() {
+    public Double getScoreFeedback() {
         return scoreFeedback;
     }
 
-    public void setScoreFeedback(Long scoreFeedback) {
+    public void setScoreFeedback(Double scoreFeedback) {
         this.scoreFeedback = scoreFeedback;
     }
 
