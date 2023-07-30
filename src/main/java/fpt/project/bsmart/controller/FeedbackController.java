@@ -6,7 +6,7 @@ import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.request.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
 import fpt.project.bsmart.entity.response.FeedbackSubmissionResponse;
-import fpt.project.bsmart.entity.response.MentorFeedbackResponse;
+import fpt.project.bsmart.entity.response.FeedbackResponse;
 import fpt.project.bsmart.service.IFeedbackService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -81,6 +81,13 @@ public class FeedbackController {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.studentSubmitFeedback(classId, request)));
     }
 
+    @Operation(summary = "student update feedback")
+    @PreAuthorize("hasAnyRole('STUDENT')")
+    @PutMapping("/submit/{id}")
+    public ResponseEntity<ApiResponse<Long>> studentUpdateFeedback(@PathVariable Long id, @RequestBody StudentSubmitFeedbackRequest request){
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.studentUpdateFeedback(id, request)));
+    }
+
     @Operation(summary = "teacher view class feedback")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("submission/class/{id}")
@@ -88,8 +95,15 @@ public class FeedbackController {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.teacherViewClassFeedback(id, pageable)));
     }
 
+    @Operation(summary = "get course feedback")
+    @GetMapping("/rate/course/{id}")
+    public ResponseEntity<ApiResponse<FeedbackResponse>> getCourseFeedback(@PathVariable Long id){
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.getCourseFeedback(id)));
+    }
+
+    @Operation(summary = "get mentor feedback")
     @GetMapping("/rate/mentor/{id}")
-    public ResponseEntity<ApiResponse<MentorFeedbackResponse>> getMentorFeedbackRate(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<FeedbackResponse>> getMentorFeedbackRate(@PathVariable Long id){
         return ResponseEntity.ok(ApiResponse.success(feedbackService.getMentorFeedback(id)));
     }
 }
