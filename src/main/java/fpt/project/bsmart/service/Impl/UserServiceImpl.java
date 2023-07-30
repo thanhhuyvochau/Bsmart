@@ -69,10 +69,9 @@ public class UserServiceImpl implements IUserService {
     private final VerificationRepository verificationRepository;
 
     private final NotificationUtil notificationUtil;
-    private final FeedbackSubmissionRepository feedbackSubmissionRepository;
 
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, UserImageRepository userImageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationUtil notificationUtil, FeedbackSubmissionRepository feedbackSubmissionRepository) {
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, UserImageRepository userImageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationUtil notificationUtil) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
@@ -84,7 +83,6 @@ public class UserServiceImpl implements IUserService {
         this.emailUtil = emailUtil;
         this.verificationRepository = verificationRepository;
         this.notificationUtil = notificationUtil;
-        this.feedbackSubmissionRepository = feedbackSubmissionRepository;
     }
 
     private static void accept(UserImage userImage) {
