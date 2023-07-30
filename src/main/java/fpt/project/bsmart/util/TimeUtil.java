@@ -65,7 +65,7 @@ public class TimeUtil {
         LocalDate targetDate = birthday.atZone(ZoneOffset.UTC).toLocalDate();
         LocalDate currentDate = Instant.now().atZone(ZoneOffset.UTC).toLocalDate();
         Period period = Period.between(targetDate, currentDate);
-        if(role.equals(EUserRole.TEACHER)){
+        if (role.equals(EUserRole.TEACHER)) {
             return period.getYears() >= 18;
         }
         return period.getYears() >= 16;
@@ -115,4 +115,23 @@ public class TimeUtil {
         Duration difference = Duration.between(start.truncatedTo(unit), end.truncatedTo(unit));
         return difference.toMinutes();
     }
+
+    public static Instant checkDateToCreateClass(Instant inputDate) throws Exception {
+
+        Instant currentDate = Instant.now();
+        Duration duration = Duration.between(currentDate, inputDate);
+        if (duration.toDays() < 10) {
+            throw new Exception("Ngày bắt đầu lớp phải cách ngày hiện tại ít nhất 10 ngày !");
+        }
+        return inputDate;
+    }
+
+    public static Instant checkDateToStartAndEndClass(Instant startDate, Instant endDate) throws Exception {
+        Duration duration = Duration.between(startDate, endDate);
+        if (duration.toDays() < 15) {
+            throw new Exception("Ngày kết thúc lớp phải sau ngày bắt đầu ít nhất 15 ngày");
+        }
+        return endDate;
+    }
+
 }

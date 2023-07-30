@@ -145,7 +145,7 @@ public class ClassServiceImpl implements IClassService {
 
 
     @Override
-    public Long mentorCreateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) throws ValidationErrorsException {
+    public Long mentorCreateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) throws Exception {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
@@ -338,7 +338,7 @@ public class ClassServiceImpl implements IClassService {
     }
 
 
-    private Class createClassAndTimeInWeek(User currentUserAccountLogin, Course course, MentorCreateClass mentorCreateClassRequest) {
+    private Class createClassAndTimeInWeek(User currentUserAccountLogin, Course course, MentorCreateClass mentorCreateClassRequest) throws Exception {
         // check mentor account is valid
         MentorUtil.checkIsMentor();
 
@@ -369,7 +369,7 @@ public class ClassServiceImpl implements IClassService {
         return classFromRequest;
     }
 
-    private Class createClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
+    private Class createClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) throws Exception {
         if (subCourseRequest.getPrice() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE));
@@ -378,8 +378,9 @@ public class ClassServiceImpl implements IClassService {
         aClass.setNumberOfSlot(subCourseRequest.getNumberOfSlot());
         aClass.setMinStudent(subCourseRequest.getMinStudent());
         aClass.setMaxStudent(subCourseRequest.getMaxStudent());
-        aClass.setStartDate(subCourseRequest.getStartDate());
-        aClass.setEndDate(subCourseRequest.getEndDate());
+
+        aClass.setStartDate(TimeUtil.checkDateToCreateClass(subCourseRequest.getStartDate()));
+        aClass.setEndDate(TimeUtil.checkDateToStartAndEndClass(subCourseRequest.getStartDate(), subCourseRequest.getEndDate()) );
         aClass.setStatus(REQUESTING);
         aClass.setPrice(subCourseRequest.getPrice());
         aClass.setMentor(currentUserAccountLogin);
@@ -704,7 +705,7 @@ public class ClassServiceImpl implements IClassService {
                     .withMessage(CLASS_STATUS_NOT_ALLOW);
         }
         FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findByTypeAndIsDefault(EFeedbackType.COURSE, true);
-        if(feedbackTemplate == null){
+        if (feedbackTemplate == null) {
             throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage(messageUtil.getLocalMessage(""));
         }
         mentorCreateScheduleForClass(clazz, timeTableRequest);
@@ -735,7 +736,7 @@ public class ClassServiceImpl implements IClassService {
     @Override
     public ApiPage<MentorGetClassDetailResponse> managerGetClass(ECourseStatus status, Pageable pageable) {
 
-        Page<Class> byStatus = classRepository.findByStatus( status, pageable);
+        Page<Class> byStatus = classRepository.findByStatus(status, pageable);
         List<MentorGetClassDetailResponse> classResponses = byStatus.getContent().stream()
                 .map(ClassUtil::convertClassToMentorClassDetailResponse)
                 .collect(Collectors.toList());

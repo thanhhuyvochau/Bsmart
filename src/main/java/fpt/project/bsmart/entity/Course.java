@@ -42,7 +42,8 @@ public class Course extends BaseEntity {
     @JoinColumn(name = "creator_id")
     private User creator;
 
-
+    @Column(name = "isApproved")
+    private Boolean isApproved;
 
 
     public Long getId() {
@@ -69,7 +70,6 @@ public class Course extends BaseEntity {
     public void setCode(String code) {
         this.code = code;
     }
-
 
 
     public String getDescription() {
@@ -127,5 +127,13 @@ public class Course extends BaseEntity {
 
     public void setCreator(User creator) {
         this.creator = creator;
+    }
+
+    public Boolean getApproved() {
+        return isApproved;
+    }
+
+    public void setApproved(Boolean approved) {
+        isApproved = approved;
     }
 }

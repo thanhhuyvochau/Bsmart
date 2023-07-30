@@ -27,7 +27,7 @@ public class ManagerGetCourse {
     private Integer totalClass;
     private Instant timeSendRequest;
     private Integer count;
-
+    private Boolean isApproved;
 
     public Long getId() {
         return id;
@@ -123,5 +123,13 @@ public class ManagerGetCourse {
 
     public void setTimeSendRequest(Instant timeSendRequest) {
         this.timeSendRequest = timeSendRequest;
+    }
+
+    public Boolean getApproved() {
+        return isApproved;
+    }
+
+    public void setApproved(Boolean approved) {
+        isApproved = approved;
     }
 }

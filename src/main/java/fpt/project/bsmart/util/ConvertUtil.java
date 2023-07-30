@@ -383,11 +383,13 @@ public class ConvertUtil {
         ActivityHistory byUserCourse = staticActivityHistoryRepository.findByType(EActivityType.COURSE);
 
         ManagerGetCourse courseResponse = new ManagerGetCourse();
+
         if (byUserCourse != null) {
             courseResponse.setCount(byUserCourse.getCount());
             courseResponse.setTimeSendRequest(course.getLastModified());
         }
 
+        courseResponse.setApproved(course.getApproved());
         courseResponse.setId(course.getId());
         courseResponse.setName(course.getName());
         courseResponse.setCode(course.getCode());
