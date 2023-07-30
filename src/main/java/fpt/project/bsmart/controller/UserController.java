@@ -62,6 +62,12 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(iUserService.getLoginUser()));
     }
 
+    @Operation(summary = "Lấy thông tin user cho trang giáo viên")
+    @GetMapping("{userId}/teacher")
+    public ResponseEntity<ApiResponse<UserDto>> getUserProfileForMentorPage(@PathVariable Long userId){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.getUserProfileForMentorPage(userId)));
+    }
+
     @Operation(summary = "Xóa liên kết mạng xã hội")
     @PreAuthorize("hasAnyRole('TEACHER','STUDENT')")
     @PutMapping("/social/remove")

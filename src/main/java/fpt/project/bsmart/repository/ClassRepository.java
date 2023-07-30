@@ -14,6 +14,7 @@ import java.util.List;
 
 @Repository
 public interface ClassRepository extends JpaRepository<Class, Long> {
+    List<Class> findAll(Specification<Class> builder);
     Page<Class> findAll (Specification<Class> builder, Pageable pageable);
 
     Page<Class> findByCourseAndStatus(Course course , ECourseStatus status, Pageable pageable) ;

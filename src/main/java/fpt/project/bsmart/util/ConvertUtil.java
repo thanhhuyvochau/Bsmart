@@ -191,6 +191,25 @@ public class ConvertUtil {
 //        return moduleDto;
 //    }
 
+    public static UserDto convertUserForMentorProfilePage(User user){
+        UserDto userDto = ObjectUtil.copyProperties(user, new UserDto(), UserDto.class);
+        if (!user.getUserImages().isEmpty()) {
+            List<ImageDto> imageDtoList = new ArrayList<>();
+            for (UserImage image : user.getUserImages()) {
+                if (image.isStatus() && image.getType().equals(EImageType.AVATAR)) {
+                    imageDtoList.add(convertUserImageToUserImageDto(image));
+                }
+
+                userDto.setUserImages(imageDtoList);
+            }
+            userDto.setUserImages(imageDtoList);
+        }
+        if (user.getMentorProfile() != null) {
+            userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
+        }
+        return userDto;
+    }
+
 
     public static CourseDto convertCourseToCourseDTO(Course course) {
         CourseDto courseDto = ObjectUtil.copyProperties(course, new CourseDto(), CourseDto.class);
