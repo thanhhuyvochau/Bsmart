@@ -482,7 +482,9 @@ public class ConvertUtil {
             mentorProfileDTO.setMentorSkills(skillList);
         }
         if(mentorProfile.getUser() != null){
-            mentorProfileDTO.setUser(convertUsertoUserDto(mentorProfile.getUser()));
+            User temp = mentorProfile.getUser();
+            temp.setMentorProfile(null);
+            mentorProfileDTO.setUser(convertUsertoUserDto(temp));
         }
         mentorProfileDTO.setWorkingExperience(mentorProfile.getWorkingExperience());
         return mentorProfileDTO;
