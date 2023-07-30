@@ -15,4 +15,6 @@ public interface ImageService {
     List<ImageDto> getAllImage();
 
     ImageDto getImageById(Long id);
+
+    ImageDto uploadDegree(ImageRequest imageRequest);
 }
