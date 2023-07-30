@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface MentorSkillRepository extends JpaRepository<MentorSkill, Long> {
 
-    List<MentorSkill> findByMentorProfileAndStatus (MentorProfile mentorProfile , Boolean Status) ;
+    List<MentorSkill> findByMentorProfileAndStatusAndVerified (MentorProfile mentorProfile , Boolean Status, Boolean verified ) ;
 
     List<MentorSkill> findBySkill_InAndStatus (List<Subject> skillIds, Boolean Status) ;
 

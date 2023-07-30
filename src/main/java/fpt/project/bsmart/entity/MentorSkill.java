@@ -20,6 +20,8 @@ public class MentorSkill {
     @Column(name = "status")
     private Boolean status;
 
+    @Column(name = "verified")
+    private Boolean verified ;
     public Long getId() {
         return Id;
     }
@@ -58,5 +60,13 @@ public class MentorSkill {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public Boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(Boolean verified) {
+        this.verified = verified;
     }
 }
