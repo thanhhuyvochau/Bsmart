@@ -1,5 +1,7 @@
 package fpt.project.bsmart.entity.dto;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import fpt.project.bsmart.config.json.View;
 import fpt.project.bsmart.entity.constant.QuizStatus;
 
 import java.time.Instant;
@@ -14,10 +16,14 @@ public class QuizDto {
     private Integer time;
     private Integer questionCount = 0;
     private QuizStatus status;
+    @JsonView(View.Teacher.class)
     private Float defaultPoint;
+    @JsonView(View.Teacher.class)
     private Boolean isSuffleQuestion;
+    @JsonView(View.Teacher.class)
     private Boolean isAllowReview;
     private Integer allowReviewAfterMin;
+    @JsonView(View.Teacher.class)
     private String password;
     private Long activityId;
     private List<QuizQuestionDto> quizQuestions = new ArrayList<>();

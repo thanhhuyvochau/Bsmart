@@ -13,7 +13,7 @@ public class Assignment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "BLOB")
     private String description;
     @Column(name = "startDate")
     private Instant startDate;

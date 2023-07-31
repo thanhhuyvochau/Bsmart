@@ -454,7 +454,6 @@ public class UserServiceImpl implements IUserService {
         user.setPhone(createAccountRequest.getPhone());
         user.setFullName(createAccountRequest.getFullName());
         user.setGender(createAccountRequest.getGender());
-
         user.setPassword(encoder.encode(createAccountRequest.getPassword()));
         user.getRoles().add(role);
         user.setBirthday(createAccountRequest.getBirthDay());
