@@ -454,7 +454,7 @@ public class ActivityServiceImpl implements IActivityService {
                 .findFirst();
         Class clazz = clazzOfUser.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy lớp của người dùng với hoạt động đang tương tác"));
         List<MultipartFile> submittedFiles = request.getSubmittedFiles();
-        if (!ActivityValidator.isAuthorizeForClass(clazz, activity)) {
+        if (!ActivityValidator.isAuthorizeForClass(clazz, activity) && !activity.getFixed()) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Lớp bạn không có thẩm quyền với assignment");
 
         } else if (!AssignmentValidator.isValidSubmitDate(assignment)) {
@@ -724,7 +724,7 @@ public class ActivityServiceImpl implements IActivityService {
                 .filter(x -> x.getCourse().getId().equals(course.getId()))
                 .findFirst()
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS)));
-        if (!ActivityValidator.isAuthorizeForClass(classes, activity)) {
+        if (!ActivityValidator.isAuthorizeForClass(classes, activity) && !activity.getFixed()) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_AUTHORIZED_FOR_YOUR_CLASS) + classes.getId());
         }
         return user;
@@ -1011,7 +1011,7 @@ public class ActivityServiceImpl implements IActivityService {
         if (!ClassValidator.isStudentOfClass(clazz, student)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
         }
-        if (!ActivityValidator.isAuthorizeForClass(clazz, assignment.getActivity())) {
+        if (!ActivityValidator.isAuthorizeForClass(clazz, assignment.getActivity()) && !assignment.getActivity().getFixed()) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_AUTHORIZED_FOR_YOUR_CLASS) + classId);
         }
         StudentClass studentClass = ClassUtil.findUserInClass(clazz, student);
