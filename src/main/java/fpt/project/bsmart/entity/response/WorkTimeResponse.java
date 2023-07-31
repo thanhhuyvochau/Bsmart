@@ -2,14 +2,13 @@ package fpt.project.bsmart.entity.response;
 
 import fpt.project.bsmart.entity.constant.EUserRole;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
 public class WorkTimeResponse {
     private SimpleClassResponse workingClass;
     private EUserRole role;
-    private List<TimeTableResponse> timeTableResponse = new ArrayList<>();
+    private List<TimeTableResponse> timeTableResponse;
 
     public WorkTimeResponse(SimpleClassResponse workingClass, EUserRole role, List<TimeTableResponse> timeTableResponse) {
         this.workingClass = workingClass;

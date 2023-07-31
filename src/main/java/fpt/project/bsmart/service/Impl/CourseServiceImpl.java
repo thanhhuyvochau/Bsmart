@@ -250,7 +250,7 @@ public class CourseServiceImpl implements ICourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 
-        if(!course.getApproved()){
+        if (!course.getApproved()) {
             List<Class> classesInRequest = classRepository.findAllById(classIds);
 
             List<Class> classesOfCourse = course.getClasses();
@@ -276,7 +276,7 @@ public class CourseServiceImpl implements ICourseService {
                         });
                 return true;
             }
-        }else {
+        } else {
             List<Class> classesInRequest = classRepository.findAllById(classIds);
 
             List<Class> classesOfCourse = course.getClasses();
@@ -361,6 +361,11 @@ public class CourseServiceImpl implements ICourseService {
         }
         classRepository.saveAll(classList);
         course.setStatus(approvalCourseRequest.getStatus());
+        if (Objects.equals(course.getStatus(), STARTING)) {
+            for (Activity activity : course.getActivities()) {
+                activity.setFixed(true);
+            }
+        }
         courseRepository.save(course);
         return true;
     }

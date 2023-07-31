@@ -68,7 +68,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         } else {
             editAttendances(request, timeTable);
         }
-
+        timeTable.setTookAttendance(true);
         attendanceRepository.saveAll(attendanceList);
         return true;
     }
@@ -117,7 +117,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                 attendances.add(attendance);
             } else {
                 attendance.setNote(detail.getNote());
-                attendance.setAttendance(detail.isAttendance());
+                attendance.setPresent(detail.isAttendance());
             }
         }
         return attendances;
@@ -145,7 +145,7 @@ public class AttendanceServiceImpl implements AttendanceService {
             if (attendance != null) {
                 attendanceResponse.setNote(attendance.getNote());
                 attendanceResponse.setId(attendance.getId());
-                attendanceResponse.setAttendance(attendance.getAttendance());
+                attendanceResponse.setAttendance(attendance.getPresent());
                 attendanceResponse.setHasTookAttendance(true);
             }
             attendanceResponses.add(attendanceResponse);
@@ -179,8 +179,8 @@ public class AttendanceServiceImpl implements AttendanceService {
             if (attendanceByUser.isPresent()) {
                 Attendance attendance = attendanceByUser.get();
                 detailResponse.setNote(attendance.getNote());
-                detailResponse.setAttendance(attendance.getAttendance());
-                if (!attendance.getAttendance()) {
+                detailResponse.setAttendance(attendance.getPresent());
+                if (!attendance.getPresent()) {
                     absentNum++;
                 }
             }

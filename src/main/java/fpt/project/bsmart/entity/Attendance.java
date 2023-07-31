@@ -15,15 +15,15 @@ public class Attendance {
     @ManyToOne
     @JoinColumn(name = "student_class_id")
     private StudentClass studentClass;
-    @Column(name = "attendance")
-    private Boolean attendance;
+    @Column(name = "present")
+    private Boolean present;
     @Column(name = "note")
     private String note;
 
-    public Attendance(TimeTable timeTable, StudentClass studentClass, Boolean attendance, String note) {
+    public Attendance(TimeTable timeTable, StudentClass studentClass, Boolean present, String note) {
         this.timeTable = timeTable;
         this.studentClass = studentClass;
-        this.attendance = attendance;
+        this.present = present;
         this.note = note;
     }
 
@@ -54,12 +54,12 @@ public class Attendance {
         this.studentClass = studentClass;
     }
 
-    public Boolean getAttendance() {
-        return attendance;
+    public Boolean getPresent() {
+        return present;
     }
 
-    public void setAttendance(Boolean attendance) {
-        this.attendance = attendance;
+    public void setPresent(Boolean present) {
+        this.present = present;
     }
 
     public String getNote() {
@@ -75,11 +75,11 @@ public class Attendance {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Attendance that = (Attendance) o;
-        return Objects.equals(id, that.id) && Objects.equals(timeTable, that.timeTable) && Objects.equals(studentClass, that.studentClass) && Objects.equals(attendance, that.attendance) && Objects.equals(note, that.note);
+        return Objects.equals(id, that.id) && Objects.equals(timeTable, that.timeTable) && Objects.equals(studentClass, that.studentClass) && Objects.equals(present, that.present) && Objects.equals(note, that.note);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, timeTable, studentClass, attendance, note);
+        return Objects.hash(id, timeTable, studentClass, present, note);
     }
 }
