@@ -37,7 +37,7 @@ public class AssignmentFileServiceImpl implements IAssignmentFileService {
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ASSIGNMENT_FILE_NOT_BELONG));
             }
         }
-        assignmentFileRepository.deleteAllById(assignmentFiles.stream().map(AssignmentFile::getId).collect(Collectors.toList()));
+        assignmentFileRepository.deleteAllById(ids);
         return true;
     }
 }
