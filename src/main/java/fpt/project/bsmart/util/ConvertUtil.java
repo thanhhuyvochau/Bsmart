@@ -168,7 +168,7 @@ public class ConvertUtil {
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (UserImage image : user.getUserImages()) {
-                if (image.isStatus() && image.getVerified()) {
+                if (image.isStatus() && image.isVerified()) {
                     imageDtoList.add(convertUserImageToUserImageDto(image));
                 }
 
@@ -195,7 +195,7 @@ public class ConvertUtil {
 //        return moduleDto;
 //    }
 
-    public static UserDto convertUserForMentorProfilePage(User user){
+    public static UserDto convertUserForMentorProfilePage(User user) {
         UserDto userDto = ObjectUtil.copyProperties(user, new UserDto(), UserDto.class);
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
@@ -646,7 +646,8 @@ public class ConvertUtil {
     }
 
     public static ResourceDto convertResourceToDto(Resource resource) { // Convert ra đơn giản để show cho user xem
-        return ObjectUtil.copyProperties(resource, new ResourceDto(), ResourceDto.class, true);
+        ResourceDto resourceDto = new ResourceDto(resource.getId(), resource.getUrl());
+        return resourceDto;
     }
 
     private static AssignmentDto convertAssignmentToDto(Assignment assignment) {

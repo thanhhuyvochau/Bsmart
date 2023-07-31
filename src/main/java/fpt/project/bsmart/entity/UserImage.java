@@ -20,13 +20,13 @@ public class UserImage extends BaseEntity {
     private String url;
 
     @Column(name = "status")
-    private Boolean status ;
+    private boolean status = false ;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
     @Column(name = "verified")
-    private Boolean verified ;
+    private boolean verified = false ;
 
 
     public Long getId() {
@@ -83,11 +83,11 @@ public class UserImage extends BaseEntity {
         return status;
     }
 
-    public Boolean getVerified() {
+    public boolean isVerified() {
         return verified;
     }
 
-    public void setVerified(Boolean verified) {
+    public void setVerified(boolean verified) {
         this.verified = verified;
     }
 }
