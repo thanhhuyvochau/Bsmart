@@ -24,7 +24,7 @@ public interface IUserService {
     ApiPage<UserDto> adminGetAllUser(UserSearchRequest request, Pageable pageable);
 
     UserDto getLoginUser();
-
+    UserDto getUserProfileForMentorPage(Long id);
     Long removeSocialLink(String link);
 
     Long editUserSocialProfile(SocialProfileEditRequest socialProfileEditRequest);
