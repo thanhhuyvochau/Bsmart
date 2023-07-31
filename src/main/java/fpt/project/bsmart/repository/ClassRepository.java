@@ -23,6 +23,10 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
 
     List<Class> findByCourseAndStatus(Course course, ECourseStatus status);
 
+
+
+    List<Class> findByStatus(ECourseStatus status) ;
+
     Page<Class> findByCourse(Course course, Pageable pageable);
 
     Page<Class> findByMentorAndStatus(User user, ECourseStatus status, Pageable pageable);
@@ -30,4 +34,5 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
     Page<Class> findByStatus(ECourseStatus status, Pageable pageable);
 
     List<Class> findByStartDate(Instant startDate);
+
 }

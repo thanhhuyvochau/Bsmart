@@ -129,8 +129,6 @@ public class CourseController {
 
 
 
-
-
 //    @Operation(summary = "lấy tất cả các course theo subject id")
 //    @GetMapping("/subject/{subjectId}")
 //    public ResponseEntity<ApiResponse<List<CourseDto>>> getCoursesBySubject(@PathVariable Long subjectId) {

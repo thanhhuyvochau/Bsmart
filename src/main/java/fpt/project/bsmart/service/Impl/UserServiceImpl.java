@@ -129,17 +129,17 @@ public class UserServiceImpl implements IUserService {
         return ConvertUtil.convertUsertoUserDto(currentLoginUser);
     }
 
-    public UserDto getUserProfileForMentorPage(Long id){
+    public UserDto getUserProfileForMentorPage(Long id) {
         User user = findUserById(id);
         Boolean isMentor = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER) && user.getMentorProfile().getStatus().equals(EMentorProfileStatus.STARTING);
-        if(!isMentor){
+        if (!isMentor) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id);
         }
         UserDto userDto = ConvertUtil.convertUserForMentorProfilePage(user);
         TeachInformationDTO teachInformationDTO = new TeachInformationDTO();
         ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
-                        .byMentor(user)
-                        .filterByStatus(ECourseStatus.ENDED);
+                .byMentor(user)
+                .filterByStatus(ECourseStatus.ENDED);
         List<Class> classes = classRepository.findAll(classSpecificationBuilder.build());
         Integer numberOfMember = classes.stream()
                 .map(Class::getStudentClasses).distinct()
@@ -267,6 +267,7 @@ public class UserServiceImpl implements IUserService {
                         file1.getInputStream(), file1.getSize());
                 image.setName(name);
                 image.setStatus(true);
+                image.setVerified(true);
                 image.setType(EImageType.DEGREE);
                 image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
                 image.setUser(user);
@@ -291,18 +292,18 @@ public class UserServiceImpl implements IUserService {
         User user = getCurrentLoginUser();
 
         if (socialProfileEditRequest.getFacebookLink() != null) {
-            if(socialProfileEditRequest.getFacebookLink().isEmpty()){
+            if (socialProfileEditRequest.getFacebookLink().isEmpty()) {
                 user.setFacebookLink(null);
-            }else if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
+            } else if (!StringUtil.isValidFacebookLink(socialProfileEditRequest.getFacebookLink())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FACEBOOK_LINK));
             }
             user.setFacebookLink(socialProfileEditRequest.getFacebookLink());
         }
 
         if (socialProfileEditRequest.getLinkedinLink() != null) {
-            if(socialProfileEditRequest.getLinkedinLink().isEmpty()){
+            if (socialProfileEditRequest.getLinkedinLink().isEmpty()) {
                 user.setLinkedinLink(null);
-            }else if (!StringUtil.isValidLinkedinLink(socialProfileEditRequest.getLinkedinLink())) {
+            } else if (!StringUtil.isValidLinkedinLink(socialProfileEditRequest.getLinkedinLink())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_TWITTER_LINK));
             }
             user.setLinkedinLink(socialProfileEditRequest.getLinkedinLink());
@@ -311,9 +312,9 @@ public class UserServiceImpl implements IUserService {
         boolean isTeacher = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER);
         if (isTeacher) {
             if (socialProfileEditRequest.getWebsite() != null) {
-                if(socialProfileEditRequest.getWebsite().isEmpty()){
+                if (socialProfileEditRequest.getWebsite().isEmpty()) {
                     user.setWebsite(null);
-                }else if (!StringUtil.isValidWebsite(socialProfileEditRequest.getWebsite())) {
+                } else if (!StringUtil.isValidWebsite(socialProfileEditRequest.getWebsite())) {
                     throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_WEBSITE));
                 }
                 user.setWebsite(socialProfileEditRequest.getWebsite());
