@@ -1,6 +1,9 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.ClassImage;
+import fpt.project.bsmart.entity.Image;
+import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.UserImage;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.dto.ImageDto;
@@ -23,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -102,24 +106,26 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public ImageDto uploadDegree(ImageRequest imageRequest) {
+    public List<ImageDto> uploadDegree(List<ImageRequest> imageRequests) {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
-        MentorProfile mentorProfile = currentUserAccountLogin.getMentorProfile();
         try {
-            MultipartFile file = imageRequest.getFile();
-            String name = file.getOriginalFilename() + "_" + Instant.now().toString();
-            ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file.getContentType(), file.getInputStream(), file.getSize());
-            UserImage image = new UserImage();
-            image.setName(objectWriteResponse.object());
-            image.setType(EImageType.DEGREE);
-            image.setStatus(false);
-            image.setVerified(false);
-            image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
-            image.setUser(currentUserAccountLogin);
-            UserImage save = userImageRepository.save(image);
-
-
-            return ObjectUtil.copyProperties(save, new ImageDto(), ImageDto.class);
+            List<UserImage> userImages = new ArrayList<>();
+            for (ImageRequest request : imageRequests) {
+                MultipartFile file = request.getFile();
+                String name = file.getOriginalFilename() + "_" + Instant.now().toString();
+                ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file.getContentType(), file.getInputStream(), file.getSize());
+                UserImage image = new UserImage();
+                image.setName(objectWriteResponse.object());
+                image.setType(EImageType.DEGREE);
+                image.setStatus(false);
+                image.setVerified(false);
+                image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
+                image.setUser(currentUserAccountLogin);
+                userImages.add(image);
+            }
+            List<UserImage> saveUserImages = userImageRepository.saveAll(userImages);
+            List<ImageDto> userImageDtos = saveUserImages.stream().map(save -> ObjectUtil.copyProperties(save, new ImageDto(), ImageDto.class)).collect(Collectors.toList());
+            return userImageDtos;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -32,8 +32,8 @@ public class ImageController {
 
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping("/upload/degree")
-    public ResponseEntity<ApiResponse<ImageDto>> uploadDegree(@ModelAttribute ImageRequest ImageRequest) {
-        return ResponseEntity.ok(ApiResponse.success(imageService.uploadDegree(ImageRequest)));
+    public ResponseEntity<ApiResponse<List<ImageDto>>> uploadDegree(@ModelAttribute List<ImageRequest> ImageRequests) {
+        return ResponseEntity.ok(ApiResponse.success(imageService.uploadDegree(ImageRequests)));
     }
 
 
