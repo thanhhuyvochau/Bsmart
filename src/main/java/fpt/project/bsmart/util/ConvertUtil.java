@@ -168,7 +168,7 @@ public class ConvertUtil {
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (UserImage image : user.getUserImages()) {
-                if (image.isStatus() && image.getVerified()) {
+                if (image.isStatus() && image.isVerified()) {
                     imageDtoList.add(convertUserImageToUserImageDto(image));
                 }
 
@@ -195,7 +195,7 @@ public class ConvertUtil {
 //        return moduleDto;
 //    }
 
-    public static UserDto convertUserForMentorProfilePage(User user){
+    public static UserDto convertUserForMentorProfilePage(User user) {
         UserDto userDto = ObjectUtil.copyProperties(user, new UserDto(), UserDto.class);
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
