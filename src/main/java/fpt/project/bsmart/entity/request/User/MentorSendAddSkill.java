@@ -8,6 +8,7 @@ import java.util.List;
 public class MentorSendAddSkill {
     private List<UpdateSkillRequest> mentorSkills = new ArrayList<>();
 
+
     public List<UpdateSkillRequest> getMentorSkills() {
         return mentorSkills;
     }
@@ -15,4 +16,5 @@ public class MentorSendAddSkill {
     public void setMentorSkills(List<UpdateSkillRequest> mentorSkills) {
         this.mentorSkills = mentorSkills;
     }
+
 }

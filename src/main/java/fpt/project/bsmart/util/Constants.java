@@ -140,6 +140,8 @@ public class Constants {
             public static final String INVALID_START_END_DATE = "INVALID_START_END_DATE";
             public static final String INVALID_CLASS_FILTER_ROLE = "INVALID_CLASS_FILTER_ROLE";
 
+            public static final String INVALID_CLASS_PERCENTAGE_TO_ASSIGN_TEMPLATE = "INVALID_CLASS_PERCENTAGE_TO_ASSIGN_TEMPLATE";
+
         }
 
         public static class Empty {

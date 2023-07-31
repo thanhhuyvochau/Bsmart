@@ -6,10 +6,13 @@ import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.*;
+import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.repository.ActivityHistoryRepository;
+import fpt.project.bsmart.repository.ClassImageRepository;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,9 +33,12 @@ public class ConvertUtil {
 
     private static ActivityHistoryRepository staticActivityHistoryRepository;
 
-    public ConvertUtil(ClassRepository classRepository, UserRepository userRepository, ActivityHistoryRepository activityHistoryRepository) {
+    private static ClassImageRepository staticClassImageRepository;
+
+    public ConvertUtil(ClassRepository classRepository, UserRepository userRepository, ActivityHistoryRepository activityHistoryRepository, ClassImageRepository classImageRepository) {
         staticClassRepository = classRepository;
         staticActivityHistoryRepository = activityHistoryRepository;
+        staticClassImageRepository = classImageRepository;
     }
 
     @Value("${icon.success}")
@@ -162,7 +168,7 @@ public class ConvertUtil {
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (UserImage image : user.getUserImages()) {
-                if (image.isStatus()) {
+                if (image.isStatus() && image.getVerified()) {
                     imageDtoList.add(convertUserImageToUserImageDto(image));
                 }
 
@@ -179,6 +185,8 @@ public class ConvertUtil {
             userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
         }
 
+        TeachInformationDTO teachingInformation = MentorUtil.getTeachingInformation(user);
+        userDto.setTeachInformation(teachingInformation);
         return userDto;
     }
 //
@@ -186,6 +194,25 @@ public class ConvertUtil {
 //        ModuleDto moduleDto = ObjectUtil.copyProperties(module, new ModuleDto(), ModuleDto.class);
 //        return moduleDto;
 //    }
+
+    public static UserDto convertUserForMentorProfilePage(User user){
+        UserDto userDto = ObjectUtil.copyProperties(user, new UserDto(), UserDto.class);
+        if (!user.getUserImages().isEmpty()) {
+            List<ImageDto> imageDtoList = new ArrayList<>();
+            for (UserImage image : user.getUserImages()) {
+                if (image.isStatus() && image.getType().equals(EImageType.AVATAR)) {
+                    imageDtoList.add(convertUserImageToUserImageDto(image));
+                }
+
+                userDto.setUserImages(imageDtoList);
+            }
+            userDto.setUserImages(imageDtoList);
+        }
+        if (user.getMentorProfile() != null) {
+            userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
+        }
+        return userDto;
+    }
 
 
     public static CourseDto convertCourseToCourseDTO(Course course) {
@@ -208,7 +235,6 @@ public class ConvertUtil {
                 }
             }
         }
-
 
         return response;
     }
@@ -332,12 +358,20 @@ public class ConvertUtil {
 
         List<Class> classes = course.getClasses();
         List<ImageDto> images = new ArrayList<>();
+        if (classes.isEmpty()) {
+            ClassImage byType = staticClassImageRepository.findByType(EImageType.DEFAULT);
+            if (byType != null) {
+                images.add(ObjectUtil.copyProperties(byType, new ImageDto(), ImageDto.class));
+            }
+        }
+
         classes.forEach(clazz -> {
             if (clazz.getMentor() != null) {
                 if (mentorName.isEmpty()) {
                     mentorName.add(clazz.getMentor().getFullName());
                 }
             }
+
             if (clazz.getClassImage() != null) {
                 images.add(ObjectUtil.copyProperties(clazz.getClassImage(), new ImageDto(), ImageDto.class));
             }
@@ -368,11 +402,13 @@ public class ConvertUtil {
         ActivityHistory byUserCourse = staticActivityHistoryRepository.findByType(EActivityType.COURSE);
 
         ManagerGetCourse courseResponse = new ManagerGetCourse();
+
         if (byUserCourse != null) {
             courseResponse.setCount(byUserCourse.getCount());
             courseResponse.setTimeSendRequest(course.getLastModified());
         }
 
+        courseResponse.setApproved(course.getApproved());
         courseResponse.setId(course.getId());
         courseResponse.setName(course.getName());
         courseResponse.setCode(course.getCode());
@@ -469,10 +505,18 @@ public class ConvertUtil {
         if (mentorProfile.getSkills() != null) {
             List<MentorSkillDto> skillList = new ArrayList<>();
             for (MentorSkill mentorSkill : mentorProfile.getSkills()) {
-                MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
-                skillList.add(mentorSkillDto);
+                if (mentorSkill.getStatus() && mentorSkill.getVerified()) {
+                    MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
+                    skillList.add(mentorSkillDto);
+                }
+
             }
             mentorProfileDTO.setMentorSkills(skillList);
+        }
+        if (mentorProfile.getUser() != null) {
+            User temp = mentorProfile.getUser();
+            temp.setMentorProfile(null);
+            mentorProfileDTO.setUser(convertUsertoUserDto(temp));
         }
         mentorProfileDTO.setWorkingExperience(mentorProfile.getWorkingExperience());
         return mentorProfileDTO;
@@ -811,5 +855,60 @@ public class ConvertUtil {
     public static SimpleClassAnnouncementResponse convertClassAnnouncementToSimpleResponse(ClassAnnouncement classAnnouncement) {
         SimpleClassAnnouncementResponse cimpleClassAnnouncementResponse = ObjectUtil.copyProperties(classAnnouncement, new SimpleClassAnnouncementResponse(), SimpleClassAnnouncementResponse.class, true);
         return cimpleClassAnnouncementResponse;
+    }
+
+    public static FeedbackTemplateDto convertFeedbackToFeedbackTemplateDto(FeedbackTemplate feedbackTemplate) {
+        FeedbackTemplateDto feedbackTemplateDto = ObjectUtil.copyProperties(feedbackTemplate, new FeedbackTemplateDto(), FeedbackTemplateDto.class);
+        if (feedbackTemplate.getQuestions() != null) {
+            ArrayList<FeedbackTemplateDto.FeedbackQuestionDto> questionDtos = new ArrayList<>();
+            for (FeedbackQuestion question : feedbackTemplate.getQuestions()) {
+                FeedbackTemplateDto.FeedbackQuestionDto questionDto = ObjectUtil.copyProperties(question, new FeedbackTemplateDto.FeedbackQuestionDto(), FeedbackTemplateDto.FeedbackQuestionDto.class);
+                if (question.getAnswers() != null) {
+                    ArrayList<FeedbackTemplateDto.FeedbackAnswerDto> answerDtos = new ArrayList<>();
+                    for (FeedbackAnswer answer : question.getAnswers()) {
+                        FeedbackTemplateDto.FeedbackAnswerDto answerDto = ObjectUtil.copyProperties(answer, new FeedbackTemplateDto.FeedbackAnswerDto(), FeedbackTemplateDto.FeedbackAnswerDto.class);
+                        answerDtos.add(answerDto);
+                    }
+                    questionDto.setAnswers(answerDtos);
+                }
+                questionDtos.add(questionDto);
+            }
+            feedbackTemplateDto.setQuestions(questionDtos);
+        }
+        return feedbackTemplateDto;
+    }
+
+    public static FeedbackSubmissionResponse convertFeedbackSubmissionToResponse(FeedbackSubmission feedbackSubmission) {
+        FeedbackSubmissionResponse response = ObjectUtil.copyProperties(feedbackSubmission, new FeedbackSubmissionResponse(), FeedbackSubmissionResponse.class);
+        if (feedbackSubmission.getSubmitBy() != null) {
+            response.setSubmitBy(convertUsertoUserDto(feedbackSubmission.getSubmitBy()));
+        }
+        List<FeedbackQuestion> feedbackQuestions = feedbackSubmission.getTemplate().getQuestions();
+        List<FeedbackSubmissionResponse.FeedbackSubmitQuestion> submitQuestions = new ArrayList<>();
+        for (FeedbackQuestion feedbackQuestion : feedbackQuestions) {
+            FeedbackSubmissionResponse.FeedbackSubmitQuestion questionDto = new FeedbackSubmissionResponse.FeedbackSubmitQuestion();
+            questionDto.setQuestion(feedbackQuestion.getQuestion());
+            ArrayList<FeedbackSubmissionResponse.FeedbackSubmitAnswer> answerDtos = new ArrayList<>();
+            for (FeedbackAnswer feedbackAnswer : feedbackQuestion.getAnswers()) {
+                FeedbackSubmissionResponse.FeedbackSubmitAnswer answerDto = new FeedbackSubmissionResponse.FeedbackSubmitAnswer();
+                Boolean isChosen = feedbackSubmission.getAnswers().stream()
+                        .anyMatch(x -> x.getAnswer().getId().equals(feedbackAnswer.getId()));
+                answerDto.setIsChosen(isChosen);
+                answerDto.setAnswer(feedbackAnswer.getAnswer());
+                answerDtos.add(answerDto);
+            }
+            questionDto.setAnswers(answerDtos);
+            submitQuestions.add(questionDto);
+        }
+        response.setQuestions(submitQuestions);
+        return response;
+    }
+
+    public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToFeedbackResponse(FeedbackSubmission feedbackSubmission) {
+        FeedbackResponse.FeedbackSubmission submission = new FeedbackResponse.FeedbackSubmission();
+        submission.setRate(feedbackSubmission.getRate());
+        submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());
+        submission.setComment(feedbackSubmission.getComment());
+        return submission;
     }
 }

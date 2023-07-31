@@ -6,10 +6,12 @@ import fpt.project.bsmart.config.security.oauth2.dto.SignUpRequest;
 import fpt.project.bsmart.config.security.oauth2.user.OAuth2UserInfo;
 import fpt.project.bsmart.config.security.oauth2.user.OAuth2UserInfoFactory;
 import fpt.project.bsmart.entity.*;
+import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.UserDto;
+import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.*;
@@ -19,6 +21,8 @@ import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.adapter.MinioAdapter;
 import fpt.project.bsmart.util.email.EmailUtil;
+import fpt.project.bsmart.util.specification.ClassSpecificationBuilder;
+import fpt.project.bsmart.util.specification.FeedbackSubmissionSpecificationBuilder;
 import fpt.project.bsmart.util.specification.UserSpecificationBuilder;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,9 +73,13 @@ public class UserServiceImpl implements IUserService {
     private final VerificationRepository verificationRepository;
 
     private final NotificationUtil notificationUtil;
+    private final ClassRepository classRepository;
+    private final FeedbackSubmissionRepository feedbackSubmissionRepository;
 
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, UserImageRepository userImageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationUtil notificationUtil) {
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, UserImageRepository userImageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationUtil notificationUtil,
+                           ClassRepository classRepository,
+                           FeedbackSubmissionRepository feedbackSubmissionRepository) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
@@ -83,6 +91,8 @@ public class UserServiceImpl implements IUserService {
         this.emailUtil = emailUtil;
         this.verificationRepository = verificationRepository;
         this.notificationUtil = notificationUtil;
+        this.classRepository = classRepository;
+        this.feedbackSubmissionRepository = feedbackSubmissionRepository;
     }
 
     private static void accept(UserImage userImage) {
@@ -117,6 +127,36 @@ public class UserServiceImpl implements IUserService {
     public UserDto getLoginUser() {
         User currentLoginUser = getCurrentLoginUser();
         return ConvertUtil.convertUsertoUserDto(currentLoginUser);
+    }
+
+    public UserDto getUserProfileForMentorPage(Long id){
+        User user = findUserById(id);
+        Boolean isMentor = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER) && user.getMentorProfile().getStatus().equals(EMentorProfileStatus.STARTING);
+        if(!isMentor){
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id);
+        }
+        UserDto userDto = ConvertUtil.convertUserForMentorProfilePage(user);
+        TeachInformationDTO teachInformationDTO = new TeachInformationDTO();
+        ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
+                        .byMentor(user)
+                        .filterByStatus(ECourseStatus.ENDED);
+        List<Class> classes = classRepository.findAll(classSpecificationBuilder.build());
+        Integer numberOfMember = classes.stream()
+                .map(Class::getStudentClasses).distinct()
+                .collect(Collectors.toList()).stream()
+                .map(x -> x.size())
+                .mapToInt(Integer::intValue)
+                .sum();
+        FeedbackSubmissionSpecificationBuilder feedbackSubmissionSpecificationBuilder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
+                .filterByMentor(id);
+        List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(feedbackSubmissionSpecificationBuilder.build());
+        teachInformationDTO.setNumberOfCourse(user.getCourses().size());
+        teachInformationDTO.setNumberOfClass(classes.size());
+        teachInformationDTO.setNumberOfMember(numberOfMember);
+        teachInformationDTO.setNumberOfFeedBack(feedbackSubmissions.size());
+        teachInformationDTO.setScoreFeedback(FeedbackUtil.calculateCourseRate(feedbackSubmissions));
+        userDto.setTeachInformation(teachInformationDTO);
+        return userDto;
     }
 
     @Override

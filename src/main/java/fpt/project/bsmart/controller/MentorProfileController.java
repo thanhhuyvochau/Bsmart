@@ -9,6 +9,8 @@ import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
+import fpt.project.bsmart.entity.response.mentor.ManagerGetRequestApprovalSkillResponse;
+import fpt.project.bsmart.entity.response.mentor.MentorGetRequestApprovalSkillResponse;
 import fpt.project.bsmart.service.IMentorProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -30,55 +32,48 @@ public class MentorProfileController {
 
     @Operation(summary = "Lấy thông tin giảng viên")
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<MentorProfileDTO>> getMentorProfile(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<MentorProfileDTO>> getMentorProfile(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getMentorProfile(id)));
     }
 
     @Operation(summary = "Lấy danh sách toàn bộ giảng viên")
     @GetMapping
-    public ResponseEntity<ApiResponse<ApiPage<MentorProfileDTO>>> getAllMentors(@Nullable MentorSearchRequest mentorSearchRequest, Pageable pageable){
+    public ResponseEntity<ApiResponse<ApiPage<MentorProfileDTO>>> getAllMentors(@Nullable MentorSearchRequest mentorSearchRequest, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getAllMentors(mentorSearchRequest, pageable)));
     }
 
     @Operation(summary = "Lấy toàn bộ danh sách giảng viên chỉ có id và tên")
     @GetMapping("/name")
-    public ResponseEntity<ApiResponse<List<MentorProfileResponse>>> getAllMentorProfiles(){
+    public ResponseEntity<ApiResponse<List<MentorProfileResponse>>> getAllMentorProfiles() {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getAllMentorProfiles()));
     }
 
     @Operation(summary = "Manager Lấy danh sách giảng viên chờ duyệt")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/pending")
-    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getPendingMentorProfile(@Nullable MentorSearchRequest request, Pageable pageable){
-        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getPendingMentorProfileList(request , pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getPendingMentorProfile(@Nullable MentorSearchRequest request, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getPendingMentorProfileList(request, pageable)));
     }
 
     @Operation(summary = "Manager phê duyêt / từ chối / yêu cầu thay đổi  hồ sơ mentor")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @PutMapping("/{id}/approval")
-    public ResponseEntity<ApiResponse<Long>> approveMentorProfile(@PathVariable Long id , @RequestBody ManagerApprovalAccountRequest managerApprovalAccountRequest){
+    public ResponseEntity<ApiResponse<Long>> approveMentorProfile(@PathVariable Long id, @RequestBody ManagerApprovalAccountRequest managerApprovalAccountRequest) {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.approveMentorProfile(id, managerApprovalAccountRequest)));
     }
 
     @Operation(summary = "Cập nhật hồ sơ giảng viên")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PutMapping
-    public ResponseEntity<ApiResponse<Long>> updateMentorProfile(@RequestBody UpdateMentorProfileRequest updateMentorProfileRequest){
+    public ResponseEntity<ApiResponse<Long>> updateMentorProfile(@RequestBody UpdateMentorProfileRequest updateMentorProfileRequest) {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateMentorProfile(updateMentorProfileRequest)));
     }
 
-    @Operation(summary = "mentor gửi yêu cầu dạy thêm môn học mới")
-    @PreAuthorize("hasAnyRole('TEACHER')")
-    @PutMapping("/request-approval-skill")
-    public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalSkill(
-            @RequestBody MentorSendAddSkill mentorSendAddSkill){
-        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorRequestApprovalSkill(mentorSendAddSkill)));
-    }
 
     @Operation(summary = "CHƯA HỖ TRỢ --- Upload chứng chỉ của giảng viên")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping("/certificate")
-    public ResponseEntity<ApiResponse<List<Long>>> updateMentorCertificate(List<ImageRequest> imageRequests){
+    public ResponseEntity<ApiResponse<List<Long>>> updateMentorCertificate(List<ImageRequest> imageRequests) {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateCertificate(imageRequests)));
     }
 
@@ -92,8 +87,24 @@ public class MentorProfileController {
     @Operation(summary = "Lấy thông tin profile mentor chưa hoàn thiện và % ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/completeness")
-    public ResponseEntity<ApiResponse<CompletenessMentorProfileResponse>> getCompletenessMentorProfile(){
+    public ResponseEntity<ApiResponse<CompletenessMentorProfileResponse>> getCompletenessMentorProfile() {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getCompletenessMentorProfile()));
+    }
+
+
+    @Operation(summary = "mentor tạo yêu cầu dạy thêm môn học mới")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PostMapping("/request-approval-skill")
+    public ResponseEntity<ApiResponse<Boolean>> mentorCreateApprovalSkill(@RequestBody MentorSendAddSkill mentorSendAddSkill) {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorCreateApprovalSkill(mentorSendAddSkill)));
+    }
+
+
+    @Operation(summary = "mentor gửi yêu cầu dạy thêm môn học mới")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/request-approval-skill")
+    public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalSkill(@RequestBody MentorSendSkillRequest mentorSendAddSkill) {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorRequestApprovalSkill(mentorSendAddSkill)));
     }
 
     @Operation(summary = "mentor gửi yêu cầu phê duệt tài khoản")
@@ -102,5 +113,29 @@ public class MentorProfileController {
     public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalCourse(@PathVariable Long id) throws Exception {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorRequestApprovalAccount(id)));
     }
+
+    @Operation(summary = "mentor lấy các cầu dạy thêm môn học mới chưa gửi phê duyệt")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @GetMapping("/request-approval")
+    public ResponseEntity<ApiResponse< List<MentorGetRequestApprovalSkillResponse>>> ManagerGetRequestApprovalSkillResponse() throws Exception {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.ManagerGetRequestApprovalSkillResponse()));
+    }
+
+    @Operation(summary = "manager lấy yêu câu  mở  thêm môn học mới của mentor ")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @GetMapping("request-approval-skill")
+    public ResponseEntity<ApiResponse<List<ManagerGetRequestApprovalSkillResponse>>> managerGetRequestApprovalSkill() {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.managerGetRequestApprovalSkill()));
+    }
+
+
+    @Operation(summary = "manager phê duyệt  yêu cầu mở  thêm môn học mới")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PutMapping("{id}/request-approval-skill")
+    public ResponseEntity<ApiResponse<Boolean>> managerHandleRequestApprovalSkill(@PathVariable Long id, @RequestBody ManagerApprovalSkillRequest managerApprovalSkillRequest) {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.managerHandleRequestApprovalSkill(id, managerApprovalSkillRequest)));
+    }
+
+
 
 }

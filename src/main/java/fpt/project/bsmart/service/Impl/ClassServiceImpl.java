@@ -6,10 +6,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ValidationErrors;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
-import fpt.project.bsmart.entity.constant.ECourseActivityType;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
-import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
@@ -62,11 +59,12 @@ public class ClassServiceImpl implements IClassService {
 
     private final ClassImageRepository classImageRepository;
     private final ActivityAuthorizeRepository activityAuthorizeRepository;
+    private final FeedbackTemplateRepository feedbackTemplateRepository;
 
     private final TimeTableRepository timeTableRepository;
     private final SubjectRepository subjectRepository;
 
-    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, TimeTableRepository timeTableRepository, SubjectRepository subjectRepository) {
+    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, FeedbackTemplateRepository feedbackTemplateRepository, TimeTableRepository timeTableRepository, SubjectRepository subjectRepository) {
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.classRepository = classRepository;
@@ -76,6 +74,7 @@ public class ClassServiceImpl implements IClassService {
         this.courseRepository = courseRepository;
         this.classImageRepository = classImageRepository;
         this.activityAuthorizeRepository = activityAuthorizeRepository;
+        this.feedbackTemplateRepository = feedbackTemplateRepository;
         this.timeTableRepository = timeTableRepository;
         this.subjectRepository = subjectRepository;
     }
@@ -146,7 +145,7 @@ public class ClassServiceImpl implements IClassService {
 
 
     @Override
-    public Long mentorCreateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) throws ValidationErrorsException {
+    public Long mentorCreateClassForCourse(Long id, MentorCreateClass mentorCreateClassRequest) throws Exception {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
@@ -339,7 +338,7 @@ public class ClassServiceImpl implements IClassService {
     }
 
 
-    private Class createClassAndTimeInWeek(User currentUserAccountLogin, Course course, MentorCreateClass mentorCreateClassRequest) {
+    private Class createClassAndTimeInWeek(User currentUserAccountLogin, Course course, MentorCreateClass mentorCreateClassRequest) throws Exception {
         // check mentor account is valid
         MentorUtil.checkIsMentor();
 
@@ -370,7 +369,7 @@ public class ClassServiceImpl implements IClassService {
         return classFromRequest;
     }
 
-    private Class createClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
+    private Class createClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) throws Exception {
         if (subCourseRequest.getPrice() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE));
@@ -379,8 +378,9 @@ public class ClassServiceImpl implements IClassService {
         aClass.setNumberOfSlot(subCourseRequest.getNumberOfSlot());
         aClass.setMinStudent(subCourseRequest.getMinStudent());
         aClass.setMaxStudent(subCourseRequest.getMaxStudent());
-        aClass.setStartDate(subCourseRequest.getStartDate());
-        aClass.setEndDate(subCourseRequest.getEndDate());
+
+        aClass.setStartDate(TimeUtil.checkDateToCreateClass(subCourseRequest.getStartDate()));
+        aClass.setEndDate(TimeUtil.checkDateToStartAndEndClass(subCourseRequest.getStartDate(), subCourseRequest.getEndDate()) );
         aClass.setStatus(REQUESTING);
         aClass.setPrice(subCourseRequest.getPrice());
         aClass.setMentor(currentUserAccountLogin);
@@ -704,8 +704,13 @@ public class ClassServiceImpl implements IClassService {
             throw ApiException.create(HttpStatus.NOT_FOUND)
                     .withMessage(CLASS_STATUS_NOT_ALLOW);
         }
+        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findByTypeAndIsDefault(EFeedbackType.COURSE, true);
+        if (feedbackTemplate == null) {
+            throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage(messageUtil.getLocalMessage(""));
+        }
         mentorCreateScheduleForClass(clazz, timeTableRequest);
         clazz.setStatus(STARTING);
+        clazz.setFeedbackTemplate(feedbackTemplate);
         classRepository.save(clazz);
         return true;
     }
@@ -731,7 +736,7 @@ public class ClassServiceImpl implements IClassService {
     @Override
     public ApiPage<MentorGetClassDetailResponse> managerGetClass(ECourseStatus status, Pageable pageable) {
 
-        Page<Class> byStatus = classRepository.findByStatus( status, pageable);
+        Page<Class> byStatus = classRepository.findByStatus(status, pageable);
         List<MentorGetClassDetailResponse> classResponses = byStatus.getContent().stream()
                 .map(ClassUtil::convertClassToMentorClassDetailResponse)
                 .collect(Collectors.toList());

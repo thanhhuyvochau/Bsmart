@@ -37,15 +37,7 @@ import java.util.Optional;
 )
 @Transactional
 public class BsmartApplication {
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder encoder;
 
-    public BsmartApplication(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.encoder = encoder;
-    }
 
     public static void main(String[] args) {
 

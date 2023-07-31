@@ -1,6 +1,7 @@
 package fpt.project.bsmart.entity.constant;
 
 public enum EImageType {
+    DEFAULT("Ảnh khoa hoc mặc định"),
 
     COURSE("Ảnh khoa hoc"),
     AVATAR("Ảnh đại diện"),

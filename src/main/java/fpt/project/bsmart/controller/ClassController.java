@@ -51,7 +51,7 @@ public class ClassController {
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping("course/{courseId}")
     public ResponseEntity<ApiResponse<Long>> mentorCreateClassForCourse(@PathVariable Long courseId,
-                                                                        @Valid @RequestBody MentorCreateClass mentorCreateClassRequest) throws ValidationErrorsException {
+                                                                        @Valid @RequestBody MentorCreateClass mentorCreateClassRequest) throws Exception {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorCreateClassForCourse(courseId, mentorCreateClassRequest)));
     }
 
@@ -143,7 +143,7 @@ public class ClassController {
     }
 
     @Operation(summary = "Manager lấy các class  ")
-    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/manager")
     public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> managerGetClass(ECourseStatus status, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.managerGetClass(status, pageable)));

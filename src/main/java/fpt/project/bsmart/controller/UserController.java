@@ -48,7 +48,7 @@ public class UserController {
     }
 
     @Operation(summary = "Admin lấy toàn bộ user")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping
 
     public ResponseEntity<ApiResponse<ApiPage<UserDto>>> adminGetAllUser(@Nullable UserSearchRequest request, Pageable pageable) {
@@ -60,6 +60,12 @@ public class UserController {
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<UserDto>> getCurrentLoginUser() {
         return ResponseEntity.ok(ApiResponse.success(iUserService.getLoginUser()));
+    }
+
+    @Operation(summary = "Lấy thông tin user cho trang giáo viên")
+    @GetMapping("{userId}/teacher")
+    public ResponseEntity<ApiResponse<UserDto>> getUserProfileForMentorPage(@PathVariable Long userId){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.getUserProfileForMentorPage(userId)));
     }
 
     @Operation(summary = "Xóa liên kết mạng xã hội")
