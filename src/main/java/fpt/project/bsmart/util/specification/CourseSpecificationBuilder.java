@@ -38,6 +38,31 @@ public class CourseSpecificationBuilder {
     }
 
 
+    public CourseSpecificationBuilder queryByClassId(List<Long> classes) {
+        if (classes == null || classes.isEmpty()) {
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            Path<Class> objectPath = root.get(Course_.CLASSES);
+            if (objectPath == null) {
+                return null; // add a null check to avoid the error
+            }
+            return criteriaBuilder.or(objectPath.get(Class_.ID).in(classes));
+        });
+        return this;
+    }
+
+    public CourseSpecificationBuilder queryBySubjectId(List<Long> subjectId) {
+        if (subjectId == null || subjectId.isEmpty()) {
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            Path<Subject> objectPath = root.get(Course_.SUBJECT);
+            return criteriaBuilder.or(objectPath.get(Subject_.ID).in(subjectId));
+        });
+        return this;
+    }
+
     public CourseSpecificationBuilder queryByCourseStatus(ECourseStatus status) {
         if (status == null) {
             return this;
@@ -53,16 +78,7 @@ public class CourseSpecificationBuilder {
     }
 
 
-    public CourseSpecificationBuilder queryBySubjectId(List<Long> subjectId) {
-        if (subjectId == null || subjectId.isEmpty()) {
-            return this;
-        }
-        specifications.add((root, query, criteriaBuilder) -> {
-            Path<Subject> objectPath = root.get(Course_.SUBJECT);
-            return criteriaBuilder.or(objectPath.get(Subject_.ID).in(subjectId));
-        });
-        return this;
-    }
+
 
     public CourseSpecificationBuilder queryByCreatorId(Long creatorId) {
         if (creatorId == null) {

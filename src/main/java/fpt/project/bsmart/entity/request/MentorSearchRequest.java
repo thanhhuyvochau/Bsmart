@@ -10,15 +10,15 @@ public class MentorSearchRequest implements Serializable {
 
     private List<Long> skills;
 
-    private EMentorProfileStatus accountStatus ;
+//    private EMentorProfileStatus accountStatus ;
 
-    public EMentorProfileStatus getAccountStatus() {
-        return accountStatus;
-    }
-
-    public void setAccountStatus(EMentorProfileStatus accountStatus) {
-        this.accountStatus = accountStatus;
-    }
+//    public EMentorProfileStatus getAccountStatus() {
+//        return accountStatus;
+//    }
+//
+//    public void setAccountStatus(EMentorProfileStatus accountStatus) {
+//        this.accountStatus = accountStatus;
+//    }
 
     public String getQ() {
         return q;
