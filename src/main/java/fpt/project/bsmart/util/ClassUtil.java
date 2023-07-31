@@ -32,11 +32,14 @@ public class ClassUtil {
     public static double CLASS_PERCENTAGE_FOR_SECOND_FEEDBACK = 0.8f;
     public static double PERCENTAGE_RANGE = 0.1f;
 
-    public ClassUtil(MessageUtil messageUtil, StudentClassRepository studentClassRepository) {
+    public ClassUtil(MessageUtil messageUtil, StudentClassRepository studentClassRepository, StudentClassRepository s) {
         staticStudentClassRepository = studentClassRepository;
         staticMessageUtil = messageUtil;
     }
-    /**Get progress for class, particular STARING class*/
+
+    /**
+     * Get progress for class, particular STARING class
+     */
     public static ClassProgressTimeDto getPercentageOfClassTime(Class clazz) {
         ClassProgressTimeDto classProgressTimeDto = new ClassProgressTimeDto();
         /**Exit point of function if class is ENDED or not STARING*/
@@ -191,6 +194,9 @@ public class ClassUtil {
         return studentClass;
     }
 
-
+//    public static StudentClass findClassOfStudent(User user, Course course) {
+//        List<StudentClass> studentClasses = staticStudentClassRepository.findByCourseAndStudent(course.getId(), user.getId());
+//        return studentClass.orElse(null);
+//    }
 }
 
