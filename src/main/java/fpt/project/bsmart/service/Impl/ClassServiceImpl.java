@@ -198,10 +198,7 @@ public class ClassServiceImpl implements IClassService {
         if (!duplicateDate.isEmpty()) {
             throw new ValidationErrorsException(vaErr.getError().getInvalidParams(), vaErr.getError().getMessage());
         }
-//        clazz.setTimeTables(timeTables);
         timeTableRepository.saveAll(timeTables);
-//        aClass.setTimeTables(timeTables);
-//        classRepository.save(aClass) ;
         return true;
     }
 
@@ -700,7 +697,12 @@ public class ClassServiceImpl implements IClassService {
 
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
-        if (!clazz.getStatus().equals(NOTSTART)) {
+        ClassValidator.isMentorOfClass(user, clazz);
+        if (!ClassValidator.isMentorOfClass(user, clazz)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
+        }
+        if (!clazz.getStatus().equals(UNSATISFY)) {
             throw ApiException.create(HttpStatus.NOT_FOUND)
                     .withMessage(CLASS_STATUS_NOT_ALLOW);
         }
@@ -711,9 +713,6 @@ public class ClassServiceImpl implements IClassService {
         mentorCreateScheduleForClass(clazz, timeTableRequest);
         clazz.setStatus(STARTING);
         clazz.setFeedbackTemplate(feedbackTemplate);
-        clazz.getTimeTables().clear();
-        List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(clazz.getTimeInWeeks(), clazz.getNumberOfSlot(), clazz.getStartDate(), clazz);
-        clazz.getTimeTables().addAll(timeTables);
         classRepository.save(clazz);
         return true;
     }
