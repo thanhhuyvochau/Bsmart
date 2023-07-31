@@ -44,7 +44,7 @@ public class ScheduleJobConfig {
 
 
     @Scheduled(fixedDelay = 20 * 60 * 1000)
-    private void initializeDayOfWeekIfNotExist() {
+    public void initializeDayOfWeekIfNotExist() {
         System.out.println("START INITIALIZE DAY OF WEEK");
         List<DayOfWeek> dayOfWeeks = new ArrayList<>();
         EDayOfWeekCode[] values = EDayOfWeekCode.values();
@@ -77,7 +77,7 @@ public class ScheduleJobConfig {
 //    }
 
     @Scheduled(fixedDelay = 20 * 60 * 1000)
-    private void initializeRoleIfNotExist() {
+    public void initializeRoleIfNotExist() {
 
         System.out.println("START INITIALIZE ROLE");
         List<Role> roles = roleRepository.findAll();
@@ -96,7 +96,7 @@ public class ScheduleJobConfig {
         roleRepository.saveAll(roles);
     }
 
-    @Scheduled(cron = "0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     /** Tự động mở lớp 12h đêm mỗi ngày  */
     public void openClassAutomatic() {
         Instant now = Instant.now();
