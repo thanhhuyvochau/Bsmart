@@ -168,7 +168,7 @@ public class ConvertUtil {
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (UserImage image : user.getUserImages()) {
-                if (image.isStatus() && image.isVerified()) {
+                if (image.getStatus() && image.getVerified()) {
                     imageDtoList.add(convertUserImageToUserImageDto(image));
                 }
 
@@ -200,7 +200,7 @@ public class ConvertUtil {
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (UserImage image : user.getUserImages()) {
-                if (image.isStatus() && image.getType().equals(EImageType.AVATAR)) {
+                if (image.getStatus() && image.getType().equals(EImageType.AVATAR)) {
                     imageDtoList.add(convertUserImageToUserImageDto(image));
                 }
 

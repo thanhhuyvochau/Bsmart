@@ -5,11 +5,10 @@ import fpt.project.bsmart.service.IAssignmentFileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/assignment-files")
@@ -22,7 +21,7 @@ public class AssignmentFileController {
 
     @DeleteMapping
     @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN','STUDENT')")
-    public ResponseEntity<ApiResponse<Boolean>> deleteAssignmentFile(List<Long> ids) {
-        return ResponseEntity.ok(ApiResponse.success(assignmentFileService.deleteAssignmentFile(ids)));
+    public ResponseEntity<ApiResponse<Boolean>> deleteAssignmentFile(Long[] ids) {
+        return ResponseEntity.ok(ApiResponse.success(assignmentFileService.deleteAssignmentFile(Arrays.asList(ids))));
     }
 }
