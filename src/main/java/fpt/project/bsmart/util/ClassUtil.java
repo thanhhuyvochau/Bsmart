@@ -36,9 +36,10 @@ public class ClassUtil {
         staticStudentClassRepository = studentClassRepository;
         staticMessageUtil = messageUtil;
     }
-
+    /**Get progress for class, particular STARING class*/
     public static ClassProgressTimeDto getPercentageOfClassTime(Class clazz) {
         ClassProgressTimeDto classProgressTimeDto = new ClassProgressTimeDto();
+        /**Exit point of function if class is ENDED or not STARING*/
         if (Objects.equals(clazz.getStatus(), ECourseStatus.ENDED)) {
             classProgressTimeDto.setPercentage(100);
             classProgressTimeDto.setCurrentSlot(clazz.getNumberOfSlot());
@@ -48,6 +49,7 @@ public class ClassUtil {
             classProgressTimeDto.setCurrentSlot(0);
             return classProgressTimeDto;
         }
+        /**Get nearest time table that less than or before now*/
         List<TimeTable> timeTables = clazz.getTimeTables();
         Instant now = Instant.now();
         TimeTable nearestTimeTable = null;

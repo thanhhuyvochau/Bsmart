@@ -303,7 +303,7 @@ public class ActivityServiceImpl implements IActivityService {
         quiz.setIsSuffleQuestion(addQuizRequest.getIsSuffleQuestion());
         quiz.setIsAllowReview(addQuizRequest.getIsAllowReview());
         quiz.setAllowReviewAfterMin(addQuizRequest.getAllowReviewAfterMin());
-        quiz.setPassword(encoder.encode(addQuizRequest.getPassword()));
+        quiz.setPassword(addQuizRequest.getPassword());
         quiz.setActivity(activity);
         quiz.setQuizQuestions(quizQuestions);
         return quiz;
@@ -766,7 +766,7 @@ public class ActivityServiceImpl implements IActivityService {
         if (request.getPassword().trim().isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_PASSWORD));
         }
-        boolean isMatchPassword = encoder.matches(request.getPassword(), quiz.getPassword());
+        boolean isMatchPassword = Objects.equals(request.getPassword(), quiz.getPassword());
         if (!isMatchPassword) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
         }

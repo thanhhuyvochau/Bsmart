@@ -168,7 +168,7 @@ public class ConvertUtil {
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (UserImage image : user.getUserImages()) {
-                if (image.isStatus() && image.getVerified()) {
+                if (image.getStatus() && image.getVerified()) {
                     imageDtoList.add(convertUserImageToUserImageDto(image));
                 }
 
@@ -195,12 +195,12 @@ public class ConvertUtil {
 //        return moduleDto;
 //    }
 
-    public static UserDto convertUserForMentorProfilePage(User user){
+    public static UserDto convertUserForMentorProfilePage(User user) {
         UserDto userDto = ObjectUtil.copyProperties(user, new UserDto(), UserDto.class);
         if (!user.getUserImages().isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (UserImage image : user.getUserImages()) {
-                if (image.isStatus() && image.getType().equals(EImageType.AVATAR)) {
+                if (image.getStatus() && image.getType().equals(EImageType.AVATAR)) {
                     imageDtoList.add(convertUserImageToUserImageDto(image));
                 }
 
@@ -646,7 +646,8 @@ public class ConvertUtil {
     }
 
     public static ResourceDto convertResourceToDto(Resource resource) { // Convert ra đơn giản để show cho user xem
-        return ObjectUtil.copyProperties(resource, new ResourceDto(), ResourceDto.class, true);
+        ResourceDto resourceDto = new ResourceDto(resource.getId(), resource.getUrl());
+        return resourceDto;
     }
 
     private static AssignmentDto convertAssignmentToDto(Assignment assignment) {
@@ -686,11 +687,7 @@ public class ConvertUtil {
     public static QuizDto convertQuizToQuizDto(Quiz quiz, boolean isAttempt) {
         QuizDto quizDto = ObjectUtil.copyProperties(quiz, new QuizDto(), QuizDto.class);
         quizDto.setQuestionCount(quiz.getQuizQuestions().size());
-        quizDto.setPassword(null);
         if (isAttempt) {
-            quizDto.setDefaultPoint(null);
-            quizDto.setIsSuffleQuestion(null);
-            quizDto.setPassword(null);
             if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
                 List<QuizQuestionDto> questionDtos = new ArrayList<>();
                 for (QuizQuestion question : quiz.getQuizQuestions()) {

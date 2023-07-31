@@ -25,8 +25,11 @@ public class TimeTable {
     @ManyToOne
     @JoinColumn(name = "clazz_id")
     private Class clazz;
+    @Column(name = "is_took_attendance")
+    private Boolean tookAttendance = false;
     @OneToMany(mappedBy = "timeTable", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Attendance> attendances= new ArrayList<>();
+    private List<Attendance> attendances = new ArrayList<>();
+
 
     public Long getId() {
         return id;
@@ -91,5 +94,13 @@ public class TimeTable {
 
     public void setAttendances(List<Attendance> attendances) {
         this.attendances = attendances;
+    }
+
+    public Boolean getTookAttendance() {
+        return tookAttendance;
+    }
+
+    public void setTookAttendance(Boolean tookAttendance) {
+        this.tookAttendance = tookAttendance;
     }
 }

@@ -10,6 +10,9 @@ import fpt.project.bsmart.validator.AssignmentFileValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class AssignmentFileServiceImpl implements IAssignmentFileService {
     private final AssignmentFileRepository assignmentFileRepository;
@@ -21,15 +24,20 @@ public class AssignmentFileServiceImpl implements IAssignmentFileService {
     }
 
     @Override
-    public boolean deleteAssignmentFile(long id) {
-        AssignmentFile assignmentFile = assignmentFileRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ASSINGMENT_FILE_NOT_FOUNND_BY_ID)));
-        if (!AssignmentFileValidator.isOwnerOfFile(assignmentFile)) {
-            throw ApiException.create(HttpStatus.CONFLICT)
-                    .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ASSIGNMENT_FILE_NOT_BELONG));
+    public boolean deleteAssignmentFile(List<Long> ids) {
+        List<AssignmentFile> assignmentFiles = assignmentFileRepository.findAllById(ids);
+        if (assignmentFiles.size() != ids.size()) {
+            throw ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ASSINGMENT_FILE_NOT_FOUNND_BY_ID));
         }
-        assignmentFileRepository.delete(assignmentFile);
+
+        for (AssignmentFile assignmentFile : assignmentFiles) {
+            if (!AssignmentFileValidator.isOwnerOfFile(assignmentFile)) {
+                throw ApiException.create(HttpStatus.CONFLICT)
+                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.ASSIGNMENT_FILE_NOT_BELONG));
+            }
+        }
+        assignmentFileRepository.deleteAllById(ids);
         return true;
     }
 }

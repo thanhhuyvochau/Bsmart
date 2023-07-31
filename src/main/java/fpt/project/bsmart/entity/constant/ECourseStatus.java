@@ -1,11 +1,11 @@
 package fpt.project.bsmart.entity.constant;
 
 public enum ECourseStatus {
-    REQUESTING , // Lớp được yêu cầu mở nhưng chưa sẵn sàng duyệt của giáo viên
+    REQUESTING, // Lớp được yêu cầu mở nhưng chưa sẵn sàng duyệt của giáo viên
 
     WAITING, // Lớp đã sẵn được  duyệt
 
-    EDITREQUEST , // lớp ko hợp lê , admin yêu câu giáo viên thay đổi rồi request mở lớp lại
+    EDITREQUEST, // lớp ko hợp lê , admin yêu câu giáo viên thay đổi rồi request mở lớp lại
 
     REJECTED, // Từ chối mở lớp
 
@@ -16,8 +16,9 @@ public enum ECourseStatus {
     ENDED,// Lớp đã kết thúc
 
     CANCEL, // Lớp bị hủy
+    UNSATISFY, // Lớp không đủ số lượng học sinh
 
-    ALL ;// Tất cả
+    ALL;// Tất cả
 
     ECourseStatus() {
     }

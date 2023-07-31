@@ -376,6 +376,15 @@ public class CourseServiceImpl implements ICourseService {
             }
             classRepository.saveAll(classList);
             course.setStatus(approvalCourseRequest.getStatus());
+
+            if (approvalCourseRequest.getStatus().equals(NOTSTART)) {
+                for (Activity activity : course.getActivities()) {
+                    activity.setFixed(true);
+                }
+                course.setApproved(true);
+            }
+
+
             courseRepository.save(course);
         } else {
             List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());

@@ -38,7 +38,7 @@ public class User extends BaseEntity {
     private String phone;
 
     @Column(name = "status")
-    private Boolean status;
+    private boolean status = false;
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     List<Role> roles = new ArrayList<>();
@@ -57,7 +57,7 @@ public class User extends BaseEntity {
     private Double point;
 
     @Column(name = "is_first_login")
-    private Boolean isFirstLogin;
+    private boolean isFirstLogin;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<UserImage> userImages = new ArrayList<>();
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
@@ -87,11 +87,11 @@ public class User extends BaseEntity {
     private String provider;
 
 
-    public Boolean getFirstLogin() {
+    public boolean getFirstLogin() {
         return isFirstLogin;
     }
 
-    public void setFirstLogin(Boolean firstLogin) {
+    public void setFirstLogin(boolean firstLogin) {
         isFirstLogin = firstLogin;
     }
 
@@ -148,11 +148,11 @@ public class User extends BaseEntity {
         this.phone = phone;
     }
 
-    public Boolean getStatus() {
+    public boolean getStatus() {
         return status;
     }
 
-    public void setStatus(Boolean status) {
+    public void setStatus(boolean status) {
         this.status = status;
     }
 

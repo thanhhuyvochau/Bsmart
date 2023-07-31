@@ -13,6 +13,7 @@ public class AssignmentFileDto {
     private Float point;
     private String note;
     private String name;
+    private FileDto metadata;
 
     public Long getId() {
         return id;
@@ -28,6 +29,7 @@ public class AssignmentFileDto {
 
     public void setUrl(String url) {
         this.url = url;
+        this.metadata = new FileDto(this.url);
     }
 
     public Instant getUploadTime() {
@@ -68,5 +70,13 @@ public class AssignmentFileDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public FileDto getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(FileDto metadata) {
+        this.metadata = metadata;
     }
 }
