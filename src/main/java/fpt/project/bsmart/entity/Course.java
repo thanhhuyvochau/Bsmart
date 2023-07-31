@@ -43,7 +43,7 @@ public class Course extends BaseEntity {
     private User creator;
 
     @Column(name = "isApproved")
-    private Boolean isApproved;
+    private Boolean isApproved = false;
 
 
     public Long getId() {
