@@ -109,8 +109,8 @@ public class MentorProfileImpl implements IMentorProfileService {
 
     @Override
     public ApiPage<UserDto> getPendingMentorProfileList(MentorSearchRequest request, Pageable pageable) {
-        MentorProfileSpecificationBuilder builder = MentorProfileSpecificationBuilder.specificationBuilder().queryLike(request.getQ()).queryByStatus(request.getAccountStatus());
-
+        MentorProfileSpecificationBuilder builder = MentorProfileSpecificationBuilder.specificationBuilder()
+                .queryLike(request.getQ());
 
         Page<MentorProfile> mentorProfilePage = mentorProfileRepository.findAll(builder.build(), pageable);
         List<MentorProfile> mentorProfiles = mentorProfilePage.stream().collect(Collectors.toList());
