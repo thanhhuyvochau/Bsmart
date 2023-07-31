@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/assignment-files")
 public class AssignmentFileController {
@@ -18,9 +20,9 @@ public class AssignmentFileController {
         this.assignmentFileService = assignmentFileService;
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN','STUDENT')")
-    public ResponseEntity<ApiResponse<Boolean>> deleteAssignmentFile(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(ApiResponse.success(assignmentFileService.deleteAssignmentFile(id)));
+    public ResponseEntity<ApiResponse<Boolean>> deleteAssignmentFile(List<Long> ids) {
+        return ResponseEntity.ok(ApiResponse.success(assignmentFileService.deleteAssignmentFile(ids)));
     }
 }
