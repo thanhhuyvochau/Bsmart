@@ -718,10 +718,11 @@ public class ClassServiceImpl implements IClassService {
             throw ApiException.create(HttpStatus.NOT_FOUND)
                     .withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
         }
-        if (!clazz.getStatus().equals(UNSATISFY)) {
-            throw ApiException.create(HttpStatus.NOT_FOUND)
-                    .withMessage(CLASS_STATUS_NOT_ALLOW);
-        }
+        /**Không xóa block này => chỉ thực sự cho phép mở lớp thủ công khi lớp không đủ số lượng min students*/
+//        if (!clazz.getStatus().equals(UNSATISFY)) {
+//            throw ApiException.create(HttpStatus.NOT_FOUND)
+//                    .withMessage(CLASS_STATUS_NOT_ALLOW);
+//        }
         FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findByTypeAndIsDefault(EFeedbackType.COURSE, true);
         if (feedbackTemplate == null) {
             throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage(messageUtil.getLocalMessage(""));
