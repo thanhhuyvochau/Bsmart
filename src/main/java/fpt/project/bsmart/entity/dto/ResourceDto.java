@@ -3,8 +3,13 @@ package fpt.project.bsmart.entity.dto;
 public class ResourceDto {
 
     private Long id;
-    
-    private String url;
+
+    private FileDto metadata;
+
+    public ResourceDto(Long id, String url) {
+        this.id = id;
+        this.metadata = new FileDto(url);
+    }
 
     public Long getId() {
         return id;
@@ -14,12 +19,11 @@ public class ResourceDto {
         this.id = id;
     }
 
-    public String getUrl() {
-        return url;
+    public FileDto getMetadata() {
+        return metadata;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setMetadata(FileDto metadata) {
+        this.metadata = metadata;
     }
-
 }

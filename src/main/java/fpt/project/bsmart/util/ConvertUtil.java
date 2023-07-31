@@ -646,7 +646,8 @@ public class ConvertUtil {
     }
 
     public static ResourceDto convertResourceToDto(Resource resource) { // Convert ra đơn giản để show cho user xem
-        return ObjectUtil.copyProperties(resource, new ResourceDto(), ResourceDto.class, true);
+        ResourceDto resourceDto = new ResourceDto(resource.getId(), resource.getUrl());
+        return resourceDto;
     }
 
     private static AssignmentDto convertAssignmentToDto(Assignment assignment) {
