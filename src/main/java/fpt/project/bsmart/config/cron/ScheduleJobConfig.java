@@ -1,15 +1,22 @@
 package fpt.project.bsmart.config.cron;
 
+import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.DayOfWeek;
 import fpt.project.bsmart.entity.Role;
+import fpt.project.bsmart.entity.TimeTable;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.DayOfWeekRepository;
 import fpt.project.bsmart.repository.RoleRepository;
+import fpt.project.bsmart.util.TimeInWeekUtil;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,12 +30,13 @@ public class ScheduleJobConfig {
 
     private final DayOfWeekRepository dayOfWeekRepository;
 
-
+    private final ClassRepository classRepository;
 
     private final RoleRepository roleRepository;
 
-    public ScheduleJobConfig(DayOfWeekRepository dayOfWeekRepository, RoleRepository roleRepository) {
+    public ScheduleJobConfig(DayOfWeekRepository dayOfWeekRepository, ClassRepository classRepository, RoleRepository roleRepository) {
         this.dayOfWeekRepository = dayOfWeekRepository;
+        this.classRepository = classRepository;
         this.roleRepository = roleRepository;
     }
 
@@ -86,5 +94,25 @@ public class ScheduleJobConfig {
         roleRepository.saveAll(roles);
     }
 
+    @Scheduled(cron = "0 0 * * *")
+    public void openClassAutomatic() {
+        Instant now = Instant.now();
+        List<Class> classesStartToday = classRepository.findByStartDate(now.truncatedTo(ChronoUnit.DAYS));
+        List<Class> satisfyMinClasses = classesStartToday.stream().filter(clazz -> clazz.getMinStudent() < clazz.getStudentClasses().size()).collect(Collectors.toList());
+        // Auto open class if satisfy min number of students
+        for (Class satisfyMinClass : satisfyMinClasses) {
+            List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(satisfyMinClass.getTimeInWeeks(), satisfyMinClass.getNumberOfSlot(), satisfyMinClass.getStartDate(), satisfyMinClass);
+            satisfyMinClass.getTimeTables().addAll(timeTables);
+            satisfyMinClass.setStatus(ECourseStatus.STARTING);
+        }
+        List<Class> unSatisfyMinClasses = classesStartToday.stream().filter(clazz -> clazz.getMinStudent() > clazz.getStudentClasses().size()).collect(Collectors.toList());
+        for (Class unSatisfyMinClass : unSatisfyMinClasses) {
+            unSatisfyMinClass.setStatus(ECourseStatus.UNSATISFY);
+            // Send thông báo cho giáo viên đó cần phải mở thủ công
+        }
+        // Send notification for teacher if not satisfy (let teacher manually open)
+        classRepository.saveAll(classesStartToday);
+        System.out.println("---------Task executed at 12 AM (midnight) for Open Class-----------");
+    }
 
 }

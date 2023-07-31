@@ -664,15 +664,15 @@ public class ClassServiceImpl implements IClassService {
         }
         if (userRoles.get(EUserRole.TEACHER) != null) {
             /**Không xóa những code này*/
-//            List<Class> workingClasses = user.getCourses().stream()
-//                    .filter(course -> Objects.equals(course.getStatus(), ECourseStatus.STARTING) || Objects.equals(course.getStatus(), ECourseStatus.ENDED))
-//                    .flatMap(course -> course.getClasses().stream())
-//                    .filter(aClass -> Objects.equals(aClass.getStatus(), ECourseStatus.STARTING) || Objects.equals(aClass.getStatus(), ECourseStatus.ENDED))
-//                    .collect(Collectors.toList());
-            /**Tạm thời cho dev, khi run thực sự sẽ dùng dòng trên*/
             List<Class> workingClasses = user.getCourses().stream()
+                    .filter(course -> Objects.equals(course.getStatus(), ECourseStatus.STARTING) || Objects.equals(course.getStatus(), ECourseStatus.ENDED))
                     .flatMap(course -> course.getClasses().stream())
+                    .filter(aClass -> Objects.equals(aClass.getStatus(), ECourseStatus.STARTING) || Objects.equals(aClass.getStatus(), ECourseStatus.ENDED))
                     .collect(Collectors.toList());
+            /**Tạm thời cho dev, khi run thực sự sẽ dùng dòng trên*/
+//            List<Class> workingClasses = user.getCourses().stream()
+//                    .flatMap(course -> course.getClasses().stream())
+//                    .collect(Collectors.toList());
             /**-------------------------------------------------------*/
             for (Class clazz : workingClasses) {
                 List<TimeTableResponse> timeTables = clazz.getTimeTables().stream()
@@ -744,164 +744,3 @@ public class ClassServiceImpl implements IClassService {
 
     }
 }
-//    private final MessageUtil messageUtil;
-//    private final CourseRepository courseRepository;
-//    private final OrderDetailRepository orderDetailRepository;
-//
-//    private final ClassRepository classRepository;
-//    private final SubCourseRepository subCourseRepository;
-//    private final ClassSectionRepository classSectionRepository;
-//
-//    public ClassServiceImpl(MessageUtil messageUtil, CourseRepository courseRepository, OrderDetailRepository orderDetailRepository, ClassRepository classRepository, SubCourseRepository subCourseRepository, ClassSectionRepository classSectionRepository) {
-//        this.messageUtil = messageUtil;
-//        this.courseRepository = courseRepository;
-//        this.orderDetailRepository = orderDetailRepository;
-//        this.classRepository = classRepository;
-//        this.subCourseRepository = subCourseRepository;
-//        this.classSectionRepository = classSectionRepository;
-//    }
-//
-//    @Override
-//    public Boolean createClass(CreateClassRequest request) {
-//        SubCourse subCourse = subCourseRepository.findById(request.getSubCourseId())
-//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
-//        Integer numberOfSlot = subCourse.getNumberOfSlot();
-//        Instant startDate = request.getNowIsStartDate() ? Instant.now() : request.getStartDate();
-//        Class clazz = new Class();
-//        clazz.setStartDate(startDate);
-//        clazz.setSubCourse(subCourse);
-//        List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(subCourse.getTimeInWeeks(), numberOfSlot, startDate, clazz);
-//        clazz.getTimeTables().addAll(timeTables);
-//        // Thêm học sinh thanh toán thành công vào lớp
-//        List<OrderDetail> successOrderDetails = orderDetailRepository.findAllBySubCourse(subCourse).stream()
-//                .filter(orderDetail -> Objects.equals(orderDetail.getOrder().getStatus(), EOrderStatus.SUCCESS))
-//                .collect(Collectors.toList());
-//        List<User> successRegisterUsers = successOrderDetails.stream().map(orderDetail -> orderDetail.getOrder().getUser()).collect(Collectors.toList());
-//        for (User successRegisterUser : successRegisterUsers) {
-//            StudentClass studentClass = new StudentClass();
-//            studentClass.setStudent(successRegisterUser);
-//            studentClass.setClazz(clazz);
-//            clazz.getStudentClasses().add(studentClass);
-//        }
-//        // Copy module từ course qua làm base chương trình cho lớp học
-//        List<Section> sections = subCourse.getCourse().getSections();
-//        for (Section section : sections) {
-//            ClassSection classSection = new ClassSection(section.getName(), clazz);
-//            for (Module module : section.getModules()) {
-//                ClassModule classModule = new ClassModule(module.getName(), classSection);
-//                classSection.getClassModules().add(classModule);
-//            }
-//            clazz.getClassSections().add(classSection);
-//        }
-//        classRepository.save(clazz);
-//        return true;
-//    }
-//
-//    @Override
-//    public ApiPage<SimpleClassResponse> getClassFeedbacks(ClassFeedbackRequest classFeedbackRequest, Pageable pageable) {
-//        ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
-//                .searchBySubCourseName(classFeedbackRequest.getSubCourseName())
-//                .searchByMentorName(classFeedbackRequest.getMentorName())
-//                .filterByStartDay(classFeedbackRequest.getStartDate())
-//                .filterByEndDate(classFeedbackRequest.getEndDate());
-//        Page<Class> classes = classRepository.findAll(classSpecificationBuilder.build(), pageable);
-//        List<SimpleClassResponse> simpleClassRespons = classes.stream()
-//                .map(ConvertUtil::convertClassToSimpleClassResponse)
-//                .collect(Collectors.toList());
-//        PageImpl<SimpleClassResponse> classResponsePage = new PageImpl<>(simpleClassRespons);
-//        return PageUtil.convert(classResponsePage);
-//
-//    }
-//
-//    @Override
-//    public ClassProgressTimeDto getClassProgression(Long clazzId) {
-//        Class clazz = classRepository.findById(clazzId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + clazzId));
-//        if (clazz.getStartDate().isBefore(Instant.now())) {
-//            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(BEFORE_CLASS_START_TIME));
-//        }
-//        return Optional.ofNullable(ClassUtil.getPercentageOfClassTime(clazz)).orElseThrow(() -> ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(INTERNAL_SERVER_ERROR)));
-//    }
-//
-//    @Override
-//    public ClassResponse getDetailClass(Long id) {
-//        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
-//        User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
-//        if (ClassValidator.isMentorOfClass(currentUser, clazz) || ClassValidator.isStudentOfClass(clazz, currentUser)) {
-//            return ConvertUtil.convertClassToClassResponse(clazz);
-//        }
-//        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
-//    }
-//
-
-//
-//    @Override
-//    public ClassSectionDto createClassSection(ClassSectionCreateRequest request, Long classId) {
-//        ClassSection classSection = new ClassSection();
-//        classSection.setName(request.getName());
-//        Optional<Class> optionalClass = classRepository.findById(classId);
-//        if (optionalClass.isPresent()) {
-//            Class clazz = optionalClass.get();
-//            if (!ClassValidator.isMentorOfClass(SecurityUtil.getCurrentUser(), clazz)) {
-//                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
-//            }
-//            classSection.setClazz(clazz);
-//        } else {
-//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(INVALID_CLASS_ID) + classId);
-//        }
-//        ClassSection savedClassSection = classSectionRepository.save(classSection);
-//        return ConvertUtil.convertClassSectionToDto(savedClassSection);
-//    }
-//
-//    @Override
-//    public ClassSectionDto getClassSection(Long classSectionId, Long classId) {
-//        Optional<ClassSection> optionalClassSection = classSectionRepository.findById(classSectionId);
-//        if (optionalClassSection.isPresent()) {
-//            ClassSection classSection = optionalClassSection.get();
-//            Class clazz = classSection.getClazz();
-//            if (!Objects.equals(clazz.getId(), classId)) {
-//                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(INVALID_PARAMETER_VALUE));
-//            } else if (!ClassValidator.isMentorOfClass(SecurityUtil.getCurrentUser(), clazz)) {
-//                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
-//            }
-//            return ConvertUtil.convertClassSectionToDto(classSection);
-//        } else {
-//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_SECTION_NOT_FOUND_BY_ID) + classSectionId);
-//        }
-//    }
-//
-//    @Override
-//    public ClassSectionDto updateClassSection(Long classId, Long classSectionId, ClassSectionUpdateRequest request) {
-//        Optional<ClassSection> optionalClassSection = classSectionRepository.findById(classSectionId);
-//        if (optionalClassSection.isPresent()) {
-//            ClassSection classSection = optionalClassSection.get();
-//            classSection.setName(request.getName());
-//            Class clazz = classSection.getClazz();
-//            if (!Objects.equals(clazz.getId(), classId)) {
-//                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(INVALID_PARAMETER_VALUE));
-//            } else if (!ClassValidator.isMentorOfClass(SecurityUtil.getCurrentUser(), clazz)) {
-//                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
-//            }
-//            ClassSection updatedClassSection = classSectionRepository.save(classSection);
-//            return ConvertUtil.convertClassSectionToDto(updatedClassSection);
-//        } else {
-//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_SECTION_NOT_FOUND_BY_ID) + classSectionId);
-//        }
-//    }
-//
-//    @Override
-//    public Boolean deleteClassSection(Long classSectionId, Long classId) {
-//        Optional<ClassSection> optionalClassSection = classSectionRepository.findById(classSectionId);
-//        if (optionalClassSection.isPresent()) {
-//            ClassSection classSection = optionalClassSection.get();
-//            Class clazz = classSection.getClazz();
-//            if (!Objects.equals(clazz.getId(), classId)) {
-//                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(INVALID_PARAMETER_VALUE));
-//            } else if (!ClassValidator.isMentorOfClass(SecurityUtil.getCurrentUser(), clazz)) {
-//                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
-//            }
-//            classSectionRepository.delete(classSection);
-//        } else {
-//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_SECTION_NOT_FOUND_BY_ID) + classSectionId);
-//        }
-//        return true;
-//    }

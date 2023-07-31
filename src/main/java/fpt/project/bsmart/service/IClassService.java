@@ -42,7 +42,7 @@ public interface IClassService {
     ManagerGetClassDetailResponse managerGetClassDetail(Long id);
 
 
-    //    Boolean createClass(CreateClassRequest request);
+//        Boolean createClass(CreateClassRequest request);
 //
 //    ApiPage<SimpleClassResponse> getClassFeedbacks(ClassFeedbackRequest classFeedbackRequest, Pageable pageable);
 //
