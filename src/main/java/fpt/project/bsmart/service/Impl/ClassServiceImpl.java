@@ -649,27 +649,42 @@ public class ClassServiceImpl implements IClassService {
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         Map<EUserRole, Role> userRoles = user.getRoles().stream().collect(Collectors.toMap(Role::getCode, Function.identity()));
         List<WorkTimeResponse> workTimeResponses = new ArrayList<>();
+
         if (userRoles.get(EUserRole.STUDENT) != null) {
             List<Class> enrolledClasses = user.getStudentClasses().stream().map(StudentClass::getClazz).collect(Collectors.toList());
             for (Class clazz : enrolledClasses) {
                 List<TimeTableResponse> timeTables = clazz.getTimeTables().stream()
-                        .map(ConvertUtil::convertTimeTableToResponse)
+                        .map(timeTable -> {
+                            TimeTableResponse timeTableResponse = ConvertUtil.convertTimeTableToResponse(timeTable);
+                            StudentClass userInClass = ClassUtil.findUserInClass(clazz, user);
+                            Optional<Attendance> attendanceOpt = timeTable.getAttendances().stream()
+                                    .filter(attendance -> Objects.equals(attendance.getStudentClass().getId(), userInClass.getId()))
+                                    .findFirst();
+                            if (attendanceOpt.isPresent()) {
+                                Attendance attendance = attendanceOpt.get();
+                                timeTableResponse.setPresent(attendance.getPresent());
+                            }
+                            return timeTableResponse;
+                        })
                         .collect(Collectors.toList());
                 SimpleClassResponse classResponse = ConvertUtil.convertClassToSimpleClassResponse(clazz);
                 workTimeResponses.add(new WorkTimeResponse(classResponse, EUserRole.STUDENT, timeTables));
             }
+            ResponseUtil.responseForRole(EUserRole.STUDENT);
         }
+
+
         if (userRoles.get(EUserRole.TEACHER) != null) {
             /**Không xóa những code này*/
-            List<Class> workingClasses = user.getCourses().stream()
-                    .filter(course -> Objects.equals(course.getStatus(), ECourseStatus.STARTING) || Objects.equals(course.getStatus(), ECourseStatus.ENDED))
-                    .flatMap(course -> course.getClasses().stream())
-                    .filter(aClass -> Objects.equals(aClass.getStatus(), ECourseStatus.STARTING) || Objects.equals(aClass.getStatus(), ECourseStatus.ENDED))
-                    .collect(Collectors.toList());
-            /**Tạm thời cho dev, khi run thực sự sẽ dùng dòng trên*/
 //            List<Class> workingClasses = user.getCourses().stream()
+//                    .filter(course -> Objects.equals(course.getStatus(), ECourseStatus.STARTING) || Objects.equals(course.getStatus(), ECourseStatus.ENDED))
 //                    .flatMap(course -> course.getClasses().stream())
+//                    .filter(aClass -> Objects.equals(aClass.getStatus(), ECourseStatus.STARTING) || Objects.equals(aClass.getStatus(), ECourseStatus.ENDED))
 //                    .collect(Collectors.toList());
+            /**Tạm thời cho dev, khi run thực sự sẽ dùng dòng trên*/
+            List<Class> workingClasses = user.getCourses().stream()
+                    .flatMap(course -> course.getClasses().stream())
+                    .collect(Collectors.toList());
             /**-------------------------------------------------------*/
             for (Class clazz : workingClasses) {
                 List<TimeTableResponse> timeTables = clazz.getTimeTables().stream()
@@ -678,6 +693,7 @@ public class ClassServiceImpl implements IClassService {
                 SimpleClassResponse classResponse = ConvertUtil.convertClassToSimpleClassResponse(clazz);
                 workTimeResponses.add(new WorkTimeResponse(classResponse, EUserRole.TEACHER, timeTables));
             }
+            ResponseUtil.responseForRole(EUserRole.TEACHER);
         }
         return workTimeResponses;
     }
