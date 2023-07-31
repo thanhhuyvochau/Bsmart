@@ -380,7 +380,7 @@ public class ClassServiceImpl implements IClassService {
         aClass.setMaxStudent(subCourseRequest.getMaxStudent());
 
         aClass.setStartDate(TimeUtil.checkDateToCreateClass(subCourseRequest.getStartDate()));
-        aClass.setEndDate(TimeUtil.checkDateToStartAndEndClass(subCourseRequest.getStartDate(), subCourseRequest.getEndDate()) );
+        aClass.setEndDate(TimeUtil.checkDateToStartAndEndClass(subCourseRequest.getStartDate(), subCourseRequest.getEndDate()));
         aClass.setStatus(REQUESTING);
         aClass.setPrice(subCourseRequest.getPrice());
         aClass.setMentor(currentUserAccountLogin);
@@ -711,6 +711,9 @@ public class ClassServiceImpl implements IClassService {
         mentorCreateScheduleForClass(clazz, timeTableRequest);
         clazz.setStatus(STARTING);
         clazz.setFeedbackTemplate(feedbackTemplate);
+        clazz.getTimeTables().clear();
+        List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(clazz.getTimeInWeeks(), clazz.getNumberOfSlot(), clazz.getStartDate(), clazz);
+        clazz.getTimeTables().addAll(timeTables);
         classRepository.save(clazz);
         return true;
     }

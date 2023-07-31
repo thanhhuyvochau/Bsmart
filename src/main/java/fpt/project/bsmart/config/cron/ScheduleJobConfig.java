@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Configuration
 @EnableScheduling
+@Transactional
 public class ScheduleJobConfig {
 
     private final DayOfWeekRepository dayOfWeekRepository;
@@ -95,6 +97,7 @@ public class ScheduleJobConfig {
     }
 
     @Scheduled(cron = "0 0 * * *")
+    /** Tự động mở lớp 12h đêm mỗi ngày  */
     public void openClassAutomatic() {
         Instant now = Instant.now();
         List<Class> classesStartToday = classRepository.findByStartDate(now.truncatedTo(ChronoUnit.DAYS));
@@ -102,6 +105,7 @@ public class ScheduleJobConfig {
         // Auto open class if satisfy min number of students
         for (Class satisfyMinClass : satisfyMinClasses) {
             List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(satisfyMinClass.getTimeInWeeks(), satisfyMinClass.getNumberOfSlot(), satisfyMinClass.getStartDate(), satisfyMinClass);
+            satisfyMinClass.getTimeTables().clear();
             satisfyMinClass.getTimeTables().addAll(timeTables);
             satisfyMinClass.setStatus(ECourseStatus.STARTING);
         }
