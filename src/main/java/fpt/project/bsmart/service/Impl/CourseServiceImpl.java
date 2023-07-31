@@ -22,6 +22,7 @@ import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.CourseSpecificationBuilder;
 import fpt.project.bsmart.validator.CourseValidator;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -63,13 +64,16 @@ public class CourseServiceImpl implements ICourseService {
     @Override
     public ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest query, Pageable pageable) {
 
+        List<Class> byStatus = classRepository.findByStatus(NOTSTART);
+        List<Long> classIds = byStatus.stream().map(Class::getId).collect(Collectors.toList());
         CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
                 .queryLike(query.getQ())
-                .queryByCourseStatus(ECourseStatus.NOTSTART)
+//                .queryByClassId(classIds)
                 .queryBySubjectId(query.getSubjectId())
                 .queryByCategoryId(query.getCategoryId());
 
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
+
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
     }
 
@@ -219,8 +223,19 @@ public class CourseServiceImpl implements ICourseService {
 
     @Override
     public ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status, Pageable pageable) {
-        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
-                .queryByCourseStatus(status);
+
+        if (status.equals(WAITING)) {
+            List<Class> byStatus = classRepository.findByStatus(WAITING);
+            List<Course> courseList = byStatus.stream().map(aClass -> aClass.getCourse()).distinct().collect(Collectors.toList());
+            List<ManagerGetCourse> managerGetCourses = new ArrayList<>();
+            for (Course course : courseList) {
+                managerGetCourses.add(ConvertUtil.convertCourseToManagerGetCourse(course));
+            }
+            Page<ManagerGetCourse> pages = new PageImpl<ManagerGetCourse>(managerGetCourses, pageable, managerGetCourses.size());
+            return PageUtil.convert(pages);
+        }
+        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications().queryByCourseStatus(status);
+
 
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseToManagerGetCourse));
@@ -250,7 +265,7 @@ public class CourseServiceImpl implements ICourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 
-        if(!course.getApproved()){
+        if (!course.getApproved()) {
             List<Class> classesInRequest = classRepository.findAllById(classIds);
 
             List<Class> classesOfCourse = course.getClasses();
@@ -276,7 +291,7 @@ public class CourseServiceImpl implements ICourseService {
                         });
                 return true;
             }
-        }else {
+        } else {
             List<Class> classesInRequest = classRepository.findAllById(classIds);
 
             List<Class> classesOfCourse = course.getClasses();
@@ -346,22 +361,33 @@ public class CourseServiceImpl implements ICourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 
+        if (!course.getApproved()) {
+            validateApprovalCourseRequest(approvalCourseRequest.getStatus());
 
-        validateApprovalCourseRequest(approvalCourseRequest.getStatus());
+            if (course.getStatus() != WAITING) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST)
+                        .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
+            }
+            List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
+            List<Class> classList = new ArrayList<>();
+            for (Class aClass : classToApproval) {
+                aClass.setStatus(approvalCourseRequest.getStatus());
+                classList.add(aClass);
+            }
+            classRepository.saveAll(classList);
+            course.setStatus(approvalCourseRequest.getStatus());
+            courseRepository.save(course);
+        } else {
+            List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
+            List<Class> classList = new ArrayList<>();
+            for (Class aClass : classToApproval) {
+                aClass.setStatus(approvalCourseRequest.getStatus());
+                classList.add(aClass);
+            }
+            classRepository.saveAll(classList);
+        }
 
-        if (course.getStatus() != WAITING) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
-        }
-        List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
-        List<Class> classList = new ArrayList<>();
-        for (Class aClass : classToApproval) {
-            aClass.setStatus(approvalCourseRequest.getStatus());
-            classList.add(aClass);
-        }
-        classRepository.saveAll(classList);
-        course.setStatus(approvalCourseRequest.getStatus());
-        courseRepository.save(course);
+
         return true;
     }
 

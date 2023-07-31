@@ -337,16 +337,16 @@ public class ConvertUtil {
         courseResponse.setLevel(course.getLevel());
         List<String> mentorName = new ArrayList<>();
 
-        List<Class> classes = course.getClasses();
+        List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.NOTSTART)).collect(Collectors.toList());
         List<ImageDto> images = new ArrayList<>();
-        if (classes.isEmpty()) {
+        if (collect.isEmpty()) {
             ClassImage byType = staticClassImageRepository.findByType(EImageType.DEFAULT);
             if (byType != null) {
                 images.add(ObjectUtil.copyProperties(byType, new ImageDto(), ImageDto.class));
             }
         }
 
-        classes.forEach(clazz -> {
+        collect.forEach(clazz -> {
             if (clazz.getMentor() != null) {
                 if (mentorName.isEmpty()) {
                     mentorName.add(clazz.getMentor().getFullName());
@@ -357,7 +357,7 @@ public class ConvertUtil {
                 images.add(ObjectUtil.copyProperties(clazz.getClassImage(), new ImageDto(), ImageDto.class));
             }
         });
-        courseResponse.setTotalClass(classes.size());
+        courseResponse.setTotalClass(collect.size());
         courseResponse.setMentorName(mentorName);
         courseResponse.setImages(images);
 
