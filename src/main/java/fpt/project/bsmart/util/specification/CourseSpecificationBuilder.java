@@ -43,11 +43,10 @@ public class CourseSpecificationBuilder {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
-            Path<Class> objectPath = root.get(Course_.CLASSES);
-            if (objectPath == null) {
-                return null; // add a null check to avoid the error
-            }
-            return criteriaBuilder.or(objectPath.get(Class_.ID).in(classes));
+
+            Join<Course, Class> classJoin = root.join(Course_.CLASSES);
+
+            return criteriaBuilder.or(classJoin.get(Class_.ID).in(classes));
         });
         return this;
     }
@@ -67,8 +66,8 @@ public class CourseSpecificationBuilder {
         if (status == null) {
             return this;
         }
-        if (status.equals(ECourseStatus.ALL)){
-            return this ;
+        if (status.equals(ECourseStatus.ALL)) {
+            return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
 
@@ -76,8 +75,6 @@ public class CourseSpecificationBuilder {
         });
         return this;
     }
-
-
 
 
     public CourseSpecificationBuilder queryByCreatorId(Long creatorId) {
@@ -104,7 +101,7 @@ public class CourseSpecificationBuilder {
         return this;
     }
 
-    public CourseSpecificationBuilder queryStudentCurrentCourse(Long studentId){
+    public CourseSpecificationBuilder queryStudentCurrentCourse(Long studentId) {
         Instant now = Instant.now();
         specifications.add((root, query, criteriaBuilder) -> {
             Join<Course, Class> courseClassJoin = root.join(Course_.CLASSES);
