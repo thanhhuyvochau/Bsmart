@@ -687,11 +687,7 @@ public class ConvertUtil {
     public static QuizDto convertQuizToQuizDto(Quiz quiz, boolean isAttempt) {
         QuizDto quizDto = ObjectUtil.copyProperties(quiz, new QuizDto(), QuizDto.class);
         quizDto.setQuestionCount(quiz.getQuizQuestions().size());
-        quizDto.setPassword(null);
         if (isAttempt) {
-            quizDto.setDefaultPoint(null);
-            quizDto.setIsSuffleQuestion(null);
-            quizDto.setPassword(null);
             if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
                 List<QuizQuestionDto> questionDtos = new ArrayList<>();
                 for (QuizQuestion question : quiz.getQuizQuestions()) {

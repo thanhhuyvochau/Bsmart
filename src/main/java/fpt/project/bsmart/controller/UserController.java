@@ -121,7 +121,7 @@ public class UserController {
     @Operation(summary = "Member / Mentor register account")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Long>> registerAccount(@Valid @RequestBody CreateAccountRequest createAccountRequest) {
-        return ResponseEntity.ok(ApiResponse.success(iUserService.registerAccount(createAccountRequest)));
+        return ResponseEntity.ok(ApiResponse.success(iUserService.BuilderAccount(createAccountRequest)));
     }
 
     @Operation(summary = "Lấy lớp của học sinh / giáo viên")
