@@ -39,6 +39,8 @@ public class ActivityHistoryUtil {
         staticActivityHistoryRepository.save(activityHistory);
     }
 
+
+
     public static void logHistoryForMentorSendRequestCourse(Long userId,Course course) {
         ActivityHistory activityHistory = new ActivityHistory();
         activityHistory.setType(EActivityType.COURSE);

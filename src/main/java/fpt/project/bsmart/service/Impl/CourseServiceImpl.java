@@ -282,6 +282,7 @@ public class CourseServiceImpl implements ICourseService {
             Boolean isValidCourse = CourseUtil.checkCourseValidToSendApproval(course, user, classesInRequest);
 
             if (isValidCourse) {
+                course.setApproved(true);
                 course.setStatus(WAITING);
                 courseRepository.save(course);
                 classesInRequest
@@ -290,6 +291,16 @@ public class CourseServiceImpl implements ICourseService {
                             ActivityHistoryUtil.logHistoryForMentorSendRequestClass(user.getId(), aClass);
                             classRepository.save(aClass);
                         });
+                ActivityHistory activityHistory = activityHistoryRepository.findByTypeAndActivityId(EActivityType.COURSE, course.getId());
+                if (activityHistory != null) {
+                    Integer count = activityHistory.getCount();
+                    count = count+ 1 ;
+                    activityHistory.setCount(count);
+                    activityHistoryRepository.save(activityHistory);
+                } else {
+                    ActivityHistoryUtil.logHistoryForMentorSendRequestCourse(user.getId(), course);
+                }
+
                 return true;
             }
         } else {
@@ -313,6 +324,13 @@ public class CourseServiceImpl implements ICourseService {
                             ActivityHistoryUtil.logHistoryForMentorSendRequestClass(user.getId(), aClass);
                             classRepository.save(aClass);
                         });
+                ActivityHistory activityHistory = activityHistoryRepository.findByTypeAndActivityId(EActivityType.COURSE, course.getId());
+                if (activityHistory != null) {
+                    activityHistory.setCount(activityHistory.getCount() + 1);
+                    activityHistoryRepository.save(activityHistory);
+                } else {
+                    ActivityHistoryUtil.logHistoryForMentorSendRequestCourse(user.getId(), course);
+                }
                 return true;
             }
         }

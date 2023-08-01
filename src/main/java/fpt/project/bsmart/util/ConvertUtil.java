@@ -399,13 +399,14 @@ public class ConvertUtil {
     }
 
     public static ManagerGetCourse convertCourseToManagerGetCourse(Course course) {
-        ActivityHistory byUserCourse = staticActivityHistoryRepository.findByType(EActivityType.COURSE);
+        ActivityHistory byUserCourse = staticActivityHistoryRepository.findByTypeAndActivityId(EActivityType.COURSE, course.getId());
+
 
         ManagerGetCourse courseResponse = new ManagerGetCourse();
 
         if (byUserCourse != null) {
             courseResponse.setCount(byUserCourse.getCount());
-            courseResponse.setTimeSendRequest(course.getLastModified());
+            courseResponse.setTimeSendRequest(byUserCourse.getLastModified());
         }
 
         courseResponse.setApproved(course.getApproved());
