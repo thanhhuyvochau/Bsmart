@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Nullable;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -178,14 +179,23 @@ public class ActivityController {
     //
     @PutMapping("/assignments/{assignmentId}/grading")
     @PreAuthorize("hasAnyRole('TEACHER')")
+    @Operation(summary = "Giáo viên chấm điểm bài nộp assignment")
     public ResponseEntity<ApiResponse<Boolean>> gradeAssignmentSubmit(@PathVariable Long assignmentId, @RequestBody List<GradeAssignmentSubmitionRequest> gradeAssignmentSubmitionRequestList) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(activityService.gradeAssignmentSubmit(assignmentId, gradeAssignmentSubmitionRequestList)));
     }
 
     @GetMapping("/assignments/{assignmentId}/submits")
     @PreAuthorize("hasAnyRole('TEACHER')")
-    public ResponseEntity<ApiResponse<ApiPage<AssignmentSubmitionDto>>> getAssignmentSubmit(@PathVariable Long assignmentId, List<Long> classIds, Pageable pageable) throws IOException {
-        return ResponseEntity.ok(ApiResponse.success(activityService.getAllAssignmentSubmit(assignmentId, classIds, pageable)));
+    @Operation(summary = "Giáo viên lấy tất cả các bài nộp của assignment")
+    public ResponseEntity<ApiResponse<ApiPage<AssignmentSubmitionDto>>> getAllAssignmentSubmit(@PathVariable Long assignmentId, Long[] classIds, Pageable pageable) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(activityService.getAllAssignmentSubmit(assignmentId, Arrays.asList(classIds), pageable)));
+    }
+
+    @GetMapping("/assignments/{assignmentId}/submit")
+    @PreAuthorize("hasAnyRole('STUDENT')")
+    @Operation(summary = "Học sinh lấy bài assignment đã nộp")
+    public ResponseEntity<ApiResponse<AssignmentSubmitionDto>> getStudentAssignmentSubmit(@PathVariable Long assignmentId, @RequestParam Long classId) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(activityService.getStudentAssignmentSubmit(assignmentId, classId)));
     }
 
 }

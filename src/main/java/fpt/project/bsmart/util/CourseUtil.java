@@ -9,10 +9,9 @@ import fpt.project.bsmart.entity.constant.EOrderStatus;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
-
 import fpt.project.bsmart.entity.response.MentorGetCourseClassResponse;
-
 import fpt.project.bsmart.repository.ClassRepository;
+import fpt.project.bsmart.repository.StudentClassRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -20,10 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import static fpt.project.bsmart.entity.constant.ECourseStatus.EDITREQUEST;
-import static fpt.project.bsmart.entity.constant.ECourseStatus.REQUESTING;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.COURSE_DOES_NOT_BELONG_TO_THE_TEACHER;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.SUB_COURSE_STATUS_NOT_ALLOW;
+
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
@@ -37,7 +33,7 @@ public class CourseUtil {
     private static ClassRepository staticClassRepository;
 
     public CourseUtil(ClassRepository classRepository, MessageUtil messageUtil) {
-        staticMessageUtil= messageUtil ;
+        staticMessageUtil = messageUtil;
         staticClassRepository = classRepository;
     }
 
@@ -81,7 +77,7 @@ public class CourseUtil {
         // Kiem tra khóa học có nội dung chưa
         if (course.getActivities().size() == 0) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(staticMessageUtil.getLocalMessage(THE_COURSE_HAS_NO_CONTENT) +  course.getId());
+                    .withMessage(staticMessageUtil.getLocalMessage(THE_COURSE_HAS_NO_CONTENT) + course.getId());
         }
 
         // kiểm tra course có  lớp học chưa
@@ -120,7 +116,7 @@ public class CourseUtil {
         // Kiem tra khóa học có nội dung chưa
         if (course.getActivities().isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(staticMessageUtil.getLocalMessage(THE_COURSE_HAS_NO_CONTENT) +  course.getId());
+                    .withMessage(staticMessageUtil.getLocalMessage(THE_COURSE_HAS_NO_CONTENT) + course.getId());
         }
 
         // kiểm tra course có  lớp học chưa
@@ -155,7 +151,7 @@ public class CourseUtil {
         // Kiem tra khóa học có nội dung chưa
         if (course.getActivities().size() == 0) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(staticMessageUtil.getLocalMessage(THE_COURSE_HAS_NO_CONTENT) +  course.getId());
+                    .withMessage(staticMessageUtil.getLocalMessage(THE_COURSE_HAS_NO_CONTENT) + course.getId());
         }
 
         // kiểm tra course có  lớp học chưa
@@ -296,6 +292,7 @@ public class CourseUtil {
 
         return courseResponse;
     }
+
 
 
 }

@@ -24,6 +24,7 @@ import fpt.project.bsmart.util.adapter.MinioAdapter;
 import fpt.project.bsmart.util.specification.QuizSubmissionSpecificationBuilder;
 import fpt.project.bsmart.validator.ActivityValidator;
 import fpt.project.bsmart.validator.AssignmentValidator;
+import fpt.project.bsmart.validator.ClassValidator;
 import fpt.project.bsmart.validator.CourseValidator;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -453,7 +454,7 @@ public class ActivityServiceImpl implements IActivityService {
                 .findFirst();
         Class clazz = clazzOfUser.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy lớp của người dùng với hoạt động đang tương tác"));
         List<MultipartFile> submittedFiles = request.getSubmittedFiles();
-        if (!ActivityValidator.isAuthorizeForClass(clazz, activity)) {
+        if (!ActivityValidator.isAuthorizeForClass(clazz, activity) && !activity.getFixed()) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Lớp bạn không có thẩm quyền với assignment");
 
         } else if (!AssignmentValidator.isValidSubmitDate(assignment)) {
@@ -469,6 +470,7 @@ public class ActivityServiceImpl implements IActivityService {
         AssignmentSubmition assignmentSubmition = new AssignmentSubmition();
         assignmentSubmition.setAssignment(assignment);
         assignmentSubmition.setStudentClass(studentClass);
+        assignmentSubmition.setNote(request.getNote());
         List<AssignmentFile> assignmentFiles = assignmentSubmition.getAssignmentFiles();
         for (MultipartFile submittedFile : request.getSubmittedFiles()) {
             AssignmentFile assignmentFile = createAssignmentFile(submittedFile, assignment, FileType.SUBMIT);
@@ -723,7 +725,7 @@ public class ActivityServiceImpl implements IActivityService {
                 .filter(x -> x.getCourse().getId().equals(course.getId()))
                 .findFirst()
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS)));
-        if (!ActivityValidator.isAuthorizeForClass(classes, activity)) {
+        if (!ActivityValidator.isAuthorizeForClass(classes, activity) && !activity.getFixed()) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_AUTHORIZED_FOR_YOUR_CLASS) + classes.getId());
         }
         return user;
@@ -996,4 +998,34 @@ public class ActivityServiceImpl implements IActivityService {
         assignmentSubmittionRepository.saveAll(assignmentSubmitions);
         return true;
     }
+
+    @Override
+    public AssignmentSubmitionDto getStudentAssignmentSubmit(long assignmentId, long classId) {
+        User student = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Assignment không tìm thấy với id:" + assignmentId));
+
+        Class clazz = classRepository
+                .findById(classId).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
+        if (!ClassValidator.isStudentOfClass(clazz, student)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
+        }
+        if (!ActivityValidator.isAuthorizeForClass(clazz, assignment.getActivity()) && !assignment.getActivity().getFixed()) {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_AUTHORIZED_FOR_YOUR_CLASS) + classId);
+        }
+        StudentClass studentClass = ClassUtil.findUserInClass(clazz, student);
+        List<AssignmentSubmition> assignmentSubmitions = assignment.getAssignmentSubmitions()
+                .stream()
+                .filter(assignmentSubmition -> Objects.equals(assignmentSubmition.getStudentClass().getId(), studentClass.getId()))
+                .collect(Collectors.toList());
+        AssignmentSubmitionDto assignmentSubmitionDto = null;
+        if (!assignmentSubmitions.isEmpty()) {
+            AssignmentSubmition assignmentSubmition = assignmentSubmitions.get(0);
+            assignmentSubmitionDto = ConvertUtil.convertAssignmentSubmitToDto(assignmentSubmition);
+        }
+        return assignmentSubmitionDto;
+    }
+
 }

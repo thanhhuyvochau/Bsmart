@@ -54,4 +54,7 @@ public interface IActivityService {
     ApiPage<AssignmentSubmitionDto> getAllAssignmentSubmit(long assignmentId, List<Long> classId, Pageable pageable);
 
     boolean gradeAssignmentSubmit(long assignmentId, List<GradeAssignmentSubmitionRequest> gradeAssignmentSubmitionRequests);
+
+    AssignmentSubmitionDto getStudentAssignmentSubmit(long assignmentId, long classId);
+
 }
