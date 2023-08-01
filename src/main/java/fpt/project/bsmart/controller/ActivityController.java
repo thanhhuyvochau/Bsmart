@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Nullable;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -186,8 +187,8 @@ public class ActivityController {
     @GetMapping("/assignments/{assignmentId}/submits")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @Operation(summary = "Giáo viên lấy tất cả các bài nộp của assignment")
-    public ResponseEntity<ApiResponse<ApiPage<AssignmentSubmitionDto>>> getAllAssignmentSubmit(@PathVariable Long assignmentId, List<Long> classIds, Pageable pageable) throws IOException {
-        return ResponseEntity.ok(ApiResponse.success(activityService.getAllAssignmentSubmit(assignmentId, classIds, pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<AssignmentSubmitionDto>>> getAllAssignmentSubmit(@PathVariable Long assignmentId, Long[] classIds, Pageable pageable) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(activityService.getAllAssignmentSubmit(assignmentId, Arrays.asList(classIds), pageable)));
     }
 
     @GetMapping("/assignments/{assignmentId}/submit")
