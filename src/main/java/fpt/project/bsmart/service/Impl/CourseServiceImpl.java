@@ -63,7 +63,7 @@ public class CourseServiceImpl implements ICourseService {
 
 
     @Override
-    public ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest query, Pageable pageable) {
+    public ApiPage<CourseResponse> getCourseForCoursePage(CourseSearchRequest query, final Pageable pageable) {
 
         List<Class> byStatus = classRepository.findByStatus(NOTSTART);
         List<Long> classIds = byStatus.stream().map(Class::getId).collect(Collectors.toList());
@@ -72,12 +72,14 @@ public class CourseServiceImpl implements ICourseService {
                 .queryByClassId(classIds)
                 .queryBySubjectId(query.getSubjectId())
                 .queryByCategoryId(query.getCategoryId());
-
+     
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
+        List<Course> collect = coursesPage.stream().distinct().collect(Collectors.toList());
+        // Add a call to the distinct() method to remove duplicates
+        Page<Course> coursePages = new PageImpl<>(collect, pageable, collect.size());
 
-        return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
+        return PageUtil.convert(coursePages.map(ConvertUtil::convertCourseCourseResponsePage));
     }
-
     public ApiPage<CourseResponse> studentGetCurrentCourse(CourseSearchRequest request, Pageable pageable) {
         User user = SecurityUtil.getCurrentUser();
         CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
