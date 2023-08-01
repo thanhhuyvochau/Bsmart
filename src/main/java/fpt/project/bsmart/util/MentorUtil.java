@@ -73,8 +73,8 @@ public class MentorUtil {
         }
         List<UserImage> userImages = user.getUserImages();
         List<UserImage> avatar = userImages.stream().filter(userImage -> userImage.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
-        if (userImages != null && avatar.size() > 0) {
-            UserImage userImage = avatar.stream().findFirst().get();
+        if (userImages != null && avatar.size() > 0  ) {
+            UserImage userImage = avatar.stream().filter(UserImage::getStatus ).findFirst().get();
             ImageDto imageDto = ConvertUtil.convertUserImageToUserImageDto(userImage);
             mentorDto.setAvatar(imageDto);
         }
