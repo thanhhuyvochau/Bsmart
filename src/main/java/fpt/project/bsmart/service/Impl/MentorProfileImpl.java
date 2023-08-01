@@ -390,7 +390,7 @@ public class MentorProfileImpl implements IMentorProfileService {
     }
 
     @Override
-    public List<ManagerGetRequestApprovalSkillResponse> managerGetRequestApprovalSkill() {
+    public ApiPage<ManagerGetRequestApprovalSkillResponse> managerGetRequestApprovalSkill(Pageable pageable) {
         List<ManagerGetRequestApprovalSkillResponse> responseList = new ArrayList<>();
 
         List<MentorSkill> byStatus = mentorSkillRepository.findByStatus(true);
@@ -432,8 +432,9 @@ public class MentorProfileImpl implements IMentorProfileService {
             responseList.add(response);
         });
 
+        Page<ManagerGetRequestApprovalSkillResponse> pages = new PageImpl<>(responseList, pageable, responseList.size());
 
-        return responseList;
+        return PageUtil.convert(pages);
     }
 
     @Override

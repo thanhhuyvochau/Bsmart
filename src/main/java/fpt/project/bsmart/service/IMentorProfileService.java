@@ -32,7 +32,7 @@ public interface IMentorProfileService {
 
     Boolean managerHandleRequestApprovalSkill(Long id, ManagerApprovalSkillRequest managerApprovalSkillRequest);
 
-    List<ManagerGetRequestApprovalSkillResponse> managerGetRequestApprovalSkill();
+    ApiPage<ManagerGetRequestApprovalSkillResponse> managerGetRequestApprovalSkill(Pageable pageable);
 
     Boolean mentorRequestApprovalSkill( MentorSendSkillRequest mentorSendAddSkill);
 

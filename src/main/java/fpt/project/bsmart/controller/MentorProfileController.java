@@ -124,8 +124,8 @@ public class MentorProfileController {
     @Operation(summary = "manager lấy yêu câu  mở  thêm môn học mới của mentor ")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("request-approval-skill")
-    public ResponseEntity<ApiResponse<List<ManagerGetRequestApprovalSkillResponse>>> managerGetRequestApprovalSkill() {
-        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.managerGetRequestApprovalSkill()));
+    public ResponseEntity<ApiResponse<ApiPage<ManagerGetRequestApprovalSkillResponse>>> managerGetRequestApprovalSkill(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.managerGetRequestApprovalSkill(pageable)));
     }
 
 
