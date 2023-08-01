@@ -17,6 +17,7 @@ monitoring and reporting.
 
 **Server:** Spring Boot, Keycloak, MySQL, Docker, Spring Security, MinIo, Moodle
 g
+
 ## Enable Local Profile
 
 -DSpring.profiles.active=local
@@ -28,13 +29,11 @@ http://103.173.155.221:8080/swagger-ui/index.html#/
 ssh: ssh root@103.173.155.221 -p 9020
 password: s_IFvbN797b^lH
 
-
 ```
 
 ### Technologies reference for knowledge
 
 [What is OAuth2 ?](https://auth0.com/intro-to-iam/what-is-oauth-2#:~:text=OAuth%202.0%2C%20which%20stands%20for,industry%20standard%20for%20online%20authorization.)
-
 
 ### Keycloak
 
