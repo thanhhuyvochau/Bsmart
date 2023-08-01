@@ -393,15 +393,16 @@ public class MentorProfileImpl implements IMentorProfileService {
     public ApiPage<ManagerGetRequestApprovalSkillResponse> managerGetRequestApprovalSkill(Pageable pageable) {
         List<ManagerGetRequestApprovalSkillResponse> responseList = new ArrayList<>();
 
-        List<MentorSkill> byStatus = mentorSkillRepository.findByStatus(true);
+        List<MentorSkill> byStatus = mentorSkillRepository.findByStatusAndVerified(true ,false);
         List<MentorProfile> mentorProfileSkillStatusIsFalse = byStatus.stream().map(MentorSkill::getMentorProfile).collect(Collectors.toList());
-        List<MentorProfile> mentorProfiles = mentorProfileSkillStatusIsFalse.stream().filter(mentorProfile -> mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)).collect(Collectors.toList());
+        List<MentorProfile> mentorProfiles = mentorProfileSkillStatusIsFalse.stream()
+                .filter(mentorProfile -> mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)).collect(Collectors.toList());
 
         mentorProfiles.forEach(mentorProfile -> {
 
             User user = mentorProfile.getUser();
+            ManagerGetRequestApprovalSkillResponse ManagerGetRequestApprovalSkillResponse = ObjectUtil.copyProperties(user, new ManagerGetRequestApprovalSkillResponse(), ManagerGetRequestApprovalSkillResponse.class);
 
-            ManagerGetRequestApprovalSkillResponse response = new ManagerGetRequestApprovalSkillResponse();
             UserDto userDto = ConvertUtil.convertUsertoUserDto(user);
 
             List<MentorSkill> byMentorProfileAndStatus = mentorSkillRepository.findByMentorProfileAndStatusAndVerified(mentorProfile, true, false);
@@ -414,8 +415,8 @@ public class MentorProfileImpl implements IMentorProfileService {
                     skillList.add(mentorSkillDto);
 
                 }
-                response.setTotalSkillRequest(byMentorProfileAndStatus.size());
-                response.setMentorSkillRequest(skillList);
+                ManagerGetRequestApprovalSkillResponse.setTotalSkillRequest(byMentorProfileAndStatus.size());
+                ManagerGetRequestApprovalSkillResponse.setMentorSkillRequest(skillList);
 
             }
             List<UserImage> byUserAndStatus = userImageRepository.findByUserAndTypeAndStatusAndVerified(user, EImageType.DEGREE, true, false);
@@ -423,13 +424,14 @@ public class MentorProfileImpl implements IMentorProfileService {
                 List<ImageDto> imageDtoList = new ArrayList<>();
                 for (UserImage image : byUserAndStatus) {
                     imageDtoList.add(convertUserImageToUserImageDto(image));
-                    response.setCreated(image.getCreated());
+                    ManagerGetRequestApprovalSkillResponse.setCreated(image.getCreated());
                 }
-                response.setDegreeRequest(imageDtoList);
-                response.setTotalDegreeRequest(byUserAndStatus.size());
+                ManagerGetRequestApprovalSkillResponse.setDegreeRequest(imageDtoList);
+                ManagerGetRequestApprovalSkillResponse.setTotalDegreeRequest(byUserAndStatus.size());
             }
-            response.setUser(userDto);
-            responseList.add(response);
+
+//            ManagerGetRequestApprovalSkillResponse.setId(user.getId());
+            responseList.add(ManagerGetRequestApprovalSkillResponse);
         });
 
         Page<ManagerGetRequestApprovalSkillResponse> pages = new PageImpl<>(responseList, pageable, responseList.size());
