@@ -57,7 +57,7 @@ public class User extends BaseEntity {
     private Double point;
 
     @Column(name = "is_first_login")
-    private boolean isFirstLogin;
+    private boolean isFirstLogin = false;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<UserImage> userImages = new ArrayList<>();
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)

@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
@@ -68,7 +69,7 @@ public class CourseServiceImpl implements ICourseService {
         List<Long> classIds = byStatus.stream().map(Class::getId).collect(Collectors.toList());
         CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
                 .queryLike(query.getQ())
-//                .queryByClassId(classIds)
+                .queryByClassId(classIds)
                 .queryBySubjectId(query.getSubjectId())
                 .queryByCategoryId(query.getCategoryId());
 
