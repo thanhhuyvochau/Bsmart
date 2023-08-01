@@ -8,6 +8,7 @@ import fpt.project.bsmart.entity.constant.EFeedbackType;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.request.FeedbackTemplateRequest;
+import fpt.project.bsmart.entity.request.FeedbackTemplateSearchRequest;
 import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
 import fpt.project.bsmart.entity.response.FeedbackSubmissionResponse;
 import fpt.project.bsmart.entity.response.FeedbackResponse;
@@ -54,7 +55,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
     }
 
     @Override
-    public Long createFeedbackTemplate(FeedbackTemplateDto request) {
+    public Long createFeedbackTemplate(FeedbackTemplateRequest request) {
         if(StringUtil.isNullOrEmpty(request.getName())){
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_FEEDBACK_TEMPLATE_NAME));
         }
@@ -78,13 +79,10 @@ public class FeedbackServiceImpl implements IFeedbackService {
     }
 
     @Override
-    public Long updateFeedbackTemplate(FeedbackTemplateDto request) {
-        if(request.getId() == null){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_FEEDBACK_TEMPLATE_ID));
-        }
-        FeedbackTemplate feedbackTemplate = findTemplateById(request.getId());
+    public Long updateFeedbackTemplate(Long id, FeedbackTemplateRequest request) {
+        FeedbackTemplate feedbackTemplate = findTemplateById(id);
         if(Boolean.TRUE.equals(feedbackTemplate.getIsFixed())){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(FEEDBACK_TEMPLATE_IS_FIXED) + id);
         }
         if(StringUtil.isNotNullOrEmpty(request.getName())){
             feedbackTemplate.setName(request.getName());
@@ -112,7 +110,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
     }
     @Override
-    public ApiPage<FeedbackTemplateDto> getAll(FeedbackTemplateRequest request, Pageable pageable) {
+    public ApiPage<FeedbackTemplateDto> getAll(FeedbackTemplateSearchRequest request, Pageable pageable) {
         FeedbackTemplateSpecificationBuilder builder = FeedbackTemplateSpecificationBuilder.feedbackTemplateSpecificationBuilder()
                 .filterByType(request.getType())
                 .filterByName(request.getName());
