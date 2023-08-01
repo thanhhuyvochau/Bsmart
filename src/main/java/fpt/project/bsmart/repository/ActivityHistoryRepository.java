@@ -19,4 +19,6 @@ public interface ActivityHistoryRepository extends JpaRepository<ActivityHistory
     ActivityHistory findByUserIdAndType(Long userId, EActivityType type);
 
     ActivityHistory findByType( EActivityType type);
+
+    ActivityHistory findByTypeAndActivityId( EActivityType type, Long activityId);
 }
