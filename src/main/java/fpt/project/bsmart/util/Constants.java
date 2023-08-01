@@ -197,6 +197,7 @@ public class Constants {
         public static final String NOT_ALLOW_REVIEW_QUIZ = "NOT_ALLOW_REVIEW_QUIZ";
         public static final String QUIZ_HAVE_NOT_FINISHED = "QUIZ_HAVE_NOT_FINISHED";
         public static final String START_TIME_AFTER_END_TIME = "START_TIME_AFTER_END_TIME";
+        public static final String FEEDBACK_TEMPLATE_IS_FIXED = "FEEDBACK_TEMPLATE_IS_FIXED";
     }
 
     public static class DefaultData {
