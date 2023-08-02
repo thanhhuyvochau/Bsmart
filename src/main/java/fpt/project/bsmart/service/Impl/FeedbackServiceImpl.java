@@ -232,7 +232,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
         return feedbackSubmissionRepository.save(feedbackSubmission).getId();
     }
 
-    public ApiPage<FeedbackSubmissionResponse> teacherViewClassFeedback(Long classId, Pageable pageable){
+    public ApiPage<FeedbackSubmissionResponse> getClassFeedback(Long classId, Pageable pageable){
         Class clazz = findClassById(classId);
         User user = SecurityUtil.getCurrentUser();
         Boolean isClassBelongToMentor = Objects.equals(user, clazz.getMentor());
