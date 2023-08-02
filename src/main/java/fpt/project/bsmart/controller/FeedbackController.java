@@ -89,11 +89,11 @@ public class FeedbackController {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.studentUpdateFeedback(id, request)));
     }
 
-    @Operation(summary = "teacher view class feedback")
-    @PreAuthorize("hasAnyRole('TEACHER')")
+    @Operation(summary = "get class feedback")
+    @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
     @GetMapping("submission/class/{id}")
-    public ResponseEntity<ApiResponse<ApiPage<FeedbackSubmissionResponse>>> teacherViewClassFeedback(@PathVariable Long id, Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(feedbackService.teacherViewClassFeedback(id, pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<FeedbackSubmissionResponse>>> getClassFeedback(@PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.getClassFeedback(id, pageable)));
     }
 
     @Operation(summary = "get course feedback")

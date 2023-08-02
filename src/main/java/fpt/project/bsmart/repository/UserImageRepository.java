@@ -20,5 +20,5 @@ public interface UserImageRepository extends JpaRepository<UserImage, Long> {
     List<UserImage> findByUserAndTypeAndStatus(User user, EImageType type, Boolean b);
 
     Optional<UserImage> findByIdAndUserAndTypeAndStatus(Long id , User user, EImageType type, Boolean b);
-
+    Optional<UserImage> findByIdAndUserAndTypeAndStatusAndVerified(Long id , User user, EImageType type, Boolean b, Boolean verified);
 }

@@ -184,7 +184,7 @@ public class ConvertUtil {
                     imageDtoList.add(convertUserImageToUserImageDto(image));
                 }
 
-                userDto.setUserImages(imageDtoList);
+//                userDto.setUserImages(imageDtoList);
             }
             userDto.setUserImages(imageDtoList);
         }
