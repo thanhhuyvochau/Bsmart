@@ -343,6 +343,59 @@ public class ConvertUtil {
 //
 //        return response;
 //    }
+    public static CourseResponse convertCourseCourseResponse(Course course) {
+
+
+        CourseResponse courseResponse = new CourseResponse();
+        courseResponse.setId(course.getId());
+        courseResponse.setCourseName(course.getName());
+        courseResponse.setCourseCode(course.getCode());
+        courseResponse.setCourseDescription(course.getDescription());
+        courseResponse.setStatus(course.getStatus());
+        courseResponse.setLevel(course.getLevel());
+        List<String> mentorName = new ArrayList<>();
+        List<Class> collect = course.getClasses() ;
+    //      List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.NOTSTART)).collect(Collectors.toList());
+        List<ImageDto> images = new ArrayList<>();
+        if (collect.isEmpty()) {
+            ClassImage byType = staticClassImageRepository.findByType(EImageType.DEFAULT);
+            if (byType != null) {
+                images.add(ObjectUtil.copyProperties(byType, new ImageDto(), ImageDto.class));
+            }
+        }
+
+        collect.forEach(clazz -> {
+            if (clazz.getMentor() != null) {
+                if (mentorName.isEmpty()) {
+                    mentorName.add(clazz.getMentor().getFullName());
+                }
+            }
+
+            if (clazz.getClassImage() != null) {
+                images.add(ObjectUtil.copyProperties(clazz.getClassImage(), new ImageDto(), ImageDto.class));
+            }
+        });
+        courseResponse.setTotalClass(collect.size());
+        courseResponse.setMentorName(mentorName);
+        courseResponse.setImages(images);
+
+
+        Subject subject = course.getSubject();
+        if (subject != null) {
+            SubjectDto subjectDto = convertSubjectToSubjectDto(subject);
+            courseResponse.setSubjectResponse(subjectDto);
+
+            Set<Category> categories = subject.getCategories();
+            if (!categories.isEmpty()) {
+                for (Category category : categories) {
+                    CategoryDto categoryDto = convertCategoryToCategoryDto(category);
+                    courseResponse.setCategoryResponse(categoryDto);
+                }
+            }
+        }
+
+        return courseResponse;
+    }
 
     public static CourseResponse convertCourseCourseResponsePage(Course course) {
 
@@ -355,8 +408,8 @@ public class ConvertUtil {
         courseResponse.setStatus(course.getStatus());
         courseResponse.setLevel(course.getLevel());
         List<String> mentorName = new ArrayList<>();
-        List<Class> collect = course.getClasses() ;
-//        List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.NOTSTART)).collect(Collectors.toList());
+        //List<Class> collect = course.getClasses() ;
+        List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.NOTSTART)).collect(Collectors.toList());
         List<ImageDto> images = new ArrayList<>();
         if (collect.isEmpty()) {
             ClassImage byType = staticClassImageRepository.findByType(EImageType.DEFAULT);
