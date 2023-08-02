@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ManagerGetRequestApprovalSkillResponse {
     private Long id;
-
+    private Long mentorProfileId;
 
     private String fullName;
 
@@ -62,6 +62,14 @@ public class ManagerGetRequestApprovalSkillResponse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getMentorProfileId() {
+        return mentorProfileId;
+    }
+
+    public void setMentorProfileId(Long mentorProfileId) {
+        this.mentorProfileId = mentorProfileId;
     }
 
     public String getFullName() {

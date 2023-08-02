@@ -404,7 +404,7 @@ public class MentorProfileImpl implements IMentorProfileService {
             ManagerGetRequestApprovalSkillResponse ManagerGetRequestApprovalSkillResponse = ObjectUtil.copyProperties(user, new ManagerGetRequestApprovalSkillResponse(), ManagerGetRequestApprovalSkillResponse.class);
 
             UserDto userDto = ConvertUtil.convertUsertoUserDto(user);
-
+            ManagerGetRequestApprovalSkillResponse.setMentorProfileId(mentorProfile.getId());
             List<MentorSkill> byMentorProfileAndStatus = mentorSkillRepository.findByMentorProfileAndStatusAndVerified(mentorProfile, true, false);
 
 
