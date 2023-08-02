@@ -17,6 +17,8 @@ public interface MentorProfileRepository extends JpaRepository<MentorProfile, Lo
 
     Page<MentorProfile> findAll(Specification<MentorProfile> mentorProfileSpecification, Pageable pageable);
 
+    List<MentorProfile> findAll(Specification<MentorProfile> mentorProfileSpecification);
+
     @Query("SELECT e from MentorProfile e WHERE e.status = 'REQUESTING' and e.user.status = false")
     List<MentorProfile> getPendingMentorProfileRequesting();
     @Query("SELECT e from MentorProfile e WHERE  e.status = 'EDITREQUEST' and e.user.status = false")

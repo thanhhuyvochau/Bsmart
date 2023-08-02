@@ -114,8 +114,8 @@ public class MentorProfileImpl implements IMentorProfileService {
                 .queryLike(request.getQ())
                 .queryByStatus(request.getAccountStatus());
 
-        Page<MentorProfile> mentorProfilePage = mentorProfileRepository.findAll(builder.build(), pageable);
-        List<MentorProfile> mentorProfiles = mentorProfilePage.stream().collect(Collectors.toList());
+        List<MentorProfile> mentorProfiles = mentorProfileRepository.findAll(builder.build());
+
 
         List<UserDto> userDtoList = new ArrayList<>();
         for (MentorProfile mentorProfile : mentorProfiles) {
@@ -125,7 +125,7 @@ public class MentorProfileImpl implements IMentorProfileService {
             userDtoList.add(userDto);
         }
 
-        Page<UserDto> userDtos = new PageImpl<>(userDtoList, pageable, mentorProfiles.size());
+        Page<UserDto> userDtos = PageUtil.toPage(userDtoList, pageable);
 
         return PageUtil.convert(userDtos);
 
@@ -443,7 +443,7 @@ public class MentorProfileImpl implements IMentorProfileService {
                 ManagerGetRequestApprovalSkillResponse.setTotalDegreeRequest(byUserAndStatus.size());
             }
 
-//            ManagerGetRequestApprovalSkillResponse.setId(user.getId());
+
             responseList.add(ManagerGetRequestApprovalSkillResponse);
         });
 
