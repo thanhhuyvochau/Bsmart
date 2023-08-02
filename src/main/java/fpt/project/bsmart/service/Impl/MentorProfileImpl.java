@@ -337,7 +337,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         // check request & DB
         List<Long> skillIds = managerApprovalSkillRequest.getSkillIds();
         for (Long skillId : skillIds) {
-            MentorSkill bySkillIdAndStatus = mentorSkillRepository.findByMentorProfileAndSkillIdAndStatus(mentorProfile, skillId, false)
+            MentorSkill bySkillIdAndStatus = mentorSkillRepository.findByMentorProfileAndSkillIdAndStatusAndVerified(mentorProfile, skillId, true,false)
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                             .withMessage("Môn học với ID " + skillId + " không có sẵn trong yêu cầu phê duyệt của giáo viên "));
 
@@ -352,12 +352,12 @@ public class MentorProfileImpl implements IMentorProfileService {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Có " + byMentorProfileAndStatus.size() + " môn học cần được phê duyệt ! Vui lòng kiểm tra lại số môn học bạn đang duyệt !  ");
         }
 
-        List<UserImage> byUserAndStatus = userImageRepository.findByUserAndTypeAndStatus(mentorProfile.getUser(), EImageType.DEGREE, false);
+        List<UserImage> byUserAndStatus = userImageRepository.findByUserAndTypeAndStatus(mentorProfile.getUser(), EImageType.DEGREE, true);
 
         // check request & DB
         List<Long> degreeIds = managerApprovalSkillRequest.getDegreeIds();
         for (Long degreeId : degreeIds) {
-            UserImage userImage = userImageRepository.findByIdAndUserAndTypeAndStatus(degreeId, mentorProfile.getUser(), EImageType.DEGREE, false)
+            UserImage userImage = userImageRepository.findByIdAndUserAndTypeAndStatusAndVerified(degreeId, mentorProfile.getUser(), EImageType.DEGREE, true, false)
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                             .withMessage("Bằng cấp với ID " + degreeId + " không có sẵn trong yêu cầu phê duyệt của giáo viên "));
 
@@ -393,7 +393,7 @@ public class MentorProfileImpl implements IMentorProfileService {
     public ApiPage<ManagerGetRequestApprovalSkillResponse> managerGetRequestApprovalSkill(Pageable pageable) {
         List<ManagerGetRequestApprovalSkillResponse> responseList = new ArrayList<>();
 
-        List<MentorSkill> byStatus = mentorSkillRepository.findByStatusAndVerified(true ,false);
+        List<MentorSkill> byStatus = mentorSkillRepository.findByStatusAndVerified(true, false);
         List<MentorProfile> mentorProfileSkillStatusIsFalse = byStatus.stream().map(MentorSkill::getMentorProfile).collect(Collectors.toList());
         List<MentorProfile> mentorProfiles = mentorProfileSkillStatusIsFalse.stream()
                 .filter(mentorProfile -> mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)).collect(Collectors.toList());
@@ -446,7 +446,7 @@ public class MentorProfileImpl implements IMentorProfileService {
 
         List<MentorSkill> mentorSkillList = new ArrayList<>();
         for (Long skillId : mentorSendAddSkill.getSkillIds()) {
-            MentorSkill bySkillIdAndStatus = mentorSkillRepository.findByMentorProfileAndSkillIdAndStatus(mentorProfile, skillId, false)
+            MentorSkill bySkillIdAndStatus = mentorSkillRepository.findByMentorProfileAndSkillIdAndStatusAndVerified(mentorProfile, skillId, false, false)
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                             .withMessage("Môn học với ID " + skillId + " không tìm thấy "));
 
@@ -457,7 +457,8 @@ public class MentorProfileImpl implements IMentorProfileService {
         List<UserImage> userImageList = new ArrayList<>();
         List<Long> degreeIds = mentorSendAddSkill.getDegreeIds();
         for (Long degreeId : degreeIds) {
-            UserImage userImage = userImageRepository.findByIdAndUserAndTypeAndStatus(degreeId, mentorProfile.getUser(), EImageType.DEGREE, false)
+            UserImage userImage = userImageRepository.findByIdAndUserAndTypeAndStatusAndVerified
+                            (degreeId, mentorProfile.getUser(), EImageType.DEGREE, false, false)
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                             .withMessage("Bằng cấp với ID " + degreeId + " không tìm thấy"));
             userImage.setStatus(true);
@@ -482,7 +483,8 @@ public class MentorProfileImpl implements IMentorProfileService {
         MentorGetRequestApprovalSkillResponse response = new MentorGetRequestApprovalSkillResponse();
 
 
-        List<MentorSkill> byMentorProfileAndStatus = mentorSkillRepository.findByMentorProfileAndStatusAndVerified(mentorProfile, false, false);
+        List<MentorSkill> byMentorProfileAndStatus = mentorSkillRepository
+                .findByMentorProfileAndStatusAndVerified(mentorProfile, false, false);
 
 
         if (!byMentorProfileAndStatus.isEmpty()) {
@@ -496,7 +498,8 @@ public class MentorProfileImpl implements IMentorProfileService {
             response.setMentorSkillRequest(skillList);
 
         }
-        List<UserImage> byUserAndStatus = userImageRepository.findByUserAndTypeAndStatusAndVerified(user, EImageType.DEGREE, false, false);
+        List<UserImage> byUserAndStatus = userImageRepository
+                .findByUserAndTypeAndStatusAndVerified(user, EImageType.DEGREE, false, false);
         if (!byUserAndStatus.isEmpty()) {
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (UserImage image : byUserAndStatus) {
