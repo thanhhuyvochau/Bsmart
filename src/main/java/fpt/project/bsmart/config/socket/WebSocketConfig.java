@@ -1,4 +1,4 @@
-package fpt.project.bsmart.config.socket;
+package com.websocket.wstutorial;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -11,19 +11,16 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry
-                .addEndpoint("/websocket").setAllowedOriginPatterns("*");
-        registry
-                .addEndpoint("/websocket").setAllowedOriginPatterns("*")
-                .setHandshakeHandler(new ClientHandshakeHandler())
-                .withSockJS();
+    public void configureMessageBroker(final MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker("/topic");
+        registry.setApplicationDestinationPrefixes("/ws");
     }
 
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic", "/queue");
-        registry.setApplicationDestinationPrefixes("/app");
+    public void registerStompEndpoints(final StompEndpointRegistry registry) {
+        registry.addEndpoint("/websocket")
+                .setHandshakeHandler(new UserHandshakeHandler())
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
-
 }
