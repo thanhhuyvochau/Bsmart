@@ -23,16 +23,16 @@ public class NotificationUtil {
 
     public void sendNotification(String title, String content, Map<String, Object> data, User user) {
         if (user != null) {
-            sendNotification(title, content, data,user);
+            sendNotification(title, content, data, user);
         }
 
     }
 
-    public void sendNotification(String title, String content, String data,  User user) {
+    public void sendNotification(String title, String content, String data, User user) {
         try {
-            Notification notification = new Notification () ;
-            notification.setViTitle(title) ;
-            notification.setData(data) ;
+            Notification notification = new Notification();
+            notification.setViTitle(title);
+            notification.setData(data);
             notification.setViContent(content);
             notification.setUser(user);
 
@@ -44,7 +44,7 @@ public class NotificationUtil {
 
     public void sendNotification(Notification notification) {
         Notification persistedNotification = notificationRepository.save(notification);
-        User user = persistedNotification.getUser() ;
+        User user = persistedNotification.getUser();
 
         if (user != null) {
             sendNotification(notification, user);
@@ -52,7 +52,7 @@ public class NotificationUtil {
     }
 
 
-    public void sendNotification(Notification notification,  User user) {
+    public void sendNotification(Notification notification, User user) {
         // send by websocket
         WebsocketPublisher.publishNotification(notification);
     }

@@ -1,7 +1,5 @@
 package fpt.project.bsmart.service.Impl;
 
-import fpt.project.bsmart.entity.dto.notification.ResponseMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -9,10 +7,10 @@ import org.springframework.stereotype.Service;
 public class NotificationService {
     private final SimpMessagingTemplate messagingTemplate;
 
-    @Autowired
     public NotificationService(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
     }
+
 
     public void sendGlobalNotification() {
         ResponseMessage message = new ResponseMessage("Global Notification");

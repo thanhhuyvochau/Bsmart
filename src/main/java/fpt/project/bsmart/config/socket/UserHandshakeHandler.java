@@ -1,4 +1,4 @@
-package com.websocket.wstutorial;
+package fpt.project.bsmart.config.socket;
 
 import com.sun.security.auth.UserPrincipal;
 import org.slf4j.Logger;
