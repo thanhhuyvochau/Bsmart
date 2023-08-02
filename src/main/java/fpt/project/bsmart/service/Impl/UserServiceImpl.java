@@ -216,6 +216,7 @@ public class UserServiceImpl implements IUserService {
         image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
         image.setUser(user);
         image.setStatus(true);
+        image.setVerified(true);
         if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
             image.setType(EImageType.AVATAR);
         }

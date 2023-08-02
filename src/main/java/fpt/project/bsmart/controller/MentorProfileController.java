@@ -100,18 +100,20 @@ public class MentorProfileController {
     }
 
 
-    @Operation(summary = "mentor gửi yêu cầu dạy thêm môn học mới")
-    @PreAuthorize("hasAnyRole('TEACHER')")
-    @PutMapping("/request-approval-skill")
-    public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalSkill(@RequestBody MentorSendSkillRequest mentorSendAddSkill) {
-        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorRequestApprovalSkill(mentorSendAddSkill)));
-    }
+
 
     @Operation(summary = "mentor gửi yêu cầu phê duệt tài khoản")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PutMapping("/{id}/request-approval")
     public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalCourse(@PathVariable Long id) throws Exception {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorRequestApprovalAccount(id)));
+    }
+
+    @Operation(summary = "mentor gửi yêu cầu dạy thêm môn học mới")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/request-approval-skill")
+    public ResponseEntity<ApiResponse<Boolean>> mentorRequestApprovalSkill(@RequestBody MentorSendSkillRequest mentorSendAddSkill) {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorRequestApprovalSkill(mentorSendAddSkill)));
     }
 
     @Operation(summary = "mentor lấy các cầu dạy thêm môn học mới chưa gửi phê duyệt")

@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.request.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -32,14 +33,14 @@ public class FeedbackUtil {
         staticMessageUtil = messageUtil;
     }
 
-    public static List<FeedbackQuestion> validateFeedbackQuestionsInRequest(FeedbackTemplateDto request, FeedbackTemplate feedbackTemplate){
+    public static List<FeedbackQuestion> validateFeedbackQuestionsInRequest(FeedbackTemplateRequest request, FeedbackTemplate feedbackTemplate){
         int questionCount = request.getQuestions().size();
         if(questionCount < FeedbackUtil.MIN_QUESTION_PER_TEMPLATE
                 || questionCount > FeedbackUtil.MAX_QUESTION_PER_TEMPLATE){
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(staticMessageUtil.getLocalMessage(INVALID_QUESTION_LIST_SIZE) + questionCount);
         }
         ArrayList<FeedbackQuestion> feedbackQuestions = new ArrayList<>();
-        for(FeedbackTemplateDto.FeedbackQuestionDto question : request.getQuestions()){
+        for(FeedbackTemplateRequest.FeedbackQuestionRequest question : request.getQuestions()){
             if(StringUtil.isNullOrEmpty(question.getQuestion())){
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(staticMessageUtil.getLocalMessage(EMPTY_QUESTION));
             }
@@ -56,14 +57,14 @@ public class FeedbackUtil {
         return feedbackQuestions;
     }
 
-    private static ArrayList<FeedbackAnswer> validateFeedbackAnswers(FeedbackTemplateDto.FeedbackQuestionDto question, FeedbackQuestion feedbackQuestion){
+    private static ArrayList<FeedbackAnswer> validateFeedbackAnswers(FeedbackTemplateRequest.FeedbackQuestionRequest question, FeedbackQuestion feedbackQuestion){
         ArrayList<FeedbackAnswer> feedbackAnswers = new ArrayList<>();
         int answerCount = question.getAnswers().size();
         if(answerCount < FeedbackUtil.MIN_ANSWER_PER_QUESTION
                 || answerCount > FeedbackUtil.MAX_ANSWER_PER_QUESTION){
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(staticMessageUtil.getLocalMessage(INVALID_NUMBER_OF_ANSWER_IN_FEEDBACK_QUESTION) + answerCount);
         }
-        for(FeedbackTemplateDto.FeedbackAnswerDto answer : question.getAnswers()){
+        for(FeedbackTemplateRequest.FeedbackAnswerRequest answer : question.getAnswers()){
             if(StringUtil.isNullOrEmpty(answer.getAnswer())){
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(staticMessageUtil.getLocalMessage(EMPTY_FEEDBACK_ANSWER));
             }

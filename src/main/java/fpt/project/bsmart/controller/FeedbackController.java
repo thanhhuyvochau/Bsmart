@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.request.FeedbackTemplateRequest;
+import fpt.project.bsmart.entity.request.FeedbackTemplateSearchRequest;
 import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
 import fpt.project.bsmart.entity.response.FeedbackSubmissionResponse;
 import fpt.project.bsmart.entity.response.FeedbackResponse;
@@ -28,15 +29,15 @@ public class FeedbackController {
     @Operation(summary = "admin create feedback template")
     @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
     @PostMapping("/template")
-    public ResponseEntity<ApiResponse<Long>> createFeedbackTemplate(@RequestBody FeedbackTemplateDto request) {
+    public ResponseEntity<ApiResponse<Long>> createFeedbackTemplate(@RequestBody FeedbackTemplateRequest request) {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.createFeedbackTemplate(request)));
     }
 
     @Operation(summary = "admin update feedback template")
     @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
-    @PutMapping("/template")
-    public ResponseEntity<ApiResponse<Long>> updateFeedbackTemplate(@RequestBody FeedbackTemplateDto request) {
-        return ResponseEntity.ok(ApiResponse.success(feedbackService.updateFeedbackTemplate(request)));
+    @PutMapping("/template/{id}")
+    public ResponseEntity<ApiResponse<Long>> updateFeedbackTemplate(@PathVariable Long id,@RequestBody FeedbackTemplateRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.updateFeedbackTemplate(id, request)));
     }
 
     @Operation(summary = "admin delete feedback template")
@@ -49,7 +50,7 @@ public class FeedbackController {
     @Operation(summary = "admin get all template")
     @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
     @GetMapping("/template")
-    public ResponseEntity<ApiResponse<ApiPage<FeedbackTemplateDto>>> getAllTemplate(@Nullable FeedbackTemplateRequest request, Pageable pageable) {
+    public ResponseEntity<ApiResponse<ApiPage<FeedbackTemplateDto>>> getAllTemplate(@Nullable FeedbackTemplateSearchRequest request, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.getAll(request, pageable)));
     }
 
@@ -88,11 +89,11 @@ public class FeedbackController {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.studentUpdateFeedback(id, request)));
     }
 
-    @Operation(summary = "teacher view class feedback")
-    @PreAuthorize("hasAnyRole('TEACHER')")
+    @Operation(summary = "get class feedback")
+    @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
     @GetMapping("submission/class/{id}")
-    public ResponseEntity<ApiResponse<ApiPage<FeedbackSubmissionResponse>>> teacherViewClassFeedback(@PathVariable Long id, Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(feedbackService.teacherViewClassFeedback(id, pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<FeedbackSubmissionResponse>>> getClassFeedback(@PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.getClassFeedback(id, pageable)));
     }
 
     @Operation(summary = "get course feedback")
