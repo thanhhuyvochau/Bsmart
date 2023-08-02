@@ -49,10 +49,22 @@ public class ActivityHistoryUtil {
         activityHistory.setActivityId(course.getId());
         activityHistory.setActivityName(course.getCode());
         activityHistory.setUserId(userId);
+        activityHistory.setCount(1);
         activityHistory.setDetail("Đã gửi yêu cầu phê duyệt khóa học !");
         staticActivityHistoryRepository.save(activityHistory);
     }
-
+    public static void logHistoryForAccountSendRequestApprove(User user) {
+        ActivityHistory activityHistory = new ActivityHistory();
+        activityHistory.setType(EActivityType.USER);
+        activityHistory.setAction(EActivityAction.REQUEST);
+        activityHistory.setActivityTime(LocalDateTime.now());
+        activityHistory.setActivityId(user.getId());
+        activityHistory.setActivityName(user.getEmail());
+        activityHistory.setUserId(user.getId());
+        activityHistory.setCount(1);
+        activityHistory.setDetail("Đã gửi yêu cầu phê duyệt tài khoản !");
+        staticActivityHistoryRepository.save(activityHistory);
+    }
 //
 //    public static void logHistoryForCourseDeleted(Long userId, SubCourse subCourse) {
 //        logHistoryForCourse(userId,EActivityAction.DELETED , subCourse,  "Đã xóa khóa học!");
@@ -82,14 +94,6 @@ public class ActivityHistoryUtil {
 //        staticActivityHistoryRepository.save(activityHistory);
 //    }
 
-    public static void logHistoryForAccountApprove(User user, String message) {
-        ActivityHistory activityHistory = new ActivityHistory();
-        activityHistory.setType(EActivityType.USER);
-        activityHistory.setAction(EActivityAction.APPROVE);
-        activityHistory.setActivityTime(LocalDateTime.now());
-        activityHistory.setActivityId(user.getId());
-        activityHistory.setActivityName(user.getEmail());
-        activityHistory.setDetail(message);
-        staticActivityHistoryRepository.save(activityHistory);
-    }
+
+
 }

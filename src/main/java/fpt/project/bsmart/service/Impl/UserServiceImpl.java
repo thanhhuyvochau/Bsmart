@@ -77,9 +77,7 @@ public class UserServiceImpl implements IUserService {
     private final FeedbackSubmissionRepository feedbackSubmissionRepository;
 
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, UserImageRepository userImageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationUtil notificationUtil,
-                           ClassRepository classRepository,
-                           FeedbackSubmissionRepository feedbackSubmissionRepository) {
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, UserImageRepository userImageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationUtil notificationUtil, ClassRepository classRepository, FeedbackSubmissionRepository feedbackSubmissionRepository) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
@@ -100,22 +98,16 @@ public class UserServiceImpl implements IUserService {
     }
 
     private User findUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id));
+        return userRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id));
     }
 
 
     @Override
     public ApiPage<UserDto> adminGetAllUser(UserSearchRequest request, Pageable pageable) {
 
-        UserSpecificationBuilder builder = UserSpecificationBuilder.specificationBuilder()
-                .queryLike(request.getQ())
-                .hasRole(request.getRole())
-                .isVerified(request.getIsVerified());
+        UserSpecificationBuilder builder = UserSpecificationBuilder.specificationBuilder().queryLike(request.getQ()).hasRole(request.getRole()).isVerified(request.getIsVerified());
         Page<User> userPage = userRepository.findAll(builder.build(), pageable);
-        List<UserDto> userInfoResponses = userPage.getContent().stream()
-                .map(ConvertUtil::convertUsertoUserDto)
-                .collect(Collectors.toList());
+        List<UserDto> userInfoResponses = userPage.getContent().stream().map(ConvertUtil::convertUsertoUserDto).collect(Collectors.toList());
         return PageUtil.convert(new PageImpl<>(userInfoResponses, pageable, userPage.getTotalElements()));
     }
 
@@ -137,18 +129,10 @@ public class UserServiceImpl implements IUserService {
         }
         UserDto userDto = ConvertUtil.convertUserForMentorProfilePage(user);
         TeachInformationDTO teachInformationDTO = new TeachInformationDTO();
-        ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
-                .byMentor(user)
-                .filterByStatus(ECourseStatus.ENDED);
+        ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder().byMentor(user).filterByStatus(ECourseStatus.ENDED);
         List<Class> classes = classRepository.findAll(classSpecificationBuilder.build());
-        Integer numberOfMember = classes.stream()
-                .map(Class::getStudentClasses).distinct()
-                .collect(Collectors.toList()).stream()
-                .map(x -> x.size())
-                .mapToInt(Integer::intValue)
-                .sum();
-        FeedbackSubmissionSpecificationBuilder feedbackSubmissionSpecificationBuilder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
-                .filterByMentor(id);
+        Integer numberOfMember = classes.stream().map(Class::getStudentClasses).distinct().collect(Collectors.toList()).stream().map(x -> x.size()).mapToInt(Integer::intValue).sum();
+        FeedbackSubmissionSpecificationBuilder feedbackSubmissionSpecificationBuilder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder().filterByMentor(id);
         List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(feedbackSubmissionSpecificationBuilder.build());
         teachInformationDTO.setNumberOfCourse(user.getCourses().size());
         teachInformationDTO.setNumberOfClass(classes.size());
@@ -210,12 +194,12 @@ public class UserServiceImpl implements IUserService {
         userImageRepository.saveAll(userImages);
         UserImage image = new UserImage();
         String name = uploadImageRequest.getFile().getOriginalFilename() + "-" + Instant.now().toString();
-        ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, uploadImageRequest.getFile().getContentType(),
-                uploadImageRequest.getFile().getInputStream(), uploadImageRequest.getFile().getSize());
+        ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, uploadImageRequest.getFile().getContentType(), uploadImageRequest.getFile().getInputStream(), uploadImageRequest.getFile().getSize());
         image.setName(name);
         image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
         image.setUser(user);
         image.setStatus(true);
+        image.setVerified(true);
         if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
             image.setType(EImageType.AVATAR);
         }
@@ -263,8 +247,7 @@ public class UserServiceImpl implements IUserService {
             if (!Objects.equals(file1.getOriginalFilename(), "")) {
                 UserImage image = new UserImage();
                 String name = file1.getOriginalFilename() + "-" + Instant.now().toString();
-                ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file1.getContentType(),
-                        file1.getInputStream(), file1.getSize());
+                ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file1.getContentType(), file1.getInputStream(), file1.getSize());
                 image.setName(name);
                 image.setStatus(true);
                 image.setVerified(true);
@@ -327,24 +310,19 @@ public class UserServiceImpl implements IUserService {
     public Long changePassword(ChangePasswordRequest changePasswordRequest) {
         User user = getCurrentLoginUser();
         if (user != null) {
-            if (changePasswordRequest.getOldPassword().isEmpty() ||
-                    changePasswordRequest.getNewPassword().isEmpty()) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage(EMPTY_PASSWORD));
+            if (changePasswordRequest.getOldPassword().isEmpty() || changePasswordRequest.getNewPassword().isEmpty()) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_PASSWORD));
             }
 
             if (!PasswordUtil.validationPassword(changePasswordRequest.getNewPassword())) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
             }
             if (!PasswordUtil.IsOldPassword(changePasswordRequest.getOldPassword(), user.getPassword())) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage(OLD_PASSWORD_MISMATCH));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(OLD_PASSWORD_MISMATCH));
 
             } else {
                 if (changePasswordRequest.getOldPassword().equals(changePasswordRequest.getNewPassword())) {
-                    throw ApiException.create(HttpStatus.BAD_REQUEST)
-                            .withMessage(messageUtil.getLocalMessage(NEW_PASSWORD_DUPLICATE));
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(NEW_PASSWORD_DUPLICATE));
                 }
             }
             String encodedNewPassword = encoder.encode(changePasswordRequest.getNewPassword());
@@ -352,8 +330,7 @@ public class UserServiceImpl implements IUserService {
             user = userRepository.save(user);
             return user.getId();
         } else {
-            throw ApiException.create(HttpStatus.UNAUTHORIZED)
-                    .withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID));
+            throw ApiException.create(HttpStatus.UNAUTHORIZED).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID));
         }
     }
 
@@ -363,16 +340,14 @@ public class UserServiceImpl implements IUserService {
 
         if (personalProfileEditRequest.getBirthday() != null) {
             if (!TimeUtil.isValidBirthday(personalProfileEditRequest.getBirthday(), EUserRole.STUDENT)) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
             }
             user.setBirthday(personalProfileEditRequest.getBirthday());
         }
 
         if (personalProfileEditRequest.getPhone() != null) {
             if (!StringUtil.isValidVietnameseMobilePhoneNumber(personalProfileEditRequest.getPhone())) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
             }
             user.setPhone(personalProfileEditRequest.getPhone());
         }
@@ -402,16 +377,14 @@ public class UserServiceImpl implements IUserService {
         MentorUtil.checkMentorStatusToUpdateInformation(user.getMentorProfile());
         if (mentorPersonalProfileEditRequest.getBirthday() != null) {
             if (!TimeUtil.isValidBirthday(mentorPersonalProfileEditRequest.getBirthday(), EUserRole.TEACHER)) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
             }
             user.setBirthday(mentorPersonalProfileEditRequest.getBirthday());
         }
 
         if (mentorPersonalProfileEditRequest.getPhone() != null) {
             if (!StringUtil.isValidVietnameseMobilePhoneNumber(mentorPersonalProfileEditRequest.getPhone())) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST)
-                        .withMessage(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
             }
             user.setPhone(mentorPersonalProfileEditRequest.getPhone());
         }
@@ -438,16 +411,13 @@ public class UserServiceImpl implements IUserService {
         validateCreateAccountRequest(createAccountRequest);
         User user = new User();
         if (Boolean.TRUE.equals(userRepository.existsByEmail(createAccountRequest.getEmail()))) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(REGISTERED_EMAIL) + createAccountRequest.getEmail());
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(REGISTERED_EMAIL) + createAccountRequest.getEmail());
         }
 
         if (Boolean.TRUE.equals(userRepository.existsByPhone(createAccountRequest.getPhone()))) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage(messageUtil.getLocalMessage(REGISTERED_PHONE_NUMBER) + createAccountRequest.getPhone());
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(REGISTERED_PHONE_NUMBER) + createAccountRequest.getPhone());
         }
-        Role role = roleRepository.findRoleByCode(createAccountRequest.getRole())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ROLE_NOT_FOUND_BY_CODE) + createAccountRequest.getRole()));
+        Role role = roleRepository.findRoleByCode(createAccountRequest.getRole()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ROLE_NOT_FOUND_BY_CODE) + createAccountRequest.getRole()));
         if (!TimeUtil.isValidBirthday(createAccountRequest.getBirthDay(), createAccountRequest.getRole())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_BIRTH_DAY));
         }
@@ -499,9 +469,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public VerifyResponse verifyAccount(String code) {
-        Verification verification = verificationRepository.findByCode(code)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage(messageUtil.getLocalMessage(VERIFY_CODE_NOT_FOUND_BY_CODE) + code));
+        Verification verification = verificationRepository.findByCode(code).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(VERIFY_CODE_NOT_FOUND_BY_CODE) + code));
         User user = verification.getUser();
         Instant createdDate = verification.getCreated();
         EVerifyStatus status = null;
@@ -514,11 +482,7 @@ public class UserServiceImpl implements IUserService {
             verification.setIsUsed(true);
             status = EVerifyStatus.SUCCESS;
         }
-        return VerifyResponse.Builder.getBuilder()
-                .withMessage(status.getMessage())
-                .withStatus(status.name())
-                .build()
-                .getObject();
+        return VerifyResponse.Builder.getBuilder().withMessage(status.getMessage()).withStatus(status.name()).build().getObject();
     }
 
     @Override
@@ -560,15 +524,13 @@ public class UserServiceImpl implements IUserService {
     }
 
     private SignUpRequest toUserRegistrationObject(String registrationId, OAuth2UserInfo oAuth2UserInfo) {
-        return SignUpRequest.getBuilder().addProviderUserID(oAuth2UserInfo.getId()).addDisplayName(oAuth2UserInfo.getName()).addEmail(oAuth2UserInfo.getEmail())
-                .addSocialProvider(GeneralUtils.toSocialProvider(registrationId)).addPassword("changeit").build();
+        return SignUpRequest.getBuilder().addProviderUserID(oAuth2UserInfo.getId()).addDisplayName(oAuth2UserInfo.getName()).addEmail(oAuth2UserInfo.getEmail()).addSocialProvider(GeneralUtils.toSocialProvider(registrationId)).addPassword("changeit").build();
     }
 
 
     @Override
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + email));
+        return userRepository.findByEmail(email).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + email));
     }
 
     @Override
