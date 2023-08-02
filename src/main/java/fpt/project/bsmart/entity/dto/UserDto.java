@@ -46,6 +46,7 @@ public class UserDto {
 
     private TeachInformationDTO teachInformation ;
     private boolean isVerified = false;
+    private Integer finishedClassCount = 0;
 
     public Long getId() {
         return id;
@@ -200,5 +201,13 @@ public class UserDto {
 
     public void setVerified(boolean verified) {
         isVerified = verified;
+    }
+
+    public Integer getFinishedClassCount() {
+        return finishedClassCount;
+    }
+
+    public void setFinishedClassCount(Integer finishedClassCount) {
+        this.finishedClassCount = finishedClassCount;
     }
 }

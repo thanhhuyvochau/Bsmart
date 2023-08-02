@@ -183,10 +183,16 @@ public class ConvertUtil {
         }
         if (user.getMentorProfile() != null) {
             userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
+            TeachInformationDTO teachingInformation = MentorUtil.getTeachingInformation(user);
+            userDto.setTeachInformation(teachingInformation);
+        }else {
+            Integer finishedClassCount = user.getStudentClasses().stream()
+                    .filter(x -> x.getClazz().getStatus().equals(ECourseStatus.ENDED))
+                    .distinct()
+                    .collect(Collectors.toList()).size();
+            userDto.setFinishedClassCount(finishedClassCount);
         }
 
-        TeachInformationDTO teachingInformation = MentorUtil.getTeachingInformation(user);
-        userDto.setTeachInformation(teachingInformation);
         return userDto;
     }
 //
