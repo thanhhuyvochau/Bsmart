@@ -158,6 +158,18 @@ public class ConvertUtil {
 
     public static UserDto convertUsertoUserDto(User user) {
         UserDto userDto = ObjectUtil.copyProperties(user, new UserDto(), UserDto.class);
+
+        ActivityHistory byUserCourse = staticActivityHistoryRepository.findByTypeAndActivityId(EActivityType.USER, user.getId());
+
+
+
+
+        if (byUserCourse != null) {
+
+            userDto.setCount(byUserCourse.getCount());
+            userDto.setTimeSendRequest(byUserCourse.getLastModified());
+        }
+
         if (!user.getRoles().isEmpty()) {
             List<RoleDto> roleDtoList = new ArrayList<>();
             for (Role role : user.getRoles()) {

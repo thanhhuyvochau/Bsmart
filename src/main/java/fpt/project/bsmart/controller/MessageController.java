@@ -1,8 +1,8 @@
 package fpt.project.bsmart.controller;
 
 
+import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.dto.notification.Message;
-import fpt.project.bsmart.entity.dto.notification.ResponseMessage;
 import fpt.project.bsmart.service.Impl.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;

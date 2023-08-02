@@ -40,4 +40,17 @@ public class AssignmentValidator {
         }
         return true;
     }
+
+    public static boolean isValidFileNumber(Integer maxFileSubmit, List<MultipartFile> submitFiles) {
+        return maxFileSubmit >= submitFiles.size();
+    }
+
+    public static boolean isTotalSizeWithinLimit(Integer totalSizeLimit, List<MultipartFile> files) {
+        long totalSize = 0;
+        for (MultipartFile part : files) {
+            totalSize += part.getSize();
+        }
+        return totalSize <= totalSizeLimit;
+    }
+
 }

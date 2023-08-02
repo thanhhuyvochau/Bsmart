@@ -48,6 +48,9 @@ public class UserDto {
     private boolean isVerified = false;
     private Integer finishedClassCount = 0;
 
+    private Instant timeSendRequest;
+    private Integer count;
+
     public Long getId() {
         return id;
     }
@@ -209,5 +212,21 @@ public class UserDto {
 
     public void setFinishedClassCount(Integer finishedClassCount) {
         this.finishedClassCount = finishedClassCount;
+    }
+    
+    public Instant getTimeSendRequest() {
+        return timeSendRequest;
+    }
+
+    public void setTimeSendRequest(Instant timeSendRequest) {
+        this.timeSendRequest = timeSendRequest;
+    }
+
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
     }
 }

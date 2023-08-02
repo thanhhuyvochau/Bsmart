@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ValidationErrors;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
+import fpt.project.bsmart.entity.constant.EActivityType;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
@@ -18,10 +19,7 @@ import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.mentor.ManagerGetRequestApprovalSkillResponse;
 import fpt.project.bsmart.entity.response.mentor.MentorGetRequestApprovalSkillResponse;
-import fpt.project.bsmart.repository.MentorProfileRepository;
-import fpt.project.bsmart.repository.MentorSkillRepository;
-import fpt.project.bsmart.repository.SubjectRepository;
-import fpt.project.bsmart.repository.UserImageRepository;
+import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IMentorProfileService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.MentorProfileSpecificationBuilder;
@@ -51,12 +49,15 @@ public class MentorProfileImpl implements IMentorProfileService {
 
     private final MentorSkillRepository mentorSkillRepository;
 
-    public MentorProfileImpl(MentorProfileRepository mentorProfileRepository, MentorSkillRepository mentorSkillRepository, SubjectRepository subjectRepository, MessageUtil messageUtil, UserImageRepository userImageRepository, MentorSkillRepository mentorSkillRepository1) {
+    private final ActivityHistoryRepository activityHistoryRepository;
+
+    public MentorProfileImpl(MentorProfileRepository mentorProfileRepository, MentorSkillRepository mentorSkillRepository, SubjectRepository subjectRepository, MessageUtil messageUtil, UserImageRepository userImageRepository, MentorSkillRepository mentorSkillRepository1, ActivityHistoryRepository activityHistoryRepository) {
         this.mentorProfileRepository = mentorProfileRepository;
         this.subjectRepository = subjectRepository;
         this.messageUtil = messageUtil;
         this.userImageRepository = userImageRepository;
         this.mentorSkillRepository = mentorSkillRepository1;
+        this.activityHistoryRepository = activityHistoryRepository;
     }
 
     private MentorProfile findById(Long id) {
@@ -110,10 +111,11 @@ public class MentorProfileImpl implements IMentorProfileService {
     @Override
     public ApiPage<UserDto> getPendingMentorProfileList(MentorSearchRequest request, Pageable pageable) {
         MentorProfileSpecificationBuilder builder = MentorProfileSpecificationBuilder.specificationBuilder()
-                .queryLike(request.getQ());
+                .queryLike(request.getQ())
+                .queryByStatus(request.getAccountStatus());
 
-        Page<MentorProfile> mentorProfilePage = mentorProfileRepository.findAll(builder.build(), pageable);
-        List<MentorProfile> mentorProfiles = mentorProfilePage.stream().collect(Collectors.toList());
+        List<MentorProfile> mentorProfiles = mentorProfileRepository.findAll(builder.build());
+
 
         List<UserDto> userDtoList = new ArrayList<>();
         for (MentorProfile mentorProfile : mentorProfiles) {
@@ -122,7 +124,10 @@ public class MentorProfileImpl implements IMentorProfileService {
             userDto.setWallet(null);
             userDtoList.add(userDto);
         }
-        return PageUtil.convert(new PageImpl<>(userDtoList, pageable, userDtoList.size()));
+
+        Page<UserDto> userDtos = PageUtil.toPage(userDtoList, pageable);
+
+        return PageUtil.convert(userDtos);
 
     }
 
@@ -148,7 +153,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         }
         mentorProfile.setSkills(skillsActive);
         mentorProfile.setStatus(managerApprovalAccountRequest.getStatus());
-        ActivityHistoryUtil.logHistoryForAccountApprove(mentorProfile.getUser(), managerApprovalAccountRequest.getMessage());
+//        ActivityHistoryUtil.logHistoryForAccountSendRequestApprove(mentorProfile.getUser(), managerApprovalAccountRequest.getMessage());
 
         return mentorProfileRepository.save(mentorProfile).getId();
 
@@ -207,7 +212,8 @@ public class MentorProfileImpl implements IMentorProfileService {
                 mentorSkill.setSkill(subject);
                 mentorSkill.setYearOfExperiences(mentorUpdateSkill.getYearOfExperiences());
                 mentorSkill.setMentorProfile(mentorProfile);
-                mentorSkill.setStatus(false);
+                mentorSkill.setStatus(true);
+                mentorSkill.setVerified(true);
                 mentorSkills.add(mentorSkill);
             }
             mentorProfile.setSkills(mentorSkills);
@@ -269,6 +275,13 @@ public class MentorProfileImpl implements IMentorProfileService {
 
         if (!invalidParams.isEmpty()) {
             throw new ValidationErrorsException(vaErr.getError().getInvalidParams(), vaErr.getError().getMessage());
+        }
+        ActivityHistory activityHistory = activityHistoryRepository.findByTypeAndActivityId(EActivityType.USER, currentUserAccountLogin.getId());
+        if (activityHistory != null) {
+            activityHistory.setCount(activityHistory.getCount() + 1);
+            activityHistoryRepository.save(activityHistory);
+        } else {
+            ActivityHistoryUtil.logHistoryForAccountSendRequestApprove(currentUserAccountLogin);
         }
 
         mentorProfile.setStatus(EMentorProfileStatus.WAITING);
@@ -430,7 +443,7 @@ public class MentorProfileImpl implements IMentorProfileService {
                 ManagerGetRequestApprovalSkillResponse.setTotalDegreeRequest(byUserAndStatus.size());
             }
 
-//            ManagerGetRequestApprovalSkillResponse.setId(user.getId());
+
             responseList.add(ManagerGetRequestApprovalSkillResponse);
         });
 
