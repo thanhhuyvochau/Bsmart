@@ -284,7 +284,7 @@ public class CourseServiceImpl implements ICourseService {
             Boolean isValidCourse = CourseUtil.checkCourseValidToSendApproval(course, user, classesInRequest);
 
             if (isValidCourse) {
-                course.setApproved(true);
+//                course.setApproved(true);
                 course.setStatus(WAITING);
                 courseRepository.save(course);
                 classesInRequest
@@ -296,7 +296,7 @@ public class CourseServiceImpl implements ICourseService {
                 ActivityHistory activityHistory = activityHistoryRepository.findByTypeAndActivityId(EActivityType.COURSE, course.getId());
                 if (activityHistory != null) {
                     Integer count = activityHistory.getCount();
-                    count = count+ 1 ;
+                    count = count + 1 ;
                     activityHistory.setCount(count);
                     activityHistoryRepository.save(activityHistory);
                 } else {
