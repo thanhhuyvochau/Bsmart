@@ -21,7 +21,7 @@ public class MentorSkill {
     private Boolean status;
 
     @Column(name = "verified")
-    private Boolean verified ;
+    private Boolean verified = false;
     public Long getId() {
         return Id;
     }

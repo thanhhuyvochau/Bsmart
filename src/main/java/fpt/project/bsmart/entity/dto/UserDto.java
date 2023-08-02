@@ -47,6 +47,9 @@ public class UserDto {
     private TeachInformationDTO teachInformation ;
     private boolean isVerified = false;
 
+    private Instant timeSendRequest;
+    private Integer count;
+
     public Long getId() {
         return id;
     }
@@ -200,5 +203,21 @@ public class UserDto {
 
     public void setVerified(boolean verified) {
         isVerified = verified;
+    }
+
+    public Instant getTimeSendRequest() {
+        return timeSendRequest;
+    }
+
+    public void setTimeSendRequest(Instant timeSendRequest) {
+        this.timeSendRequest = timeSendRequest;
+    }
+
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
     }
 }
