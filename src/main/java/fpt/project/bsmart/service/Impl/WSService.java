@@ -36,7 +36,7 @@ public class WSService {
 
     public String sayHello() {
         notificationService.sendSayHello();
-        messagingTemplate.convertAndSend("/topic/say-hello", "Just say hello");
+        messagingTemplate.convertAndSend("/", "Just say hello");
         return "Just say hello";
     }
 }

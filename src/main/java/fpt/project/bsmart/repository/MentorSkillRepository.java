@@ -15,7 +15,7 @@ public interface MentorSkillRepository extends JpaRepository<MentorSkill, Long> 
 
     List<MentorSkill> findBySkill_InAndStatus (List<Subject> skillIds, Boolean Status) ;
 
-    Optional<MentorSkill> findByMentorProfileAndSkillIdAndStatus (MentorProfile mentorProfile ,Long skillIds, Boolean Status) ;
-    List<MentorSkill> findByStatus (Boolean Status) ;
+    Optional<MentorSkill> findByMentorProfileAndSkillIdAndStatusAndVerified (MentorProfile mentorProfile ,Long skillIds, Boolean Status ,Boolean verified) ;
+    List<MentorSkill> findByStatusAndVerified  (Boolean Status, Boolean verified) ;
 
 }
