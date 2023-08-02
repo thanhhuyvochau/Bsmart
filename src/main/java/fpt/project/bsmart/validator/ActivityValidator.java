@@ -45,7 +45,8 @@ public class ActivityValidator {
         if (addQuizRequest.getCode().trim().isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_CODE));
         }
-        if (addQuizRequest.getStartDate().isAfter(Instant.now())){
+        
+        if (addQuizRequest.getStartDate().isBefore(Instant.now())){
            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_NOW_DATE));
         }
 
