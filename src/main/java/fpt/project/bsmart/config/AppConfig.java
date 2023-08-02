@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import net.sourceforge.tess4j.Tesseract;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,14 +48,6 @@ public class AppConfig {
         System.out.println("Generate offensive word list success, total element: " + offensiveWords.size());
         return offensiveWords;
     }
-
-    @Bean
-    Tesseract getTesseract() {
-        Tesseract tesseract = new Tesseract();
-        tesseract.setDatapath("C:/Program Files/Tesseract-OCR/tessdata");
-        return tesseract;
-    }
-
     @Bean
     @Primary
     public ObjectMapper objectMapper() {

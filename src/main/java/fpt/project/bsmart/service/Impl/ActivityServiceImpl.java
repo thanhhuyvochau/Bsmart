@@ -465,11 +465,21 @@ public class ActivityServiceImpl implements IActivityService {
 
         } else if (!AssignmentValidator.isValidFileExtension(assignment, submittedFiles)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Định dạng file không hợp lệ (docx, doc, xlsx, xls, csv, pptx, ppt, pdf)");
+        } else if (!AssignmentValidator.isValidFileNumber(assignment.getMaxFileSubmit(), submittedFiles)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Số lượng file vượt quá:" + assignment.getMaxFileSubmit());
+        } else if (!AssignmentValidator.isTotalSizeWithinLimit(assignment.getMaxFileSize(), submittedFiles)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Tổng dung lượng file nộp vượt quá " + assignment.getMaxFileSize() + " Mb");
         }
+        AssignmentSubmition assignmentSubmition = null;
         StudentClass studentClass = ClassUtil.findUserInClass(clazz, currentUser);
-        AssignmentSubmition assignmentSubmition = new AssignmentSubmition();
-        assignmentSubmition.setAssignment(assignment);
-        assignmentSubmition.setStudentClass(studentClass);
+        Optional<AssignmentSubmition> submitionOptional = assignmentSubmittionRepository.findByStudentClass(studentClass);
+        if (submitionOptional.isPresent()) {
+            assignmentSubmition = submitionOptional.get();
+        } else {
+            assignmentSubmition = new AssignmentSubmition();
+            assignmentSubmition.setAssignment(assignment);
+            assignmentSubmition.setStudentClass(studentClass);
+        }
         assignmentSubmition.setNote(request.getNote());
         List<AssignmentFile> assignmentFiles = assignmentSubmition.getAssignmentFiles();
         for (MultipartFile submittedFile : request.getSubmittedFiles()) {

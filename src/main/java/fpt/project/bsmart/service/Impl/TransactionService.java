@@ -9,6 +9,7 @@ import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EOrderStatus;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETransactionType;
+import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.DepositRequest;
 import fpt.project.bsmart.entity.request.PayCourseRequest;
@@ -294,7 +295,7 @@ public class TransactionService implements ITransactionService {
                 studentClass.setClazz(orderedClass);
                 orderedClass.getStudentClasses().add(studentClass);
             }
-            webSocketUtil.sendPrivateNotification("Order Successful!!");
+            webSocketUtil.sendPrivateNotification(order.getUser().getEmail(), new ResponseMessage("Bạn đã thanh toán thành công"));
             classRepository.saveAll(orderedClasses);
         }
 

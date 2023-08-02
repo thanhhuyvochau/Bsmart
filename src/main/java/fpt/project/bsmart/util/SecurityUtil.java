@@ -92,7 +92,7 @@ public class SecurityUtil {
             return Optional.empty();
         }
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        return Optional.ofNullable(userDetails.getEmail());
+        return Optional.ofNullable(userDetails.getUsername());
     }
 
     public static Boolean isHasAnyRole(User user, EUserRole... checkedRoleCodes) {
