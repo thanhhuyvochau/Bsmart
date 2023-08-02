@@ -46,6 +46,7 @@ public class UserDto {
 
     private TeachInformationDTO teachInformation ;
     private boolean isVerified = false;
+    private Integer finishedClassCount = 0;
 
     private Instant timeSendRequest;
     private Integer count;
@@ -205,6 +206,14 @@ public class UserDto {
         isVerified = verified;
     }
 
+    public Integer getFinishedClassCount() {
+        return finishedClassCount;
+    }
+
+    public void setFinishedClassCount(Integer finishedClassCount) {
+        this.finishedClassCount = finishedClassCount;
+    }
+    
     public Instant getTimeSendRequest() {
         return timeSendRequest;
     }

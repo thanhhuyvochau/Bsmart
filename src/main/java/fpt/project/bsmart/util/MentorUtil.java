@@ -4,6 +4,7 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
@@ -12,6 +13,10 @@ import fpt.project.bsmart.entity.dto.MentorSkillDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
+import fpt.project.bsmart.repository.ClassRepository;
+import fpt.project.bsmart.repository.FeedbackSubmissionRepository;
+import fpt.project.bsmart.util.specification.ClassSpecificationBuilder;
+import fpt.project.bsmart.util.specification.FeedbackSubmissionSpecificationBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -30,10 +35,11 @@ public class MentorUtil {
 
 
     private static MessageUtil staticMessageUtil;
+    private static FeedbackSubmissionRepository staticFeedbackSubmissionRepository;
 
-    public MentorUtil(MessageUtil messageUtil) {
+    public MentorUtil(MessageUtil messageUtil, FeedbackSubmissionRepository feedbackSubmissionRepository) {
         staticMessageUtil = messageUtil;
-
+        staticFeedbackSubmissionRepository = feedbackSubmissionRepository;
     }
 
     public static Boolean checkMentorStatusToUpdateInformation(MentorProfile mentorProfile) {
@@ -55,9 +61,14 @@ public class MentorUtil {
         List<StudentClass> studentClasses = user.getStudentClasses();
         List<Class> classesOfMentor = studentClasses.stream().map(StudentClass::getClazz).distinct().collect(Collectors.toList());
         List<User> membersOfMentor = studentClasses.stream().map(StudentClass::getStudent).distinct().collect(Collectors.toList());
+        FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
+                        .filterByMentor(user.getId());
+        List<FeedbackSubmission> feedbackSubmissions = staticFeedbackSubmissionRepository.findAll(builder.build());
         teachInformationDTO.setNumberOfCourse(courses.size());
         teachInformationDTO.setNumberOfClass(classesOfMentor.size());
         teachInformationDTO.setNumberOfMember(membersOfMentor.size());
+        teachInformationDTO.setNumberOfFeedBack(feedbackSubmissions.size());
+        teachInformationDTO.setScoreFeedback(FeedbackUtil.calculateCourseRate(feedbackSubmissions));
         return teachInformationDTO;
     }
 

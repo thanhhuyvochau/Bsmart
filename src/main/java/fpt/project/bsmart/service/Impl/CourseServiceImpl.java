@@ -89,7 +89,7 @@ public class CourseServiceImpl implements ICourseService {
                 .queryBySubjectId(request.getSubjectId())
                 .queryByCategoryId(request.getCategoryId());
         Page<Course> coursePage = courseRepository.findAll(builder.build(), pageable);
-        return PageUtil.convert(coursePage.map(ConvertUtil::convertCourseCourseResponsePage));
+        return PageUtil.convert(coursePage.map(ConvertUtil::convertCourseCourseResponse));
     }
 
     @Override
@@ -196,7 +196,7 @@ public class CourseServiceImpl implements ICourseService {
                 .queryByCategoryId(query.getCategoryId());
 
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
-        return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponsePage));
+        return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseCourseResponse));
     }
 
     @Override
