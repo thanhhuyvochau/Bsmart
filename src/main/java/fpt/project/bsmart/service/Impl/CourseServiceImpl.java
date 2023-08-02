@@ -242,7 +242,7 @@ public class CourseServiceImpl implements ICourseService {
 
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
         return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseToManagerGetCourse));
-
+//        return PageUtil.convert(new PageImpl<>(userDtoList, pageable, userDtoList.size()));
     }
 
     @Override
