@@ -77,8 +77,8 @@ public class TransactionController {
 
     @Operation(summary = "Thanh toán khóa học từ giỏ hàng")
     @GetMapping("/pay/vnpay/result")
-    public void getResultOfPayByVnPay(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        iTransactionService.executeAfterPayment(request);
+    public ResponseEntity<ApiResponse<Boolean>> getResultOfPayByVnPay(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.executeAfterPayment(request)));
     }
 
 }

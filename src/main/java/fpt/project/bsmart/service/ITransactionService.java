@@ -27,7 +27,7 @@ public interface ITransactionService {
 
     VnPayResponse payQuickCourse(HttpServletRequest req, VpnPayRequest request) throws UnsupportedEncodingException;
 
-    void executeAfterPayment(HttpServletRequest request);
+    Boolean executeAfterPayment(HttpServletRequest request);
 
 //    Boolean getBankPaymentResult(Long transaction)
 

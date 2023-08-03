@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
 @Component
 public class WebSocketUtil {
 
@@ -20,16 +18,19 @@ public class WebSocketUtil {
     }
 
     public static final String BASE_TOPIC = "/topic/message";
-    public static final String QUEUE_PRIVATE = "/queue/private-message";
+    public static final String QUEUE_PRIVATE = "/queue/message";
 
-    public void sendNotification(final String topic, final String message) {
-        ResponseMessage res = new ResponseMessage(message);
-        messagingTemplate.convertAndSend(BASE_TOPIC, res);
+    public void sendNotification(String topic, ResponseMessage message) {
+        if (topic == null || topic.isEmpty()) {
+            topic = BASE_TOPIC;
+        }
+        ApiResponse<ResponseMessage> apiResponse = ApiResponse.success(message);
+        messagingTemplate.convertAndSend(topic, apiResponse);
     }
 
-    public void sendPrivateNotification(String userID, ResponseMessage res) {
-        ApiResponse<ResponseMessage> apiResponse = ApiResponse.success(res);
-        Optional<String> usernameOptional = SecurityUtil.getCurrentUserName();
-        usernameOptional.ifPresent(s -> messagingTemplate.convertAndSendToUser(userID, QUEUE_PRIVATE, apiResponse));
+    public void sendPrivateNotification(String userID, ResponseMessage message) {
+        ApiResponse<ResponseMessage> apiResponse = ApiResponse.success(message);
+        System.out.println("------------Subcribe URL:" + QUEUE_PRIVATE + userID);
+        messagingTemplate.convertAndSend(QUEUE_PRIVATE + userID, apiResponse);
     }
 }

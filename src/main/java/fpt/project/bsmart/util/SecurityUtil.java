@@ -92,6 +92,7 @@ public class SecurityUtil {
             return Optional.empty();
         }
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        System.out.println("------PRINCIPAL----:" + userDetails.getUsername());
         return Optional.ofNullable(userDetails.getUsername());
     }
 
