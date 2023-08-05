@@ -1,5 +1,6 @@
 package fpt.project.bsmart.entity.dto.feedback;
 
+import fpt.project.bsmart.entity.constant.EFeedbackAnswerType;
 import fpt.project.bsmart.entity.constant.EFeedbackType;
 
 import java.util.ArrayList;
@@ -9,6 +10,8 @@ public class FeedbackTemplateDto {
     private Long id;
     private String name;
     private EFeedbackType type;
+
+    private int totalClassUsed = 0 ;
     private Boolean isDefault = false;
     private Boolean isFixed = false;
     private List<FeedbackQuestionDto> questions = new ArrayList<>();
@@ -19,6 +22,31 @@ public class FeedbackTemplateDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+
+    public int getTotalClassUsed() {
+        return totalClassUsed;
+    }
+
+    public void setTotalClassUsed(int totalClassUsed) {
+        this.totalClassUsed = totalClassUsed;
+    }
+
+    public Boolean getDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(Boolean aDefault) {
+        isDefault = aDefault;
+    }
+
+    public Boolean getFixed() {
+        return isFixed;
+    }
+
+    public void setFixed(Boolean fixed) {
+        isFixed = fixed;
     }
 
     public String getName() {
@@ -61,9 +89,21 @@ public class FeedbackTemplateDto {
         this.questions = questions;
     }
 
-    public static class FeedbackQuestionDto{
+    public static class FeedbackQuestionDto {
+
+
         private String question;
+
+        private EFeedbackAnswerType answerType;
         private List<FeedbackAnswerDto> answers = new ArrayList<>();
+
+        public EFeedbackAnswerType getAnswerType() {
+            return answerType;
+        }
+
+        public void setAnswerType(EFeedbackAnswerType answerType) {
+            this.answerType = answerType;
+        }
 
         public String getQuestion() {
             return question;
@@ -82,8 +122,12 @@ public class FeedbackTemplateDto {
         }
     }
 
-    public static class FeedbackAnswerDto{
+    public static class FeedbackAnswerDto {
+
+
         private String answer;
+
+
 
         public String getAnswer() {
             return answer;

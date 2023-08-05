@@ -48,19 +48,8 @@ public class MentorProfileController {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getAllMentorProfiles()));
     }
 
-    @Operation(summary = "Manager Lấy danh sách giảng viên chờ duyệt")
-    @PreAuthorize("hasAnyRole('MANAGER')")
-    @GetMapping("/pending")
-    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getPendingMentorProfile(@Nullable MentorSearchRequest request, Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getPendingMentorProfileList(request, pageable)));
-    }
 
-    @Operation(summary = "Manager phê duyêt / từ chối / yêu cầu thay đổi  hồ sơ mentor")
-    @PreAuthorize("hasAnyRole('MANAGER')")
-    @PutMapping("/{id}/approval")
-    public ResponseEntity<ApiResponse<Long>> approveMentorProfile(@PathVariable Long id, @RequestBody ManagerApprovalAccountRequest managerApprovalAccountRequest) {
-        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.approveMentorProfile(id, managerApprovalAccountRequest)));
-    }
+    //     ################################## START MENTOR  ##########################################
 
     @Operation(summary = "Cập nhật hồ sơ giảng viên")
     @PreAuthorize("hasAnyRole('TEACHER')")
@@ -77,12 +66,6 @@ public class MentorProfileController {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateCertificate(imageRequests)));
     }
 
-//    @Operation(summary = "CHƯA HỖ TRỢ --- Upload chứng chỉ của giảng viên")
-//    @PreAuthorize("hasAnyRole('TEACHER')")
-//    @PostMapping("/certificate")
-//    public ResponseEntity<ApiResponse<List<Long>>> updateAvatar(List<ImageRequest> imageRequests){
-//        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.updateCertificate(imageRequests)));
-//    }
 
     @Operation(summary = "Lấy thông tin profile mentor chưa hoàn thiện và % ")
     @PreAuthorize("hasAnyRole('TEACHER')")
@@ -98,8 +81,6 @@ public class MentorProfileController {
     public ResponseEntity<ApiResponse<Boolean>> mentorCreateApprovalSkill(@RequestBody MentorSendAddSkill mentorSendAddSkill) {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorCreateApprovalSkill(mentorSendAddSkill)));
     }
-
-
 
 
     @Operation(summary = "mentor gửi yêu cầu phê duệt tài khoản")
@@ -119,8 +100,28 @@ public class MentorProfileController {
     @Operation(summary = "mentor lấy các cầu dạy thêm môn học mới chưa gửi phê duyệt")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/request-approval")
-    public ResponseEntity<ApiResponse< List<MentorGetRequestApprovalSkillResponse>>> ManagerGetRequestApprovalSkillResponse() throws Exception {
+    public ResponseEntity<ApiResponse<List<MentorGetRequestApprovalSkillResponse>>> ManagerGetRequestApprovalSkillResponse() throws Exception {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.ManagerGetRequestApprovalSkillResponse()));
+    }
+
+    //     ################################## START MENTOR  ##########################################
+
+
+    //     ################################## START MANAGER ##########################################
+
+
+    @Operation(summary = "Manager Lấy danh sách giảng viên chờ duyệt")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @GetMapping("/pending")
+    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getPendingMentorProfile(@Nullable MentorSearchRequest request, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getPendingMentorProfileList(request, pageable)));
+    }
+
+    @Operation(summary = "Manager( phê duyêt / từ chối / yêu cầu thay đổi )  hồ sơ mentor  + handle Phỏng vấn ")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PutMapping("/{id}/approval")
+    public ResponseEntity<ApiResponse<Long>> approveMentorProfile(@PathVariable Long id, @RequestBody ManagerApprovalAccountRequest managerApprovalAccountRequest) {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.approveMentorProfile(id, managerApprovalAccountRequest)));
     }
 
     @Operation(summary = "manager lấy yêu câu  mở  thêm môn học mới của mentor ")
@@ -139,5 +140,6 @@ public class MentorProfileController {
     }
 
 
+    //     ################################## END MANAGER ##########################################
 
 }

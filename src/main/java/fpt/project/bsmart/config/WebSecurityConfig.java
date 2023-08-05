@@ -58,7 +58,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private UnAuthorizedUserAuthenticationEntryPoint authenticationEntryPoint;
     @Autowired
     private AuthTokenFilter secFilter;
-    private final String[] PERMIT_ENDPOINT = {"/api/users/register", "/api/users/login", "/oauth2/**", "/api/transactions/pay/vnpay/result", "/swagger-ui/**", "/websocket/**", "/send-message/**"};
+    private final String[] PERMIT_ENDPOINT = {"/api/**" ,"/api/users/register", "/api/users/login", "/oauth2/**", "/api/transactions/pay/vnpay/result", "/swagger-ui/**", "/websocket/**", "/send-message/**"};
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

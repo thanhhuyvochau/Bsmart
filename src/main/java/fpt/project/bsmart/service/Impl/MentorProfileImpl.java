@@ -112,6 +112,7 @@ public class MentorProfileImpl implements IMentorProfileService {
     public ApiPage<UserDto> getPendingMentorProfileList(MentorSearchRequest request, Pageable pageable) {
         MentorProfileSpecificationBuilder builder = MentorProfileSpecificationBuilder.specificationBuilder()
                 .queryLike(request.getQ())
+                .queryByStatusInterviewed(request.getInterviewed())
                 .queryByStatus(request.getAccountStatus());
 
         List<MentorProfile> mentorProfiles = mentorProfileRepository.findAll(builder.build());
@@ -134,6 +135,7 @@ public class MentorProfileImpl implements IMentorProfileService {
     @Transactional
     @Override
     public Long approveMentorProfile(Long id, ManagerApprovalAccountRequest managerApprovalAccountRequest) {
+
         MentorProfile mentorProfile = findById(id);
 
         if (mentorProfile.getUser() == null) {
@@ -142,17 +144,25 @@ public class MentorProfileImpl implements IMentorProfileService {
 
         validateApprovalAccountRequest(managerApprovalAccountRequest.getStatus());
 
-        if (mentorProfile.getStatus() != EMentorProfileStatus.WAITING) {
+
+        if (mentorProfile.getStatus() != EMentorProfileStatus.WAITING && mentorProfile.getStatus() != EMentorProfileStatus.STARTING) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW) + mentorProfile.getStatus());
         }
-        List<MentorSkill> skills = mentorProfile.getSkills();
-        List<MentorSkill> skillsActive = new ArrayList<>();
-        for (MentorSkill skill : skills) {
-            skill.setStatus(true);
-            skillsActive.add(skill);
+
+        if (mentorProfile.getStatus() == EMentorProfileStatus.STARTING) {
+            List<MentorSkill> skills = mentorProfile.getSkills();
+            List<MentorSkill> skillsActive = new ArrayList<>();
+            for (MentorSkill skill : skills) {
+                skill.setStatus(true);
+                skillsActive.add(skill);
+            }
+            mentorProfile.setSkills(skillsActive);
         }
-        mentorProfile.setSkills(skillsActive);
         mentorProfile.setStatus(managerApprovalAccountRequest.getStatus());
+
+        // gán giá trị xem profile này đã phỏng vấn chưa
+        // nếu chưa thì sẽ chuyển qua tab mentor chờ PV rồi mới được làm mentor chính thưc của hệ thông .
+        mentorProfile.setInterviewed(managerApprovalAccountRequest.getInterviewed());
 //        ActivityHistoryUtil.logHistoryForAccountSendRequestApprove(mentorProfile.getUser(), managerApprovalAccountRequest.getMessage());
 
         return mentorProfileRepository.save(mentorProfile).getId();
@@ -350,7 +360,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         // check request & DB
         List<Long> skillIds = managerApprovalSkillRequest.getSkillIds();
         for (Long skillId : skillIds) {
-            MentorSkill bySkillIdAndStatus = mentorSkillRepository.findByMentorProfileAndSkillIdAndStatusAndVerified(mentorProfile, skillId, true,false)
+            MentorSkill bySkillIdAndStatus = mentorSkillRepository.findByMentorProfileAndSkillIdAndStatusAndVerified(mentorProfile, skillId, true, false)
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                             .withMessage("Môn học với ID " + skillId + " không có sẵn trong yêu cầu phê duyệt của giáo viên "));
 

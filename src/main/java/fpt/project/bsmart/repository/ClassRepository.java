@@ -2,6 +2,7 @@ package fpt.project.bsmart.repository;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.Course;
+import fpt.project.bsmart.entity.FeedbackTemplate;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,8 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
 
     List<Class> findByStatus(ECourseStatus status) ;
 
+    List<Class> findByStatus_In(List<ECourseStatus> status) ;
+
     Page<Class> findByCourse(Course course, Pageable pageable);
 
     Page<Class> findByMentorAndStatus(User user, ECourseStatus status, Pageable pageable);
@@ -35,4 +38,6 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
 
     List<Class> findByStartDate(Instant startDate);
 
+
+    List<Class> findByFeedbackTemplate(FeedbackTemplate feedbackTemplate);
 }
