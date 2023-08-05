@@ -9,6 +9,7 @@ import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.*;
 import fpt.project.bsmart.entity.response.VerifyResponse;
+import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -51,4 +52,8 @@ public interface IUserService {
     User registerNewUser(final SignUpRequest signUpRequest);
 
     User getUserByEmail(String username);
+
+    UserDto managerGetMentorDetail(Long id);
+
+    MemberDetailResponse managerGetMemberDetail(Long id);
 }

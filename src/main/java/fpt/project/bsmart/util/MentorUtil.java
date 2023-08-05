@@ -35,11 +35,16 @@ public class MentorUtil {
 
 
     private static MessageUtil staticMessageUtil;
+
+    private static ClassRepository staticClassRepository;
     private static FeedbackSubmissionRepository staticFeedbackSubmissionRepository;
 
-    public MentorUtil(MessageUtil messageUtil, FeedbackSubmissionRepository feedbackSubmissionRepository) {
+    public MentorUtil(MessageUtil messageUtil,
+                      FeedbackSubmissionRepository feedbackSubmissionRepository,
+                      ClassRepository classRepository) {
         staticMessageUtil = messageUtil;
         staticFeedbackSubmissionRepository = feedbackSubmissionRepository;
+        staticClassRepository = classRepository;
     }
 
     public static Boolean checkMentorStatusToUpdateInformation(MentorProfile mentorProfile) {
@@ -62,7 +67,7 @@ public class MentorUtil {
         List<Class> classesOfMentor = studentClasses.stream().map(StudentClass::getClazz).distinct().collect(Collectors.toList());
         List<User> membersOfMentor = studentClasses.stream().map(StudentClass::getStudent).distinct().collect(Collectors.toList());
         FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
-                        .filterByMentor(user.getId());
+                .filterByMentor(user.getId());
         List<FeedbackSubmission> feedbackSubmissions = staticFeedbackSubmissionRepository.findAll(builder.build());
         teachInformationDTO.setNumberOfCourse(courses.size());
         teachInformationDTO.setNumberOfClass(classesOfMentor.size());
@@ -76,6 +81,8 @@ public class MentorUtil {
     public static MentorDto convertUserToMentorDto(User user) {
         MentorProfile mentorProfile = user.getMentorProfile();
         MentorDto mentorDto = ObjectUtil.copyProperties(mentorProfile, new MentorDto(), MentorDto.class);
+        mentorDto.setPhone(user.getPhone());
+        mentorDto.setTimeParticipation(user.getCreated());
         if (user.getFullName() != null) {
             mentorDto.setName(user.getFullName());
         }
@@ -84,8 +91,8 @@ public class MentorUtil {
         }
         List<UserImage> userImages = user.getUserImages();
         List<UserImage> avatar = userImages.stream().filter(userImage -> userImage.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
-        if (userImages != null && avatar.size() > 0  ) {
-            UserImage userImage = avatar.stream().filter(UserImage::getStatus ).findFirst().get();
+        if (userImages != null && avatar.size() > 0) {
+            UserImage userImage = avatar.stream().filter(UserImage::getStatus).findFirst().get();
             ImageDto imageDto = ConvertUtil.convertUserImageToUserImageDto(userImage);
             mentorDto.setAvatar(imageDto);
         }
@@ -320,5 +327,30 @@ public class MentorUtil {
 
 
         return response;
+    }
+
+    public static TeachInformationDTO setTeachInformationForMentor(User user) {
+        MentorProfile mentorProfile = user.getMentorProfile();
+        ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
+                .byMentor(user)
+                .filterByStatus(ECourseStatus.ENDED);
+        List<Class> classes = staticClassRepository.findAll(classSpecificationBuilder.build());
+        Integer numberOfMember = classes.stream().map(Class::getStudentClasses).distinct().collect(Collectors.toList()).stream().map(x -> x.size()).mapToInt(Integer::intValue).sum();
+
+        FeedbackSubmissionSpecificationBuilder feedbackSubmissionSpecificationBuilder = FeedbackSubmissionSpecificationBuilder.
+                feedbackSubmissionSpecificationBuilder()
+                .filterByMentor(mentorProfile.getId());
+
+        List<FeedbackSubmission> feedbackSubmissions = staticFeedbackSubmissionRepository.findAll(feedbackSubmissionSpecificationBuilder.build());
+
+        TeachInformationDTO teachInformationDTO = new TeachInformationDTO();
+        teachInformationDTO.setNumberOfCourse(user.getCourses().size());
+        teachInformationDTO.setNumberOfClass(classes.size());
+        teachInformationDTO.setNumberOfMember(numberOfMember);
+        teachInformationDTO.setNumberOfFeedBack(feedbackSubmissions.size());
+        teachInformationDTO.setScoreFeedback(FeedbackUtil.calculateCourseRate(feedbackSubmissions));
+
+
+        return teachInformationDTO;
     }
 }

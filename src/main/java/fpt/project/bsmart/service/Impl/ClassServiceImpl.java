@@ -237,9 +237,14 @@ public class ClassServiceImpl implements IClassService {
 
     @Override
     public ManagerGetCourseClassResponse getAllClassOfCourseForManager(Long id) {
-        Course course = courseRepository.findByIdAndStatus(id, WAITING)
+//        Course course = courseRepository.findByIdAndStatus(id, WAITING)
+//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+//                        .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+
+        Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+
         ManagerGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponseManager(course);
         List<Activity> sectionActivities = course.getActivities().stream()
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))

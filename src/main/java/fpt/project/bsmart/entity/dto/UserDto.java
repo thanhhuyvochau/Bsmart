@@ -14,13 +14,12 @@ public class UserDto {
 
     private Long id;
 
-
     private String fullName;
 
-    private String email;
-    //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-    private Instant birthday;
 
+    private String email;
+
+    private Instant birthday;
 
     private String address;
 
@@ -44,7 +43,7 @@ public class UserDto {
 
     private MentorProfileDTO mentorProfile;
 
-    private TeachInformationDTO teachInformation ;
+    private TeachInformationDTO teachInformation;
     private boolean isVerified = false;
     private Integer finishedClassCount = 0;
 
@@ -213,7 +212,7 @@ public class UserDto {
     public void setFinishedClassCount(Integer finishedClassCount) {
         this.finishedClassCount = finishedClassCount;
     }
-    
+
     public Instant getTimeSendRequest() {
         return timeSendRequest;
     }

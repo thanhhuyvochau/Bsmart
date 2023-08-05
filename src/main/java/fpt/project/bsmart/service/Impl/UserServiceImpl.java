@@ -17,6 +17,7 @@ import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.*;
 import fpt.project.bsmart.entity.response.VerifyResponse;
+import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.*;
@@ -24,6 +25,7 @@ import fpt.project.bsmart.util.adapter.MinioAdapter;
 import fpt.project.bsmart.util.email.EmailUtil;
 import fpt.project.bsmart.util.specification.ClassSpecificationBuilder;
 import fpt.project.bsmart.util.specification.FeedbackSubmissionSpecificationBuilder;
+import fpt.project.bsmart.util.specification.MentorProfileSpecificationBuilder;
 import fpt.project.bsmart.util.specification.UserSpecificationBuilder;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -132,10 +134,16 @@ public class UserServiceImpl implements IUserService {
         }
         UserDto userDto = ConvertUtil.convertUserForMentorProfilePage(user);
         TeachInformationDTO teachInformationDTO = new TeachInformationDTO();
-        ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder().byMentor(user).filterByStatus(ECourseStatus.ENDED);
+        ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
+                        .byMentor(user)
+                      .filterByStatus(ECourseStatus.ENDED);
         List<Class> classes = classRepository.findAll(classSpecificationBuilder.build());
         Integer numberOfMember = classes.stream().map(Class::getStudentClasses).distinct().collect(Collectors.toList()).stream().map(x -> x.size()).mapToInt(Integer::intValue).sum();
-        FeedbackSubmissionSpecificationBuilder feedbackSubmissionSpecificationBuilder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder().filterByMentor(id);
+
+        FeedbackSubmissionSpecificationBuilder feedbackSubmissionSpecificationBuilder = FeedbackSubmissionSpecificationBuilder.
+                feedbackSubmissionSpecificationBuilder()
+                .filterByMentor(id);
+
         List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(feedbackSubmissionSpecificationBuilder.build());
         teachInformationDTO.setNumberOfCourse(user.getCourses().size());
         teachInformationDTO.setNumberOfClass(classes.size());
@@ -541,6 +549,21 @@ public class UserServiceImpl implements IUserService {
     @Override
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + email));
+    }
+
+    @Override
+    public UserDto managerGetMentorDetail(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id));
+        return ConvertUtil.convertUsertoUserDto(user);
+    }
+
+    @Override
+    public MemberDetailResponse managerGetMemberDetail(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id));
+        return ConvertUtil.convertUserToMemberDetailResponse(user);
+
     }
 
     @Override

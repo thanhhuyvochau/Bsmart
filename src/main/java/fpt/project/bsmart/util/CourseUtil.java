@@ -4,12 +4,16 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.EActivityType;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EOrderStatus;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
+import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import fpt.project.bsmart.entity.response.MentorGetCourseClassResponse;
+import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
+import fpt.project.bsmart.repository.ActivityHistoryRepository;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.StudentClassRepository;
 import org.springframework.http.HttpStatus;
@@ -32,9 +36,12 @@ public class CourseUtil {
 
     private static ClassRepository staticClassRepository;
 
-    public CourseUtil(ClassRepository classRepository, MessageUtil messageUtil) {
+    private static ActivityHistoryRepository staticActivityHistoryRepository;
+
+    public CourseUtil(ClassRepository classRepository, MessageUtil messageUtil, ActivityHistoryRepository activityHistoryRepository) {
         staticMessageUtil = messageUtil;
         staticClassRepository = classRepository;
+        staticActivityHistoryRepository = activityHistoryRepository ;
     }
 
     public static void checkCourseOwnership(Course course, User user) {
@@ -266,9 +273,22 @@ public class CourseUtil {
         courseResponse.setLevel(course.getLevel());
         if (course.getCreator() != null) {
             MentorDto mentorDto = MentorUtil.convertUserToMentorDto(course.getCreator());
+            TeachInformationDTO teachInformationDTO = MentorUtil.setTeachInformationForMentor(course.getCreator());
+            mentorDto.setTeachInformation(teachInformationDTO);
             courseResponse.setMentor(mentorDto);
         }
 
+
+        ActivityHistory byUserCourse = staticActivityHistoryRepository.findByTypeAndActivityId(EActivityType.COURSE, course.getId());
+
+
+
+        if (byUserCourse != null) {
+            courseResponse.setCount(byUserCourse.getCount());
+            courseResponse.setTimeSendRequest(byUserCourse.getLastModified());
+        }
+
+        courseResponse.setApproved(course.getApproved());
 
         Subject subject = course.getSubject();
         if (subject != null) {
@@ -290,9 +310,9 @@ public class CourseUtil {
         });
         courseResponse.setClasses(classDetailResponses);
 
+
         return courseResponse;
     }
-
 
 
 }
