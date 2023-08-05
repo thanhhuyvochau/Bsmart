@@ -5,11 +5,12 @@ import fpt.project.bsmart.config.security.oauth2.dto.LocalUser;
 import fpt.project.bsmart.config.security.oauth2.dto.SignUpRequest;
 import fpt.project.bsmart.config.security.oauth2.user.OAuth2UserInfo;
 import fpt.project.bsmart.config.security.oauth2.user.OAuth2UserInfoFactory;
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.*;
+import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
@@ -72,12 +73,13 @@ public class UserServiceImpl implements IUserService {
 
     private final VerificationRepository verificationRepository;
 
-    private final NotificationUtil notificationUtil;
+    private final NotificationRepository notificationRepository;
     private final ClassRepository classRepository;
     private final FeedbackSubmissionRepository feedbackSubmissionRepository;
+    private final WebSocketUtil webSocketUtil;
 
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, UserImageRepository userImageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationUtil notificationUtil, ClassRepository classRepository, FeedbackSubmissionRepository feedbackSubmissionRepository) {
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, UserImageRepository userImageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationRepository notificationRepository, ClassRepository classRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, WebSocketUtil webSocketUtil) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
@@ -88,9 +90,10 @@ public class UserServiceImpl implements IUserService {
         this.minioAdapter = minioAdapter;
         this.emailUtil = emailUtil;
         this.verificationRepository = verificationRepository;
-        this.notificationUtil = notificationUtil;
+        this.notificationRepository = notificationRepository;
         this.classRepository = classRepository;
         this.feedbackSubmissionRepository = feedbackSubmissionRepository;
+        this.webSocketUtil = webSocketUtil;
     }
 
     private static void accept(UserImage userImage) {
@@ -441,7 +444,14 @@ public class UserServiceImpl implements IUserService {
         User savedUser = userRepository.save(user);
         // Send verify mail
         emailUtil.sendVerifyEmailTo(savedUser);
-        notificationUtil.sendNotification("thanh cong", "thanh cong", createAccountRequest.getEmail(), user);
+        Notification.Builder builder = Notification.Builder.getBuilder();
+        Notification notification = builder
+                .viTitle("Đăng kí thành công")
+                .viContent("Chúc mừng bạn đã đăng ký tài khoản thành công")
+                .user(savedUser).build();
+        notificationRepository.save(notification);
+        ResponseMessage responseMessage = builder.buildAsResponseMessage();
+        webSocketUtil.sendPrivateNotification(createAccountRequest.getEmail(), responseMessage);
         return savedUser.getId();
     }
 

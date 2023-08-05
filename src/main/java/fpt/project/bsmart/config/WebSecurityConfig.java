@@ -7,6 +7,7 @@ import fpt.project.bsmart.config.security.oauth2.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -15,7 +16,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
@@ -58,6 +58,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private UnAuthorizedUserAuthenticationEntryPoint authenticationEntryPoint;
     @Autowired
     private AuthTokenFilter secFilter;
+    private final String[] PERMIT_ENDPOINT = {"/api/**" ,"/api/users/register", "/api/users/login", "/oauth2/**", "/api/transactions/pay/vnpay/result", "/swagger-ui/**", "/websocket/**", "/send-message/**"};
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -75,38 +76,43 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         /**Config for deployment */
+//        http.cors().configurationSource(corsConfigurationSource())
+//                .and().csrf().disable()
+//                .authorizeRequests()
+//                .antMatchers(PERMIT_ENDPOINT).permitAll()
+//                .anyRequest().authenticated()
+//                .and().exceptionHandling()
+//                .authenticationEntryPoint(authenticationEntryPoint);
+
+
         http.cors().configurationSource(corsConfigurationSource())
                 .and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/swagger-ui/**").permitAll()
-                .antMatchers("/v3/api-docs/**").permitAll()
-                .antMatchers("/websocket/**").permitAll()
-                .antMatchers("/send-message/**").permitAll()
-                .antMatchers("/say-hello/**").permitAll()
-                .antMatchers("/api/users/register", "/api/users/login", "/api/test/user", "/api/**", "/oauth2/**").permitAll()
-                .anyRequest().authenticated()
-                .and().exceptionHandling()
-                .authenticationEntryPoint(authenticationEntryPoint)
+                .antMatchers(PERMIT_ENDPOINT).permitAll()
+                .antMatchers(HttpMethod.POST, "/api/*").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/*").authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/*").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/*").authenticated()
                 .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                //To Verify user from second request onwards............
-                .and()
-                .oauth2Login()
-                .authorizationEndpoint()
-                .authorizationRequestRepository(cookieAuthorizationRequestRepository())
-                .and()
-                .redirectionEndpoint()
-                .and()
-                .userInfoEndpoint()
-                .oidcUserService(customOidcUserService)
-                .userService(customOAuth2UserService)
-                .and()
-                .tokenEndpoint()
-                .accessTokenResponseClient(authorizationCodeTokenResponseClient())
-                .and()
-                .successHandler(oAuth2AuthenticationSuccessHandler)
-                .failureHandler(oAuth2AuthenticationFailureHandler);
+                .exceptionHandling()
+                .authenticationEntryPoint(authenticationEntryPoint);
+        //To Verify user from second request onwards............
+//                .and()
+//                .oauth2Login()
+//                .authorizationEndpoint()
+//                .authorizationRequestRepository(cookieAuthorizationRequestRepository())
+//                .and()
+//                .redirectionEndpoint()
+//                .and()
+//                .userInfoEndpoint()
+//                .oidcUserService(customOidcUserService)
+//                .userService(customOAuth2UserService)
+//                .and()
+//                .tokenEndpoint()
+//                .accessTokenResponseClient(authorizationCodeTokenResponseClient())
+//                .and()
+//                .successHandler(oAuth2AuthenticationSuccessHandler)
+//                .failureHandler(oAuth2AuthenticationFailureHandler);
 //        http.addFilter(new UsernamePasswordAuthenticationFilter(authenticationManager()));
         http.addFilterBefore(secFilter, UsernamePasswordAuthenticationFilter.class);
     }

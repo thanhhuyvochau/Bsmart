@@ -274,7 +274,7 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public void executeAfterPayment(HttpServletRequest request) {
+    public Boolean executeAfterPayment(HttpServletRequest request) {
         String responseCode = request.getParameter("vnp_ResponseCode");
         String transactionStatus = request.getParameter("vnp_TransactionStatus");
         String referenceValues = request.getParameter("vnp_TxnRef");
@@ -295,9 +295,16 @@ public class TransactionService implements ITransactionService {
                 studentClass.setClazz(orderedClass);
                 orderedClass.getStudentClasses().add(studentClass);
             }
-            webSocketUtil.sendPrivateNotification(order.getUser().getEmail(), new ResponseMessage("Bạn đã thanh toán thành công"));
+            Notification.Builder builder = Notification.Builder.getBuilder();
+            Notification notification = builder.user(user)
+                    .viTitle("Thanh toán thành công")
+                    .viContent("Chúc mừng bạn đã thanh toán thành công " + order.getTotalPrice() + " VND")
+                    .build();
+            ResponseMessage responseMessage = builder.buildAsResponseMessage();
+            webSocketUtil.sendPrivateNotification(user.getEmail(), responseMessage);
             classRepository.saveAll(orderedClasses);
+            return true;
         }
-
+        return false;
     }
 }
