@@ -1,5 +1,7 @@
 package fpt.project.bsmart.entity;
 
+import fpt.project.bsmart.entity.constant.EFeedbackAnswerType;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +13,10 @@ public class FeedbackQuestion {
     private Long id;
     @Column(name = "question")
     private String question;
+
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private EFeedbackAnswerType questionType;
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FeedbackAnswer> answers = new ArrayList<>();
     @ManyToOne
@@ -46,5 +52,13 @@ public class FeedbackQuestion {
 
     public void setTemplate(FeedbackTemplate template) {
         this.template = template;
+    }
+
+    public EFeedbackAnswerType getQuestionType() {
+        return questionType;
+    }
+
+    public void setQuestionType(EFeedbackAnswerType questionType) {
+        this.questionType = questionType;
     }
 }

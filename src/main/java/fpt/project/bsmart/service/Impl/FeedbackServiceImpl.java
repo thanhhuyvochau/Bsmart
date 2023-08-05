@@ -63,7 +63,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
         if (request.getType() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_TYPE));
         }
-        if (!request.getType().equals(EFeedbackType.FEEDBACK) && !request.getType().equals(EFeedbackType.REPORT)) {
+        if (!request.getType().equals(EFeedbackType.COURSE)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_TYPE));
         }
         if (request.getQuestions() == null || request.getQuestions().isEmpty()) {
@@ -242,10 +242,10 @@ public class FeedbackServiceImpl implements IFeedbackService {
     public ApiPage<FeedbackSubmissionResponse> getClassFeedback(Long classId, Pageable pageable) {
         Class clazz = findClassById(classId);
         User user = SecurityUtil.getCurrentUser();
-        Boolean isClassBelongToMentor = Objects.equals(user, clazz.getMentor());
-        if (!isClassBelongToMentor) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
-        }
+//        Boolean isClassBelongToMentor = Objects.equals(user, clazz.getMentor());
+//        if (!isClassBelongToMentor) {
+//            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
+//        }
         Page<FeedbackSubmission> feedbackSubmissionPage = feedbackSubmissionRepository.findAllByClazz(clazz, pageable);
         List<FeedbackSubmissionResponse> responses = feedbackSubmissionPage.getContent().stream()
                 .map(ConvertUtil::convertFeedbackSubmissionToResponse)

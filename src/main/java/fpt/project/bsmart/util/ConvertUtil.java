@@ -928,15 +928,22 @@ public class ConvertUtil {
 
     public static FeedbackTemplateDto convertFeedbackToFeedbackTemplateDto(FeedbackTemplate feedbackTemplate) {
         FeedbackTemplateDto feedbackTemplateDto = ObjectUtil.copyProperties(feedbackTemplate, new FeedbackTemplateDto(), FeedbackTemplateDto.class);
+
+        List<Class> byFeedbackTemplate = staticClassRepository.findByFeedbackTemplate(feedbackTemplate);
+        feedbackTemplateDto.setTotalClassUsed(byFeedbackTemplate.size());
+
         if (feedbackTemplate.getQuestions() != null) {
             ArrayList<FeedbackTemplateDto.FeedbackQuestionDto> questionDtos = new ArrayList<>();
+
             for (FeedbackQuestion question : feedbackTemplate.getQuestions()) {
                 FeedbackTemplateDto.FeedbackQuestionDto questionDto = ObjectUtil.copyProperties(question, new FeedbackTemplateDto.FeedbackQuestionDto(), FeedbackTemplateDto.FeedbackQuestionDto.class);
+                questionDto.setAnswerType(question.getQuestionType());
                 if (question.getAnswers() != null) {
                     ArrayList<FeedbackTemplateDto.FeedbackAnswerDto> answerDtos = new ArrayList<>();
                     for (FeedbackAnswer answer : question.getAnswers()) {
                         FeedbackTemplateDto.FeedbackAnswerDto answerDto = ObjectUtil.copyProperties(answer, new FeedbackTemplateDto.FeedbackAnswerDto(), FeedbackTemplateDto.FeedbackAnswerDto.class);
-                        answerDtos.add(answerDto);
+
+                          answerDtos.add(answerDto);
                     }
                     questionDto.setAnswers(answerDtos);
                 }

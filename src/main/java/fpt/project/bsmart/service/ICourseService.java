@@ -39,7 +39,7 @@ public interface ICourseService {
 
     //     ################################## START MANAGER ##########################################
 
-    ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status  ,Pageable pageable);
+    ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status ,Pageable pageable);
     Boolean managerApprovalCourseRequest(Long id, ManagerApprovalCourseRequest approvalCourseRequest);
 
     Boolean managerBlockCourse(Long id);

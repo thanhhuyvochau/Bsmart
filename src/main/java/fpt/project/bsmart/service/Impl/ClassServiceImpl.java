@@ -723,7 +723,7 @@ public class ClassServiceImpl implements IClassService {
 //            throw ApiException.create(HttpStatus.NOT_FOUND)
 //                    .withMessage(CLASS_STATUS_NOT_ALLOW);
 //        }
-        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findByTypeAndIsDefault(EFeedbackType.COURSE, true);
+        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findByTypeAndIsDefault(EFeedbackType.FEEDBACK, true);
         if (feedbackTemplate == null) {
             throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage(messageUtil.getLocalMessage(""));
         }
@@ -760,6 +760,23 @@ public class ClassServiceImpl implements IClassService {
                 .map(ClassUtil::convertClassToMentorClassDetailResponse)
                 .collect(Collectors.toList());
         return PageUtil.convert(new PageImpl<>(classResponses, pageable, byStatus.getTotalElements()));
+
+    }
+
+    @Override
+    public ApiPage<MentorGetClassDetailResponse> getAllClassForSetTemplateFeedback(Pageable pageable) {
+
+        List<ECourseStatus> statuses = new ArrayList<>(Arrays.asList(NOTSTART, STARTING));
+        List<Class> byStatusIn = classRepository.findByStatus_In(statuses);
+
+        List<MentorGetClassDetailResponse> classResponses = new ArrayList<>();
+        byStatusIn.forEach(aClass -> {
+            classResponses.add(ClassUtil.convertClassToMentorClassDetailResponse(aClass));
+        });
+
+
+        return PageUtil.convert(new PageImpl<>(classResponses, pageable, classResponses.size()));
+
 
     }
 }

@@ -1,15 +1,17 @@
 package fpt.project.bsmart.entity.constant;
 
-public enum EFeedbackType {
-    COURSE("Feedback") ,
-    FEEDBACK("Feedback"), REPORT("Report");
+public enum EFeedbackAnswerType {
+
+
+    ESSAY("Tự luân"),
+    MULTIPLECHOICE("Trắc nghiệm");
     private String name;
 
     public String getName() {
         return name;
     }
 
-    EFeedbackType(final String name) {
+    EFeedbackAnswerType(final String name) {
         this.name = name;
     }
 }

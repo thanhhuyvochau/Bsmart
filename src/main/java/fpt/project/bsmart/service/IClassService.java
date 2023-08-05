@@ -1,6 +1,7 @@
 package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.request.*;
@@ -60,4 +61,6 @@ public interface IClassService {
     ApiPage<StudentClassResponse> getClassMembers(Long id, Pageable pageable);
 
     ApiPage<MentorGetClassDetailResponse> managerGetClass(ECourseStatus status, Pageable pageable);
+
+    ApiPage<MentorGetClassDetailResponse> getAllClassForSetTemplateFeedback(Pageable pageable);
 }

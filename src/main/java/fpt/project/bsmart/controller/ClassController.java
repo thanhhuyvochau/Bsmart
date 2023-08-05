@@ -18,6 +18,7 @@ import fpt.project.bsmart.entity.response.StudentClassResponse;
 import fpt.project.bsmart.service.AttendanceService;
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -133,6 +134,14 @@ public class ClassController {
     public ResponseEntity<ApiResponse<ManagerGetCourseClassResponse>> getAllClassOfCourseForManager(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourseForManager(id)));
     }
+
+    @Operation(summary = "MANAGER lấy tất cả các class để set template feedback")
+    @GetMapping("/feedback")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> getAllClassForSetTemplateFeedback(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassForSetTemplateFeedback(pageable)));
+    }
+
     //     ################################## STUDENT ##########################################
 
     @Operation(summary = "Học sinh lấy điểm danh của lớp học")
