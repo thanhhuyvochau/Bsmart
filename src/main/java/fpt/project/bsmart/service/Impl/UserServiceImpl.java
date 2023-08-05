@@ -25,7 +25,6 @@ import fpt.project.bsmart.util.adapter.MinioAdapter;
 import fpt.project.bsmart.util.email.EmailUtil;
 import fpt.project.bsmart.util.specification.ClassSpecificationBuilder;
 import fpt.project.bsmart.util.specification.FeedbackSubmissionSpecificationBuilder;
-import fpt.project.bsmart.util.specification.MentorProfileSpecificationBuilder;
 import fpt.project.bsmart.util.specification.UserSpecificationBuilder;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -325,7 +324,7 @@ public class UserServiceImpl implements IUserService {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_PASSWORD));
             }
 
-            if (!PasswordUtil.validationPassword(changePasswordRequest.getNewPassword())) {
+            if (!PasswordUtil.isValidPassword(changePasswordRequest.getNewPassword())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
             }
             if (!PasswordUtil.IsOldPassword(changePasswordRequest.getOldPassword(), user.getPassword())) {
@@ -480,7 +479,7 @@ public class UserServiceImpl implements IUserService {
         if (!isValidGender) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_GENDER));
         }
-        if (!PasswordUtil.validationPassword(request.getPassword())) {
+        if (!PasswordUtil.isValidPassword(request.getPassword())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
         }
     }
