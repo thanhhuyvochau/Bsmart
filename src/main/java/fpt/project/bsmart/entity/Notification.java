@@ -1,16 +1,20 @@
 package fpt.project.bsmart.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import fpt.project.bsmart.entity.dto.ResponseMessage;
+import fpt.project.bsmart.entity.constant.ENotificationEntity;
+import fpt.project.bsmart.entity.constant.ENotificationType;
 
 import javax.persistence.*;
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "Notification")
 public class Notification {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "vi_title")
@@ -18,26 +22,25 @@ public class Notification {
 
     @Column(name = "vi_content")
     private String viContent;
-    @Column(name = "data")
-    private String data;
+    @Column(name = "type")
+    private ENotificationType type;
+    @Column(name = "entity")
+    private ENotificationEntity entity;
+    @Column(name = "entity_id")
+    private Long entityId;
+    @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Notifier> notifiers = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
-    private User user;
-
-    @Column(name = "is_read")
-    private Boolean isRead = false;
-
-    private Notification() {
-    }
-
-    private Notification(String viTitle, String viContent, String data, User user, Boolean isRead) {
+    public Notification(String viTitle, String viContent, ENotificationType type, ENotificationEntity entity, Long entityId, List<Notifier> notifiers) {
         this.viTitle = viTitle;
         this.viContent = viContent;
-        this.data = data;
-        this.user = user;
-        this.isRead = isRead;
+        this.type = type;
+        this.entity = entity;
+        this.entityId = entityId;
+        this.notifiers = notifiers;
+    }
+
+    public Notification() {
     }
 
     public Long getId() {
@@ -56,7 +59,6 @@ public class Notification {
         this.viTitle = viTitle;
     }
 
-
     public String getViContent() {
         return viContent;
     }
@@ -65,55 +67,77 @@ public class Notification {
         this.viContent = viContent;
     }
 
-    public String getData() {
-        return data;
+    public ENotificationType getType() {
+        return type;
     }
 
-
-    public void setData(String data) {
-        this.data = data;
+    public void setType(ENotificationType type) {
+        this.type = type;
     }
 
-    public User getUser() {
-        return user;
+    public ENotificationEntity getEntity() {
+        return entity;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setEntity(ENotificationEntity entity) {
+        this.entity = entity;
     }
 
-    public Boolean getRead() {
-        return isRead;
+    public Long getEntityId() {
+        return entityId;
     }
 
-    public void setRead(Boolean read) {
-        isRead = read;
+    public void setEntityId(Long entityId) {
+        this.entityId = entityId;
     }
 
-    public static class Builder {
+    public List<Notifier> getNotifiers() {
+        return notifiers;
+    }
+
+    public void setNotifiers(List<Notifier> notifiers) {
+        this.notifiers = notifiers;
+    }
+
+    public static NotificationBuilder getBuilder() {
+        return new NotificationBuilder();
+    }
+
+    public static class NotificationBuilder {
         private String viTitle;
         private String viContent;
-        private String data;
-        private User user;
-        private Boolean isRead = false;
+        private ENotificationType type;
+        private ENotificationEntity entity;
+        private Long entityId;
+        private List<User> users = new ArrayList<>();
 
-        public Builder viTitle(String viTitle) {
+        public NotificationBuilder viTitle(String viTitle) {
             this.viTitle = viTitle;
             return this;
         }
 
-        public Builder viContent(String viContent) {
+        public NotificationBuilder viContent(String viContent) {
             this.viContent = viContent;
             return this;
         }
 
-        public Builder data(String data) {
-            this.data = data;
+        public NotificationBuilder type(ENotificationType type) {
+            this.type = type;
             return this;
         }
 
-        public Builder user(User user) {
-            this.user = user;
+        public NotificationBuilder entity(ENotificationEntity entity) {
+            this.entity = entity;
+            return this;
+        }
+
+        public NotificationBuilder entityId(Long entityId) {
+            this.entityId = entityId;
+            return this;
+        }
+
+        public NotificationBuilder notifiers(User... users) {
+            this.users = Arrays.asList(users);
             return this;
         }
 
@@ -123,16 +147,19 @@ public class Notification {
             } else if (viContent.isEmpty()) {
                 throw new InvalidParameterException("Notification must has content");
             }
-            Notification notification = new Notification(viTitle, viContent, data, user, isRead);
+            Notification notification = new Notification();
+            notification.setViTitle(viTitle);
+            notification.setViContent(viContent);
+            notification.setType(type);
+            notification.setEntity(entity);
+            notification.setEntityId(entityId);
+            notification.setNotifiers(users.stream().map(user -> {
+                Notifier notifier = new Notifier();
+                notifier.setNotification(notification);
+                notifier.setUser(user);
+                return notifier;
+            }).collect(Collectors.toList()));
             return notification;
-        }
-
-        public ResponseMessage buildAsResponseMessage() {
-            return new ResponseMessage(this.viTitle, this.viContent, this.data);
-        }
-
-        public static Builder getBuilder() {
-            return new Builder();
         }
     }
 }

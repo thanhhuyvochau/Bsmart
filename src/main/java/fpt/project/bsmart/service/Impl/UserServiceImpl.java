@@ -444,13 +444,13 @@ public class UserServiceImpl implements IUserService {
         User savedUser = userRepository.save(user);
         // Send verify mail
         emailUtil.sendVerifyEmailTo(savedUser);
-        Notification.Builder builder = Notification.Builder.getBuilder();
+        Notification.NotificationBuilder builder = Notification.getBuilder();
         Notification notification = builder
                 .viTitle("Đăng kí thành công")
                 .viContent("Chúc mừng bạn đã đăng ký tài khoản thành công")
-                .user(savedUser).build();
-        notificationRepository.save(notification);
-        ResponseMessage responseMessage = builder.buildAsResponseMessage();
+                .notifiers(savedUser).build();
+        notification = notificationRepository.save(notification);
+        ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification);
         webSocketUtil.sendPrivateNotification(createAccountRequest.getEmail(), responseMessage);
         return savedUser.getId();
     }
