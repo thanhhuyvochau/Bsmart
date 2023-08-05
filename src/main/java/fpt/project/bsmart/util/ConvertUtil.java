@@ -995,8 +995,4 @@ public class ConvertUtil {
         responseMessage.setRead(notifier.isRead());
         return responseMessage;
     }
-
-    public static ResponseMessage convertNotificationToResponseMessage(Notification notification) {
-        return convertNotificationToResponseMessage(notification, null);
-    }
 }

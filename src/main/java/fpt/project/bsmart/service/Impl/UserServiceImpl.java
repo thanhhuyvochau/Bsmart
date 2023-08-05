@@ -450,7 +450,7 @@ public class UserServiceImpl implements IUserService {
                 .viContent("Chúc mừng bạn đã đăng ký tài khoản thành công")
                 .notifiers(savedUser).build();
         notification = notificationRepository.save(notification);
-        ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification);
+        ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, user);
         webSocketUtil.sendPrivateNotification(createAccountRequest.getEmail(), responseMessage);
         return savedUser.getId();
     }
