@@ -1,9 +1,10 @@
 package fpt.project.bsmart.entity.dto;
 
+import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.ENotificationEntity;
 import fpt.project.bsmart.entity.constant.ENotificationType;
 
-public class ResponseMessage {
+public class ResponseMessage extends BaseEntity {
     private String viTitle;
     private String viContent;
     private ENotificationType type;
