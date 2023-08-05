@@ -18,8 +18,6 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private EOrderStatus status;
-
-
     @Column(name = "center_bonus")
     private BigDecimal centerBonus = BigDecimal.ZERO;
     @Column(name = "student_bonus")

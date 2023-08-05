@@ -1,6 +1,7 @@
 package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.config.vnpay.VnpConfig;
+import fpt.project.bsmart.director.NotificationDirector;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
@@ -43,42 +44,29 @@ import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_ITE
 @Transactional
 public class TransactionService implements ITransactionService {
 
-    private final WalletRepository walletRepository;
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final MessageUtil messageUtil;
 
     private final BankRepository bankRepository;
 
-    private final OrderDetailRepository orderDetailRepository;
-
-
-    private final CourseRepository courseRepository;
-
-    private final OrderRepository orderRepository;
-
-
     private final CartItemRepository cartItemRepository;
 
-    private final ReferralCodeRepository referralCodeRepository;
     private final VnpConfig vnpConfig;
     private final ClassRepository classRepository;
     private final WebSocketUtil webSocketUtil;
+    private final NotificationRepository notificationRepository;
 
-    public TransactionService(WalletRepository walletRepository, TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, OrderDetailRepository orderDetailRepository, CourseRepository courseRepository, OrderRepository orderRepository, CartItemRepository cartItemRepository, ReferralCodeRepository referralCodeRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil) {
-        this.walletRepository = walletRepository;
+    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CartItemRepository cartItemRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.bankRepository = bankRepository;
-        this.orderDetailRepository = orderDetailRepository;
-        this.courseRepository = courseRepository;
-        this.orderRepository = orderRepository;
         this.cartItemRepository = cartItemRepository;
-        this.referralCodeRepository = referralCodeRepository;
         this.vnpConfig = vnpConfig;
         this.classRepository = classRepository;
         this.webSocketUtil = webSocketUtil;
+        this.notificationRepository = notificationRepository;
     }
 
     @Override
@@ -295,12 +283,9 @@ public class TransactionService implements ITransactionService {
                 studentClass.setClazz(orderedClass);
                 orderedClass.getStudentClasses().add(studentClass);
             }
-            Notification.Builder builder = Notification.Builder.getBuilder();
-            Notification notification = builder.user(user)
-                    .viTitle("Thanh toán thành công")
-                    .viContent("Chúc mừng bạn đã thanh toán thành công " + order.getTotalPrice() + " VND")
-                    .build();
-            ResponseMessage responseMessage = builder.buildAsResponseMessage();
+            Notification notification = NotificationDirector.buildPaymentNotification(order, transaction);
+            notificationRepository.save(notification);
+            ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, user);
             webSocketUtil.sendPrivateNotification(user.getEmail(), responseMessage);
             classRepository.saveAll(orderedClasses);
             return true;

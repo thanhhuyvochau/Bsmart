@@ -1,23 +1,28 @@
 package fpt.project.bsmart.controller;
 
 
-import fpt.project.bsmart.entity.request.NotificationMessage;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.dto.ResponseMessage;
+import fpt.project.bsmart.service.Impl.NotificationService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@RestController("/api/notification")
 public class NotificationController {
+    private final NotificationService notificationService;
 
-    @Autowired
-    SimpMessagingTemplate simpMessagingTemplate;
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
-    @PostMapping("/send-notification")
-    public String sendMessage(@RequestBody NotificationMessage notification) {
-        simpMessagingTemplate.convertAndSend("/topic/" + notification.getTopic(), notification.getMessage());
-        return "hay";
+    @DeleteMapping
+    @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN','STUDENT')")
+    public ResponseEntity<ApiResponse<ApiPage<ResponseMessage>>> getNotifications(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(notificationService.getNotifications(pageable)));
     }
 }
 

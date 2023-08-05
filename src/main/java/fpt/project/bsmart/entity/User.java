@@ -76,7 +76,8 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
 
-
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notifier> notifiers = new ArrayList<>();
     @Column(name = "is_verified")
     private boolean isVerified = false;
 
@@ -296,5 +297,13 @@ public class User extends BaseEntity {
 
     public void setCourses(List<Course> courses) {
         this.courses = courses;
+    }
+
+    public List<Notifier> getNotifiers() {
+        return notifiers;
+    }
+
+    public void setNotifiers(List<Notifier> notifiers) {
+        this.notifiers = notifiers;
     }
 }
