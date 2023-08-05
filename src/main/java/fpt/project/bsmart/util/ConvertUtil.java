@@ -1016,10 +1016,8 @@ public class ConvertUtil {
             throw ApiException.create(HttpStatus.SERVICE_UNAVAILABLE).withMessage("Notification is not allowed for unauthorized person!");
         }
         Notifier notifier = NotificationUtil.findNotifier(notification, user);
-        return new ResponseMessage(notification.getViTitle(), notification.getViContent(), notification.getType(), notification.getEntity(), notification.getEntityId(), notifier.isRead());
-    }
-
-    public static ResponseMessage convertNotificationToResponseMessage(Notification notification) {
-        return convertNotificationToResponseMessage(notification, null);
+        ResponseMessage responseMessage = ObjectUtil.copyProperties(notification, new ResponseMessage(), ResponseMessage.class, true);
+        responseMessage.setRead(notifier.isRead());
+        return responseMessage;
     }
 }

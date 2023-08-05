@@ -8,10 +8,13 @@ import fpt.project.bsmart.service.Impl.NotificationService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/api/notification")
+@RestController
+@RequestMapping("/api/notification")
 public class NotificationController {
     private final NotificationService notificationService;
 
@@ -19,11 +22,18 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
-    @DeleteMapping
+    @GetMapping
     @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN','STUDENT')")
     public ResponseEntity<ApiResponse<ApiPage<ResponseMessage>>> getNotifications(Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(notificationService.getNotifications(pageable)));
     }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN','STUDENT')")
+    public ResponseEntity<ApiResponse<Boolean>> readNotification(Long[] ids) {
+        return ResponseEntity.ok(ApiResponse.success(notificationService.readNotification(ids)));
+    }
+
 }
 
 

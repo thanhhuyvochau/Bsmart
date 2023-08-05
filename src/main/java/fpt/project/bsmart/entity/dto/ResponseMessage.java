@@ -1,27 +1,31 @@
 package fpt.project.bsmart.entity.dto;
 
+import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.ENotificationEntity;
 import fpt.project.bsmart.entity.constant.ENotificationType;
 
-public class ResponseMessage {
+public class ResponseMessage extends BaseEntity {
+    private Long id;
     private String viTitle;
     private String viContent;
     private ENotificationType type;
     private ENotificationEntity entity;
     private Long entityId;
-    private boolean isRead = false;
-
-
-    public ResponseMessage(String viTitle, String viContent, ENotificationType type, ENotificationEntity entity, Long entityId, boolean isRead) {
-        this.viTitle = viTitle;
-        this.viContent = viContent;
-        this.type = type;
-        this.entity = entity;
-        this.entityId = entityId;
-        this.isRead = isRead;
-    }
+    private boolean read = false;
 
     public ResponseMessage() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public boolean isRead() {
+        return read;
     }
 
     public String getViTitle() {
@@ -64,11 +68,11 @@ public class ResponseMessage {
         this.entityId = entityId;
     }
 
-    public boolean getIsRead() {
-        return isRead;
+    public boolean getRead() {
+        return read;
     }
 
     public void setRead(boolean read) {
-        isRead = read;
+        this.read = read;
     }
 }
