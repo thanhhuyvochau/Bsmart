@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 @RequestMapping("api/feedback")
 @RestController
@@ -26,53 +27,53 @@ public class FeedbackController {
         this.feedbackService = feedbackService;
     }
 
-    @Operation(summary = "admin create feedback template")
+    @Operation(summary = "admin / manager tạo feedback template")
     @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
     @PostMapping("/template")
     public ResponseEntity<ApiResponse<Long>> createFeedbackTemplate(@RequestBody FeedbackTemplateRequest request) {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.createFeedbackTemplate(request)));
     }
 
-    @Operation(summary = "admin update feedback template")
+    @Operation(summary = "admin / manager update feedback template")
     @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
     @PutMapping("/template/{id}")
     public ResponseEntity<ApiResponse<Long>> updateFeedbackTemplate(@PathVariable Long id,@RequestBody FeedbackTemplateRequest request) {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.updateFeedbackTemplate(id, request)));
     }
 
-    @Operation(summary = "admin delete feedback template")
+    @Operation(summary = "admin / manager delete feedback template")
     @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
     @DeleteMapping("/template/{id}")
     public ResponseEntity<ApiResponse<Boolean>> deleteFeedbackTemplate(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.deleteFeedbackTemplate(id)));
     }
 
-    @Operation(summary = "admin get all template")
+    @Operation(summary = "admin / manager get all feedback template")
     @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
     @GetMapping("/template")
     public ResponseEntity<ApiResponse<ApiPage<FeedbackTemplateDto>>> getAllTemplate(@Nullable FeedbackTemplateSearchRequest request, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.getAll(request, pageable)));
     }
 
-    @Operation(summary = "get feedback template by ID")
+    @Operation(summary = "admin / manager get feedback template by ID")
     @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN',  'MANAGER')")
     @GetMapping("/template/{id}")
     public ResponseEntity<ApiResponse<FeedbackTemplateDto>> getFeedbackTemplateById(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.getTemplateById(id)));
     }
 
-    @Operation(summary = "admin change default template")
+    @Operation(summary = "admin / manager change default template")
     @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
     @PutMapping("/default/{id}")
     public ResponseEntity<ApiResponse<Boolean>> changeDefaultFeedbackTemplate(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.changeDefaultTemplate(id)));
     }
 
-    @Operation(summary = "admin assign feedback for class")
+    @Operation(summary = "admin / manager  assign feedback for class")
     @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
-    @PutMapping("/template/{templateId}/class/{classId}")
-    public ResponseEntity<ApiResponse<Boolean>> assignFeedbackTemplateForClass(@PathVariable Long templateId, @PathVariable Long classId) {
-        return ResponseEntity.ok(ApiResponse.success(feedbackService.assignFeedbackTemplateForClass(templateId, classId)));
+    @PutMapping("/{id}/class/{classId}")
+    public ResponseEntity<ApiResponse<Boolean>> assignFeedbackTemplateForClass(@PathVariable Long id, @PathVariable List<Long> classId) {
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.assignFeedbackTemplateForClass(id, classId)));
     }
 
     @Operation(summary = "student submit feedback")
