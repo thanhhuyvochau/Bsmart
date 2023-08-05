@@ -18,6 +18,8 @@ public enum ECourseStatus {
     CANCEL, // Lớp bị hủy
     UNSATISFY, // Lớp không đủ số lượng học sinh
 
+    BLOCK, // Khóa học bị khóa để chỉnh sửa thông tin
+
     ALL;// Tất cả
 
     ECourseStatus() {

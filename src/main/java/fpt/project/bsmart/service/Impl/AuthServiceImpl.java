@@ -67,17 +67,7 @@ public class AuthServiceImpl implements IAuthService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        Boolean firstLoginFlag = userRepository.callCheckFirstLoginProcedure(loginRequest.getEmail()) ;
-//        Boolean firstLoginFlag = userRepository.getFirstLoginFlag(loginRequest.getEmail());
 
-        System.out.println(firstLoginFlag);
-
-        if (firstLoginFlag == null || !firstLoginFlag) {
-            User user = userRepository.findByEmail(loginRequest.getEmail())
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + loginRequest.getEmail()));
-            user.setFirstLogin(true);
-            userRepository.save(user);
-        }
 
         return new JwtResponse(jwt,
                 userDetails.getId(),

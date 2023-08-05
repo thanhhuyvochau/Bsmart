@@ -9,13 +9,15 @@ import fpt.project.bsmart.entity.response.FeedbackSubmissionResponse;
 import fpt.project.bsmart.entity.response.FeedbackResponse;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface IFeedbackService {
     Long createFeedbackTemplate(FeedbackTemplateRequest request);
     Long updateFeedbackTemplate(Long id,FeedbackTemplateRequest request);
     Boolean deleteFeedbackTemplate(Long id);
     ApiPage<FeedbackTemplateDto> getAll(FeedbackTemplateSearchRequest request, Pageable pageable);
     FeedbackTemplateDto getTemplateById(Long id);
-    Boolean assignFeedbackTemplateForClass(Long templateId, Long classId);
+    Boolean assignFeedbackTemplateForClass(Long templateId, List<Long> classId);
     Boolean changeDefaultTemplate(Long id);
     Long studentSubmitFeedback(Long classId, StudentSubmitFeedbackRequest request);
     Long studentUpdateFeedback(Long submissionId, StudentSubmitFeedbackRequest request);

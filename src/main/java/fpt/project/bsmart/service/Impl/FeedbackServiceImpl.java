@@ -44,6 +44,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
     private final MessageUtil messageUtil;
     @Qualifier("offensiveWord")
     private final ArrayList<String> offensiveWord;
+
     public FeedbackServiceImpl(FeedbackTemplateRepository feedbackTemplateRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, ClassRepository classRepository, CourseRepository courseRepository, MentorProfileRepository mentorProfileRepository, MessageUtil messageUtil, ArrayList<String> offensiveWord) {
         this.feedbackTemplateRepository = feedbackTemplateRepository;
         this.feedbackSubmissionRepository = feedbackSubmissionRepository;
@@ -56,16 +57,16 @@ public class FeedbackServiceImpl implements IFeedbackService {
 
     @Override
     public Long createFeedbackTemplate(FeedbackTemplateRequest request) {
-        if(StringUtil.isNullOrEmpty(request.getName())){
+        if (StringUtil.isNullOrEmpty(request.getName())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_FEEDBACK_TEMPLATE_NAME));
         }
-        if(request.getType() == null){
+        if (request.getType() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_TYPE));
         }
-        if(!request.getType().equals(EFeedbackType.COURSE) && !request.getType().equals(EFeedbackType.REPORT)){
+        if (!request.getType().equals(EFeedbackType.FEEDBACK) && !request.getType().equals(EFeedbackType.REPORT)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_TYPE));
         }
-        if(request.getQuestions() == null || request.getQuestions().isEmpty()){
+        if (request.getQuestions() == null || request.getQuestions().isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_QUESTION_LIST));
         }
         FeedbackTemplate feedbackTemplate = new FeedbackTemplate();
@@ -81,34 +82,35 @@ public class FeedbackServiceImpl implements IFeedbackService {
     @Override
     public Long updateFeedbackTemplate(Long id, FeedbackTemplateRequest request) {
         FeedbackTemplate feedbackTemplate = findTemplateById(id);
-        if(Boolean.TRUE.equals(feedbackTemplate.getIsFixed())){
+        if (Boolean.TRUE.equals(feedbackTemplate.getIsFixed())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(FEEDBACK_TEMPLATE_IS_FIXED) + id);
         }
-        if(StringUtil.isNotNullOrEmpty(request.getName())){
+        if (StringUtil.isNotNullOrEmpty(request.getName())) {
             feedbackTemplate.setName(request.getName());
         }
-        if(request.getType() != null){
-            if(!request.getType().equals(EFeedbackType.COURSE) && !request.getType().equals(EFeedbackType.REPORT)){
+        if (request.getType() != null) {
+            if (!request.getType().equals(EFeedbackType.FEEDBACK) && !request.getType().equals(EFeedbackType.REPORT)) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_TYPE));
             }
             feedbackTemplate.setType(request.getType());
         }
-        if(request.getQuestions() != null || !request.getQuestions().isEmpty()){
+        if (request.getQuestions() != null || !request.getQuestions().isEmpty()) {
             List<FeedbackQuestion> feedbackQuestions = FeedbackUtil.validateFeedbackQuestionsInRequest(request, feedbackTemplate);
             feedbackTemplate.setQuestions(feedbackQuestions);
         }
         return feedbackTemplateRepository.save(feedbackTemplate).getId();
     }
 
-    private FeedbackTemplate findTemplateById(Long id){
+    private FeedbackTemplate findTemplateById(Long id) {
         return feedbackTemplateRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(FEEDBACK_TEMPLATE_NOT_FOUND_BY_ID) + id));
     }
 
-    private Class findClassById(Long id){
+    private Class findClassById(Long id) {
         return classRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
     }
+
     @Override
     public ApiPage<FeedbackTemplateDto> getAll(FeedbackTemplateSearchRequest request, Pageable pageable) {
         FeedbackTemplateSpecificationBuilder builder = FeedbackTemplateSpecificationBuilder.feedbackTemplateSpecificationBuilder()
@@ -121,37 +123,42 @@ public class FeedbackServiceImpl implements IFeedbackService {
         return PageUtil.convert(new PageImpl<>(feedbackTemplateDtos, pageable, feedbackTemplatePage.getTotalElements()));
     }
 
-    public Boolean deleteFeedbackTemplate(Long id){
+    public Boolean deleteFeedbackTemplate(Long id) {
         FeedbackTemplate feedbackTemplate = findTemplateById(id);
-        if(Boolean.TRUE.equals(feedbackTemplate.getIsFixed())){
+        if (Boolean.TRUE.equals(feedbackTemplate.getIsFixed())) {
             return false;
         }
         feedbackTemplateRepository.delete(feedbackTemplate);
         return true;
     }
+
     @Override
     public FeedbackTemplateDto getTemplateById(Long id) {
         FeedbackTemplate feedbackTemplate = findTemplateById(id);
         User user = SecurityUtil.getCurrentUser();
-        if(Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT)) && (Boolean.FALSE.equals(feedbackTemplate.getIsFixed()))){
-                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
+        if (Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT)) && (Boolean.FALSE.equals(feedbackTemplate.getIsFixed()))) {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
         }
         return ConvertUtil.convertFeedbackToFeedbackTemplateDto(feedbackTemplate);
     }
 
 
     @Override
-    public Boolean assignFeedbackTemplateForClass(Long templateId, Long classId){
-        Class clazz = findClassById(classId);
-//        if(Boolean.TRUE.equals(FeedbackUtil.isClassAvailableToFeedback(clazz))){
-//            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_CLASS_PERCENTAGE_TO_ASSIGN_TEMPLATE));
-//        }
+    public Boolean assignFeedbackTemplateForClass(Long templateId, List<Long> classId) {
+        List<Class> classListToSetFeedbackTemplate = classRepository.findAllById(classId);
+
         FeedbackTemplate feedbackTemplate = findTemplateById(templateId);
-        clazz.setFeedbackTemplate(feedbackTemplate);
-        if(Boolean.FALSE.equals(feedbackTemplate.getIsFixed())){
+
+        List<Class> classListToSave = new ArrayList<>();
+        classListToSetFeedbackTemplate.forEach(aClass -> {
+            aClass.setFeedbackTemplate(feedbackTemplate);
+            classListToSave.add(aClass);
+        });
+
+        if (Boolean.FALSE.equals(feedbackTemplate.getIsFixed())) {
             feedbackTemplate.setIsFixed(true);
         }
-        classRepository.save(clazz);
+        classRepository.saveAll(classListToSave);
         return true;
     }
 
@@ -168,14 +175,14 @@ public class FeedbackServiceImpl implements IFeedbackService {
         return true;
     }
 
-    private void changeDefaultTemplate(FeedbackTemplate feedbackTemplate){
+    private void changeDefaultTemplate(FeedbackTemplate feedbackTemplate) {
         feedbackTemplate.setIsDefault(true);
         feedbackTemplate.setIsFixed(true);
     }
 
-    public Long studentSubmitFeedback(Long classId, StudentSubmitFeedbackRequest request){
-        if(request.getRate() < FeedbackUtil.MIN_RATE_PER_SUBMISSION
-                || request.getRate() > FeedbackUtil.MAX_RATE_PER_SUBMISSION){
+    public Long studentSubmitFeedback(Long classId, StudentSubmitFeedbackRequest request) {
+        if (request.getRate() < FeedbackUtil.MIN_RATE_PER_SUBMISSION
+                || request.getRate() > FeedbackUtil.MAX_RATE_PER_SUBMISSION) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
         Class clazz = findClassById(classId);
@@ -187,16 +194,16 @@ public class FeedbackServiceImpl implements IFeedbackService {
         }
 */
         FeedbackTemplate feedbackTemplate = clazz.getFeedbackTemplate();
-        if(feedbackTemplate == null){
+        if (feedbackTemplate == null) {
             throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage(messageUtil.getLocalMessage(""));
         }
         FeedbackSubmission feedbackSubmission = new FeedbackSubmission();
         feedbackSubmission.setTemplate(feedbackTemplate);
         ArrayList<FeedbackSubmitAnswer> submitAnswers = FeedbackUtil.validateSubmittedAnswer(feedbackSubmission, request);
         feedbackSubmission.setAnswers(submitAnswers);
-        if(StringUtil.isNotNullOrEmpty(request.getComment())){
+        if (StringUtil.isNotNullOrEmpty(request.getComment())) {
             Boolean isContainOffensiveWord = offensiveWord.stream().anyMatch(x -> request.getComment().contains(x));
-            if(Boolean.TRUE.equals(isContainOffensiveWord)){
+            if (Boolean.TRUE.equals(isContainOffensiveWord)) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
             }
             feedbackSubmission.setComment(request.getComment());
@@ -208,22 +215,22 @@ public class FeedbackServiceImpl implements IFeedbackService {
         return feedbackSubmissionRepository.save(feedbackSubmission).getId();
     }
 
-    public Long studentUpdateFeedback(Long submissionId, StudentSubmitFeedbackRequest request){
-        if(request.getRate() < FeedbackUtil.MIN_RATE_PER_SUBMISSION
-                || request.getRate() > FeedbackUtil.MAX_RATE_PER_SUBMISSION){
+    public Long studentUpdateFeedback(Long submissionId, StudentSubmitFeedbackRequest request) {
+        if (request.getRate() < FeedbackUtil.MIN_RATE_PER_SUBMISSION
+                || request.getRate() > FeedbackUtil.MAX_RATE_PER_SUBMISSION) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
         FeedbackSubmission feedbackSubmission = feedbackSubmissionRepository.findById(submissionId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("") + submissionId));
         FeedbackTemplate feedbackTemplate = feedbackSubmission.getTemplate();
-        if(feedbackTemplate == null){
+        if (feedbackTemplate == null) {
             throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage(messageUtil.getLocalMessage(""));
         }
         ArrayList<FeedbackSubmitAnswer> submitAnswers = FeedbackUtil.validateSubmittedAnswer(feedbackSubmission, request);
         feedbackSubmission.setAnswers(submitAnswers);
-        if(StringUtil.isNotNullOrEmpty(request.getComment())){
+        if (StringUtil.isNotNullOrEmpty(request.getComment())) {
             Boolean isContainOffensiveWord = offensiveWord.stream().anyMatch(x -> request.getComment().contains(x));
-            if(Boolean.TRUE.equals(isContainOffensiveWord)){
+            if (Boolean.TRUE.equals(isContainOffensiveWord)) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
             }
             feedbackSubmission.setComment(request.getComment());
@@ -232,11 +239,11 @@ public class FeedbackServiceImpl implements IFeedbackService {
         return feedbackSubmissionRepository.save(feedbackSubmission).getId();
     }
 
-    public ApiPage<FeedbackSubmissionResponse> getClassFeedback(Long classId, Pageable pageable){
+    public ApiPage<FeedbackSubmissionResponse> getClassFeedback(Long classId, Pageable pageable) {
         Class clazz = findClassById(classId);
         User user = SecurityUtil.getCurrentUser();
         Boolean isClassBelongToMentor = Objects.equals(user, clazz.getMentor());
-        if(!isClassBelongToMentor){
+        if (!isClassBelongToMentor) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
         }
         Page<FeedbackSubmission> feedbackSubmissionPage = feedbackSubmissionRepository.findAllByClazz(clazz, pageable);
@@ -246,7 +253,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
         return PageUtil.convert(new PageImpl<>(responses, pageable, feedbackSubmissionPage.getTotalElements()));
     }
 
-    public FeedbackResponse getCourseFeedback(Long courseId){
+    public FeedbackResponse getCourseFeedback(Long courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + courseId));
         FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
@@ -262,7 +269,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
         return feedbackResponse;
     }
 
-    public FeedbackResponse getMentorFeedback(Long mentorId){
+    public FeedbackResponse getMentorFeedback(Long mentorId) {
         MentorProfile mentorProfile = mentorProfileRepository.findById(mentorId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_PROFILE_NOT_FOUND_BY_ID) + mentorId));
         FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()

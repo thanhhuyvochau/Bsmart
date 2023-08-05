@@ -29,7 +29,7 @@ public interface ICourseService {
 
     Boolean mentorDeleteCourse(Long id);
 
-    ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status  ,Pageable pageable);
+
 
     List<ActivityDto> getAllActivityByCourseId(Long id);
 
@@ -37,47 +37,12 @@ public interface ICourseService {
 
     CompletenessCourseResponse getCompletenessCourse(Long id);
 
+    //     ################################## START MANAGER ##########################################
 
-
-
+    ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status  ,Pageable pageable);
     Boolean managerApprovalCourseRequest(Long id, ManagerApprovalCourseRequest approvalCourseRequest);
 
-//
-//    List<CourseDto> getCoursesBySubject(Long subjectId);
-//    List<Long> mentorCreateCoursePrivate(MentorCreateClassRequest mentorCreateClassRequest);
-//
+    Boolean managerBlockCourse(Long id);
 
-//    ApiPage<CourseSubCourseResponse> mentorGetAllCourse(ECourseStatus status  , Pageable pageable);
-
-
-//    CourseSubCourseDetailResponse getDetailCourseForCoursePage(Long subCourseId);
-//
-//    Boolean mentorUploadImageCourse(ImageRequest imageRequest);
-//
-//    Boolean memberRegisterCourse(Long id);
-//
-//    ApiPage<SubCourseDetailResponse> getAllSubCourseOfCourse(Long id,  Pageable pageable);
-//
-//    ApiPage<CourseSubCourseResponse>  memberGetCourse(ECourseStatus status,Pageable pageable);
-//
-//    ApiPage<CourseSubCourseResponse> memberGetCourseSuggest( Pageable pageable);
-//
-//    Boolean mentorUpdateCourse(Long subCourseId,  UpdateSubCourseRequest updateCourseRequest );
-//
-//    Boolean mentorDeleteCourse(Long subCourseId);
-//
-//    ApiPage<CourseDto> getCoursePublic(Pageable pageable);
-//
-//    Boolean mentorRequestApprovalCourse(Long subCourseId);
-//
-//    ApiPage<CourseSubCourseResponse> coursePendingToApprove(ECourseStatus status, Pageable pageable);
-//
-
-//
-//    Boolean managerCreateCourse(CreateCoursePublicRequest createCourseRequest);
-//
-//
-//    CourseSubCourseResponse mentorGetCourse( Long subCourseId);
-//
-//    Boolean mentorCreateContentCourse( Long id ,List<CourseContentDto>  request) throws JsonProcessingException;
+    //     ################################## END MANAGER ##########################################
 }
