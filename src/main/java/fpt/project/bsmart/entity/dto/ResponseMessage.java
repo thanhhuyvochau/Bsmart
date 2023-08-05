@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.constant.ENotificationEntity;
 import fpt.project.bsmart.entity.constant.ENotificationType;
 
 public class ResponseMessage extends BaseEntity {
+    private Long id;
     private String viTitle;
     private String viContent;
     private ENotificationType type;
@@ -12,17 +13,19 @@ public class ResponseMessage extends BaseEntity {
     private Long entityId;
     private boolean isRead = false;
 
-
-    public ResponseMessage(String viTitle, String viContent, ENotificationType type, ENotificationEntity entity, Long entityId, boolean isRead) {
-        this.viTitle = viTitle;
-        this.viContent = viContent;
-        this.type = type;
-        this.entity = entity;
-        this.entityId = entityId;
-        this.isRead = isRead;
+    public ResponseMessage() {
     }
 
-    public ResponseMessage() {
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public boolean isRead() {
+        return isRead;
     }
 
     public String getViTitle() {

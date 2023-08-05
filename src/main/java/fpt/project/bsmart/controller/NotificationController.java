@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +27,13 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<ApiPage<ResponseMessage>>> getNotifications(Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(notificationService.getNotifications(pageable)));
     }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN','STUDENT')")
+    public ResponseEntity<ApiResponse<Boolean>> readNotification(Long id) {
+        return ResponseEntity.ok(ApiResponse.success(notificationService.readNotification(id)));
+    }
+
 }
 
 
