@@ -270,7 +270,8 @@ public class MentorProfileImpl implements IMentorProfileService {
         ValidationErrors vaErr = new ValidationErrors();
 
         CompletenessMentorProfileResponse response = MentorUtil.checkCompletenessMentorProfile();
-        List<CompletenessMentorProfileResponse.MissingInformation.RequiredInfo> requiredInfoList = response.getMissingInformation().stream().map(CompletenessMentorProfileResponse.MissingInformation::getRequiredInfo).collect(Collectors.toList());
+        List<CompletenessMentorProfileResponse.MissingInformation.RequiredInfo> requiredInfoList =
+                response.getMissingInformation().stream().map(CompletenessMentorProfileResponse.MissingInformation::getRequiredInfo).collect(Collectors.toList());
         ValidationErrors.ValidationError validationError = new ValidationErrors.ValidationError();
 
         ArrayList<String> invalidParams = new ArrayList<String>();

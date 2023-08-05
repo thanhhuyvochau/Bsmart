@@ -132,10 +132,16 @@ public class UserServiceImpl implements IUserService {
         }
         UserDto userDto = ConvertUtil.convertUserForMentorProfilePage(user);
         TeachInformationDTO teachInformationDTO = new TeachInformationDTO();
-        ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder().byMentor(user).filterByStatus(ECourseStatus.ENDED);
+        ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
+                        .byMentor(user)
+                      .filterByStatus(ECourseStatus.ENDED);
         List<Class> classes = classRepository.findAll(classSpecificationBuilder.build());
         Integer numberOfMember = classes.stream().map(Class::getStudentClasses).distinct().collect(Collectors.toList()).stream().map(x -> x.size()).mapToInt(Integer::intValue).sum();
-        FeedbackSubmissionSpecificationBuilder feedbackSubmissionSpecificationBuilder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder().filterByMentor(id);
+
+        FeedbackSubmissionSpecificationBuilder feedbackSubmissionSpecificationBuilder = FeedbackSubmissionSpecificationBuilder.
+                feedbackSubmissionSpecificationBuilder()
+                .filterByMentor(id);
+
         List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(feedbackSubmissionSpecificationBuilder.build());
         teachInformationDTO.setNumberOfCourse(user.getCourses().size());
         teachInformationDTO.setNumberOfClass(classes.size());

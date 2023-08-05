@@ -30,6 +30,10 @@ public class ManagerGetCourseClassResponse {
 
     private List<ActivityDto> activities = new ArrayList<>();
 
+    private Instant timeSendRequest;
+    private Integer count;
+    private Boolean isApproved;
+
     public Long getId() {
         return id;
     }
@@ -116,5 +120,29 @@ public class ManagerGetCourseClassResponse {
 
     public void setActivities(List<ActivityDto> activities) {
         this.activities = activities;
+    }
+
+    public Instant getTimeSendRequest() {
+        return timeSendRequest;
+    }
+
+    public void setTimeSendRequest(Instant timeSendRequest) {
+        this.timeSendRequest = timeSendRequest;
+    }
+
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
+    }
+
+    public Boolean getApproved() {
+        return isApproved;
+    }
+
+    public void setApproved(Boolean approved) {
+        isApproved = approved;
     }
 }

@@ -3,6 +3,7 @@ package fpt.project.bsmart.entity.dto.mentor;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.MentorSkillDto;
 
+import java.time.Instant;
 import java.util.List;
 
 public class MentorDto {
@@ -15,8 +16,15 @@ public class MentorDto {
 
     private String introduce;
 
+    private String phone;
+
+
+    private Instant timeParticipation  ;
+
     private List<MentorSkillDto> mentorSkills;
     private ImageDto avatar ;
+
+    private TeachInformationDTO  teachInformation ;
 
     public Long getId() {
         return id;
@@ -28,6 +36,23 @@ public class MentorDto {
 
     public String getEmail() {
         return email;
+    }
+
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public Instant getTimeParticipation() {
+        return timeParticipation;
+    }
+
+    public void setTimeParticipation(Instant timeParticipation) {
+        this.timeParticipation = timeParticipation;
     }
 
     public void setEmail(String email) {
@@ -65,5 +90,13 @@ public class MentorDto {
 
     public void setAvatar(ImageDto avatar) {
         this.avatar = avatar;
+    }
+
+    public TeachInformationDTO getTeachInformation() {
+        return teachInformation;
+    }
+
+    public void setTeachInformation(TeachInformationDTO teachInformation) {
+        this.teachInformation = teachInformation;
     }
 }
