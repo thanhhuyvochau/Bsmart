@@ -11,10 +11,9 @@ import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
-import fpt.project.bsmart.repository.ActivityHistoryRepository;
-import fpt.project.bsmart.repository.ClassImageRepository;
-import fpt.project.bsmart.repository.ClassRepository;
-import fpt.project.bsmart.repository.UserRepository;
+import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
+import fpt.project.bsmart.entity.response.member.StudyInformationDTO;
+import fpt.project.bsmart.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -35,10 +34,16 @@ public class ConvertUtil {
 
     private static ClassImageRepository staticClassImageRepository;
 
-    public ConvertUtil(ClassRepository classRepository, UserRepository userRepository, ActivityHistoryRepository activityHistoryRepository, ClassImageRepository classImageRepository) {
+    private static StudentClassRepository staticStudentClassRepository;
+
+    public ConvertUtil(ClassRepository classRepository, UserRepository userRepository,
+                       ActivityHistoryRepository activityHistoryRepository,
+                       ClassImageRepository classImageRepository,
+                       StudentClassRepository StudentClassRepository) {
         staticClassRepository = classRepository;
         staticActivityHistoryRepository = activityHistoryRepository;
         staticClassImageRepository = classImageRepository;
+        staticStudentClassRepository = StudentClassRepository;
     }
 
     @Value("${icon.success}")
@@ -205,11 +210,31 @@ public class ConvertUtil {
 
         return userDto;
     }
-//
-//    public static ModuleDto convertModuleToModuleDto(Module module) {
-//        ModuleDto moduleDto = ObjectUtil.copyProperties(module, new ModuleDto(), ModuleDto.class);
-//        return moduleDto;
-//    }
+
+    public static MemberDetailResponse convertUserToMemberDetailResponse(User user) {
+        MemberDetailResponse memberDetailResponse = ObjectUtil.copyProperties(user, new MemberDetailResponse(), MemberDetailResponse.class);
+        memberDetailResponse.setPhone(user.getPhone());
+
+
+        List<StudentClass> byStudent = staticStudentClassRepository.findByStudent(user);
+        List<Course> courses = byStudent.stream().map(studentClass -> studentClass.getClazz().getCourse()).distinct().collect(Collectors.toList());
+
+        StudyInformationDTO studyInformationDTO = new StudyInformationDTO();
+        studyInformationDTO.setNumberOfClass(byStudent.size());
+        studyInformationDTO.setNumberOfCourse(courses.size());
+        memberDetailResponse.setStudyInformation(studyInformationDTO);
+
+        if (!user.getUserImages().isEmpty()) {
+            List<ImageDto> imageDtoList = new ArrayList<>();
+            for (UserImage image : user.getUserImages()) {
+                imageDtoList.add(convertUserImageToUserImageDto(image));
+            }
+            memberDetailResponse.setUserImages(imageDtoList);
+        }
+
+        return memberDetailResponse;
+    }
+
 
     public static UserDto convertUserForMentorProfilePage(User user) {
         UserDto userDto = ObjectUtil.copyProperties(user, new UserDto(), UserDto.class);
@@ -941,7 +966,7 @@ public class ConvertUtil {
                     for (FeedbackAnswer answer : question.getAnswers()) {
                         FeedbackTemplateDto.FeedbackAnswerDto answerDto = ObjectUtil.copyProperties(answer, new FeedbackTemplateDto.FeedbackAnswerDto(), FeedbackTemplateDto.FeedbackAnswerDto.class);
 
-                          answerDtos.add(answerDto);
+                        answerDtos.add(answerDto);
                     }
                     questionDto.setAnswers(answerDtos);
                 }

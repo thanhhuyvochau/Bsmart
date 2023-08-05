@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.*;
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
 import fpt.project.bsmart.entity.response.WorkTimeResponse;
+import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -142,4 +143,17 @@ public class UserController {
     public ResponseEntity<ApiResponse<List<WorkTimeResponse>>> getWorkingTimeOfUser() {
         return ResponseEntity.ok(ApiResponse.success(classService.getWorkingTime()));
     }
+
+    @Operation(summary = "Manager / admin xem Lấy thông tin chi tiet giao vien  ")
+    @GetMapping("{id}/mentor")
+    public ResponseEntity<ApiResponse<UserDto>> managerGetMentorDetail (@PathVariable Long id){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.managerGetMentorDetail(id)));
+    }
+    @Operation(summary = "Manager / admin xem Lấy thông tin chi tiet hoc sinh")
+    @GetMapping("{id}/member")
+    public ResponseEntity<ApiResponse<MemberDetailResponse>> managerGetMemberDetail (@PathVariable Long id){
+        return ResponseEntity.ok(ApiResponse.success(iUserService.managerGetMemberDetail(id)));
+    }
+
+
 }
