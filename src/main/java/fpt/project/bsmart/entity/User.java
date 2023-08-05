@@ -56,8 +56,6 @@ public class User extends BaseEntity {
     @Column(name = "intro_point")
     private Double point;
 
-    @Column(name = "is_first_login")
-    private boolean isFirstLogin = false;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<UserImage> userImages = new ArrayList<>();
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
@@ -74,8 +72,7 @@ public class User extends BaseEntity {
     private List<ReferralCode> referralCodes = new ArrayList<>();
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "student")
     private List<StudentClass> studentClasses = new ArrayList<>();
-    @Column(name = "keycloak_user_id")
-    private String keycloakUserId;
+
     @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
 
@@ -86,14 +83,6 @@ public class User extends BaseEntity {
     @Column(name = "provider")
     private String provider;
 
-
-    public boolean getFirstLogin() {
-        return isFirstLogin;
-    }
-
-    public void setFirstLogin(boolean firstLogin) {
-        isFirstLogin = firstLogin;
-    }
 
     @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Course> courses = new ArrayList<>();
@@ -260,13 +249,6 @@ public class User extends BaseEntity {
         this.referralCodes = referralCodes;
     }
 
-    public String getKeycloakUserId() {
-        return keycloakUserId;
-    }
-
-    public void setKeycloakUserId(String keycloakUserId) {
-        this.keycloakUserId = keycloakUserId;
-    }
 
     public String getPassword() {
         return password;

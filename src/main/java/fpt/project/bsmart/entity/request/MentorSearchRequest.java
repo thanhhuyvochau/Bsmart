@@ -12,6 +12,8 @@ public class MentorSearchRequest implements Serializable {
 
     private EMentorProfileStatus accountStatus ;
 
+    private Boolean isInterviewed ;
+
     public EMentorProfileStatus getAccountStatus() {
         return accountStatus;
     }
@@ -34,5 +36,13 @@ public class MentorSearchRequest implements Serializable {
 
     public void setSkills(List<Long> skills) {
         this.skills = skills;
+    }
+
+    public Boolean getInterviewed() {
+        return isInterviewed;
+    }
+
+    public void setInterviewed(Boolean interviewed) {
+        isInterviewed = interviewed;
     }
 }
