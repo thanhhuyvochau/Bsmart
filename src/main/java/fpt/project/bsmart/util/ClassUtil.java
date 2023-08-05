@@ -8,10 +8,12 @@ import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
+import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
+import fpt.project.bsmart.repository.FeedbackTemplateRepository;
 import fpt.project.bsmart.repository.StudentClassRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -27,14 +29,18 @@ public class ClassUtil {
     private static MessageUtil staticMessageUtil;
     private static StudentClassRepository staticStudentClassRepository;
 
-
+    private static FeedbackTemplateRepository staticFeedbackTemplateRepository;
     public static double CLASS_PERCENTAGE_FOR_FIRST_FEEDBACK = 0.5f;
     public static double CLASS_PERCENTAGE_FOR_SECOND_FEEDBACK = 0.8f;
     public static double PERCENTAGE_RANGE = 0.1f;
 
-    public ClassUtil(MessageUtil messageUtil, StudentClassRepository studentClassRepository, StudentClassRepository s) {
+    public ClassUtil(MessageUtil messageUtil,
+                     StudentClassRepository studentClassRepository,
+                     StudentClassRepository s,
+                     FeedbackTemplateRepository feedbackTemplateRepository) {
         staticStudentClassRepository = studentClassRepository;
         staticMessageUtil = messageUtil;
+        staticFeedbackTemplateRepository = feedbackTemplateRepository;
     }
 
     /**

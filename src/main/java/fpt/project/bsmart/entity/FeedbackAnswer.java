@@ -1,5 +1,7 @@
 package fpt.project.bsmart.entity;
 
+import fpt.project.bsmart.entity.constant.EFeedbackAnswerType;
+
 import javax.persistence.*;
 
 @Entity(name = "feedback_answer")
@@ -9,9 +11,12 @@ public class FeedbackAnswer {
     private Long id;
     @Column(name = "answer")
     private String answer;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question")
     private FeedbackQuestion question;
+
     public Long getId() {
         return id;
     }
@@ -35,4 +40,5 @@ public class FeedbackAnswer {
     public void setQuestion(FeedbackQuestion question) {
         this.question = question;
     }
+
 }

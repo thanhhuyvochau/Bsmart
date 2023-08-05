@@ -71,8 +71,8 @@ public class FeedbackController {
 
     @Operation(summary = "admin / manager  assign feedback for class")
     @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
-    @PutMapping("/{id}/class/{classId}")
-    public ResponseEntity<ApiResponse<Boolean>> assignFeedbackTemplateForClass(@PathVariable Long id, @PathVariable List<Long> classId) {
+    @PutMapping("/{id}/classes")
+    public ResponseEntity<ApiResponse<Boolean>> assignFeedbackTemplateForClass(@PathVariable Long id, @RequestBody List<Long> classId) {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.assignFeedbackTemplateForClass(id, classId)));
     }
 
@@ -108,4 +108,6 @@ public class FeedbackController {
     public ResponseEntity<ApiResponse<FeedbackResponse>> getMentorFeedbackRate(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.getMentorFeedback(id)));
     }
+
+
 }

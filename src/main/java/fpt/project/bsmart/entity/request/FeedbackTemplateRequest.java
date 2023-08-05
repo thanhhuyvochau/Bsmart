@@ -1,5 +1,6 @@
 package fpt.project.bsmart.entity.request;
 
+import fpt.project.bsmart.entity.constant.EFeedbackAnswerType;
 import fpt.project.bsmart.entity.constant.EFeedbackType;
 
 import java.util.ArrayList;
@@ -36,6 +37,8 @@ public class FeedbackTemplateRequest {
 
     public static class FeedbackQuestionRequest {
         private String question;
+
+        private EFeedbackAnswerType type ;
         private List<FeedbackAnswerRequest> answers = new ArrayList<>();
 
         public String getQuestion() {
@@ -44,6 +47,14 @@ public class FeedbackTemplateRequest {
 
         public void setQuestion(String question) {
             this.question = question;
+        }
+
+        public EFeedbackAnswerType getType() {
+            return type;
+        }
+
+        public void setType(EFeedbackAnswerType type) {
+            this.type = type;
         }
 
         public List<FeedbackAnswerRequest> getAnswers() {
