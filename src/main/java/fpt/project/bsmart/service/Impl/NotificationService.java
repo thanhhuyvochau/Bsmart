@@ -18,7 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 @Transactional
@@ -37,18 +39,24 @@ public class NotificationService {
         return PageUtil.convert(notifiers.map(notifier -> ConvertUtil.convertNotificationToResponseMessage(notifier.getNotification(), notifier.getUser())));
     }
 
-    public Boolean readNotification(Long id) {
-        Optional<Notification> optionalNotification = notificationRepository.findById(id);
-        Notification notification = optionalNotification.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Thông báo không tìm thấy với id:" + id));
+    public Boolean readNotification(Long[] ids) {
+        List<Notification> notifications = notificationRepository.findAllById(Arrays.asList(ids));
         User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
-        Notifier notifier = NotificationUtil.findNotifier(notification, currentUser);
-        if (notifier != null) {
-            if (notifier.isRead()) {
-                return true;
-            }
-            notifier.setRead(true);
-            return true;
+        if (notifications.size() != ids.length) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Thông báo cần tìm không tìm thấy vui lòng thử lại!");
         }
-        return false;
+        List<Notifier> updatedNotifier = new ArrayList<>();
+        for (Notification notification : notifications) {
+            Notifier notifier = NotificationUtil.findNotifier(notification, currentUser);
+            if (notifier != null) {
+                if (notifier.isRead()) {
+                    continue;
+                }
+                updatedNotifier.add(notifier);
+                notifier.setRead(true);
+            }
+        }
+        notifierRepository.saveAll(updatedNotifier);
+        return true;
     }
 }

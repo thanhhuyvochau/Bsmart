@@ -11,7 +11,7 @@ public class ResponseMessage extends BaseEntity {
     private ENotificationType type;
     private ENotificationEntity entity;
     private Long entityId;
-    private boolean isRead = false;
+    private boolean read = false;
 
     public ResponseMessage() {
     }
@@ -25,7 +25,7 @@ public class ResponseMessage extends BaseEntity {
     }
 
     public boolean isRead() {
-        return isRead;
+        return read;
     }
 
     public String getViTitle() {
@@ -68,11 +68,11 @@ public class ResponseMessage extends BaseEntity {
         this.entityId = entityId;
     }
 
-    public boolean getIsRead() {
-        return isRead;
+    public boolean getRead() {
+        return read;
     }
 
     public void setRead(boolean read) {
-        isRead = read;
+        this.read = read;
     }
 }

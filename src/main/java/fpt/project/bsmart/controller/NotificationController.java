@@ -30,8 +30,8 @@ public class NotificationController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN','STUDENT')")
-    public ResponseEntity<ApiResponse<Boolean>> readNotification(Long id) {
-        return ResponseEntity.ok(ApiResponse.success(notificationService.readNotification(id)));
+    public ResponseEntity<ApiResponse<Boolean>> readNotification(Long[] ids) {
+        return ResponseEntity.ok(ApiResponse.success(notificationService.readNotification(ids)));
     }
 
 }
