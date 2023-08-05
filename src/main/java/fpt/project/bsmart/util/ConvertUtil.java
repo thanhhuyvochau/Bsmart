@@ -162,8 +162,6 @@ public class ConvertUtil {
         ActivityHistory byUserCourse = staticActivityHistoryRepository.findByTypeAndActivityId(EActivityType.USER, user.getId());
 
 
-
-
         if (byUserCourse != null) {
 
             userDto.setCount(byUserCourse.getCount());
@@ -197,7 +195,7 @@ public class ConvertUtil {
             userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
             TeachInformationDTO teachingInformation = MentorUtil.getTeachingInformation(user);
             userDto.setTeachInformation(teachingInformation);
-        }else {
+        } else {
             Integer finishedClassCount = user.getStudentClasses().stream()
                     .filter(x -> x.getClazz().getStatus().equals(ECourseStatus.ENDED))
                     .distinct()
@@ -345,7 +343,7 @@ public class ConvertUtil {
 //        }
 
 
-//        if (subCourse.getMentor() != null) {
+    //        if (subCourse.getMentor() != null) {
 //            response.setMentorName(subCourse.getMentor().getFullName());
 //        }
 //
@@ -372,8 +370,8 @@ public class ConvertUtil {
         courseResponse.setStatus(course.getStatus());
         courseResponse.setLevel(course.getLevel());
         List<String> mentorName = new ArrayList<>();
-        List<Class> collect = course.getClasses() ;
-    //      List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.NOTSTART)).collect(Collectors.toList());
+        List<Class> collect = course.getClasses();
+        //      List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.NOTSTART)).collect(Collectors.toList());
         List<ImageDto> images = new ArrayList<>();
         if (collect.isEmpty()) {
             ClassImage byType = staticClassImageRepository.findByType(EImageType.DEFAULT);
@@ -986,5 +984,17 @@ public class ConvertUtil {
         submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());
         submission.setComment(feedbackSubmission.getComment());
         return submission;
+    }
+
+    public static ResponseMessage convertNotificationToResponseMessage(Notification notification, User user) {
+        if (user == null) {
+            throw ApiException.create(HttpStatus.SERVICE_UNAVAILABLE).withMessage("Notification is not allowed for unauthorized person!");
+        }
+        Notifier notifier = NotificationUtil.findNotifier(notification, user);
+        return new ResponseMessage(notification.getViTitle(), notification.getViContent(), notification.getType(), notification.getEntity(), notification.getEntityId(), notifier.isRead());
+    }
+
+    public static ResponseMessage convertNotificationToResponseMessage(Notification notification) {
+        return convertNotificationToResponseMessage(notification, null);
     }
 }
