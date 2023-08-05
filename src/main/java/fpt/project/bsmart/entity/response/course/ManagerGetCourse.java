@@ -22,6 +22,7 @@ public class ManagerGetCourse {
 
     private ECourseStatus status;
 
+
     private MentorDto mentor;
 
     private Integer totalClass;
