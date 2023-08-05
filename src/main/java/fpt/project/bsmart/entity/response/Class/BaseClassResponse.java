@@ -1,6 +1,8 @@
 package fpt.project.bsmart.entity.response.Class;
 
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.dto.ImageDto;
+import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 
 import java.time.Instant;
 
@@ -23,6 +25,7 @@ public class BaseClassResponse {
     private int minStudent;
 
     private int maxStudent;
+
 
     public Long getId() {
         return id;
@@ -95,4 +98,6 @@ public class BaseClassResponse {
     public void setMaxStudent(int maxStudent) {
         this.maxStudent = maxStudent;
     }
+
+
 }

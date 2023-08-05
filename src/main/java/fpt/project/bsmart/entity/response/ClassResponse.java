@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import fpt.project.bsmart.config.json.View;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.*;
+import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -33,6 +34,12 @@ public class ClassResponse {
     private CourseDto course;
     private int numberOfCurrentStudent;
     private ClassProgressTimeDto progress;
+
+
+    private ImageDto image;
+
+    private FeedbackTemplateDto feedback;
+
 
     public Long getId() {
         return id;
@@ -176,5 +183,21 @@ public class ClassResponse {
 
     public void setProgress(ClassProgressTimeDto progress) {
         this.progress = progress;
+    }
+
+    public ImageDto getImage() {
+        return image;
+    }
+
+    public void setImage(ImageDto image) {
+        this.image = image;
+    }
+
+    public FeedbackTemplateDto getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(FeedbackTemplateDto feedback) {
+        this.feedback = feedback;
     }
 }

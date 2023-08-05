@@ -8,6 +8,8 @@ import fpt.project.bsmart.entity.common.ValidationErrors;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.ActivityDto;
+import fpt.project.bsmart.entity.dto.ImageDto;
+import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
@@ -590,6 +592,9 @@ public class ClassServiceImpl implements IClassService {
         }
         User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         EUserRole memberOfClassAsRole = ClassValidator.isMemberOfClassAsRole(clazz, currentUser);
+        if (memberOfClassAsRole == null){
+            throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("Bạn không có quyền xem thông tin lớp học này !");
+        }
         List<Activity> sectionActivities = clazz.getCourse().getActivities().stream()
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
                 .collect(Collectors.toList());
@@ -610,6 +615,16 @@ public class ClassServiceImpl implements IClassService {
             }).collect(Collectors.toList());
             ClassResponse classResponse = ConvertUtil.convertClassToClassResponse(clazz, authorizeActivities);
             ResponseUtil.responseForRole(memberOfClassAsRole);
+
+            FeedbackTemplate feedbackTemplate = clazz.getFeedbackTemplate();
+            if (feedbackTemplate != null) {
+                FeedbackTemplateDto feedbackTemplateDto = ConvertUtil.convertFeedbackToFeedbackTemplateDto(feedbackTemplate);
+                classResponse.setFeedback(feedbackTemplateDto);
+            }
+
+            ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
+            classResponse.setImage(imageDto);
+
             return classResponse;
         }
         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
