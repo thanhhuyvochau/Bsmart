@@ -4,31 +4,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StudentSubmitFeedbackRequest {
-    private Map<Long, Long> submitAnswers = new HashMap<>();
-    private Integer rate = 1;
-    private String comment;
 
-    public Map<Long, Long> getSubmitAnswers() {
-        return submitAnswers;
+    private Long questionId ;
+
+    private Long answerId ;
+
+
+
+    public Long getQuestionId() {
+        return questionId;
     }
 
-    public void setSubmitAnswers(Map<Long, Long> submitAnswers) {
-        this.submitAnswers = submitAnswers;
+    public void setQuestionId(Long questionId) {
+        this.questionId = questionId;
     }
 
-    public Integer getRate() {
-        return rate;
+    public Long getAnswerId() {
+        return answerId;
     }
 
-    public void setRate(Integer rate) {
-        this.rate = rate;
+    public void setAnswerId(Long answerId) {
+        this.answerId = answerId;
     }
 
-    public String getComment() {
-        return comment;
-    }
 
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 }

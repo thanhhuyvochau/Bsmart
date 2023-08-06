@@ -137,7 +137,7 @@ public class ClassController {
 
     @Operation(summary = "MANAGER lấy tất cả các class để set template feedback")
     @GetMapping("/feedback")
-    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> getAllClassForSetTemplateFeedback(Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassForSetTemplateFeedback(pageable)));
     }

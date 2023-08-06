@@ -12,7 +12,6 @@ public class FeedbackAnswer {
     @Column(name = "answer")
     private String answer;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question")
     private FeedbackQuestion question;

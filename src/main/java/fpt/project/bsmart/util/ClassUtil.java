@@ -198,7 +198,7 @@ public class ClassUtil {
     public static StudentClass findUserInClass(Class clazz, User user) {
         List<StudentClass> studentClasses = clazz.getStudentClasses();
         Optional<StudentClass> optionalStudentClass = studentClasses.stream().filter(studentClass -> Objects.equals(studentClass.getStudent().getId(), user.getId())).findFirst();
-        StudentClass studentClass = optionalStudentClass.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy học sinh trong lớp"));
+        StudentClass studentClass = optionalStudentClass.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Bạn không phải là học sinh trong lớp này! Không thể làm đánh giá! "));
         return studentClass;
     }
 

@@ -6,10 +6,7 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.constant.EActivityType;
-import fpt.project.bsmart.entity.constant.ECourseActivityType;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
@@ -54,8 +51,9 @@ public class CourseServiceImpl implements ICourseService {
     private final WebSocketUtil webSocketUtil;
     private final NotificationRepository notificationRepository;
 
+    private final FeedbackTemplateRepository feedbackTemplateRepository;
 
-    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository, ClassRepository classRepository, ActivityHistoryRepository activityHistoryRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository) {
+    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository, ClassRepository classRepository, ActivityHistoryRepository activityHistoryRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, FeedbackTemplateRepository feedbackTemplateRepository) {
         this.courseRepository = courseRepository;
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
@@ -64,6 +62,7 @@ public class CourseServiceImpl implements ICourseService {
         this.activityHistoryRepository = activityHistoryRepository;
         this.webSocketUtil = webSocketUtil;
         this.notificationRepository = notificationRepository;
+        this.feedbackTemplateRepository = feedbackTemplateRepository;
     }
 
 
@@ -392,6 +391,8 @@ public class CourseServiceImpl implements ICourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 
+        FeedbackTemplate feedbackIsDefault = feedbackTemplateRepository.findByTypeAndIsDefault(EFeedbackType.COURSE, true);
+
         if (!course.getApproved()) {
             validateApprovalCourseRequest(approvalCourseRequest.getStatus());
 
@@ -403,6 +404,7 @@ public class CourseServiceImpl implements ICourseService {
             List<Class> classList = new ArrayList<>();
             for (Class aClass : classToApproval) {
                 aClass.setStatus(approvalCourseRequest.getStatus());
+                aClass.setFeedbackTemplate(feedbackIsDefault);
                 classList.add(aClass);
             }
             classRepository.saveAll(classList);
@@ -437,6 +439,7 @@ public class CourseServiceImpl implements ICourseService {
             List<Class> classList = new ArrayList<>();
             for (Class aClass : classToApproval) {
                 aClass.setStatus(approvalCourseRequest.getStatus());
+                aClass.setFeedbackTemplate(feedbackIsDefault);
                 classList.add(aClass);
             }
             classRepository.saveAll(classList);

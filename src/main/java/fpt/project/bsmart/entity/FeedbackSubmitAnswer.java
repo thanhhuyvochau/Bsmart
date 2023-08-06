@@ -14,6 +14,9 @@ public class FeedbackSubmitAnswer {
     @JoinColumn(name = "answer")
     private FeedbackAnswer answer;
 
+    @Column(name = "answerEssay")
+    private String answerEssay;
+
     public Long getId() {
         return id;
     }
@@ -36,5 +39,13 @@ public class FeedbackSubmitAnswer {
 
     public void setAnswer(FeedbackAnswer answer) {
         this.answer = answer;
+    }
+
+    public String getAnswerEssay() {
+        return answerEssay;
+    }
+
+    public void setAnswerEssay(String answerEssay) {
+        this.answerEssay = answerEssay;
     }
 }
