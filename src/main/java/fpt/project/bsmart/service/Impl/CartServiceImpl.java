@@ -51,12 +51,12 @@ public class CartServiceImpl implements ICartService {
     @Override
     public Integer addCourseToCart(AddCartItemRequest request) {
         Cart cart = SecurityUtil.getCurrentUserCart();
-        Class clazz = classRepository.findById(request.getSubCourseId())
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId()));
+        Class clazz = classRepository.findById(request.getClassId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SUB_COURSE_NOT_FOUND_BY_ID) + request.getClassId()));
 
         Course course = clazz.getCourse();
         if (!Objects.equals(clazz.getStatus(), ECourseStatus.NOTSTART)) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SUB_COURSE_NOT_FOUND_BY_ID) + request.getSubCourseId());
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SUB_COURSE_NOT_FOUND_BY_ID) + request.getClassId());
         }
         boolean anyMatch = cart.getCartItems().stream().anyMatch(cartItem -> {
             Class existingSubCourse = cartItem.getClazz();

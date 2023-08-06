@@ -7,11 +7,12 @@ import fpt.project.bsmart.entity.constant.ENotificationEntity;
 import fpt.project.bsmart.entity.constant.ENotificationType;
 import fpt.project.bsmart.util.MessageUtil;
 import fpt.project.bsmart.util.TextUtil;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
-
+@Component
 public class NotificationDirector {
     public static MessageUtil staticMessageUtil;
 

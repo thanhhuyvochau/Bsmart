@@ -13,6 +13,7 @@ import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
 import fpt.project.bsmart.entity.response.member.StudyInformationDTO;
+import fpt.project.bsmart.payment.PaymentResponse;
 import fpt.project.bsmart.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -1019,5 +1020,14 @@ public class ConvertUtil {
         ResponseMessage responseMessage = ObjectUtil.copyProperties(notification, new ResponseMessage(), ResponseMessage.class, true);
         responseMessage.setRead(notifier.isRead());
         return responseMessage;
+    }
+
+    public static PaymentResponse convertPaymentResponse(Order order, Transaction transaction) {
+        PaymentResponse paymentResponse = new PaymentResponse();
+        paymentResponse.setOrderId(order.getId());
+        paymentResponse.setOrderStatus(order.getStatus());
+        paymentResponse.setTransactionStatus(transaction.getStatus());
+        paymentResponse.setTransactionId(transaction.getId());
+        return paymentResponse;
     }
 }
