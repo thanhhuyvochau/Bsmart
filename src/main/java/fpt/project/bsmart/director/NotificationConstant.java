@@ -9,4 +9,6 @@ public class NotificationConstant {
     public final static String COURSE_APPROVAL_PROFILE_CONTENT = "COURSE_APPROVAL_PROFILE_CONTENT";
     public final static String CLASS_ENROLL_SUCCESS_TITLE = "CLASS_ENROLL_SUCCESS_TITLE";
     public final static String CLASS_ENROLL_SUCCESS_CONTENT = "CLASS_ENROLL_SUCCESS_CONTENT";
+    public final static String CLASS_APPROVAL_TITLE = "CLASS_APPROVAL_TITLE";
+    public final static String CLASS_APPROVAL_CONTENT = "CLASS_APPROVAL_CONTENT";
 }

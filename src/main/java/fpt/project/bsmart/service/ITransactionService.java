@@ -3,15 +3,14 @@ package fpt.project.bsmart.service;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.DepositRequest;
-import fpt.project.bsmart.entity.request.PayCourseRequest;
-import fpt.project.bsmart.entity.request.VpnPayRequest;
+import fpt.project.bsmart.entity.request.PayCartRequest;
+import fpt.project.bsmart.entity.request.PayRequest;
 import fpt.project.bsmart.entity.request.WithdrawRequest;
-import fpt.project.bsmart.entity.response.VnPayResponse;
+import fpt.project.bsmart.payment.PaymentResponse;
 import org.springframework.data.domain.Pageable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 
 public interface ITransactionService {
     ApiPage<TransactionDto> getSelfTransactions(Pageable pageable);
@@ -23,11 +22,11 @@ public interface ITransactionService {
     Boolean withdraw(WithdrawRequest request);
 
     // Hiện tại sẽ chỉ làm các giao dịch rút tiền và nạp tiền
-    VnPayResponse payCourseFromCart(HttpServletRequest req, List<PayCourseRequest> request) throws UnsupportedEncodingException;
+    PaymentResponse payCourseFromCart(PayCartRequest request) throws UnsupportedEncodingException;
 
-    VnPayResponse payQuickCourse(HttpServletRequest req, VpnPayRequest request) throws UnsupportedEncodingException;
+    PaymentResponse payQuickCourse(PayRequest request) throws UnsupportedEncodingException;
 
-    Boolean executeAfterPayment(HttpServletRequest request);
+    Boolean executeAfterVnPayReturn(HttpServletRequest request);
 
 //    Boolean getBankPaymentResult(Long transaction)
 

@@ -3,10 +3,10 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.TransactionDto;
-import fpt.project.bsmart.entity.request.PayCourseRequest;
-import fpt.project.bsmart.entity.request.VpnPayRequest;
+import fpt.project.bsmart.entity.request.PayCartRequest;
+import fpt.project.bsmart.entity.request.PayRequest;
 import fpt.project.bsmart.entity.request.WithdrawRequest;
-import fpt.project.bsmart.entity.response.VnPayResponse;
+import fpt.project.bsmart.payment.PaymentResponse;
 import fpt.project.bsmart.service.ITransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -64,21 +63,21 @@ public class TransactionController {
     @Operation(summary = "Thanh toán khóa học từ giỏ hàng")
     @PostMapping("/pay")
     @PreAuthorize("hasAnyRole('STUDENT')")
-    public ResponseEntity<ApiResponse<VnPayResponse>> payCourseFromCart(HttpServletRequest req, @RequestBody List<PayCourseRequest> request) throws UnsupportedEncodingException {
-        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payCourseFromCart(req, request)));
+    public ResponseEntity<ApiResponse<PaymentResponse>> payCourseFromCart(@RequestBody PayCartRequest request) throws UnsupportedEncodingException {
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payCourseFromCart(request)));
     }
 
     @Operation(summary = "Thanh toán khóa học nhanh")
     @PostMapping("/pay-quick")
     @PreAuthorize("hasAnyRole('STUDENT')")
-    public ResponseEntity<ApiResponse<VnPayResponse>> payCourseByBankAccount(@RequestBody VpnPayRequest payRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payQuickCourse(request, payRequest)));
+    public ResponseEntity<ApiResponse<PaymentResponse>> payQuickCourse(@RequestBody PayRequest payRequest) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.payQuickCourse(payRequest)));
     }
 
     @Operation(summary = "Thanh toán khóa học từ giỏ hàng")
     @GetMapping("/pay/vnpay/result")
     public ResponseEntity<ApiResponse<Boolean>> getResultOfPayByVnPay(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        return ResponseEntity.ok(ApiResponse.success(iTransactionService.executeAfterPayment(request)));
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.executeAfterVnPayReturn(request)));
     }
 
 }
