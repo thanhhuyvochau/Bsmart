@@ -14,9 +14,8 @@ import java.util.stream.Collectors;
 @Table(name = "Notification")
 public class Notification {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-
     @Column(name = "vi_title")
     private String viTitle;
 
