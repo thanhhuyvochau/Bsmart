@@ -17,8 +17,6 @@ public class MentorDto {
     private String introduce;
 
     private String phone;
-
-
     private Instant timeParticipation  ;
 
     private List<MentorSkillDto> mentorSkills;

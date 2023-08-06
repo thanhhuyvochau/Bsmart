@@ -38,7 +38,6 @@ public class FeedbackTemplateRequest {
     public static class FeedbackQuestionRequest {
         private String question;
 
-        private EFeedbackAnswerType type ;
         private List<FeedbackAnswerRequest> answers = new ArrayList<>();
 
         public String getQuestion() {
@@ -49,13 +48,7 @@ public class FeedbackTemplateRequest {
             this.question = question;
         }
 
-        public EFeedbackAnswerType getType() {
-            return type;
-        }
 
-        public void setType(EFeedbackAnswerType type) {
-            this.type = type;
-        }
 
         public List<FeedbackAnswerRequest> getAnswers() {
             return answers;
@@ -64,6 +57,8 @@ public class FeedbackTemplateRequest {
         public void setAnswers(List<FeedbackAnswerRequest> answers) {
             this.answers = answers;
         }
+
+
     }
 
     public static class FeedbackAnswerRequest {

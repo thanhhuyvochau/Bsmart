@@ -214,7 +214,7 @@ public class ConvertUtil {
     public static MemberDetailResponse convertUserToMemberDetailResponse(User user) {
         MemberDetailResponse memberDetailResponse = ObjectUtil.copyProperties(user, new MemberDetailResponse(), MemberDetailResponse.class);
         memberDetailResponse.setPhone(user.getPhone());
-
+        memberDetailResponse.setTimeParticipation(user.getCreated());
 
         List<StudentClass> byStudent = staticStudentClassRepository.findByStudent(user);
         List<Course> courses = byStudent.stream().map(studentClass -> studentClass.getClazz().getCourse()).distinct().collect(Collectors.toList());
@@ -960,7 +960,6 @@ public class ConvertUtil {
 
             for (FeedbackQuestion question : feedbackTemplate.getQuestions()) {
                 FeedbackTemplateDto.FeedbackQuestionDto questionDto = ObjectUtil.copyProperties(question, new FeedbackTemplateDto.FeedbackQuestionDto(), FeedbackTemplateDto.FeedbackQuestionDto.class);
-                questionDto.setAnswerType(question.getQuestionType());
                 if (question.getAnswers() != null) {
                     ArrayList<FeedbackTemplateDto.FeedbackAnswerDto> answerDtos = new ArrayList<>();
                     for (FeedbackAnswer answer : question.getAnswers()) {
@@ -1005,9 +1004,9 @@ public class ConvertUtil {
 
     public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToFeedbackResponse(FeedbackSubmission feedbackSubmission) {
         FeedbackResponse.FeedbackSubmission submission = new FeedbackResponse.FeedbackSubmission();
-        submission.setRate(feedbackSubmission.getRate());
+//        submission.setRate(feedbackSubmission.getRate());
         submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());
-        submission.setComment(feedbackSubmission.getComment());
+//        submission.setComment(feedbackSubmission.getComment());
         return submission;
     }
 

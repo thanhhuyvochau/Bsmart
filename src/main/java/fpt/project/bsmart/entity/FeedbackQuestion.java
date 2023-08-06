@@ -14,14 +14,13 @@ public class FeedbackQuestion {
     @Column(name = "question")
     private String question;
 
-    @Column(name = "type")
-    @Enumerated(EnumType.STRING)
-    private EFeedbackAnswerType questionType;
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FeedbackAnswer> answers = new ArrayList<>();
     @ManyToOne
     @JoinColumn(name = "template")
     private FeedbackTemplate template;
+
+
     public Long getId() {
         return id;
     }
@@ -54,11 +53,7 @@ public class FeedbackQuestion {
         this.template = template;
     }
 
-    public EFeedbackAnswerType getQuestionType() {
-        return questionType;
-    }
 
-    public void setQuestionType(EFeedbackAnswerType questionType) {
-        this.questionType = questionType;
-    }
+
+
 }

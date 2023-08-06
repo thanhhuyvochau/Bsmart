@@ -149,7 +149,7 @@ public class UserServiceImpl implements IUserService {
         teachInformationDTO.setNumberOfClass(classes.size());
         teachInformationDTO.setNumberOfMember(numberOfMember);
         teachInformationDTO.setNumberOfFeedBack(feedbackSubmissions.size());
-        teachInformationDTO.setScoreFeedback(FeedbackUtil.calculateCourseRate(feedbackSubmissions));
+        teachInformationDTO.setScoreFeedback(0.0);
         userDto.setTeachInformation(teachInformationDTO);
         return userDto;
     }

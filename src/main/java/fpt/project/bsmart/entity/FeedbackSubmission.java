@@ -9,8 +9,7 @@ public class FeedbackSubmission extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "name")
-    private String name;
+
     @ManyToOne
     @JoinColumn(name = "submit_by")
     private User submitBy;
@@ -22,10 +21,6 @@ public class FeedbackSubmission extends BaseEntity{
     private FeedbackTemplate template;
     @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FeedbackSubmitAnswer> answers = new ArrayList<>();
-    @Column(name = "rate")
-    private Integer rate = 1;
-    @Column(name = "comment")
-    private String comment;
 
     public Long getId() {
         return id;
@@ -35,13 +30,7 @@ public class FeedbackSubmission extends BaseEntity{
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public User getSubmitBy() {
         return submitBy;
@@ -78,19 +67,5 @@ public class FeedbackSubmission extends BaseEntity{
         }
     }
 
-    public Integer getRate() {
-        return rate;
-    }
 
-    public void setRate(Integer rate) {
-        this.rate = rate;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 }

@@ -14,6 +14,8 @@ import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +44,7 @@ public class CourseController {
     @Operation(summary = "Get all courses for course page")
     @GetMapping
     public ResponseEntity<ApiResponse<ApiPage<CourseResponse>>> getCourseForCoursePage(
-            @Nullable CourseSearchRequest query, Pageable pageable) {
+            @Nullable CourseSearchRequest query, @PageableDefault(sort = "lastModified", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.getCourseForCoursePage(query, pageable)));
     }
 
@@ -53,7 +55,6 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.studentGetCurrentCourse(request, pageable)));
     }
     //     ################################## END CLIENT  ##########################################
-
 
 
     //     ################################## START MENTOR  ##########################################
@@ -111,16 +112,14 @@ public class CourseController {
     //     ################################## END MENTOR  ##########################################
 
 
-
-
-
     //     ################################## START MANAGER ##########################################
 
     @Operation(summary = "Manager get tất cả yêu cầu mở khóa học của mentor")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/pending")
-    public ResponseEntity<ApiResponse<ApiPage<ManagerGetCourse>>> coursePendingToApprove(ECourseStatus status ,Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(status ,pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<ManagerGetCourse>>> coursePendingToApprove(ECourseStatus status,
+                                                                                         @Nullable CourseSearchRequest query, @PageableDefault(sort = "lastModified", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(status, pageable)));
     }
 
 

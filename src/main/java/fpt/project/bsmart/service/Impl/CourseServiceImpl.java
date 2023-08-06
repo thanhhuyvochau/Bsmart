@@ -5,10 +5,7 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.constant.EActivityType;
-import fpt.project.bsmart.entity.constant.ECourseActivityType;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
@@ -29,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
@@ -51,14 +47,17 @@ public class CourseServiceImpl implements ICourseService {
 
     private final ActivityHistoryRepository activityHistoryRepository;
 
+    private final FeedbackTemplateRepository feedbackTemplateRepository;
 
-    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository, ClassRepository classRepository, ActivityHistoryRepository activityHistoryRepository) {
+
+    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository, ClassRepository classRepository, ActivityHistoryRepository activityHistoryRepository, FeedbackTemplateRepository feedbackTemplateRepository) {
         this.courseRepository = courseRepository;
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.activityRepository = activityRepository;
         this.classRepository = classRepository;
         this.activityHistoryRepository = activityHistoryRepository;
+        this.feedbackTemplateRepository = feedbackTemplateRepository;
     }
 
 
@@ -386,6 +385,8 @@ public class CourseServiceImpl implements ICourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 
+        FeedbackTemplate feedbackIsDefault = feedbackTemplateRepository.findByTypeAndIsDefault(EFeedbackType.COURSE, true);
+
         if (!course.getApproved()) {
             validateApprovalCourseRequest(approvalCourseRequest.getStatus());
 
@@ -397,6 +398,7 @@ public class CourseServiceImpl implements ICourseService {
             List<Class> classList = new ArrayList<>();
             for (Class aClass : classToApproval) {
                 aClass.setStatus(approvalCourseRequest.getStatus());
+                aClass.setFeedbackTemplate(feedbackIsDefault);
                 classList.add(aClass);
             }
             classRepository.saveAll(classList);
@@ -416,6 +418,7 @@ public class CourseServiceImpl implements ICourseService {
             List<Class> classList = new ArrayList<>();
             for (Class aClass : classToApproval) {
                 aClass.setStatus(approvalCourseRequest.getStatus());
+                aClass.setFeedbackTemplate(feedbackIsDefault);
                 classList.add(aClass);
             }
             classRepository.saveAll(classList);

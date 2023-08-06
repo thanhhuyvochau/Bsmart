@@ -160,7 +160,6 @@ public class ClassServiceImpl implements IClassService {
 
         Class classAndTimeInWeek = createClassAndTimeInWeek(currentUserAccountLogin, course, mentorCreateClassRequest);
 //        mentorCreateScheduleForClass(classAndTimeInWeek, mentorCreateClassRequest.getTimeTableRequest());
-        ;
         return classAndTimeInWeek.getId();
     }
 

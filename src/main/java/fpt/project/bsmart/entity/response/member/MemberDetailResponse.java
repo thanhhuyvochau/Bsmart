@@ -33,6 +33,7 @@ public class MemberDetailResponse {
 
     private String website;
 
+    private Instant timeParticipation  ;
     private List<ImageDto> userImages = new ArrayList<>();
 
     private StudyInformationDTO studyInformation;
@@ -139,5 +140,13 @@ public class MemberDetailResponse {
 
     public void setStudyInformation(StudyInformationDTO studyInformation) {
         this.studyInformation = studyInformation;
+    }
+
+    public Instant getTimeParticipation() {
+        return timeParticipation;
+    }
+
+    public void setTimeParticipation(Instant timeParticipation) {
+        this.timeParticipation = timeParticipation;
     }
 }

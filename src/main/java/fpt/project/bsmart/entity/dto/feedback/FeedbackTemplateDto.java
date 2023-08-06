@@ -91,11 +91,19 @@ public class FeedbackTemplateDto {
 
     public static class FeedbackQuestionDto {
 
-
+        private Long id;
         private String question;
 
         private EFeedbackAnswerType answerType;
         private List<FeedbackAnswerDto> answers = new ArrayList<>();
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
 
         public EFeedbackAnswerType getAnswerType() {
             return answerType;
@@ -124,10 +132,17 @@ public class FeedbackTemplateDto {
 
     public static class FeedbackAnswerDto {
 
-
+        private Long id;
         private String answer;
 
 
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
 
         public String getAnswer() {
             return answer;
