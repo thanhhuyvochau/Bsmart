@@ -12,14 +12,13 @@ import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETransactionType;
 import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
-import fpt.project.bsmart.entity.request.DepositRequest;
-import fpt.project.bsmart.entity.request.PayCourseRequest;
-import fpt.project.bsmart.entity.request.VpnPayRequest;
-import fpt.project.bsmart.entity.request.WithdrawRequest;
+import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.response.RevenueResponse;
 import fpt.project.bsmart.entity.response.VnPayResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ITransactionService;
 import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.specification.TransactionSpecificationBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -291,5 +290,16 @@ public class TransactionService implements ITransactionService {
             return true;
         }
         return false;
+    }
+
+    public List<RevenueResponse> getRevenueForAdminPage(TransactionRequest request){
+        TransactionSpecificationBuilder builder = TransactionSpecificationBuilder.transactionSpecificationBuilder()
+                .filterFromDate(request.getStartDate())
+                .filterToDate(request.getEndDate())
+                .filterByBuyer(request.getBuyerId())
+                .filterBySeller(request.getSellerId())
+                .filterByCourse(request.getCourseId());
+        List<Transaction> transactions = transactionRepository.findAll(builder.build());
+        return ConvertUtil.convertTransactionsToRevenueResponses(transactions);
     }
 }

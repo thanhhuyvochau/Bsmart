@@ -2,10 +2,8 @@ package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
-import fpt.project.bsmart.entity.request.DepositRequest;
-import fpt.project.bsmart.entity.request.PayCourseRequest;
-import fpt.project.bsmart.entity.request.VpnPayRequest;
-import fpt.project.bsmart.entity.request.WithdrawRequest;
+import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.response.RevenueResponse;
 import fpt.project.bsmart.entity.response.VnPayResponse;
 import org.springframework.data.domain.Pageable;
 
@@ -30,5 +28,5 @@ public interface ITransactionService {
     Boolean executeAfterPayment(HttpServletRequest request);
 
 //    Boolean getBankPaymentResult(Long transaction)
-
+    List<RevenueResponse> getRevenueForAdminPage(TransactionRequest request);
 }

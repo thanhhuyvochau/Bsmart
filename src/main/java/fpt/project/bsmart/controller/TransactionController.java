@@ -4,8 +4,10 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.PayCourseRequest;
+import fpt.project.bsmart.entity.request.TransactionRequest;
 import fpt.project.bsmart.entity.request.VpnPayRequest;
 import fpt.project.bsmart.entity.request.WithdrawRequest;
+import fpt.project.bsmart.entity.response.RevenueResponse;
 import fpt.project.bsmart.entity.response.VnPayResponse;
 import fpt.project.bsmart.service.ITransactionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Nullable;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -81,4 +84,10 @@ public class TransactionController {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.executeAfterPayment(request)));
     }
 
+    @Operation(summary = "Lấy thông tinh doanh thu cho trang admin")
+    @GetMapping("/revenue")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<ApiResponse<List<RevenueResponse>>> getRevenueForAdminPage(@Nullable TransactionRequest request){
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.getRevenueForAdminPage(request)));
+    }
 }

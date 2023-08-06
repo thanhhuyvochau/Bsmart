@@ -1020,4 +1020,27 @@ public class ConvertUtil {
         responseMessage.setRead(notifier.isRead());
         return responseMessage;
     }
+
+    public static List<RevenueResponse> convertTransactionsToRevenueResponses(List<Transaction> transactions){
+        List<RevenueResponse> revenueResponses = transactions.stream()
+                .flatMap(transaction -> transaction.getOrder().getOrderDetails().stream()
+                        .map(ConvertUtil::convertOrderDetailToRevenueResponse))
+                .collect(Collectors.toList());
+        return revenueResponses;
+    }
+
+    private static RevenueResponse convertOrderDetailToRevenueResponse(OrderDetail orderDetail){
+        User buyer = orderDetail.getOrder().getUser();
+        User seller = orderDetail.getClazz().getMentor();
+        RevenueResponse response = new RevenueResponse();
+        response.setOrderId(orderDetail.getOrder().getId());
+        response.setRevenue(orderDetail.getFinalPrice());
+        response.setTotal(orderDetail.getFinalPrice());
+        response.setDate(orderDetail.getCreated());
+        response.setBuyerId(buyer.getId());
+        response.setBuyerName(buyer.getFullName());
+        response.setSellerId(seller.getId());
+        response.setSellerName(seller.getFullName());
+        return response;
+    }
 }
