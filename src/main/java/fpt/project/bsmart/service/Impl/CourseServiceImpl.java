@@ -414,15 +414,24 @@ public class CourseServiceImpl implements ICourseService {
                 }
                 course.setApproved(true);
             }
+            User creator = course.getCreator();
+            /**Notification for course*/
             Notification notification = NotificationDirector.buildApprovalCourse(course, approvalCourseRequest.getStatus());
             notificationRepository.save(notification);
-            User creator = course.getCreator();
             ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, creator);
             webSocketUtil.sendPrivateNotification(creator.getEmail(), responseMessage);
+            courseRepository.save(course);
+            /**Notification for classes*/
+            List<Notification> classNotifications = new ArrayList<>();
             for (Class clazz : classList) {
                 Notification clazzNotification = NotificationDirector.buildApprovalClass(clazz, clazz.getStatus());
+                classNotifications.add(clazzNotification);
             }
-            courseRepository.save(course);
+            notificationRepository.saveAll(classNotifications);
+            for (Notification classNotification : classNotifications) {
+                ResponseMessage classResponseMessage = ConvertUtil.convertNotificationToResponseMessage(classNotification, creator);
+                webSocketUtil.sendPrivateNotification(creator.getEmail(), responseMessage);
+            }
         } else {
             List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
             List<Class> classList = new ArrayList<>();
@@ -431,6 +440,21 @@ public class CourseServiceImpl implements ICourseService {
                 classList.add(aClass);
             }
             classRepository.saveAll(classList);
+            /**Notification for classes*/
+            List<Notification> classNotifications = new ArrayList<>();
+            for (Class clazz : classList) {
+                Notification clazzNotification = NotificationDirector.buildApprovalClass(clazz, clazz.getStatus());
+                classNotifications.add(clazzNotification);
+            }
+            notificationRepository.saveAll(classNotifications);
+            for (Notification classNotification : classNotifications) {
+                Optional<Notifier> optionalNotifier = Optional.ofNullable(classNotification.getNotifiers().get(0));
+                if (optionalNotifier.isPresent()) {
+                    Notifier notifier = optionalNotifier.get();
+                    ResponseMessage classResponseMessage = ConvertUtil.convertNotificationToResponseMessage(classNotification, notifier.getUser());
+                    webSocketUtil.sendPrivateNotification(notifier.getUser().getEmail(), classResponseMessage);
+                }
+            }
         }
 
 

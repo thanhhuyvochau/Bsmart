@@ -283,13 +283,32 @@ public class TransactionService implements ITransactionService {
                 studentClass.setClazz(orderedClass);
                 orderedClass.getStudentClasses().add(studentClass);
             }
-            Notification notification = NotificationDirector.buildPaymentNotification(order, transaction);
-            notificationRepository.save(notification);
-            ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, user);
-            webSocketUtil.sendPrivateNotification(user.getEmail(), responseMessage);
+            List<Notification> notifications = new ArrayList<>();
+            Notification paymentSuccessNotification = NotificationDirector.buildPaymentNotification(order, transaction);
+            notifications.add(paymentSuccessNotification);
+            notifications.addAll(getEnrollClassNotifications(order));
+            notificationRepository.saveAll(notifications);
+
+            for (Notification notification : notifications) {
+                ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, user);
+                webSocketUtil.sendPrivateNotification(user.getEmail(), responseMessage);
+            }
             classRepository.saveAll(orderedClasses);
             return true;
         }
         return false;
+    }
+
+    private List<Notification> getEnrollClassNotifications(Order order) {
+        List<Notification> enrolledClassNotifications = new ArrayList<>();
+        if (Objects.equals(order.getStatus(), EOrderStatus.SUCCESS)) {
+            User student = order.getUser();
+            for (OrderDetail orderDetail : order.getOrderDetails()) {
+                Class clazz = orderDetail.getClazz();
+                Notification notification = NotificationDirector.buildEnrollClass(clazz, student);
+                enrolledClassNotifications.add(notification);
+            }
+        }
+        return enrolledClassNotifications;
     }
 }
