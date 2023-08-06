@@ -7,7 +7,6 @@ import fpt.project.bsmart.entity.constant.ENotificationEntity;
 import fpt.project.bsmart.entity.constant.ENotificationType;
 import fpt.project.bsmart.util.MessageUtil;
 import fpt.project.bsmart.util.TextUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +15,6 @@ import java.util.Map;
 public class NotificationDirector {
     public static MessageUtil staticMessageUtil;
 
-    @Autowired
     public NotificationDirector(MessageUtil messageUtil) {
         staticMessageUtil = messageUtil;
     }
@@ -89,6 +87,24 @@ public class NotificationDirector {
                 .viTitle(title)
                 .viContent(content)
                 .notifiers(user)
+                .type(ENotificationType.PERSONAL)
+                .entity(ENotificationEntity.CLASS)
+                .entityId(clazz.getId())
+                .build();
+    }
+
+    public static Notification buildApprovalClass(Class clazz, ECourseStatus status) {
+        String title = staticMessageUtil.getLocalMessage(NotificationConstant.CLASS_APPROVAL_TITLE);
+        String content = staticMessageUtil.getLocalMessage(NotificationConstant.CLASS_APPROVAL_CONTENT);
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("className", clazz.getCode());
+        parameters.put("status", status.name());
+        content = TextUtil.format(content, parameters);
+        Notification.NotificationBuilder builder = Notification.getBuilder();
+        return builder
+                .viTitle(title)
+                .viContent(content)
+                .notifiers(clazz.getMentor())
                 .type(ENotificationType.PERSONAL)
                 .entity(ENotificationEntity.CLASS)
                 .entityId(clazz.getId())

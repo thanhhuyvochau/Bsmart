@@ -1,6 +1,7 @@
 
 package fpt.project.bsmart.service.Impl;
 
+import fpt.project.bsmart.director.NotificationDirector;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
@@ -10,6 +11,7 @@ import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.ActivityDto;
+import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.request.ManagerApprovalCourseRequest;
@@ -29,7 +31,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
@@ -50,15 +51,19 @@ public class CourseServiceImpl implements ICourseService {
     private final ClassRepository classRepository;
 
     private final ActivityHistoryRepository activityHistoryRepository;
+    private final WebSocketUtil webSocketUtil;
+    private final NotificationRepository notificationRepository;
 
 
-    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository, ClassRepository classRepository, ActivityHistoryRepository activityHistoryRepository) {
+    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository, ClassRepository classRepository, ActivityHistoryRepository activityHistoryRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository) {
         this.courseRepository = courseRepository;
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.activityRepository = activityRepository;
         this.classRepository = classRepository;
         this.activityHistoryRepository = activityHistoryRepository;
+        this.webSocketUtil = webSocketUtil;
+        this.notificationRepository = notificationRepository;
     }
 
 
@@ -315,6 +320,7 @@ public class CourseServiceImpl implements ICourseService {
                     ActivityHistoryUtil.logHistoryForMentorSendRequestCourse(user.getId(), course);
                 }
                 return true;
+
             }
         }
 
@@ -408,8 +414,14 @@ public class CourseServiceImpl implements ICourseService {
                 }
                 course.setApproved(true);
             }
-
-
+            Notification notification = NotificationDirector.buildApprovalCourse(course, approvalCourseRequest.getStatus());
+            notificationRepository.save(notification);
+            User creator = course.getCreator();
+            ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, creator);
+            webSocketUtil.sendPrivateNotification(creator.getEmail(), responseMessage);
+            for (Class clazz : classList) {
+                Notification clazzNotification = NotificationDirector.buildApprovalClass(clazz, clazz.getStatus());
+            }
             courseRepository.save(course);
         } else {
             List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
