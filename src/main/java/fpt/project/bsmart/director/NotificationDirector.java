@@ -111,4 +111,21 @@ public class NotificationDirector {
                 .entityId(clazz.getId())
                 .build();
     }
+
+    public static Notification buildRegisterSuccessAccount(User user) {
+        String title = staticMessageUtil.getLocalMessage(NotificationConstant.TRANSACTION_PAYMENT_TITLE);
+        String content = staticMessageUtil.getLocalMessage(NotificationConstant.TRANSACTION_PAYMENT_CONTENT);
+        Map<String, String> parameters = new HashMap<>();
+        content = TextUtil.format(content, parameters);
+        Notification.NotificationBuilder builder = Notification.getBuilder();
+        Notification notification = builder
+                .viTitle(title)
+                .viContent(content)
+                .notifiers(user)
+                .type(ENotificationType.PERSONAL)
+                .entity(ENotificationEntity.ACCOUNT)
+                .entityId(user.getId())
+                .build();
+        return notification;
+    }
 }
