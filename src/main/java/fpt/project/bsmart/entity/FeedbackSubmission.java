@@ -1,6 +1,10 @@
 package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +23,24 @@ public class FeedbackSubmission extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "template")
     private FeedbackTemplate template;
+    @Positive
+    @Max(5)
+    @Min(1)
+    @Column(name = "mentor_rate")
+    private Integer mentorRate = 1;
+    @Positive
+    @Max(5)
+    @Min(1)
+    @Column(name = "course_rate")
+    private Integer courseRate = 1;
     @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FeedbackSubmitAnswer> answers = new ArrayList<>();
+    @Column(name = "comment")
+    private String comment;
+
+    public Integer getCourseRate() {
+        return courseRate;
+    }
 
     public Long getId() {
         return id;
@@ -29,8 +49,6 @@ public class FeedbackSubmission extends BaseEntity{
     public void setId(Long id) {
         this.id = id;
     }
-
-
 
     public User getSubmitBy() {
         return submitBy;
@@ -56,6 +74,18 @@ public class FeedbackSubmission extends BaseEntity{
         this.template = template;
     }
 
+    public Integer getMentorRate() {
+        return mentorRate;
+    }
+
+    public void setMentorRate(Integer mentorRate) {
+        this.mentorRate = mentorRate;
+    }
+
+    public void setCourseRate(Integer courseRate) {
+        this.courseRate = courseRate;
+    }
+
     public List<FeedbackSubmitAnswer> getAnswers() {
         return answers;
     }
@@ -67,5 +97,11 @@ public class FeedbackSubmission extends BaseEntity{
         }
     }
 
+    public String getComment() {
+        return comment;
+    }
 
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 }

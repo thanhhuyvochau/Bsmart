@@ -742,7 +742,7 @@ public class ClassServiceImpl implements IClassService {
 //            throw ApiException.create(HttpStatus.NOT_FOUND)
 //                    .withMessage(CLASS_STATUS_NOT_ALLOW);
 //        }
-        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findByTypeAndIsDefault(EFeedbackType.FEEDBACK, true);
+        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findByTypeAndIsDefault(EFeedbackType.COURSE, true);
         if (feedbackTemplate == null) {
             throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage(messageUtil.getLocalMessage(""));
         }

@@ -1003,11 +1003,19 @@ public class ConvertUtil {
         return response;
     }
 
-    public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToFeedbackResponse(FeedbackSubmission feedbackSubmission) {
+    public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToMentorFeedbackResponse(FeedbackSubmission feedbackSubmission) {
         FeedbackResponse.FeedbackSubmission submission = new FeedbackResponse.FeedbackSubmission();
-//        submission.setRate(feedbackSubmission.getRate());
+        submission.setRate(feedbackSubmission.getMentorRate());
         submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());
-//        submission.setComment(feedbackSubmission.getComment());
+        submission.setComment(feedbackSubmission.getComment());
+        return submission;
+    }
+
+    public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToCourseFeedbackResponse(FeedbackSubmission feedbackSubmission) {
+        FeedbackResponse.FeedbackSubmission submission = new FeedbackResponse.FeedbackSubmission();
+        submission.setRate(feedbackSubmission.getCourseRate());
+        submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());
+        submission.setComment(feedbackSubmission.getComment());
         return submission;
     }
 
