@@ -87,7 +87,7 @@ public class FeedbackController {
     @Operation(summary = "Học sinh làm feedback ")
     @PreAuthorize("hasAnyRole('STUDENT')")
     @PostMapping("/{classId}/submit")
-    public ResponseEntity<ApiResponse<Long>> studentSubmitFeedback(@PathVariable Long classId, @RequestBody List<StudentSubmitFeedbackRequest> request) {
+    public ResponseEntity<ApiResponse<Long>> studentSubmitFeedback(@PathVariable Long classId, @RequestBody StudentSubmitFeedbackRequest request) {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.studentSubmitFeedback(classId, request)));
     }
 
