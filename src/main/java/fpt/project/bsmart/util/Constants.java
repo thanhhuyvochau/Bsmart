@@ -205,6 +205,7 @@ public class Constants {
         public static final String FEEDBACK_COMMENT_CONTAIN_OFFENSIVE_WORD = "FEEDBACK_COMMENT_CONTAIN_OFFENSIVE_WORD";
         public static final String NOT_ENOUGH_CHARACTER_IN_FEEDBACK_COMMENT = "NOT_ENOUGH_CHARACTER_IN_FEEDBACK_COMMENT";
         public static final String NOT_ENOUGH_ANSWER_IN_FEEDBACK_SUBMISSION = "NOT_ENOUGH_ANSWER_IN_FEEDBACK_SUBMISSION";
+        public static final String SEND_MAIL_EXCEPTION_MESSAGE = "SEND_MAIL_EXCEPTION_MESSAGE";
     }
 
     public static class DefaultData {

@@ -9,29 +9,29 @@ import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.service.IPasswordResetTokenService;
 import fpt.project.bsmart.util.MessageUtil;
 import fpt.project.bsmart.util.PasswordUtil;
+import fpt.project.bsmart.util.email.EmailUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-import java.util.UUID;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_PASSWORD;
 
 @Service
-public class IPasswordResetTokenServiceImpl implements IPasswordResetTokenService {
+public class PasswordResetTokenServiceImpl implements IPasswordResetTokenService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UserRepository userRepository;
     private final MessageUtil messageUtil;
+    private final EmailUtil emailUtil;
     private final PasswordEncoder passwordEncoder;
-
-    public IPasswordResetTokenServiceImpl(PasswordResetTokenRepository passwordResetTokenRepository, UserRepository userRepository, MessageUtil messageUtil, PasswordEncoder passwordEncoder) {
+    public PasswordResetTokenServiceImpl(PasswordResetTokenRepository passwordResetTokenRepository, UserRepository userRepository, MessageUtil messageUtil, EmailUtil emailUtil, PasswordEncoder passwordEncoder) {
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
+        this.emailUtil = emailUtil;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -47,15 +47,7 @@ public class IPasswordResetTokenServiceImpl implements IPasswordResetTokenServic
             }
             passwordResetTokenRepository.delete(resetToken.get());
         }
-        Instant expirationDate = Instant.now().plus(300, ChronoUnit.SECONDS);
-        String token = UUID.randomUUID().toString();
-        PasswordResetToken passwordResetToken = new PasswordResetToken();
-        passwordResetToken.setUser(user);
-        passwordResetToken.setExpirationDate(expirationDate);
-        passwordResetToken.setToken(token);
-        passwordResetTokenRepository.save(passwordResetToken);
-        String returnUrl = "" + token;
-        //send mail include returnUrl
+        emailUtil.sendResetPasswordEmail(user);
         return true;
     }
 
