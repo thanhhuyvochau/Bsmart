@@ -1,5 +1,6 @@
 package fpt.project.bsmart.service.Impl;
 
+import fpt.project.bsmart.director.NotificationDirector;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
@@ -9,10 +10,7 @@ import fpt.project.bsmart.entity.constant.EActivityType;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
-import fpt.project.bsmart.entity.dto.ImageDto;
-import fpt.project.bsmart.entity.dto.MentorProfileDTO;
-import fpt.project.bsmart.entity.dto.MentorSkillDto;
-import fpt.project.bsmart.entity.dto.UserDto;
+import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
@@ -50,14 +48,18 @@ public class MentorProfileImpl implements IMentorProfileService {
     private final MentorSkillRepository mentorSkillRepository;
 
     private final ActivityHistoryRepository activityHistoryRepository;
+    private final NotificationRepository notificationRepository;
+    private final WebSocketUtil webSocketUtil;
 
-    public MentorProfileImpl(MentorProfileRepository mentorProfileRepository, MentorSkillRepository mentorSkillRepository, SubjectRepository subjectRepository, MessageUtil messageUtil, UserImageRepository userImageRepository, MentorSkillRepository mentorSkillRepository1, ActivityHistoryRepository activityHistoryRepository) {
+    public MentorProfileImpl(MentorProfileRepository mentorProfileRepository, MentorSkillRepository mentorSkillRepository, SubjectRepository subjectRepository, MessageUtil messageUtil, UserImageRepository userImageRepository, MentorSkillRepository mentorSkillRepository1, ActivityHistoryRepository activityHistoryRepository, NotificationRepository notificationRepository, WebSocketUtil webSocketUtil) {
         this.mentorProfileRepository = mentorProfileRepository;
         this.subjectRepository = subjectRepository;
         this.messageUtil = messageUtil;
         this.userImageRepository = userImageRepository;
         this.mentorSkillRepository = mentorSkillRepository1;
         this.activityHistoryRepository = activityHistoryRepository;
+        this.notificationRepository = notificationRepository;
+        this.webSocketUtil = webSocketUtil;
     }
 
     private MentorProfile findById(Long id) {
@@ -164,7 +166,10 @@ public class MentorProfileImpl implements IMentorProfileService {
         // nếu chưa thì sẽ chuyển qua tab mentor chờ PV rồi mới được làm mentor chính thưc của hệ thông .
         mentorProfile.setInterviewed(managerApprovalAccountRequest.getInterviewed());
 //        ActivityHistoryUtil.logHistoryForAccountSendRequestApprove(mentorProfile.getUser(), managerApprovalAccountRequest.getMessage());
-
+        Notification notification = NotificationDirector.buildApprovalMentorProfile(mentorProfile);
+        notificationRepository.save(notification);
+        ResponseMessage responseMessage = convertNotificationToResponseMessage(notification, mentorProfile.getUser());
+        webSocketUtil.sendPrivateNotification(mentorProfile.getUser().getEmail(), responseMessage);
         return mentorProfileRepository.save(mentorProfile).getId();
 
     }

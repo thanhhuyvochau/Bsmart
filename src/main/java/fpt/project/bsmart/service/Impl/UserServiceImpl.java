@@ -5,6 +5,7 @@ import fpt.project.bsmart.config.security.oauth2.dto.LocalUser;
 import fpt.project.bsmart.config.security.oauth2.dto.SignUpRequest;
 import fpt.project.bsmart.config.security.oauth2.user.OAuth2UserInfo;
 import fpt.project.bsmart.config.security.oauth2.user.OAuth2UserInfoFactory;
+import fpt.project.bsmart.director.NotificationDirector;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
@@ -134,8 +135,8 @@ public class UserServiceImpl implements IUserService {
         UserDto userDto = ConvertUtil.convertUserForMentorProfilePage(user);
         TeachInformationDTO teachInformationDTO = new TeachInformationDTO();
         ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
-                        .byMentor(user)
-                      .filterByStatus(ECourseStatus.ENDED);
+                .byMentor(user)
+                .filterByStatus(ECourseStatus.ENDED);
         List<Class> classes = classRepository.findAll(classSpecificationBuilder.build());
         Integer numberOfMember = classes.stream().map(Class::getStudentClasses).distinct().collect(Collectors.toList()).stream().map(x -> x.size()).mapToInt(Integer::intValue).sum();
 
@@ -148,7 +149,7 @@ public class UserServiceImpl implements IUserService {
         teachInformationDTO.setNumberOfClass(classes.size());
         teachInformationDTO.setNumberOfMember(numberOfMember);
         teachInformationDTO.setNumberOfFeedBack(feedbackSubmissions.size());
-        teachInformationDTO.setScoreFeedback(FeedbackUtil.calculateCourseRate(feedbackSubmissions));
+        teachInformationDTO.setScoreFeedback(0.0);
         userDto.setTeachInformation(teachInformationDTO);
         return userDto;
     }
@@ -451,11 +452,7 @@ public class UserServiceImpl implements IUserService {
         User savedUser = userRepository.save(user);
         // Send verify mail
         emailUtil.sendVerifyEmailTo(savedUser);
-        Notification.NotificationBuilder builder = Notification.getBuilder();
-        Notification notification = builder
-                .viTitle("Đăng kí thành công")
-                .viContent("Chúc mừng bạn đã đăng ký tài khoản thành công")
-                .notifiers(savedUser).build();
+        Notification notification = NotificationDirector.buildRegisterSuccessAccount(user);
         notification = notificationRepository.save(notification);
         ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, user);
         webSocketUtil.sendPrivateNotification(createAccountRequest.getEmail(), responseMessage);

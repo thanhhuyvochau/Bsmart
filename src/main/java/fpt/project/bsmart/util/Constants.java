@@ -141,8 +141,9 @@ public class Constants {
             public static final String INVALID_END_NOW_DATE = "INVALID_END_NOW_DATE";
             public static final String INVALID_START_END_DATE = "INVALID_START_END_DATE";
             public static final String INVALID_CLASS_FILTER_ROLE = "INVALID_CLASS_FILTER_ROLE";
-
+            public static final String INVALID_FEEDBACK_RATE = "INVALID_FEEDBACK_RATE";
             public static final String INVALID_CLASS_PERCENTAGE_TO_ASSIGN_TEMPLATE = "INVALID_CLASS_PERCENTAGE_TO_ASSIGN_TEMPLATE";
+            public static final String INVALID_FEEDBACK_ANSWER_OPTION = "INVALID_FEEDBACK_ANSWER_OPTION";
 
         }
 
@@ -201,6 +202,9 @@ public class Constants {
         public static final String START_TIME_AFTER_END_TIME = "START_TIME_AFTER_END_TIME";
         public static final String FEEDBACK_TEMPLATE_IS_FIXED = "FEEDBACK_TEMPLATE_IS_FIXED";
         public static final String PASSWORD_RESET_TOKEN_IS_EXIST = "PASSWORD_RESET_TOKEN_IS_EXIST";
+        public static final String FEEDBACK_COMMENT_CONTAIN_OFFENSIVE_WORD = "FEEDBACK_COMMENT_CONTAIN_OFFENSIVE_WORD";
+        public static final String NOT_ENOUGH_CHARACTER_IN_FEEDBACK_COMMENT = "NOT_ENOUGH_CHARACTER_IN_FEEDBACK_COMMENT";
+        public static final String NOT_ENOUGH_ANSWER_IN_FEEDBACK_SUBMISSION = "NOT_ENOUGH_ANSWER_IN_FEEDBACK_SUBMISSION";
     }
 
     public static class DefaultData {

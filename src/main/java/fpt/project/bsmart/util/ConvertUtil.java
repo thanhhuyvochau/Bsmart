@@ -13,6 +13,7 @@ import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
 import fpt.project.bsmart.entity.response.member.StudyInformationDTO;
+import fpt.project.bsmart.payment.PaymentResponse;
 import fpt.project.bsmart.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -214,7 +215,7 @@ public class ConvertUtil {
     public static MemberDetailResponse convertUserToMemberDetailResponse(User user) {
         MemberDetailResponse memberDetailResponse = ObjectUtil.copyProperties(user, new MemberDetailResponse(), MemberDetailResponse.class);
         memberDetailResponse.setPhone(user.getPhone());
-
+        memberDetailResponse.setTimeParticipation(user.getCreated());
 
         List<StudentClass> byStudent = staticStudentClassRepository.findByStudent(user);
         List<Course> courses = byStudent.stream().map(studentClass -> studentClass.getClazz().getCourse()).distinct().collect(Collectors.toList());
@@ -960,7 +961,6 @@ public class ConvertUtil {
 
             for (FeedbackQuestion question : feedbackTemplate.getQuestions()) {
                 FeedbackTemplateDto.FeedbackQuestionDto questionDto = ObjectUtil.copyProperties(question, new FeedbackTemplateDto.FeedbackQuestionDto(), FeedbackTemplateDto.FeedbackQuestionDto.class);
-                questionDto.setAnswerType(question.getQuestionType());
                 if (question.getAnswers() != null) {
                     ArrayList<FeedbackTemplateDto.FeedbackAnswerDto> answerDtos = new ArrayList<>();
                     for (FeedbackAnswer answer : question.getAnswers()) {
@@ -1003,9 +1003,17 @@ public class ConvertUtil {
         return response;
     }
 
-    public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToFeedbackResponse(FeedbackSubmission feedbackSubmission) {
+    public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToMentorFeedbackResponse(FeedbackSubmission feedbackSubmission) {
         FeedbackResponse.FeedbackSubmission submission = new FeedbackResponse.FeedbackSubmission();
-        submission.setRate(feedbackSubmission.getRate());
+        submission.setRate(feedbackSubmission.getMentorRate());
+        submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());
+        submission.setComment(feedbackSubmission.getComment());
+        return submission;
+    }
+
+    public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToCourseFeedbackResponse(FeedbackSubmission feedbackSubmission) {
+        FeedbackResponse.FeedbackSubmission submission = new FeedbackResponse.FeedbackSubmission();
+        submission.setRate(feedbackSubmission.getCourseRate());
         submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());
         submission.setComment(feedbackSubmission.getComment());
         return submission;
@@ -1019,5 +1027,14 @@ public class ConvertUtil {
         ResponseMessage responseMessage = ObjectUtil.copyProperties(notification, new ResponseMessage(), ResponseMessage.class, true);
         responseMessage.setRead(notifier.isRead());
         return responseMessage;
+    }
+
+    public static PaymentResponse convertPaymentResponse(Order order, Transaction transaction) {
+        PaymentResponse paymentResponse = new PaymentResponse();
+        paymentResponse.setOrderId(order.getId());
+        paymentResponse.setOrderStatus(order.getStatus());
+        paymentResponse.setTransactionStatus(transaction.getStatus());
+        paymentResponse.setTransactionId(transaction.getId());
+        return paymentResponse;
     }
 }

@@ -12,15 +12,13 @@ import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETransactionType;
 import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
-import fpt.project.bsmart.entity.request.DepositRequest;
-import fpt.project.bsmart.entity.request.PayCourseRequest;
-import fpt.project.bsmart.entity.request.VpnPayRequest;
-import fpt.project.bsmart.entity.request.WithdrawRequest;
-import fpt.project.bsmart.entity.response.VnPayResponse;
+import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.payment.PaymentGateway;
+import fpt.project.bsmart.payment.PaymentPicker;
+import fpt.project.bsmart.payment.PaymentResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ITransactionService;
 import fpt.project.bsmart.util.*;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,10 +28,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
@@ -56,8 +54,9 @@ public class TransactionService implements ITransactionService {
     private final ClassRepository classRepository;
     private final WebSocketUtil webSocketUtil;
     private final NotificationRepository notificationRepository;
+    private final PaymentPicker paymentPicker;
 
-    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CartItemRepository cartItemRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository) {
+    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CartItemRepository cartItemRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, PaymentPicker paymentPicker) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
@@ -67,6 +66,7 @@ public class TransactionService implements ITransactionService {
         this.classRepository = classRepository;
         this.webSocketUtil = webSocketUtil;
         this.notificationRepository = notificationRepository;
+        this.paymentPicker = paymentPicker;
     }
 
     @Override
@@ -115,21 +115,18 @@ public class TransactionService implements ITransactionService {
 
 
     @Override
-    public VnPayResponse payCourseFromCart(HttpServletRequest req, List<PayCourseRequest> request) throws UnsupportedEncodingException {
+    public PaymentResponse payCourseFromCart(PayCartRequest payCartRequest) throws UnsupportedEncodingException {
         Cart cart = SecurityUtil.getCurrentUserCart();
-        List<Long> cartItemIds = request.stream().map(PayCourseRequest::getCartItemId).collect(Collectors.toList());
+        List<PayCartItemRequest> payCartItemRequestList = payCartRequest.getPayCartItemRequestList();
+        List<Long> cartItemIds = payCartItemRequestList.stream().map(PayCartItemRequest::getCartItemId).collect(Collectors.toList());
         List<CartItem> boughtCartItems = cartItemRepository.findAllById(cartItemIds);
         if (!Objects.equals(boughtCartItems.size(), cartItemIds.size())) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(INVALID_ITEM_IN_CART));
         }
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
-        Transaction transaction = new Transaction();
-        transaction.setStatus(ETransactionStatus.WAITING);
-        transaction.setType(ETransactionType.PAY);
         Order order = new Order();
         order.setStatus(EOrderStatus.WAIT);
         order.setUser(user);
-        transaction.setOrder(order);
         for (CartItem cartItem : boughtCartItems) {
             Class clazz = cartItem.getClazz();
             boolean isPaidSubCourse = CourseUtil.isPaidCourse(clazz, user);
@@ -146,12 +143,11 @@ public class TransactionService implements ITransactionService {
             order.setTotalPrice(order.getTotalPrice().add(orderDetail.getFinalPrice()));
             cart.removeCartItem(cartItem);
         }
-        transaction.setAmount(order.getTotalPrice());
-        transactionRepository.save(transaction);
-        return new VnPayResponse(buildPaymentUrl(req, transaction));
+        PaymentGateway paymentGateway = paymentPicker.pickByType(payCartRequest.getType());
+        return paymentGateway.pay(order);
     }
 
-    public VnPayResponse payQuickCourse(HttpServletRequest req, VpnPayRequest request) throws UnsupportedEncodingException {
+    public PaymentResponse payQuickCourse(PayRequest request) throws UnsupportedEncodingException {
         Class clazz = classRepository.findById(request.getClazzId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(SUB_COURSE_NOT_FOUND_BY_ID) + request.getClazzId()));
@@ -179,90 +175,12 @@ public class TransactionService implements ITransactionService {
                 .build();
         orderDetail.setOrder(order);
 
-        Transaction transaction = new Transaction();
-        transaction.setOrder(order);
-        transaction.setAmount(order.getTotalPrice());
-        transactionRepository.save(transaction);
-        return new VnPayResponse(buildPaymentUrl(req, transaction));
-    }
-
-    @NotNull
-    private String buildPaymentUrl(HttpServletRequest req, Transaction transaction) throws UnsupportedEncodingException {
-        Map<String, String> vnp_Params = prepareParameters(req, transaction.getAmount(), transaction.getId().toString());
-        transaction.setVpnCommand(vnp_Params.get("vnp_Command"));
-        transaction.setOrderInfo(vnp_Params.get("vnp_OrderInfo"));
-        //Billing
-        //Build data to hash and querystring
-        List fieldNames = new ArrayList(vnp_Params.keySet());
-        Collections.sort(fieldNames);
-        StringBuilder hashData = new StringBuilder();
-        StringBuilder query = new StringBuilder();
-        Iterator itr = fieldNames.iterator();
-        while (itr.hasNext()) {
-            String fieldName = (String) itr.next();
-            String fieldValue = (String) vnp_Params.get(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                //Build hash data
-                hashData.append(fieldName);
-                hashData.append('=');
-                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                //Build query
-                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
-                query.append('=');
-                query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                if (itr.hasNext()) {
-                    query.append('&');
-                    hashData.append('&');
-                }
-            }
-        }
-        String queryUrl = query.toString();
-        String vnp_SecureHash = vnpConfig.hmacSHA512(vnpConfig.getVnp_HashSecret(), hashData.toString());
-        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-        String paymentUrl = vnpConfig.getVnp_PayUrl() + "?" + queryUrl;
-        return paymentUrl;
-    }
-
-    @NotNull
-    private Map<String, String> prepareParameters(HttpServletRequest req, BigDecimal price, String uniquePayCode) {
-        String vnp_Version = "2.1.0";
-        String vnp_Command = "pay";
-        String vnp_OrderInfo = "Thanh Toan Khoa Hoc";
-        String orderType = "pay";
-        String vnp_IpAddr = vnpConfig.getIpAddress(req);
-        String vnp_TmnCode = vnpConfig.getVnp_TmnCode();
-        int amount = price.intValue() * 100;
-        Map<String, String> vnp_Params = new HashMap<>();
-        vnp_Params.put("vnp_Version", vnp_Version);
-        vnp_Params.put("vnp_Command", vnp_Command);
-        vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf(amount));
-        vnp_Params.put("vnp_CurrCode", "VND");
-
-        String vnp_TxnRef = uniquePayCode;
-//        vnp_Params.put("vnp_TxnRef", vnp_TxnRef + "&" + request.getSessionId());
-        vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-        vnp_Params.put("vnp_OrderInfo", vnp_OrderInfo);
-        String locate = "VN";
-        vnp_Params.put("vnp_Locale", locate);
-        vnp_Params.put("vnp_ReturnUrl", vnpConfig.getVnp_Returnurl());
-        vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT-7"));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        String vnp_CreateDate = formatter.format(cld.getTime());
-        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
-        cld.add(Calendar.YEAR, 1);
-        String vnp_ExpireDate = formatter.format(cld.getTime());
-        //Add Params of 2.0.1 Version
-        vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
-        SimpleDateFormat formatterCheck = new SimpleDateFormat("dd-MM-yyyy");
-        vnp_Params.put("vnp_OrderType", orderType);
-        System.out.println("EXPIRED:" + formatterCheck.format(cld.getTime()));
-        return vnp_Params;
+        PaymentGateway paymentGateway = paymentPicker.pickByType(request.getType());
+        return paymentGateway.pay(order);
     }
 
     @Override
-    public Boolean executeAfterPayment(HttpServletRequest request) {
+    public Boolean executeAfterVnPayReturn(HttpServletRequest request) {
         String responseCode = request.getParameter("vnp_ResponseCode");
         String transactionStatus = request.getParameter("vnp_TransactionStatus");
         String referenceValues = request.getParameter("vnp_TxnRef");
@@ -283,13 +201,32 @@ public class TransactionService implements ITransactionService {
                 studentClass.setClazz(orderedClass);
                 orderedClass.getStudentClasses().add(studentClass);
             }
-            Notification notification = NotificationDirector.buildPaymentNotification(order, transaction);
-            notificationRepository.save(notification);
-            ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, user);
-            webSocketUtil.sendPrivateNotification(user.getEmail(), responseMessage);
+            List<Notification> notifications = new ArrayList<>();
+            Notification paymentSuccessNotification = NotificationDirector.buildPaymentNotification(order, transaction);
+            notifications.add(paymentSuccessNotification);
+            notifications.addAll(getEnrollClassNotifications(order));
+            notificationRepository.saveAll(notifications);
+
+            for (Notification notification : notifications) {
+                ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, user);
+                webSocketUtil.sendPrivateNotification(user.getEmail(), responseMessage);
+            }
             classRepository.saveAll(orderedClasses);
             return true;
         }
         return false;
+    }
+
+    private List<Notification> getEnrollClassNotifications(Order order) {
+        List<Notification> enrolledClassNotifications = new ArrayList<>();
+        if (Objects.equals(order.getStatus(), EOrderStatus.SUCCESS)) {
+            User student = order.getUser();
+            for (OrderDetail orderDetail : order.getOrderDetails()) {
+                Class clazz = orderDetail.getClazz();
+                Notification notification = NotificationDirector.buildEnrollClass(clazz, student);
+                enrolledClassNotifications.add(notification);
+            }
+        }
+        return enrolledClassNotifications;
     }
 }

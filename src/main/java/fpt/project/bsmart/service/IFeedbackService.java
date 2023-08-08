@@ -20,8 +20,10 @@ public interface IFeedbackService {
     Boolean assignFeedbackTemplateForClass(Long templateId, List<Long> classId);
     Boolean changeDefaultTemplate(Long id);
     Long studentSubmitFeedback(Long classId, StudentSubmitFeedbackRequest request);
-    Long studentUpdateFeedback(Long submissionId, StudentSubmitFeedbackRequest request);
+//    Long studentUpdateFeedback(Long submissionId, StudentSubmitFeedbackRequest request);
     ApiPage<FeedbackSubmissionResponse> getClassFeedback(Long clazzId, Pageable pageable);
     FeedbackResponse getCourseFeedback(Long courseId);
     FeedbackResponse getMentorFeedback(Long mentorId);
+
+//    Boolean createQuestionTemplate(List<FeedbackTemplateRequest.FeedbackQuestionRequest> questions);
 }

@@ -3,7 +3,7 @@ package fpt.project.bsmart.entity.request;
 
 import java.io.Serializable;
 
-public class PayCourseRequest implements Serializable {
+public class PayCartItemRequest implements Serializable {
 
     private Long cartItemId;
     private String referralCode;
