@@ -7,9 +7,9 @@ import java.util.List;
 
 public class FeedbackSubmissionResponse {
     private Long id;
-    private String name;
     private UserDto submitBy;
-    private Integer rate = 1;
+    private Integer mentorRate;
+    private Integer courseRate;
     private String comment;
     private List<FeedbackSubmitQuestion> questions = new ArrayList<>();
 
@@ -21,14 +21,6 @@ public class FeedbackSubmissionResponse {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public UserDto getSubmitBy() {
         return submitBy;
     }
@@ -37,12 +29,20 @@ public class FeedbackSubmissionResponse {
         this.submitBy = submitBy;
     }
 
-    public Integer getRate() {
-        return rate;
+    public Integer getMentorRate() {
+        return mentorRate;
     }
 
-    public void setRate(Integer rate) {
-        this.rate = rate;
+    public void setMentorRate(Integer mentorRate) {
+        this.mentorRate = mentorRate;
+    }
+
+    public Integer getCourseRate() {
+        return courseRate;
+    }
+
+    public void setCourseRate(Integer courseRate) {
+        this.courseRate = courseRate;
     }
 
     public String getComment() {

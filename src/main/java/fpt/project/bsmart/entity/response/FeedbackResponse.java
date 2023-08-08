@@ -1,11 +1,14 @@
 package fpt.project.bsmart.entity.response;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FeedbackResponse {
     private Integer submissionCount = 0;
     private Double averageRate = 0.0;
+    private Map<Integer, Long> rateCount = new HashMap<>();
     private List<FeedbackSubmission> submissions = new ArrayList<>();
 
     public Integer getSubmissionCount() {
@@ -30,6 +33,14 @@ public class FeedbackResponse {
 
     public void setSubmissions(List<FeedbackSubmission> submissions) {
         this.submissions = submissions;
+    }
+
+    public Map<Integer, Long> getRateCount() {
+        return rateCount;
+    }
+
+    public void setRateCount(Map<Integer, Long> rateCount) {
+        this.rateCount = rateCount;
     }
 
     public static class FeedbackSubmission{

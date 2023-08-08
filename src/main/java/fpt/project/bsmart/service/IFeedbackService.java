@@ -19,7 +19,7 @@ public interface IFeedbackService {
     FeedbackTemplateDto getTemplateById(Long id);
     Boolean assignFeedbackTemplateForClass(Long templateId, List<Long> classId);
     Boolean changeDefaultTemplate(Long id);
-    Long studentSubmitFeedback(Long classId, List<StudentSubmitFeedbackRequest> request);
+    Long studentSubmitFeedback(Long classId, StudentSubmitFeedbackRequest request);
 //    Long studentUpdateFeedback(Long submissionId, StudentSubmitFeedbackRequest request);
     ApiPage<FeedbackSubmissionResponse> getClassFeedback(Long clazzId, Pageable pageable);
     FeedbackResponse getCourseFeedback(Long courseId);

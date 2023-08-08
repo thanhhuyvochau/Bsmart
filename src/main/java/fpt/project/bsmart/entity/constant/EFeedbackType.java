@@ -1,8 +1,7 @@
 package fpt.project.bsmart.entity.constant;
 
 public enum EFeedbackType {
-    COURSE("Feedback") ,
-    FEEDBACK("Feedback"), REPORT("Report");
+    COURSE("Feedback") , REPORT("Report");
     private String name;
 
     public String getName() {

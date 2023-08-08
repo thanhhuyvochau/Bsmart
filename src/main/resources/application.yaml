@@ -124,6 +124,9 @@ activate:
 host:
   url: http://103.173.155.221:3000/confirm_email/
 
+forgot-password:
+  url: http://103.173.155.221:3000/forgot_password/
+
 
 
 

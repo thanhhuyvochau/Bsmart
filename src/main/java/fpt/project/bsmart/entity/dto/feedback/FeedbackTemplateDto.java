@@ -33,22 +33,6 @@ public class FeedbackTemplateDto {
         this.totalClassUsed = totalClassUsed;
     }
 
-    public Boolean getDefault() {
-        return isDefault;
-    }
-
-    public void setDefault(Boolean aDefault) {
-        isDefault = aDefault;
-    }
-
-    public Boolean getFixed() {
-        return isFixed;
-    }
-
-    public void setFixed(Boolean fixed) {
-        isFixed = fixed;
-    }
-
     public String getName() {
         return name;
     }
@@ -93,8 +77,6 @@ public class FeedbackTemplateDto {
 
         private Long id;
         private String question;
-
-        private EFeedbackAnswerType answerType;
         private List<FeedbackAnswerDto> answers = new ArrayList<>();
 
         public Long getId() {
@@ -103,14 +85,6 @@ public class FeedbackTemplateDto {
 
         public void setId(Long id) {
             this.id = id;
-        }
-
-        public EFeedbackAnswerType getAnswerType() {
-            return answerType;
-        }
-
-        public void setAnswerType(EFeedbackAnswerType answerType) {
-            this.answerType = answerType;
         }
 
         public String getQuestion() {
