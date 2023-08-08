@@ -13,6 +13,7 @@ import fpt.project.bsmart.entity.constant.ETransactionType;
 import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.response.WithDrawResponse;
 import fpt.project.bsmart.payment.PaymentGateway;
 import fpt.project.bsmart.payment.PaymentPicker;
 import fpt.project.bsmart.payment.PaymentResponse;
@@ -35,8 +36,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_COURSE_STATUS_TO_PURCHASE;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_ITEM_IN_CART;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
 
 @Service
 @Transactional
@@ -85,19 +85,19 @@ public class TransactionService implements ITransactionService {
         return PageUtil.convert(transactionsPages.map(ConvertUtil::convertTransactionToDto));
     }
 
-    @Override
-    public Boolean deposit(DepositRequest request) {
-        Wallet wallet = SecurityUtil.getCurrentUserWallet();
-        BigDecimal amount = request.getAmount();
-        // Nạp từ 10 nghìn trở lên
-        if (amount.compareTo(BigDecimal.valueOf(10000)) <= 0) {
-            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(BELOW_MIN_MONEY_AMOUNT_IN_TRANSACTION));
-        }
-        Transaction transaction = Transaction.build(amount, null, null, null, wallet, ETransactionType.DEPOSIT);
-        wallet.setBalance(wallet.getBalance().add(amount));
-        transactionRepository.save(transaction);
-        return true;
-    }
+//    @Override
+//    public Boolean deposit(DepositRequest request) {
+//        Wallet wallet = SecurityUtil.getCurrentUserWallet();
+//        BigDecimal amount = request.getAmount();
+//        // Nạp từ 10 nghìn trở lên
+//        if (amount.compareTo(BigDecimal.valueOf(10000)) <= 0) {
+//            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(BELOW_MIN_MONEY_AMOUNT_IN_TRANSACTION));
+//        }
+//        Transaction transaction = Transaction.build(amount, null, null, null, wallet, ETransactionType.DEPOSIT);
+//        wallet.setBalance(wallet.getBalance().add(amount));
+//        transactionRepository.save(transaction);
+//        return true;
+//    }
 
     @Override
     public Boolean withdraw(WithdrawRequest request) {
@@ -113,6 +113,46 @@ public class TransactionService implements ITransactionService {
         return true;
     }
 
+    public List<WithDrawResponse> managerGetWithDrawRequest(){
+        List<Transaction> transactions = transactionRepository.findAllByStatus(ETransactionStatus.WAITING);
+        return transactions.stream().map(ConvertUtil::convertWithdrawRequestToWithdrawResponse).collect(Collectors.toList());
+    }
+
+    public Boolean managerProcessWithdrawRequest(List<ProcessWithdrawRequest> requests){
+        List<Transaction> pendingTransactions = transactionRepository.findAllByStatus(ETransactionStatus.WAITING);
+        for (ProcessWithdrawRequest request : requests){
+            Transaction transaction = pendingTransactions.stream().filter(x -> x.getId().equals(request.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(TRANSACTION_NOT_FOUND_BY_ID) + request.getId()));
+            handleUpdatedProcess(transaction, request);
+        }
+        transactionRepository.saveAll(pendingTransactions);
+        return true;
+    }
+
+    private void handleUpdatedProcess(Transaction transaction, ProcessWithdrawRequest request){
+        switch (request.getStatus()){
+            case SUCCESS:
+                updateTransactionStatus(transaction, request.getStatus(), request.getNote());
+                break;
+            case FAIL:
+            case CANCEL:
+                Wallet wallet = transaction.getWallet();
+                wallet.setBalance(wallet.getBalance().add(transaction.getAmount()));
+                updateTransactionStatus(transaction, request.getStatus(), request.getNote());
+                break;
+            case WAITING:
+            default:
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_TRANSACTION_STATUS) + request.getStatus());
+        }
+    }
+
+    private void updateTransactionStatus(Transaction transaction, ETransactionStatus status, String note){
+        transaction.setStatus(status);
+        if(StringUtil.isNotNullOrEmpty(note)){
+            transaction.setNote(note);
+        }
+    }
 
     @Override
     public PaymentResponse payCourseFromCart(PayCartRequest payCartRequest) throws UnsupportedEncodingException {

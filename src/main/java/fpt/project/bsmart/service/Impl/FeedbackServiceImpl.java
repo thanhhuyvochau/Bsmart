@@ -101,7 +101,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
             }
             feedbackTemplate.setType(request.getType());
         }
-        if (request.getQuestions() != null || !request.getQuestions().isEmpty()) {
+        if (request.getQuestions() != null && !request.getQuestions().isEmpty()) {
             List<FeedbackQuestion> feedbackQuestions = FeedbackUtil.validateFeedbackQuestionsInRequest(request, feedbackTemplate);
             feedbackTemplate.setQuestions(feedbackQuestions);
         }
