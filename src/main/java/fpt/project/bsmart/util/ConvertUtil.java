@@ -1037,4 +1037,15 @@ public class ConvertUtil {
         paymentResponse.setTransactionId(transaction.getId());
         return paymentResponse;
     }
+
+    public static WithDrawResponse convertWithdrawRequestToWithdrawResponse(Transaction transaction){
+        WithDrawResponse response = new WithDrawResponse();
+        response.setId(transaction.getId());
+        response.setUserName(transaction.getWallet().getOwner().getFullName());
+        response.setAmount(transaction.getAmount());
+        response.setBankName(transaction.getBank().getName());
+        response.setBankAccount(transaction.getBankAccountOwner());
+        response.setBankNumber(transaction.getReceivedBankAccount());
+        return response;
+    }
 }

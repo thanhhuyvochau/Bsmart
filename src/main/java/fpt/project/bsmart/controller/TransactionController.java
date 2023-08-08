@@ -5,7 +5,9 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.PayCartRequest;
 import fpt.project.bsmart.entity.request.PayRequest;
+import fpt.project.bsmart.entity.request.ProcessWithdrawRequest;
 import fpt.project.bsmart.entity.request.WithdrawRequest;
+import fpt.project.bsmart.entity.response.WithDrawResponse;
 import fpt.project.bsmart.payment.PaymentResponse;
 import fpt.project.bsmart.service.ITransactionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -58,6 +61,20 @@ public class TransactionController {
     @PreAuthorize("hasAnyRole('TEACHER')")
     public ResponseEntity<ApiResponse<Boolean>> withdraw(@Valid @RequestBody WithdrawRequest request) {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.withdraw(request)));
+    }
+
+    @Operation(summary = "Quản lý lất yêu cầu rút tiền")
+    @GetMapping("/withdraw/requests")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
+    public ResponseEntity<ApiResponse<List<WithDrawResponse>>> managerGetWithdrawRequest(){
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.managerGetWithDrawRequest()));
+    }
+
+    @Operation(summary = "Quản lý cập nhật thông tin chuyển tiền")
+    @PutMapping("withdraw/requests")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<Boolean>> managerProcessWithdrawRequest(@RequestBody List<ProcessWithdrawRequest> requests){
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.managerProcessWithdrawRequest(requests)));
     }
 
     @Operation(summary = "Thanh toán khóa học từ giỏ hàng")

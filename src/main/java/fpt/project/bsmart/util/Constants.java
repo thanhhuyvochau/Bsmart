@@ -144,6 +144,7 @@ public class Constants {
             public static final String INVALID_FEEDBACK_RATE = "INVALID_FEEDBACK_RATE";
             public static final String INVALID_CLASS_PERCENTAGE_TO_ASSIGN_TEMPLATE = "INVALID_CLASS_PERCENTAGE_TO_ASSIGN_TEMPLATE";
             public static final String INVALID_FEEDBACK_ANSWER_OPTION = "INVALID_FEEDBACK_ANSWER_OPTION";
+            public static final String INVALID_TRANSACTION_STATUS = "INVALID_TRANSACTION_STATUS";
 
         }
 

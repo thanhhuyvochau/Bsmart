@@ -142,12 +142,15 @@ public class Transaction extends BaseEntity {
         transaction.setBankAccountOwner(bankAccountOwner);
         transaction.setBank(bank);
         transaction.setStatus(ETransactionStatus.SUCCESS);
-        if (type.equals(ETransactionType.DEPOSIT)) {
-            transaction.setAfterBalance(wallet.getBalance().add(amount));
-        } else if (type.equals(ETransactionType.WITHDRAW)) {
-            transaction.setAfterBalance(wallet.getBalance().subtract(amount));
-            transaction.setWallet(wallet);
-        }
+//        if (type.equals(ETransactionType.DEPOSIT)) {
+//            transaction.setAfterBalance(wallet.getBalance().add(amount));
+//        } else if (type.equals(ETransactionType.WITHDRAW)) {
+//            transaction.setAfterBalance(wallet.getBalance().subtract(amount));
+//            transaction.setWallet(wallet);
+//        }
+        transaction.setStatus(ETransactionStatus.WAITING);
+        transaction.setAfterBalance(wallet.getBalance().subtract(amount));
+        transaction.setWallet(wallet);
         return transaction;
     }
     @Column(name = "order_info")
