@@ -325,7 +325,7 @@ public class UserServiceImpl implements IUserService {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_PASSWORD));
             }
 
-            if (!PasswordUtil.validationPassword(changePasswordRequest.getNewPassword())) {
+            if (!PasswordUtil.isValidPassword(changePasswordRequest.getNewPassword())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
             }
             if (!PasswordUtil.IsOldPassword(changePasswordRequest.getOldPassword(), user.getPassword())) {
@@ -476,7 +476,7 @@ public class UserServiceImpl implements IUserService {
         if (!isValidGender) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_GENDER));
         }
-        if (!PasswordUtil.validationPassword(request.getPassword())) {
+        if (!PasswordUtil.isValidPassword(request.getPassword())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
         }
     }

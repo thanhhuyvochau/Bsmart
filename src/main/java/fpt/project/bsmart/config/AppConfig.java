@@ -30,6 +30,10 @@ public class AppConfig {
     }
 
     @Bean
+    public String resetPasswordTemplate(){
+        return ResourceReader.readFileToString("reset-password.txt");
+    }
+    @Bean
     public String orderTemplate() {
         return ResourceReader.readFileToString("order.txt");
     }
