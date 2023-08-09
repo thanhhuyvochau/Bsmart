@@ -2,12 +2,21 @@ package fpt.project.bsmart.validator;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.StudentClass;
+import fpt.project.bsmart.entity.TimeInWeek;
 import fpt.project.bsmart.entity.User;
+import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.util.TimeUtil;
+import org.springframework.http.HttpStatus;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ClassValidator {
@@ -37,5 +46,46 @@ public class ClassValidator {
             return EUserRole.TEACHER;
         }
         return null;
+    }
+
+    public static boolean isValidTimeOfClass(List<TimeInWeek> timeInWeeks, Integer numberOfSlot, Instant startDate, Instant endDate) throws Exception {
+        Set<EDayOfWeekCode> availableDOW = timeInWeeks.stream()
+                .map(timeInWeek -> timeInWeek.getDayOfWeek().getCode())
+                .collect(Collectors.toSet());
+        startDate = startDate.truncatedTo(ChronoUnit.DAYS);
+        endDate = endDate.truncatedTo(ChronoUnit.DAYS);
+        if (startDate.isAfter(endDate) || !checkDateToStartAndEndClass(startDate, endDate)) {
+            throw new Exception("Ngày kết thúc lớp phải sau ngày bắt đầu ít nhất 15 ngày");
+        }
+        for (int i = numberOfSlot; i > 0; i--) {
+            EDayOfWeekCode dayOfWeekCode = TimeUtil.getDayOfWeek(startDate);
+            if (dayOfWeekCode == null) {
+                throw ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Không thể nhận diện thứ trong tuần, lỗi hệ thống vui lòng liên hệ Admin!");
+            }
+
+            if (availableDOW.contains(dayOfWeekCode)) {
+                i--;
+            }
+
+            if (startDate.equals(endDate.truncatedTo(ChronoUnit.DAYS)) && i > 0) {
+                throw ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Số lượng buổi học và ngày kết thúc không hợp lệ, vui lòng điều chỉnh lại");
+            } else if (!startDate.equals(endDate.truncatedTo(ChronoUnit.DAYS)) && i == 0) {
+                throw ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Số lượng buổi học và ngày kết thúc không hợp lệ, vui lòng điều chỉnh lại");
+            }
+
+            startDate = startDate.plus(1, ChronoUnit.DAYS);
+        }
+        return true;
+    }
+
+    public static boolean checkDateToStartAndEndClass(Instant startDate, Instant endDate) throws Exception {
+        Duration duration = Duration.between(startDate, endDate);
+        if (duration.toDays() < 15) {
+            return false;
+        }
+        return true;
     }
 }
