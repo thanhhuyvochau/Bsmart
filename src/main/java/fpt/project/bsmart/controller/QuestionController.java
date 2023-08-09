@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/question")
@@ -54,5 +55,10 @@ public class QuestionController {
     @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
     public ResponseEntity<ApiResponse<Boolean>> updateQuestion(@PathVariable("id") Long id, @RequestBody @Valid EditQuestionRequest editQuestionRequest) throws IOException {
         return ResponseEntity.ok(ApiResponse.success(questionService.editQuestionToQuestionBank(id, editQuestionRequest)));
+    }
+
+    @PostMapping("/read-file")
+    public ResponseEntity<ApiResponse<List<QuestionDto>>> getQuestionFromFile(@RequestParam MultipartFile file) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(questionService.readQuestionFromFile(file)));
     }
 }
