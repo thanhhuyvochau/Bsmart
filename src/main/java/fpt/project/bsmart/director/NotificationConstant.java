@@ -11,4 +11,8 @@ public class NotificationConstant {
     public final static String CLASS_ENROLL_SUCCESS_CONTENT = "CLASS_ENROLL_SUCCESS_CONTENT";
     public final static String CLASS_APPROVAL_TITLE = "CLASS_APPROVAL_TITLE";
     public final static String CLASS_APPROVAL_CONTENT = "CLASS_APPROVAL_CONTENT";
+    public final static String ACCOUNT_REGISTER_SUCCESSFUL_TITLE = "ACCOUNT_REGISTER_SUCCESSFUL_TITLE";
+    public final static String ACCOUNT_REGISTER_SUCCESSFUL_CONTENT = "ACCOUNT_REGISTER_SUCCESSFUL_CONTENT";
+
+
 }
