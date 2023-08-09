@@ -113,8 +113,8 @@ public class NotificationDirector {
     }
 
     public static Notification buildRegisterSuccessAccount(User user) {
-        String title = staticMessageUtil.getLocalMessage(NotificationConstant.TRANSACTION_PAYMENT_TITLE);
-        String content = staticMessageUtil.getLocalMessage(NotificationConstant.TRANSACTION_PAYMENT_CONTENT);
+        String title = staticMessageUtil.getLocalMessage(NotificationConstant.ACCOUNT_REGISTER_SUCCESSFUL_TITLE);
+        String content = staticMessageUtil.getLocalMessage(NotificationConstant.ACCOUNT_REGISTER_SUCCESSFUL_CONTENT);
         Map<String, String> parameters = new HashMap<>();
         content = TextUtil.format(content, parameters);
         Notification.NotificationBuilder builder = Notification.getBuilder();

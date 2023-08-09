@@ -28,7 +28,7 @@ public class NotificationController {
         return ResponseEntity.ok(ApiResponse.success(notificationService.getNotifications(pageable)));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN','STUDENT')")
     public ResponseEntity<ApiResponse<Boolean>> readNotification(Long[] ids) {
         return ResponseEntity.ok(ApiResponse.success(notificationService.readNotification(ids)));
