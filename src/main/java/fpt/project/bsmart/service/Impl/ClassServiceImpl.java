@@ -354,22 +354,24 @@ public class ClassServiceImpl implements IClassService {
 
         // create time in week for subCourse
         List<TimeInWeek> timeInWeeksFromRequest = createTimeInWeeksFromRequest(timeInWeekRequests);
-
-        // create subCourse for course
-        Class classFromRequest = createClassFromRequest(mentorCreateClassRequest, course, currentUserAccountLogin, timeInWeeksFromRequest);
-        classFromRequest.setCourse(course);
-
-        classes.add(classFromRequest);
-
-        classFromRequest.setCourse(course);
-        classRepository.save(classFromRequest);
+        Class classFromRequest = null;
+        /**Kiểm tra Time In Week, Ngày bắt đầu, Ngày kết thúc, Số lượng slot của class*/
+        if (ClassValidator.isValidTimeOfClass(timeInWeeksFromRequest, mentorCreateClassRequest.getNumberOfSlot(), mentorCreateClassRequest.getStartDate(), mentorCreateClassRequest.getEndDate())) {
+            // create subCourse for course
+            classFromRequest = createClassFromRequest(mentorCreateClassRequest, course, currentUserAccountLogin, timeInWeeksFromRequest);
+            classFromRequest.setCourse(course);
+            classes.add(classFromRequest);
+            classFromRequest.setCourse(course);
+            classRepository.save(classFromRequest);
 
 //        classes.forEach(aClass -> {
 //                    classCodes.add(aClass.getCode());
 //                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
 //                }
 //        );
+        }
         return classFromRequest;
+
     }
 
     private Class createClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) throws Exception {
@@ -596,7 +598,7 @@ public class ClassServiceImpl implements IClassService {
         }
         User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         EUserRole memberOfClassAsRole = ClassValidator.isMemberOfClassAsRole(clazz, currentUser);
-        if (memberOfClassAsRole == null){
+        if (memberOfClassAsRole == null) {
             throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("Bạn không có quyền xem thông tin lớp học này !");
         }
         List<Activity> sectionActivities = clazz.getCourse().getActivities().stream()
