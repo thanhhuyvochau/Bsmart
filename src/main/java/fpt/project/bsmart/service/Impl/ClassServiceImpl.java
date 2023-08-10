@@ -271,24 +271,24 @@ public class ClassServiceImpl implements IClassService {
         return ClassUtil.convertClassToManagerGetClassResponse(clazz);
     }
 
-    private Class updateClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
-        if (subCourseRequest.getPrice() == null) {
+    private Class updateClassFromRequest(MentorCreateClass classRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
+        if (classRequest.getPrice() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE));
         }
         Class aClass = new Class();
-        aClass.setNumberOfSlot(subCourseRequest.getNumberOfSlot());
-        aClass.setMinStudent(subCourseRequest.getMinStudent());
-        aClass.setMaxStudent(subCourseRequest.getMaxStudent());
-        aClass.setStartDate(subCourseRequest.getStartDate());
-        aClass.setEndDate(subCourseRequest.getEndDate());
+        aClass.setNumberOfSlot(classRequest.getNumberOfSlot());
+        aClass.setMinStudent(classRequest.getMinStudent());
+        aClass.setMaxStudent(classRequest.getMaxStudent());
+        aClass.setStartDate(classRequest.getStartDate());
+        aClass.setEndDate(classRequest.getEndDate());
         aClass.setStatus(REQUESTING);
-        aClass.setPrice(subCourseRequest.getPrice());
+        aClass.setPrice(classRequest.getPrice());
         aClass.setMentor(currentUserAccountLogin);
         String codeRandom = ClassUtil.generateCode(course.getSubject().getCode());
         aClass.setCode(codeRandom);
 
-        Long imageId = subCourseRequest.getImageId();
+        Long imageId = classRequest.getImageId();
         ClassImage classImage = classImageRepository.findById(imageId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + imageId));
@@ -301,7 +301,7 @@ public class ClassServiceImpl implements IClassService {
             timeInWeekRepository.save(timeInWeek);
         });
 
-
+        classRepository.save(aClass);
         return aClass;
     }
 
