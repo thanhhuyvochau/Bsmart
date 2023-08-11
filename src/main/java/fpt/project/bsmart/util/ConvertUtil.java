@@ -783,16 +783,21 @@ public class ConvertUtil {
     public static QuizDto convertQuizToQuizDto(Quiz quiz, boolean isAttempt) {
         QuizDto quizDto = ObjectUtil.copyProperties(quiz, new QuizDto(), QuizDto.class);
         quizDto.setQuestionCount(quiz.getQuizQuestions().size());
-        if (isAttempt) {
-            if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
-                List<QuizQuestionDto> questionDtos = new ArrayList<>();
-                for (QuizQuestion question : quiz.getQuizQuestions()) {
-                    questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
+        if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
+            Optional<User> userOptional = SecurityUtil.getCurrentUserOptional();
+            if (userOptional.isPresent()){
+                User user = userOptional.get();
+                if ((isAttempt && SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT))
+                        || Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER))) {
+                    List<QuizQuestionDto> questionDtos = new ArrayList<>();
+                    for (QuizQuestion question : quiz.getQuizQuestions()) {
+                        questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
+                    }
+                    if (Boolean.TRUE.equals(quiz.getIsSuffleQuestion())) {
+                        Collections.shuffle(questionDtos);
+                    }
+                    quizDto.setQuizQuestions(questionDtos);
                 }
-                if (quiz.getIsSuffleQuestion()) {
-                    Collections.shuffle(questionDtos);
-                }
-                quizDto.setQuizQuestions(questionDtos);
             }
         }
         return quizDto;
@@ -1030,7 +1035,7 @@ public class ConvertUtil {
         return paymentResponse;
     }
 
-    public static WithDrawResponse convertWithdrawRequestToWithdrawResponse(Transaction transaction){
+    public static WithDrawResponse convertWithdrawRequestToWithdrawResponse(Transaction transaction) {
         WithDrawResponse response = new WithDrawResponse();
         response.setId(transaction.getId());
         response.setUserName(transaction.getWallet().getOwner().getFullName());
