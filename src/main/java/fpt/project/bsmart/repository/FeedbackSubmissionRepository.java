@@ -18,4 +18,5 @@ public interface FeedbackSubmissionRepository extends JpaRepository<FeedbackSubm
     Page<FeedbackSubmission> findAllByClazz(Class clazz, Pageable pageable);
     Optional<FeedbackSubmission> findByClazzAndSubmitBy(Class clazz, User submitBy);
     List<FeedbackSubmission> findAll(Specification<FeedbackSubmission> builder);
+    Page<FeedbackSubmission> findAll(Specification<FeedbackSubmission> builder, Pageable pageable);
 }

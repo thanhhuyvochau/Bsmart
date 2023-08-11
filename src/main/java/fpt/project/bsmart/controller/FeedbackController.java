@@ -2,7 +2,9 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.dto.FeedbackSubmissionDto;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.request.FeedbackSubmissionSearchRequest;
 import fpt.project.bsmart.entity.request.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.FeedbackTemplateSearchRequest;
 import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
@@ -117,5 +119,8 @@ public class FeedbackController {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.getMentorFeedback(id)));
     }
 
-
+    @GetMapping("/submissions")
+    public ResponseEntity<ApiResponse<ApiPage<FeedbackSubmissionDto>>> getFeedbackSubmissionForPage(@Nullable FeedbackSubmissionSearchRequest request, Pageable pageable){
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.getFeedbackSubmission(request, pageable)));
+    }
 }

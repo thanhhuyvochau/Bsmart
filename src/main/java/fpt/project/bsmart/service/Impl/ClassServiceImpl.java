@@ -25,6 +25,7 @@ import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.ClassSpecificationBuilder;
+import fpt.project.bsmart.util.specification.FeedbackSubmissionSpecificationBuilder;
 import fpt.project.bsmart.validator.ClassValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -62,11 +63,11 @@ public class ClassServiceImpl implements IClassService {
     private final ClassImageRepository classImageRepository;
     private final ActivityAuthorizeRepository activityAuthorizeRepository;
     private final FeedbackTemplateRepository feedbackTemplateRepository;
-
+    private final FeedbackSubmissionRepository feedbackSubmissionRepository;
     private final TimeTableRepository timeTableRepository;
     private final SubjectRepository subjectRepository;
 
-    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, FeedbackTemplateRepository feedbackTemplateRepository, TimeTableRepository timeTableRepository, SubjectRepository subjectRepository) {
+    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, FeedbackTemplateRepository feedbackTemplateRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, TimeTableRepository timeTableRepository, SubjectRepository subjectRepository) {
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.classRepository = classRepository;
@@ -77,6 +78,7 @@ public class ClassServiceImpl implements IClassService {
         this.classImageRepository = classImageRepository;
         this.activityAuthorizeRepository = activityAuthorizeRepository;
         this.feedbackTemplateRepository = feedbackTemplateRepository;
+        this.feedbackSubmissionRepository = feedbackSubmissionRepository;
         this.timeTableRepository = timeTableRepository;
         this.subjectRepository = subjectRepository;
     }
@@ -122,6 +124,14 @@ public class ClassServiceImpl implements IClassService {
 //        }
 //
 //        response.setClasses(classDetailResponses);
+        FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
+                .filterByCourse(course.getId());
+        List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(builder.build());
+        List<Integer> rates = feedbackSubmissions.stream().map(FeedbackSubmission::getCourseRate).collect(Collectors.toList());
+        Map<Integer, Long> rateCount = FeedbackUtil.getRateCount(rates);
+        response.setAverageRate(FeedbackUtil.calculateAverageRate(rateCount));
+        response.setRateCount(rateCount);
+        response.setSubmissionCount(feedbackSubmissions.size());
         return response;
 
     }
