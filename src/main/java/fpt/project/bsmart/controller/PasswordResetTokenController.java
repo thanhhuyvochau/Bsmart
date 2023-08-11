@@ -15,6 +15,11 @@ public class PasswordResetTokenController {
         this.iPasswordResetTokenService = iPasswordResetTokenService;
     }
 
+    @GetMapping("/{resetToken}")
+    public ResponseEntity<ApiResponse<Boolean>> checkResetTokenExist(@PathVariable String resetToken){
+        return ResponseEntity.ok(ApiResponse.success(iPasswordResetTokenService.checkResetTokenExist(resetToken)));
+    }
+
     @PostMapping("/{email}/generate-token")
     public ResponseEntity<ApiResponse<Boolean>> generateResetToken(@PathVariable String email){
         return ResponseEntity.ok(ApiResponse.success(iPasswordResetTokenService.generateResetToken(email)));

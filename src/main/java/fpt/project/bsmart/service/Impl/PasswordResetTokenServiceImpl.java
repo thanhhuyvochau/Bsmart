@@ -43,7 +43,7 @@ public class PasswordResetTokenServiceImpl implements IPasswordResetTokenService
         if(resetToken.isPresent()){
             boolean isExpired = resetToken.get().getExpirationDate().isBefore(Instant.now());
             if (!isExpired){
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(PASSWORD_RESET_TOKEN_IS_EXIST));
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(PASSWORD_RESET_TOKEN_IS_EXPIRED));
             }
             passwordResetTokenRepository.delete(resetToken.get());
         }
@@ -51,15 +51,25 @@ public class PasswordResetTokenServiceImpl implements IPasswordResetTokenService
         return true;
     }
 
-    @Override
-    public Boolean resetPassword(String resetToken, ResetPasswordRequest request){
-        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(resetToken)
+    public Boolean checkResetTokenExist(String resetToken){
+        findByToken(resetToken);
+        return true;
+    }
+
+    private PasswordResetToken findByToken(String token){
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(PASSWORD_RESET_TOKEN_NOT_FOUND)));
         boolean isExpired = passwordResetToken.getExpirationDate().isBefore(Instant.now());
         if(isExpired){
             passwordResetTokenRepository.delete(passwordResetToken);
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(PASSWORD_RESET_TOKEN_IS_EXIST));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(PASSWORD_RESET_TOKEN_IS_EXPIRED));
         }
+        return passwordResetToken;
+    }
+
+    @Override
+    public Boolean resetPassword(String resetToken, ResetPasswordRequest request){
+        PasswordResetToken passwordResetToken = findByToken(resetToken);
         User user = passwordResetToken.getUser();
         if(!PasswordUtil.isValidPassword(request.getPassword())){
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
