@@ -122,10 +122,10 @@ activate:
   template:
 
 host:
-  url: https://mismart.vercel.app/forgot_password/confirm_email/
+  url: https://mismart.vercel.app/confirm_email/
 
 forgot-password:
-  url: https://mismart.vercel.app/forgot_password/forgot_password/
+  url: https://mismart.vercel.app/forgot_password/
 
 
 
