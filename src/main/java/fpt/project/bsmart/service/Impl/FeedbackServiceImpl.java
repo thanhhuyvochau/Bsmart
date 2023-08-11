@@ -6,7 +6,9 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.EFeedbackType;
 import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.dto.FeedbackSubmissionDto;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.request.FeedbackSubmissionSearchRequest;
 import fpt.project.bsmart.entity.request.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.FeedbackTemplateSearchRequest;
 import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.EMPTY_QUESTION_LIST;
@@ -300,15 +303,10 @@ public class FeedbackServiceImpl implements IFeedbackService {
                 .filterByCourse(course.getId());
         List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(builder.build());
         FeedbackResponse response = new FeedbackResponse();
-        List<FeedbackResponse.FeedbackSubmission> submissions = feedbackSubmissions.stream()
-                .map(ConvertUtil::convertFeedbackSubmissionToCourseFeedbackResponse)
+        List<FeedbackSubmissionDto> submissions = feedbackSubmissions.stream()
+                .map(x -> ConvertUtil.convertFeedbackSubmissionToFeedbackSubmissionDto(x, true))
                 .collect(Collectors.toList());
-        List<Integer> rates = feedbackSubmissions.stream().map(FeedbackSubmission::getCourseRate).collect(Collectors.toList());
-        Map<Integer, Long> rateCount = FeedbackUtil.getRateCount(rates);
-        response.setAverageRate(FeedbackUtil.calculateAverageRate(rateCount));
-        response.setRateCount(rateCount);
-        response.setSubmissions(submissions);
-        response.setSubmissionCount(feedbackSubmissions.size());
+        setValueForFeedbackResponse(response, submissions, feedbackSubmissions.stream().map(FeedbackSubmission::getCourseRate), feedbackSubmissions);
         return response;
     }
 
@@ -319,16 +317,29 @@ public class FeedbackServiceImpl implements IFeedbackService {
                 .filterByMentor(mentorProfile.getUser().getId());
         List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(builder.build());
         FeedbackResponse response = new FeedbackResponse();
-        List<FeedbackResponse.FeedbackSubmission> submissions = feedbackSubmissions.stream()
-                .map(ConvertUtil::convertFeedbackSubmissionToMentorFeedbackResponse)
+        List<FeedbackSubmissionDto> submissions = feedbackSubmissions.stream()
+                .map(x -> ConvertUtil.convertFeedbackSubmissionToFeedbackSubmissionDto(x, false))
                 .collect(Collectors.toList());
-        List<Integer> rates = feedbackSubmissions.stream().map(FeedbackSubmission::getMentorRate).collect(Collectors.toList());
+        setValueForFeedbackResponse(response, submissions, feedbackSubmissions.stream().map(FeedbackSubmission::getMentorRate), feedbackSubmissions);
+        return response;
+    }
+
+    private void setValueForFeedbackResponse(FeedbackResponse response, List<FeedbackSubmissionDto> submissions, Stream<Integer> integerStream, List<FeedbackSubmission> feedbackSubmissions) {
+        List<Integer> rates = integerStream.collect(Collectors.toList());
         Map<Integer, Long> rateCount = FeedbackUtil.getRateCount(rates);
         response.setAverageRate(FeedbackUtil.calculateAverageRate(rateCount));
         response.setRateCount(rateCount);
         response.setSubmissions(submissions);
-        response.setAverageRate(FeedbackUtil.calculateAverageRate(rateCount));
         response.setSubmissionCount(feedbackSubmissions.size());
-        return response;
+    }
+
+    public ApiPage<FeedbackSubmissionDto> getFeedbackSubmission(FeedbackSubmissionSearchRequest request, Pageable pageable){
+        FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
+                .filterByRate(request.getRate(), request.getIsCourse());
+        builder = request.getIsCourse() ? builder.filterByCourse(request.getId()) : builder.filterByMentor(request.getId());
+        Page<FeedbackSubmission> feedbackSubmissionPage = feedbackSubmissionRepository.findAll(builder.build(), pageable);
+        List<FeedbackSubmission> submissions = feedbackSubmissionPage.getContent().stream().collect(Collectors.toList());
+        Page<FeedbackSubmission> feedbackSubmissions = new PageImpl<>(submissions, pageable, submissions.size());
+        return PageUtil.convert(feedbackSubmissions.map(x -> ConvertUtil.convertFeedbackSubmissionToFeedbackSubmissionDto(x, request.getIsCourse())));
     }
 }

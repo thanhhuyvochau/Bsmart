@@ -1,7 +1,9 @@
 package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.common.ApiPage;
+import fpt.project.bsmart.entity.dto.FeedbackSubmissionDto;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.request.FeedbackSubmissionSearchRequest;
 import fpt.project.bsmart.entity.request.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.FeedbackTemplateSearchRequest;
 import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
@@ -24,6 +26,7 @@ public interface IFeedbackService {
     ApiPage<FeedbackSubmissionResponse> getClassFeedback(Long clazzId, Pageable pageable);
     FeedbackResponse getCourseFeedback(Long courseId);
     FeedbackResponse getMentorFeedback(Long mentorId);
+    ApiPage<FeedbackSubmissionDto> getFeedbackSubmission(FeedbackSubmissionSearchRequest request, Pageable pageable);
 
 //    Boolean createQuestionTemplate(List<FeedbackTemplateRequest.FeedbackQuestionRequest> questions);
 }

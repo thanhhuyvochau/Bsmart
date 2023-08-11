@@ -38,6 +38,14 @@ public class FeedbackSubmissionSpecificationBuilder {
         });
         return this;
     }
+
+    public FeedbackSubmissionSpecificationBuilder filterByRate(Integer rate, Boolean isCourse){
+        if(rate == null || isCourse == null){
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(isCourse ? root.get(FeedbackSubmission_.COURSE_RATE) : root.get(FeedbackSubmission_.MENTOR_RATE), rate));
+        return this;
+    }
     public Specification<FeedbackSubmission> build(){
         return specifications.stream()
                 .filter(Objects::nonNull)
