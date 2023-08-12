@@ -1,6 +1,7 @@
 package fpt.project.bsmart.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import fpt.project.bsmart.entity.constant.EGenderType;
 
 import javax.persistence.*;
@@ -24,6 +25,8 @@ public class User extends BaseEntity {
 
     @Column(name = "email")
     private String email;
+
+    @JsonIgnore
     @Column(name = "password")
     private String password;
 
@@ -39,6 +42,8 @@ public class User extends BaseEntity {
 
     @Column(name = "status")
     private boolean status = false;
+
+    @JsonIgnore
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     List<Role> roles = new ArrayList<>();
@@ -52,39 +57,52 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")
     private EGenderType gender;
-
+    @JsonIgnore
     @Column(name = "intro_point")
     private Double point;
 
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<UserImage> userImages = new ArrayList<>();
+
+    @JsonIgnore
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
     private Wallet wallet = new Wallet();
+
+    @JsonIgnore
     @OneToOne(mappedBy = "user")
     private MentorProfile mentorProfile;
+
+    @JsonIgnore
     @OneToOne(mappedBy = "user")
     private Cart cart;
-
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<Order> order = new ArrayList<>();
-
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
     private List<ReferralCode> referralCodes = new ArrayList<>();
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "student")
     private List<StudentClass> studentClasses = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notifier> notifiers = new ArrayList<>();
+
+    @JsonIgnore
     @Column(name = "is_verified")
     private boolean isVerified = false;
 
+    @JsonIgnore
     @Column(name = "provider")
     private String provider;
 
-
+    @JsonIgnore
     @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Course> courses = new ArrayList<>();
 

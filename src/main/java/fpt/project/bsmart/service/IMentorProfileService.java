@@ -1,5 +1,6 @@
 package fpt.project.bsmart.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
@@ -7,6 +8,8 @@ import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
+import fpt.project.bsmart.entity.request.mentorprofile.MentorRequestEditProfileRequest;
+import fpt.project.bsmart.entity.request.mentorprofile.UserDtoRequest;
 import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.entity.response.mentor.ManagerGetRequestApprovalSkillResponse;
@@ -37,4 +40,8 @@ public interface IMentorProfileService {
     Boolean mentorRequestApprovalSkill( MentorSendSkillRequest mentorSendAddSkill);
 
     List<MentorGetRequestApprovalSkillResponse> ManagerGetRequestApprovalSkillResponse();
+
+    Boolean mentorCreateEditProfileRequest(UserDtoRequest request) throws JsonProcessingException;
+
+    Boolean mentorSendEditProfileRequest(Long mentorProfileEditId);
 }

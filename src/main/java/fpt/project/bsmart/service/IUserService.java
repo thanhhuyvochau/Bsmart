@@ -1,5 +1,6 @@
 package fpt.project.bsmart.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.config.security.oauth2.dto.LocalUser;
 import fpt.project.bsmart.config.security.oauth2.dto.SignUpRequest;
 import fpt.project.bsmart.entity.User;
@@ -8,6 +9,7 @@ import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.*;
+import fpt.project.bsmart.entity.request.mentorprofile.UserDtoRequest;
 import fpt.project.bsmart.entity.response.VerifyResponse;
 import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
 import org.springframework.data.domain.Pageable;
@@ -56,4 +58,6 @@ public interface IUserService {
     UserDto managerGetMentorDetail(Long id);
 
     MemberDetailResponse managerGetMemberDetail(Long id);
+
+    UserDto getProfileEdit() throws JsonProcessingException;
 }

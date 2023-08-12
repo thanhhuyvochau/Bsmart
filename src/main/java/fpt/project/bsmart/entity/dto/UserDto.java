@@ -1,6 +1,8 @@
 package fpt.project.bsmart.entity.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.EGenderType;
 import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 
@@ -9,13 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class UserDto {
+public class UserDto   {
     private static final long serialVersionUID = 1L;
-
     private Long id;
-
     private String fullName;
-
 
     private String email;
 
