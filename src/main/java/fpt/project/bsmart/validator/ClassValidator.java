@@ -57,18 +57,13 @@ public class ClassValidator {
         if (startDate.isAfter(endDate) || !checkDateToStartAndEndClass(startDate, endDate)) {
             throw new Exception("Ngày kết thúc lớp phải sau ngày bắt đầu ít nhất 15 ngày");
         }
-        for (int i = numberOfSlot; i > 0 || startDate.isBefore(endDate); i--) {
+        int i = numberOfSlot;
+        while (i > 0 || startDate.isBefore(endDate)) {
             EDayOfWeekCode dayOfWeekCode = TimeUtil.getDayOfWeek(startDate);
             if (dayOfWeekCode == null) {
                 throw ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Không thể nhận diện thứ trong tuần, lỗi hệ thống vui lòng liên hệ Admin!");
             }
-
-            if (availableDOW.contains(dayOfWeekCode)) {
-                int slotInDay = (int) timeInWeeks.stream().filter(timeInWeek -> timeInWeek.getDayOfWeek().getCode().equals(dayOfWeekCode)).count();
-                i = i - slotInDay;
-            }
-
             if (startDate.equals(endDate.truncatedTo(ChronoUnit.DAYS)) && i > 0) {
                 throw ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Số lượng buổi học và ngày kết thúc không hợp lệ, vui lòng điều chỉnh lại");
@@ -76,7 +71,10 @@ public class ClassValidator {
                 throw ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Số lượng buổi học và ngày kết thúc không hợp lệ, vui lòng điều chỉnh lại");
             }
-
+            if (availableDOW.contains(dayOfWeekCode)) {
+                int slotInDay = (int) timeInWeeks.stream().filter(timeInWeek -> timeInWeek.getDayOfWeek().getCode().equals(dayOfWeekCode)).count();
+                i = i - slotInDay;
+            }
             startDate = startDate.plus(1, ChronoUnit.DAYS);
         }
         return true;
