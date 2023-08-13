@@ -4,6 +4,7 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.RevenueResponse;
+import fpt.project.bsmart.entity.response.SystemRevenueResponse;
 import fpt.project.bsmart.entity.response.VnPayResponse;
 import fpt.project.bsmart.entity.response.WithDrawResponse;
 import fpt.project.bsmart.payment.PaymentResponse;
@@ -32,5 +33,7 @@ public interface ITransactionService {
     Boolean executeAfterVnPayReturn(HttpServletRequest request);
 
 //    Boolean getBankPaymentResult(Long transaction)
-    List<RevenueResponse> getRevenueForAdminPage(TransactionRequest request);
+//    List<RevenueResponse> getRevenueForAdminPage(TransactionRequest request);
+
+    List<SystemRevenueResponse> getSystemRevenue(Integer year);
 }

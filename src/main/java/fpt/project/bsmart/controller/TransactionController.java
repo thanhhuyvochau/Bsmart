@@ -3,16 +3,9 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.TransactionDto;
-import fpt.project.bsmart.entity.request.PayCourseRequest;
-import fpt.project.bsmart.entity.request.TransactionRequest;
-import fpt.project.bsmart.entity.request.VpnPayRequest;
-import fpt.project.bsmart.entity.request.WithdrawRequest;
+import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.RevenueResponse;
-import fpt.project.bsmart.entity.response.VnPayResponse;
-import fpt.project.bsmart.entity.request.PayCartRequest;
-import fpt.project.bsmart.entity.request.PayRequest;
-import fpt.project.bsmart.entity.request.ProcessWithdrawRequest;
-import fpt.project.bsmart.entity.request.WithdrawRequest;
+import fpt.project.bsmart.entity.response.SystemRevenueResponse;
 import fpt.project.bsmart.entity.response.WithDrawResponse;
 import fpt.project.bsmart.payment.PaymentResponse;
 import fpt.project.bsmart.service.ITransactionService;
@@ -104,10 +97,16 @@ public class TransactionController {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.executeAfterVnPayReturn(request)));
     }
 
-    @Operation(summary = "Lấy thông tinh doanh thu cho trang admin")
-    @GetMapping("/revenue")
+//    @Operation(summary = "Lấy thông tinh doanh thu cho trang admin")
+//    @GetMapping("/revenue")
+//    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+//    public ResponseEntity<ApiResponse<List<RevenueResponse>>> getRevenueForAdminPage(@Nullable TransactionRequest request){
+//        return ResponseEntity.ok(ApiResponse.success(iTransactionService.getRevenueForAdminPage(request)));
+//    }
+    @Operation(summary = "Lấy doanh thu theo năm")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<ApiResponse<List<RevenueResponse>>> getRevenueForAdminPage(@Nullable TransactionRequest request){
-        return ResponseEntity.ok(ApiResponse.success(iTransactionService.getRevenueForAdminPage(request)));
+    @GetMapping("/revenue/year/{year}")
+    public ResponseEntity<ApiResponse<List<SystemRevenueResponse>>> getSystemRevenue(@PathVariable Integer year){
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.getSystemRevenue(year)));
     }
 }

@@ -2,6 +2,8 @@ package fpt.project.bsmart.util.specification;
 
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.constant.ETransactionStatus;
+import fpt.project.bsmart.entity.constant.ETransactionType;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
@@ -70,6 +72,22 @@ public class TransactionSpecificationBuilder {
             Join<Class, Course> classCourseJoin = orderDetailClassJoin.join(Class_.COURSE);
             return criteriaBuilder.equal(classCourseJoin.get(Course_.ID), courseId);
         });
+        return this;
+    }
+
+    public TransactionSpecificationBuilder filterByStatus(ETransactionStatus status){
+        if(status == null){
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Transaction_.STATUS), status));
+        return this;
+    }
+
+    public TransactionSpecificationBuilder filterByTpe(ETransactionType type){
+        if(type == null){
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Transaction_.TYPE), type));
         return this;
     }
 
