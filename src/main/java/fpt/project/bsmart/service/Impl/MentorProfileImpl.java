@@ -547,19 +547,14 @@ public class MentorProfileImpl implements IMentorProfileService {
 
     @Override
     public Long mentorCreateEditProfileRequest(UserDtoRequest request) throws JsonProcessingException {
-//        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
-        MentorProfileEdit byStatusPending = mentorProfileEditRepository.findByStatus(EMentorProfileEditStatus.PENDING);
+        User user = SecurityUtil.getCurrentUser();
+        MentorProfile mentorProfile = user.getMentorProfile();
+        MentorProfileEdit byStatusPending = mentorProfileEditRepository.findByMentorProfileAndStatus(mentorProfile ,EMentorProfileEditStatus.PENDING);
 
         if (byStatusPending != null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Hồ sơ của bạn đang được xử lý! Không thể chỉnh sửa lúc này!");
         }
-
-
         UserDto userDto = new UserDto();
-
-        User user = SecurityUtil.getCurrentUser();
-        MentorProfile mentorProfile = user.getMentorProfile();
-
         // chỉnh sưa thông tin của table user
         if (request.getBirthday() != null) {
             if (!TimeUtil.isValidBirthday(request.getBirthday(), EUserRole.TEACHER)) {
