@@ -31,6 +31,9 @@ public class MentorProfile extends BaseEntity {
     @OneToMany(mappedBy = "mentorProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MentorSkill> skills = new ArrayList<>();
 
+    @OneToMany(mappedBy = "mentorProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MentorProfileEdit> mentorProfileEdits = new ArrayList<>();
+
     public Long getId() {
         return id;
     }
@@ -88,5 +91,13 @@ public class MentorProfile extends BaseEntity {
         if (skills != null) {
             this.skills.addAll(skills);
         }
+    }
+
+    public List<MentorProfileEdit> getMentorProfileEdits() {
+        return mentorProfileEdits;
+    }
+
+    public void setMentorProfileEdits(List<MentorProfileEdit> mentorProfileEdits) {
+        this.mentorProfileEdits = mentorProfileEdits;
     }
 }

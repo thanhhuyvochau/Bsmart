@@ -1,6 +1,11 @@
 package fpt.project.bsmart.service.Impl;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fpt.project.bsmart.config.security.oauth2.dto.LocalUser;
 import fpt.project.bsmart.config.security.oauth2.dto.SignUpRequest;
 import fpt.project.bsmart.config.security.oauth2.user.OAuth2UserInfo;
@@ -17,8 +22,10 @@ import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.*;
+import fpt.project.bsmart.entity.request.mentorprofile.UserDtoRequest;
 import fpt.project.bsmart.entity.response.VerifyResponse;
 import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
+import fpt.project.bsmart.entity.response.mentor.MentorEditProfileResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.*;
@@ -80,8 +87,10 @@ public class UserServiceImpl implements IUserService {
     private final FeedbackSubmissionRepository feedbackSubmissionRepository;
     private final WebSocketUtil webSocketUtil;
 
+    private final MentorProfileEditRepository mentorProfileEditRepository;
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, UserImageRepository userImageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationRepository notificationRepository, ClassRepository classRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, WebSocketUtil webSocketUtil) {
+
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, UserImageRepository userImageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationRepository notificationRepository, ClassRepository classRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, WebSocketUtil webSocketUtil, MentorProfileEditRepository mentorProfileEditRepository) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
@@ -96,6 +105,7 @@ public class UserServiceImpl implements IUserService {
         this.classRepository = classRepository;
         this.feedbackSubmissionRepository = feedbackSubmissionRepository;
         this.webSocketUtil = webSocketUtil;
+        this.mentorProfileEditRepository = mentorProfileEditRepository;
     }
 
     private static void accept(UserImage userImage) {
@@ -559,6 +569,53 @@ public class UserServiceImpl implements IUserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id));
         return ConvertUtil.convertUserToMemberDetailResponse(user);
+
+    }
+
+    @Override
+    public MentorEditProfileResponse getProfileEdit() throws JsonProcessingException {
+
+        MentorEditProfileResponse mentorEditProfileResponse = new MentorEditProfileResponse() ;
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+
+
+        User currentLoginUser = getCurrentLoginUser();
+        MentorProfile mentorProfile = currentLoginUser.getMentorProfile();
+
+        List<MentorProfileEdit> mentorProfileEditCreating = mentorProfileEditRepository.
+                findAllByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.CREATING);
+
+        List<MentorProfileEdit> mentorProfileEditPending = mentorProfileEditRepository.
+                findAllByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.PENDING);
+
+
+        if (mentorProfileEditCreating.size() == 0 && mentorProfileEditPending.size() == 0) {
+            UserDto userDto = ConvertUtil.convertUsertoUserDto(currentLoginUser);
+            mentorEditProfileResponse.setId(null);
+            mentorEditProfileResponse.setUserDto(userDto);
+            return mentorEditProfileResponse;
+        }
+        else {
+            MentorProfileEdit mentorProfileByStatusCreating = mentorProfileEditRepository.
+                    findByMentorProfileAndStatus(mentorProfile,EMentorProfileEditStatus.CREATING);
+            if (mentorProfileByStatusCreating != null) {
+                UserDto userDto= objectMapper.readValue(mentorProfileByStatusCreating.getProfileData(), UserDto.class);
+                mentorEditProfileResponse.setId(mentorProfileByStatusCreating.getId());
+                mentorEditProfileResponse.setUserDto(userDto);
+                return mentorEditProfileResponse;
+
+            } else {
+                MentorProfileEdit mentorProfileByStatusPending = mentorProfileEditRepository.
+                        findByMentorProfileAndStatus(mentorProfile,EMentorProfileEditStatus.PENDING);
+
+                UserDto userDto= objectMapper.readValue(mentorProfileByStatusPending.getProfileData(), UserDto.class);
+                mentorEditProfileResponse.setId(mentorProfileByStatusPending.getId());
+                mentorEditProfileResponse.setUserDto(userDto);
+                return mentorEditProfileResponse;
+
+            }
+        }
 
     }
 
