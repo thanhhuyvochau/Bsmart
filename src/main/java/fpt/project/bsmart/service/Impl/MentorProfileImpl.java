@@ -14,6 +14,7 @@ import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.dto.mentor.MentorProfileRequestEditDTO;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
+import fpt.project.bsmart.entity.request.mentorprofile.ManagerSearchEditProfileRequest;
 import fpt.project.bsmart.entity.request.mentorprofile.UserDtoRequest;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
 import fpt.project.bsmart.entity.response.mentor.*;
@@ -554,6 +555,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         if (byStatusPending != null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Hồ sơ của bạn đang được xử lý! Không thể chỉnh sửa lúc này!");
         }
+
         UserDto userDto = new UserDto();
         // chỉnh sưa thông tin của table user
         if (request.getBirthday() != null) {
@@ -578,9 +580,9 @@ public class MentorProfileImpl implements IMentorProfileService {
         if (request.getGender() != null) {
             userDto.setGender(request.getGender());
         }
-        if (request.getEmail() != null) {
-            userDto.setEmail(request.getEmail());
-        }
+//        if (request.getEmail() != null) {
+//            userDto.setEmail(request.getEmail());
+//        }
         userDto.setStatus(user.getStatus());
 
         List<Role> roles = user.getRoles();
@@ -670,7 +672,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         }
 
         // kiểm tra xem user này đã gửi request edit trước đó chưa => nếu rồi thì không cho gửi nữa !!!
-        MentorProfileEdit byStatus = mentorProfileEditRepository.findByStatus(EMentorProfileEditStatus.PENDING);
+        MentorProfileEdit byStatus = mentorProfileEditRepository.findByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.PENDING);
         if (byStatus != null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).
                     withMessage("Hồ sơ này đã gửi yêu cầu chỉnh sửa trước đó! Vui lòng thử lại sau! ");
@@ -701,10 +703,18 @@ public class MentorProfileImpl implements IMentorProfileService {
 
     @Override
     public Boolean mentorSendEditProfileRequest(Long mentorProfileEditId) {
+        User user = SecurityUtil.getCurrentUser();
+        MentorProfile mentorProfile = user.getMentorProfile();
 
         MentorProfileEdit mentorProfileEdit = mentorProfileEditRepository.findById(mentorProfileEditId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Không tìm thấy hồ sơ chỉnh sửa !"));
+
+        MentorProfileEdit byStatusPending = mentorProfileEditRepository.findByMentorProfileAndStatus(mentorProfile ,EMentorProfileEditStatus.PENDING);
+
+        if (byStatusPending != null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Hồ sơ của bạn đang được xử lý! Không thể gửi thêm yêu cầu!");
+        }
 
         mentorProfileEdit.setStatus(EMentorProfileEditStatus.PENDING);
         mentorProfileEditRepository.save(mentorProfileEdit);
@@ -713,11 +723,11 @@ public class MentorProfileImpl implements IMentorProfileService {
 
 
     @Override
-    public ApiPage<MentorEditProfileResponse> managerGetEditProfileRequest(Pageable pageable) {
+    public ApiPage<MentorEditProfileResponse> managerGetEditProfileRequest(ManagerSearchEditProfileRequest query  ,Pageable pageable) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
-        List<MentorProfileEdit> allByStatus = mentorProfileEditRepository.findAllByStatus(EMentorProfileEditStatus.PENDING);
+        List<MentorProfileEdit> allByStatus = mentorProfileEditRepository.findAllByStatus(query.getStatus());
 
         List<MentorEditProfileResponse> mentorEditProfileResponses = new ArrayList<>();
         allByStatus.forEach(mentorProfileEdit -> {
