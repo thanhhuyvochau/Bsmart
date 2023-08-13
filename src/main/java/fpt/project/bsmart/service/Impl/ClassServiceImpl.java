@@ -810,4 +810,36 @@ public class ClassServiceImpl implements IClassService {
 
 
     }
+
+    @Override
+    public List<BaseClassResponse> getDuplicateTimeClassOfStudent(Long id) {
+        User student = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
+        List<Class> possibleDuplicateClasses = classRepository.findByStudentAndStartDate(student, clazz.getStartDate());
+        List<TimeInWeek> checkedClassTimeInWeeks = clazz.getTimeInWeeks();
+        List<EDayOfWeekCode> checkedClassEDayCodes = checkedClassTimeInWeeks.stream().map(TimeInWeek::getDayOfWeek).map(DayOfWeek::getCode).collect(Collectors.toList());
+        List<Class> duplicateClasses = new ArrayList<>();
+
+        List<Class> matchDayOfWeekClasses = possibleDuplicateClasses.stream()
+                .filter(possibleDuplicateClass ->
+                        possibleDuplicateClass.getTimeInWeeks().stream()
+                                .anyMatch(timeInWeek -> checkedClassEDayCodes.contains(timeInWeek.getDayOfWeek().getCode())))
+                .collect(Collectors.toList());
+
+        for (Class matchDayOfWeekClass : matchDayOfWeekClasses) {
+            for (TimeInWeek timeInWeek : matchDayOfWeekClass.getTimeInWeeks()) {
+                long dupNum = checkedClassTimeInWeeks.stream().filter(checkedClassTimeInWeek -> checkedClassTimeInWeek.getDayOfWeek().getCode().equals(timeInWeek.getDayOfWeek().getCode())
+                        && checkedClassTimeInWeek.getSlot().getId().equals(timeInWeek.getSlot().getId())).count();
+                if (dupNum > 0) {
+                    duplicateClasses.add(matchDayOfWeekClass);
+                    break;
+                }
+            }
+        }
+        List<BaseClassResponse> baseClassResponses = new ArrayList<>();
+        if (!duplicateClasses.isEmpty()) {
+            baseClassResponses = duplicateClasses.stream().map(ClassUtil::convertClassToBaseclassResponse).collect(Collectors.toList());
+        }
+        return baseClassResponses;
+    }
 }

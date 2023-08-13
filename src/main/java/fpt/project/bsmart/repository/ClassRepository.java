@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -25,10 +26,9 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
     List<Class> findByCourseAndStatus(Course course, ECourseStatus status);
 
 
+    List<Class> findByStatus(ECourseStatus status);
 
-    List<Class> findByStatus(ECourseStatus status) ;
-
-    List<Class> findByStatus_In(List<ECourseStatus> status) ;
+    List<Class> findByStatus_In(List<ECourseStatus> status);
 
     Page<Class> findByCourse(Course course, Pageable pageable);
 
@@ -40,4 +40,7 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
 
 
     List<Class> findByFeedbackTemplate(FeedbackTemplate feedbackTemplate);
+
+    @Query("SELECT c  FROM Class c INNER JOIN c.studentClasses sc WHERE sc.student  = ?1 and (c.startDate <= ?2 AND c.endDate >= ?2)")
+    List<Class> findByStudentAndStartDate(User student, Instant startDate);
 }

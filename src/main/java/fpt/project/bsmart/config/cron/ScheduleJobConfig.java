@@ -119,4 +119,5 @@ public class ScheduleJobConfig {
         System.out.println("---------Task executed at 12 AM (midnight) for Open Class-----------");
     }
 
+
 }
