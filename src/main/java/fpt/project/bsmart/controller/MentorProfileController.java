@@ -3,20 +3,14 @@ package fpt.project.bsmart.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.*;
-import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
-import fpt.project.bsmart.entity.request.mentorprofile.MentorRequestEditProfileRequest;
 import fpt.project.bsmart.entity.request.mentorprofile.UserDtoRequest;
-import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
+import fpt.project.bsmart.entity.response.mentor.*;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
-import fpt.project.bsmart.entity.response.mentor.ManagerGetRequestApprovalSkillResponse;
-import fpt.project.bsmart.entity.response.mentor.MentorGetRequestApprovalSkillResponse;
 import fpt.project.bsmart.service.IMentorProfileService;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -81,7 +75,7 @@ public class MentorProfileController {
     @Operation(summary = "mentor TẠO yêu cầu sửa thông tin cá nhân")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping("/request-edit-profile")
-    public ResponseEntity<ApiResponse<Boolean>> mentorCreateEditProfileRequest(
+    public ResponseEntity<ApiResponse<Long>> mentorCreateEditProfileRequest(
             @RequestBody UserDtoRequest request) throws JsonProcessingException {
 
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorCreateEditProfileRequest(request)));
@@ -162,6 +156,20 @@ public class MentorProfileController {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.managerHandleRequestApprovalSkill(id, managerApprovalSkillRequest)));
     }
 
+    @Operation(summary = "manager lấy  yêu cầu sửa thông tin cá nhân của mentor ")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @GetMapping("/edit-profile")
+    public ResponseEntity<ApiResponse<ApiPage<MentorEditProfileResponse>>>managerGetEditProfileRequest(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.managerGetEditProfileRequest(pageable)));
+    }
+
+    @Operation(summary = "manager xem chi tiết  yêu cầu sửa thông tin cá nhân của mentor và so sanh với profile cũ")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @GetMapping("/{mentorProfileEditId}/edit-profile-detail")
+    public ResponseEntity<ApiResponse<MentorEditProfileDetailResponse>>managerGetEditProfileDetailRequest(
+            @PathVariable Long mentorProfileEditId) throws JsonProcessingException {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.managerGetEditProfileDetailRequest(mentorProfileEditId)));
+    }
 
     //     ################################## END MANAGER ##########################################
 

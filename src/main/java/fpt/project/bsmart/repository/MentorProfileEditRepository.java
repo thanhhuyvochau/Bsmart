@@ -17,4 +17,6 @@ public interface MentorProfileEditRepository extends JpaRepository<MentorProfile
    List<MentorProfileEdit> findAllByMentorProfileAndStatus (MentorProfile mentorProfile, EMentorProfileEditStatus status);
    MentorProfileEdit findByMentorProfileAndStatus(MentorProfile mentorProfile ,EMentorProfileEditStatus status) ;
 
+   List<MentorProfileEdit> findAllByStatus(EMentorProfileEditStatus status) ;
+
 }

@@ -12,6 +12,7 @@ import fpt.project.bsmart.entity.request.User.*;
 import fpt.project.bsmart.entity.request.mentorprofile.UserDtoRequest;
 import fpt.project.bsmart.entity.response.VerifyResponse;
 import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
+import fpt.project.bsmart.entity.response.mentor.MentorEditProfileResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -59,5 +60,5 @@ public interface IUserService {
 
     MemberDetailResponse managerGetMemberDetail(Long id);
 
-    UserDto getProfileEdit() throws JsonProcessingException;
+    MentorEditProfileResponse getProfileEdit() throws JsonProcessingException;
 }

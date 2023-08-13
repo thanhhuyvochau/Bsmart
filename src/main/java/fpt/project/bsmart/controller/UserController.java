@@ -13,6 +13,7 @@ import fpt.project.bsmart.entity.request.mentorprofile.UserDtoRequest;
 import fpt.project.bsmart.entity.response.SimpleClassResponse;
 import fpt.project.bsmart.entity.response.WorkTimeResponse;
 import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
+import fpt.project.bsmart.entity.response.mentor.MentorEditProfileResponse;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,7 +69,7 @@ public class UserController {
     @Operation(summary = "Lấy thông tin profile edit")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/profile-edit")
-    public ResponseEntity<ApiResponse<UserDto>> getProfileEdit() throws JsonProcessingException {
+    public ResponseEntity<ApiResponse<MentorEditProfileResponse>> getProfileEdit() throws JsonProcessingException {
         return ResponseEntity.ok(ApiResponse.success(iUserService.getProfileEdit()));
     }
 

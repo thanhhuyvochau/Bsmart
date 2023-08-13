@@ -11,30 +11,18 @@ import java.time.Instant;
 
 public class UserDtoRequest  {
     private static final long serialVersionUID = 1L;
-
-
     private String fullName;
-
     private String email;
-
     private Instant birthday;
-
     private String address;
-
     private String phone;
-
     private Boolean status;
     private EGenderType gender;
-
     private String linkedinLink;
-
     private String facebookLink;
-
     private String website;
     private boolean verified;
     private MentorProfileRequestEditDTO mentorProfile;
-
-
 
     public String getFullName() {
         return fullName;

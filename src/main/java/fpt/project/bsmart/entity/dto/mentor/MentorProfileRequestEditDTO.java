@@ -11,7 +11,6 @@ public class MentorProfileRequestEditDTO {
     private String introduce;
     private String workingExperience;
     private EMentorProfileStatus status;
-
     private List<MentorSkillDto> mentorSkills;
 
     public Long getId() {
@@ -21,6 +20,8 @@ public class MentorProfileRequestEditDTO {
     public void setId(Long id) {
         this.id = id;
     }
+
+
 
     public String getIntroduce() {
         return introduce;

@@ -25,6 +25,7 @@ import fpt.project.bsmart.entity.request.User.*;
 import fpt.project.bsmart.entity.request.mentorprofile.UserDtoRequest;
 import fpt.project.bsmart.entity.response.VerifyResponse;
 import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
+import fpt.project.bsmart.entity.response.mentor.MentorEditProfileResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.*;
@@ -572,10 +573,12 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UserDto getProfileEdit() throws JsonProcessingException {
+    public MentorEditProfileResponse getProfileEdit() throws JsonProcessingException {
+
+        MentorEditProfileResponse mentorEditProfileResponse = new MentorEditProfileResponse() ;
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-//        objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+
 
         User currentLoginUser = getCurrentLoginUser();
         MentorProfile mentorProfile = currentLoginUser.getMentorProfile();
@@ -585,31 +588,31 @@ public class UserServiceImpl implements IUserService {
 
         List<MentorProfileEdit> mentorProfileEditPending = mentorProfileEditRepository.
                 findAllByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.PENDING);
-//        List<MentorProfileEdit> mentorProfileEditCreating = mentorProfileEdits.stream()
-//                .filter(mentorProfileEdit -> mentorProfileEdit.getStatus().equals(EMentorProfileEditStatus.CREATING))
-//                .collect(Collectors.toList());
+
 
         if (mentorProfileEditCreating.size() == 0 && mentorProfileEditPending.size() == 0) {
             UserDto userDto = ConvertUtil.convertUsertoUserDto(currentLoginUser);
-//            UserDtoRequest userDtoRequest = ObjectUtil.copyProperties(userDto, new UserDtoRequest(), UserDtoRequest.class);
-            return userDto;
+            mentorEditProfileResponse.setId(null);
+            mentorEditProfileResponse.setUserDto(userDto);
+            return mentorEditProfileResponse;
         }
         else {
             MentorProfileEdit mentorProfileByStatusCreating = mentorProfileEditRepository.
                     findByMentorProfileAndStatus(mentorProfile,EMentorProfileEditStatus.CREATING);
             if (mentorProfileByStatusCreating != null) {
-
                 UserDto userDto= objectMapper.readValue(mentorProfileByStatusCreating.getProfileData(), UserDto.class);
-//                UserDtoRequest userDtoRequest = ObjectUtil.copyProperties(userDto, new UserDtoRequest(), UserDtoRequest.class);
-                return userDto;
+                mentorEditProfileResponse.setId(mentorProfileByStatusCreating.getId());
+                mentorEditProfileResponse.setUserDto(userDto);
+                return mentorEditProfileResponse;
 
             } else {
                 MentorProfileEdit mentorProfileByStatusPending = mentorProfileEditRepository.
                         findByMentorProfileAndStatus(mentorProfile,EMentorProfileEditStatus.PENDING);
 
                 UserDto userDto= objectMapper.readValue(mentorProfileByStatusPending.getProfileData(), UserDto.class);
-//                UserDtoRequest userDtoRequest = ObjectUtil.copyProperties(userDto, new UserDtoRequest(), UserDtoRequest.class);
-                return userDto;
+                mentorEditProfileResponse.setId(mentorProfileByStatusPending.getId());
+                mentorEditProfileResponse.setUserDto(userDto);
+                return mentorEditProfileResponse;
 
             }
         }
