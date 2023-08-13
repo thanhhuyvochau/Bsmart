@@ -1,25 +1,17 @@
 package fpt.project.bsmart.util.specification;
 
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETransactionType;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
-import java.util.ArrayList;
-import java.util.List;
-
-public class TransactionSpecificationBuilder {
-    public static TransactionSpecificationBuilder transactionSpecificationBuilder(){return new TransactionSpecificationBuilder();}
-    private List<Specification<Transaction>> specifications = new ArrayList<>();
-
-    public TransactionSpecificationBuilder filterByStatus(ECourseStatus status){
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
 
 public class TransactionSpecificationBuilder {
     public static TransactionSpecificationBuilder transactionSpecificationBuilder(){
