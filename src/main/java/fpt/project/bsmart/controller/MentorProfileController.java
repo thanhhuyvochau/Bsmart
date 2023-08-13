@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.request.mentorprofile.ManagerSearchEditProfileRequest;
 import fpt.project.bsmart.entity.request.mentorprofile.UserDtoRequest;
 import fpt.project.bsmart.entity.response.mentor.*;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
@@ -159,8 +160,9 @@ public class MentorProfileController {
     @Operation(summary = "manager lấy  yêu cầu sửa thông tin cá nhân của mentor ")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/edit-profile")
-    public ResponseEntity<ApiResponse<ApiPage<MentorEditProfileResponse>>>managerGetEditProfileRequest(Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.managerGetEditProfileRequest(pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<MentorEditProfileResponse>>>managerGetEditProfileRequest(
+            @RequestBody ManagerSearchEditProfileRequest query , Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.managerGetEditProfileRequest(query , pageable)));
     }
 
     @Operation(summary = "manager xem chi tiết  yêu cầu sửa thông tin cá nhân của mentor và so sanh với profile cũ")
