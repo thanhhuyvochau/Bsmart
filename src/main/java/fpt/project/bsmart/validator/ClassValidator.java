@@ -64,16 +64,16 @@ public class ClassValidator {
                 throw ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Không thể nhận diện thứ trong tuần, lỗi hệ thống vui lòng liên hệ Admin!");
             }
+            if (availableDOW.contains(dayOfWeekCode)) {
+                int slotInDay = (int) timeInWeeks.stream().filter(timeInWeek -> timeInWeek.getDayOfWeek().getCode().equals(dayOfWeekCode)).count();
+                i = i - slotInDay;
+            }
             if (startDate.equals(endDate.truncatedTo(ChronoUnit.DAYS)) && i > 0) {
                 throw ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Số lượng buổi học và ngày kết thúc không hợp lệ, vui lòng điều chỉnh lại");
             } else if (!startDate.equals(endDate.truncatedTo(ChronoUnit.DAYS)) && i == 0) {
                 throw ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Số lượng buổi học và ngày kết thúc không hợp lệ, vui lòng điều chỉnh lại");
-            }
-            if (availableDOW.contains(dayOfWeekCode)) {
-                int slotInDay = (int) timeInWeeks.stream().filter(timeInWeek -> timeInWeek.getDayOfWeek().getCode().equals(dayOfWeekCode)).count();
-                i = i - slotInDay;
             }
             startDate = startDate.plus(1, ChronoUnit.DAYS);
         }
