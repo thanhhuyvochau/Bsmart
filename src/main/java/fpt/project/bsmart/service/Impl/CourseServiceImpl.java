@@ -1,15 +1,14 @@
 
 package fpt.project.bsmart.service.Impl;
 
+import fpt.project.bsmart.director.NotificationDirector;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.constant.EActivityType;
-import fpt.project.bsmart.entity.constant.ECourseActivityType;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.ActivityDto;
+import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.request.ManagerApprovalCourseRequest;
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
@@ -50,15 +48,21 @@ public class CourseServiceImpl implements ICourseService {
     private final ClassRepository classRepository;
 
     private final ActivityHistoryRepository activityHistoryRepository;
+    private final WebSocketUtil webSocketUtil;
+    private final NotificationRepository notificationRepository;
 
+    private final FeedbackTemplateRepository feedbackTemplateRepository;
 
-    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository, ClassRepository classRepository, ActivityHistoryRepository activityHistoryRepository) {
+    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository, ClassRepository classRepository, ActivityHistoryRepository activityHistoryRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, FeedbackTemplateRepository feedbackTemplateRepository) {
         this.courseRepository = courseRepository;
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.activityRepository = activityRepository;
         this.classRepository = classRepository;
         this.activityHistoryRepository = activityHistoryRepository;
+        this.webSocketUtil = webSocketUtil;
+        this.notificationRepository = notificationRepository;
+        this.feedbackTemplateRepository = feedbackTemplateRepository;
     }
 
 
@@ -315,6 +319,7 @@ public class CourseServiceImpl implements ICourseService {
                     ActivityHistoryUtil.logHistoryForMentorSendRequestCourse(user.getId(), course);
                 }
                 return true;
+
             }
         }
 
@@ -386,6 +391,8 @@ public class CourseServiceImpl implements ICourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 
+        FeedbackTemplate feedbackIsDefault = feedbackTemplateRepository.findByTypeAndIsDefault(EFeedbackType.COURSE, true);
+
         if (!course.getApproved()) {
             validateApprovalCourseRequest(approvalCourseRequest.getStatus());
 
@@ -397,6 +404,7 @@ public class CourseServiceImpl implements ICourseService {
             List<Class> classList = new ArrayList<>();
             for (Class aClass : classToApproval) {
                 aClass.setStatus(approvalCourseRequest.getStatus());
+                aClass.setFeedbackTemplate(feedbackIsDefault);
                 classList.add(aClass);
             }
             classRepository.saveAll(classList);
@@ -408,17 +416,48 @@ public class CourseServiceImpl implements ICourseService {
                 }
                 course.setApproved(true);
             }
-
-
+            User creator = course.getCreator();
+            /**Notification for course*/
+            Notification notification = NotificationDirector.buildApprovalCourse(course, approvalCourseRequest.getStatus());
+            notificationRepository.save(notification);
+            ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, creator);
+            webSocketUtil.sendPrivateNotification(creator.getEmail(), responseMessage);
             courseRepository.save(course);
+            /**Notification for classes*/
+            List<Notification> classNotifications = new ArrayList<>();
+            for (Class clazz : classList) {
+                Notification clazzNotification = NotificationDirector.buildApprovalClass(clazz, clazz.getStatus());
+                classNotifications.add(clazzNotification);
+            }
+            notificationRepository.saveAll(classNotifications);
+            for (Notification classNotification : classNotifications) {
+                ResponseMessage classResponseMessage = ConvertUtil.convertNotificationToResponseMessage(classNotification, creator);
+                webSocketUtil.sendPrivateNotification(creator.getEmail(), responseMessage);
+            }
         } else {
             List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
             List<Class> classList = new ArrayList<>();
             for (Class aClass : classToApproval) {
                 aClass.setStatus(approvalCourseRequest.getStatus());
+                aClass.setFeedbackTemplate(feedbackIsDefault);
                 classList.add(aClass);
             }
             classRepository.saveAll(classList);
+            /**Notification for classes*/
+            List<Notification> classNotifications = new ArrayList<>();
+            for (Class clazz : classList) {
+                Notification clazzNotification = NotificationDirector.buildApprovalClass(clazz, clazz.getStatus());
+                classNotifications.add(clazzNotification);
+            }
+            notificationRepository.saveAll(classNotifications);
+            for (Notification classNotification : classNotifications) {
+                Optional<Notifier> optionalNotifier = Optional.ofNullable(classNotification.getNotifiers().get(0));
+                if (optionalNotifier.isPresent()) {
+                    Notifier notifier = optionalNotifier.get();
+                    ResponseMessage classResponseMessage = ConvertUtil.convertNotificationToResponseMessage(classNotification, notifier.getUser());
+                    webSocketUtil.sendPrivateNotification(notifier.getUser().getEmail(), classResponseMessage);
+                }
+            }
         }
 
 

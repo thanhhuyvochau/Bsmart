@@ -1,5 +1,6 @@
 server:
   port: 8080
+  forward-headers-strategy: framework
 spring:
   security:
     oauth2:
@@ -121,7 +122,10 @@ activate:
   template:
 
 host:
-  url: http://103.173.155.221:3000/confirm_email/
+  url: https://mismart.vercel.app/confirm_email/
+
+forgot-password:
+  url: https://mismart.vercel.app/forgot_password/
 
 
 

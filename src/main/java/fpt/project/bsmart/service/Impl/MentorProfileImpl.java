@@ -1,24 +1,22 @@
 package fpt.project.bsmart.service.Impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import fpt.project.bsmart.director.NotificationDirector;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ValidationErrors;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
-import fpt.project.bsmart.entity.constant.EActivityType;
-import fpt.project.bsmart.entity.constant.EImageType;
-import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
-import fpt.project.bsmart.entity.constant.EUserRole;
-import fpt.project.bsmart.entity.dto.ImageDto;
-import fpt.project.bsmart.entity.dto.MentorProfileDTO;
-import fpt.project.bsmart.entity.dto.MentorSkillDto;
-import fpt.project.bsmart.entity.dto.UserDto;
+import fpt.project.bsmart.entity.constant.*;
+import fpt.project.bsmart.entity.dto.*;
+import fpt.project.bsmart.entity.dto.mentor.MentorProfileRequestEditDTO;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
+import fpt.project.bsmart.entity.request.mentorprofile.UserDtoRequest;
 import fpt.project.bsmart.entity.response.MentorProfileResponse;
-import fpt.project.bsmart.entity.response.mentor.CompletenessMentorProfileResponse;
-import fpt.project.bsmart.entity.response.mentor.ManagerGetRequestApprovalSkillResponse;
-import fpt.project.bsmart.entity.response.mentor.MentorGetRequestApprovalSkillResponse;
+import fpt.project.bsmart.entity.response.mentor.*;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IMentorProfileService;
 import fpt.project.bsmart.util.*;
@@ -30,6 +28,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.lang.Class;
+import java.lang.reflect.Field;
 import java.time.Year;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -37,6 +37,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
 import static fpt.project.bsmart.util.ConvertUtil.*;
 
 @Service
@@ -50,14 +51,21 @@ public class MentorProfileImpl implements IMentorProfileService {
     private final MentorSkillRepository mentorSkillRepository;
 
     private final ActivityHistoryRepository activityHistoryRepository;
+    private final NotificationRepository notificationRepository;
+    private final WebSocketUtil webSocketUtil;
 
-    public MentorProfileImpl(MentorProfileRepository mentorProfileRepository, MentorSkillRepository mentorSkillRepository, SubjectRepository subjectRepository, MessageUtil messageUtil, UserImageRepository userImageRepository, MentorSkillRepository mentorSkillRepository1, ActivityHistoryRepository activityHistoryRepository) {
+    private final MentorProfileEditRepository mentorProfileEditRepository;
+
+    public MentorProfileImpl(MentorProfileRepository mentorProfileRepository, MentorSkillRepository mentorSkillRepository, SubjectRepository subjectRepository, MessageUtil messageUtil, UserImageRepository userImageRepository, MentorSkillRepository mentorSkillRepository1, ActivityHistoryRepository activityHistoryRepository, NotificationRepository notificationRepository, WebSocketUtil webSocketUtil, MentorProfileEditRepository mentorProfileEditRepository) {
         this.mentorProfileRepository = mentorProfileRepository;
         this.subjectRepository = subjectRepository;
         this.messageUtil = messageUtil;
         this.userImageRepository = userImageRepository;
         this.mentorSkillRepository = mentorSkillRepository1;
         this.activityHistoryRepository = activityHistoryRepository;
+        this.notificationRepository = notificationRepository;
+        this.webSocketUtil = webSocketUtil;
+        this.mentorProfileEditRepository = mentorProfileEditRepository;
     }
 
     private MentorProfile findById(Long id) {
@@ -164,7 +172,10 @@ public class MentorProfileImpl implements IMentorProfileService {
         // nếu chưa thì sẽ chuyển qua tab mentor chờ PV rồi mới được làm mentor chính thưc của hệ thông .
         mentorProfile.setInterviewed(managerApprovalAccountRequest.getInterviewed());
 //        ActivityHistoryUtil.logHistoryForAccountSendRequestApprove(mentorProfile.getUser(), managerApprovalAccountRequest.getMessage());
-
+        Notification notification = NotificationDirector.buildApprovalMentorProfile(mentorProfile);
+        notificationRepository.save(notification);
+        ResponseMessage responseMessage = convertNotificationToResponseMessage(notification, mentorProfile.getUser());
+        webSocketUtil.sendPrivateNotification(mentorProfile.getUser().getEmail(), responseMessage);
         return mentorProfileRepository.save(mentorProfile).getId();
 
     }
@@ -247,28 +258,22 @@ public class MentorProfileImpl implements IMentorProfileService {
     @Override
     public Boolean mentorRequestApprovalAccount(Long id) throws Exception {
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
-
-        MentorProfile mentorProfile = mentorProfileRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + id));
+        MentorProfile mentorProfile = mentorProfileRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.MENTOR_PROFILE_NOT_FOUND_BY_USER) + id));
 
         if (!currentUserAccountLogin.getMentorProfile().equals(mentorProfile)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(MENTOR_PROFILE_NOT_FOUND_BY_USER));
-
         }
-
         if (!mentorProfile.getStatus().equals(EMentorProfileStatus.REQUESTING) && !mentorProfile.getStatus().equals(EMentorProfileStatus.EDITREQUEST)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(ACCOUNT_STATUS_NOT_ALLOW));
         }
-
         List<Role> roles = currentUserAccountLogin.getRoles();
         List<Boolean> checkRoleTeacher = roles.stream().map(role -> role.getCode().equals(EUserRole.TEACHER)).collect(Collectors.toList());
-
         if (checkRoleTeacher.isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(ACCOUNT_IS_NOT_MENTOR));
         }
-
-
         ValidationErrors vaErr = new ValidationErrors();
-
         CompletenessMentorProfileResponse response = MentorUtil.checkCompletenessMentorProfile();
         List<CompletenessMentorProfileResponse.MissingInformation.RequiredInfo> requiredInfoList =
                 response.getMissingInformation().stream().map(CompletenessMentorProfileResponse.MissingInformation::getRequiredInfo).collect(Collectors.toList());
@@ -319,7 +324,10 @@ public class MentorProfileImpl implements IMentorProfileService {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Bạn đã có quyền dạy môn học này ! Không thể yêu cầu mở thêm ");
             }
             MentorSkill mentorSkill1 = new MentorSkill();
-            Subject subject = subjectRepository.findById(mentorSkill.getSkillId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(SKILL_NOT_FOUND_BY_ID)));
+            Subject subject = subjectRepository.findById(mentorSkill.getSkillId())
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(messageUtil.getLocalMessage(SKILL_NOT_FOUND_BY_ID)));
+
             mentorSkill1.setSkill(subject);
             mentorSkill1.setStatus(false);
             mentorSkill1.setVerified(false);
@@ -516,7 +524,6 @@ public class MentorProfileImpl implements IMentorProfileService {
             for (MentorSkill mentorSkill : byMentorProfileAndStatus) {
                 MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
                 skillList.add(mentorSkillDto);
-
             }
             response.setTotalSkillRequest(byMentorProfileAndStatus.size());
             response.setMentorSkillRequest(skillList);
@@ -533,12 +540,252 @@ public class MentorProfileImpl implements IMentorProfileService {
             response.setDegreeRequest(imageDtoList);
             response.setTotalDegreeRequest(byUserAndStatus.size());
         }
-
         responseList.add(response);
-
 
         return responseList;
     }
 
+    @Override
+    public Long mentorCreateEditProfileRequest(UserDtoRequest request) throws JsonProcessingException {
+//        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+        MentorProfileEdit byStatusPending = mentorProfileEditRepository.findByStatus(EMentorProfileEditStatus.PENDING);
 
+        if (byStatusPending != null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Hồ sơ của bạn đang được xử lý! Không thể chỉnh sửa lúc này!");
+        }
+
+
+        UserDto userDto = new UserDto();
+
+        User user = SecurityUtil.getCurrentUser();
+        MentorProfile mentorProfile = user.getMentorProfile();
+
+        // chỉnh sưa thông tin của table user
+        if (request.getBirthday() != null) {
+            if (!TimeUtil.isValidBirthday(request.getBirthday(), EUserRole.TEACHER)) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_BIRTHDAY));
+            }
+            userDto.setBirthday(request.getBirthday());
+        }
+        userDto.setId(user.getId());
+        if (request.getPhone() != null) {
+            if (!StringUtil.isValidVietnameseMobilePhoneNumber(request.getPhone())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PHONE_NUMBER));
+            }
+            userDto.setPhone(request.getPhone());
+        }
+        if (request.getFullName() != null) {
+            userDto.setFullName(request.getFullName());
+        }
+        if (request.getAddress() != null) {
+            userDto.setAddress(request.getAddress());
+        }
+        if (request.getGender() != null) {
+            userDto.setGender(request.getGender());
+        }
+        if (request.getEmail() != null) {
+            userDto.setEmail(request.getEmail());
+        }
+        userDto.setStatus(user.getStatus());
+
+        List<Role> roles = user.getRoles();
+        List<RoleDto> roleDtos = new ArrayList<>();
+        roles.forEach(role -> {
+            roleDtos.add(ConvertUtil.convertRoleToRoleDto(role));
+        });
+        userDto.setRoles(roleDtos);
+
+        // chỉnh sửa social
+        if (request.getFacebookLink() != null) {
+            if (request.getFacebookLink().isEmpty()) {
+                userDto.setFacebookLink(null);
+            } else if (!StringUtil.isValidFacebookLink(request.getFacebookLink())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FACEBOOK_LINK));
+            }
+            userDto.setFacebookLink(request.getFacebookLink());
+        }
+        if (request.getLinkedinLink() != null) {
+            if (request.getLinkedinLink().isEmpty()) {
+                userDto.setLinkedinLink(null);
+            } else if (!StringUtil.isValidLinkedinLink(request.getLinkedinLink())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_TWITTER_LINK));
+            }
+            userDto.setLinkedinLink(request.getLinkedinLink());
+        }
+        boolean isTeacher = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER);
+        if (isTeacher) {
+            if (request.getWebsite() != null) {
+                if (request.getWebsite().isEmpty()) {
+                    userDto.setWebsite(null);
+                } else if (!StringUtil.isValidWebsite(request.getWebsite())) {
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_WEBSITE));
+                }
+                userDto.setWebsite(request.getWebsite());
+            }
+        }
+
+        // chỉnh sưa thông tin của table mentor profile
+        MentorProfileRequestEditDTO mentorProfileRequest = request.getMentorProfile();
+        if (mentorProfileRequest != null) {
+            MentorProfileDTO mentorProfileDto = new MentorProfileDTO();
+            mentorProfileDto.setId(mentorProfile.getId());
+            mentorProfileDto.setStatus(mentorProfile.getStatus());
+
+            if (mentorProfileRequest.getIntroduce() != null) {
+                mentorProfileDto.setIntroduce(mentorProfileRequest.getIntroduce());
+            }
+            if (mentorProfileRequest.getWorkingExperience() != null) {
+                mentorProfileDto.setWorkingExperience(mentorProfileRequest.getWorkingExperience());
+            }
+            if (mentorProfileRequest.getMentorSkills() != null) {
+                List<MentorSkillDto> mentorUpdateSkills = mentorProfileRequest.getMentorSkills();
+                Set<Long> skillIds = new HashSet<>();
+                for (MentorSkillDto mentorUpdateSkill : mentorUpdateSkills) {
+                    if (mentorUpdateSkill.getYearOfExperiences() <= 0) {
+                        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.NEGATIVE_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
+                    }
+                    ZonedDateTime userBirthYear = mentorProfile.getUser().getBirthday().atZone(ZoneOffset.UTC);
+                    int userAge = Year.now().getValue() - userBirthYear.getYear();
+                    boolean validMaximumYearOfExperience = userAge - mentorUpdateSkill.getYearOfExperiences() > 1;
+                    if (!validMaximumYearOfExperience) {
+                        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.INVALID_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
+                    }
+                    if (mentorUpdateSkill.getSkillId() == null) {
+                        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Empty.EMPTY_SKILL));
+                    }
+                    if (!skillIds.add(mentorUpdateSkill.getSkillId())) {
+                        throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(SUBJECT_ID_DUPLICATE) + mentorUpdateSkill.getSkillId());
+                    }
+                }
+                List<MentorSkillDto> mentorSkills = new ArrayList<>();
+                for (MentorSkillDto mentorUpdateSkill : mentorUpdateSkills) {
+                    MentorSkillDto mentorSkill = new MentorSkillDto();
+                    Subject subject = subjectRepository.findById(mentorUpdateSkill.getSkillId()).
+                            orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).
+                                    withMessage(messageUtil.getLocalMessage(SUBJECT_NOT_FOUND_BY_ID) + mentorUpdateSkill.getSkillId()));
+                    mentorSkill.setSkillId(mentorUpdateSkill.getSkillId());
+                    mentorSkill.setYearOfExperiences(mentorUpdateSkill.getYearOfExperiences());
+                    mentorSkill.setName(mentorUpdateSkill.getName());
+                    mentorSkills.add(mentorSkill);
+                }
+                mentorProfileDto.setMentorSkills(mentorSkills);
+
+            }
+            userDto.setMentorProfile(mentorProfileDto);
+        }
+
+        // kiểm tra xem user này đã gửi request edit trước đó chưa => nếu rồi thì không cho gửi nữa !!!
+        MentorProfileEdit byStatus = mentorProfileEditRepository.findByStatus(EMentorProfileEditStatus.PENDING);
+        if (byStatus != null) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).
+                    withMessage("Hồ sơ này đã gửi yêu cầu chỉnh sửa trước đó! Vui lòng thử lại sau! ");
+        }
+        // set data into table mentor profile edit to save edit profile request
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        String json = objectMapper.writeValueAsString(userDto);
+
+        MentorProfileEdit byStatusCreate = mentorProfileEditRepository.findByStatus(EMentorProfileEditStatus.CREATING);
+        if (byStatusCreate != null) {
+            byStatusCreate.setMentorProfile(mentorProfile);
+            byStatusCreate.setProfileData(json);
+            byStatusCreate.setStatus(EMentorProfileEditStatus.CREATING);
+            MentorProfileEdit save = mentorProfileEditRepository.save(byStatusCreate);
+            return save.getId();
+        } else {
+            MentorProfileEdit mentorProfileEdit = new MentorProfileEdit();
+            mentorProfileEdit.setMentorProfile(mentorProfile);
+            mentorProfileEdit.setProfileData(json);
+            mentorProfileEdit.setStatus(EMentorProfileEditStatus.CREATING);
+            MentorProfileEdit save = mentorProfileEditRepository.save(mentorProfileEdit);
+            return save.getId();
+        }
+
+    }
+
+    @Override
+    public Boolean mentorSendEditProfileRequest(Long mentorProfileEditId) {
+
+        MentorProfileEdit mentorProfileEdit = mentorProfileEditRepository.findById(mentorProfileEditId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Không tìm thấy hồ sơ chỉnh sửa !"));
+
+        mentorProfileEdit.setStatus(EMentorProfileEditStatus.PENDING);
+        mentorProfileEditRepository.save(mentorProfileEdit);
+        return true;
+    }
+
+
+    @Override
+    public ApiPage<MentorEditProfileResponse> managerGetEditProfileRequest(Pageable pageable) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+
+        List<MentorProfileEdit> allByStatus = mentorProfileEditRepository.findAllByStatus(EMentorProfileEditStatus.PENDING);
+
+        List<MentorEditProfileResponse> mentorEditProfileResponses = new ArrayList<>();
+        allByStatus.forEach(mentorProfileEdit -> {
+            try {
+                MentorEditProfileResponse mentorEditProfileResponse = new MentorEditProfileResponse();
+                String profileData = mentorProfileEdit.getProfileData();
+                UserDto userDto;
+                userDto = objectMapper.readValue(profileData, UserDto.class);
+                mentorEditProfileResponse.setId(mentorProfileEdit.getId());
+                mentorEditProfileResponse.setUserDto(userDto);
+                mentorEditProfileResponses.add(mentorEditProfileResponse);
+
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        Page<MentorEditProfileResponse> page = PageUtil.toPage(mentorEditProfileResponses, pageable);
+        return PageUtil.convert(page);
+    }
+
+    @Override
+    public MentorEditProfileDetailResponse managerGetEditProfileDetailRequest(Long mentorProfileEditId) throws JsonProcessingException {
+        MentorProfileEdit mentorProfileEdit = mentorProfileEditRepository.findById(mentorProfileEditId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Không tìm thấy hồ sơ chỉnh sửa !"));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+
+
+        MentorEditProfileDetailResponse mentorEditProfileDetailResponse = new MentorEditProfileDetailResponse();
+        mentorEditProfileDetailResponse.setId(mentorProfileEdit.getId());
+        //set value profile eidt
+        String profileData = mentorProfileEdit.getProfileData();
+        UserDto userDtoOrigin = objectMapper.readValue(profileData, UserDto.class);
+        mentorEditProfileDetailResponse.setUserDtoEdit(userDtoOrigin);
+
+        //set value profile origin
+        MentorProfile mentorProfile = mentorProfileEdit.getMentorProfile();
+        User user = mentorProfile.getUser();
+        UserDto userDtoEdit = convertUsertoUserDto(user);
+        mentorEditProfileDetailResponse.setUserDtoOrigin(userDtoEdit);
+
+
+        List<String> compare = compare(userDtoOrigin ,userDtoEdit);
+        mentorEditProfileDetailResponse.setDifferentFields(compare);
+
+        return mentorEditProfileDetailResponse;
+    }
+
+    public List<String> compare(UserDto userDtoOrigin, UserDto userDtoEdit) {
+        List<String> differentFields = new ArrayList<>();
+
+        if (!Objects.equals(userDtoOrigin.getId(), userDtoEdit.getId())) {
+            differentFields.add("id");
+        }
+        if (!Objects.equals(userDtoOrigin.getFullName(), userDtoEdit.getFullName())) {
+            differentFields.add("fullName");
+        }
+        if (!Objects.equals(userDtoOrigin.getEmail(), userDtoEdit.getEmail())) {
+            differentFields.add("email");
+        }
+
+        return differentFields;
+    }
 }

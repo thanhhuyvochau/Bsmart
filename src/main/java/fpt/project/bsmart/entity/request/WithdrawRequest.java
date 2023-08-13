@@ -12,8 +12,6 @@ public class WithdrawRequest {
     private Long bankAccount;
     @NotNull
     private String bankAccountOwner;
-    @NotNull
-    private String note;
 
     public BigDecimal getAmount() {
         return amount;
@@ -47,11 +45,5 @@ public class WithdrawRequest {
         this.bankAccountOwner = bankAccountOwner;
     }
 
-    public String getNote() {
-        return note;
-    }
 
-    public void setNote(String note) {
-        this.note = note;
-    }
 }

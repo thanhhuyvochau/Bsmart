@@ -25,6 +25,7 @@ import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IClassService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.ClassSpecificationBuilder;
+import fpt.project.bsmart.util.specification.FeedbackSubmissionSpecificationBuilder;
 import fpt.project.bsmart.validator.ClassValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -62,11 +63,11 @@ public class ClassServiceImpl implements IClassService {
     private final ClassImageRepository classImageRepository;
     private final ActivityAuthorizeRepository activityAuthorizeRepository;
     private final FeedbackTemplateRepository feedbackTemplateRepository;
-
+    private final FeedbackSubmissionRepository feedbackSubmissionRepository;
     private final TimeTableRepository timeTableRepository;
     private final SubjectRepository subjectRepository;
 
-    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, FeedbackTemplateRepository feedbackTemplateRepository, TimeTableRepository timeTableRepository, SubjectRepository subjectRepository) {
+    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, FeedbackTemplateRepository feedbackTemplateRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, TimeTableRepository timeTableRepository, SubjectRepository subjectRepository) {
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.classRepository = classRepository;
@@ -77,6 +78,7 @@ public class ClassServiceImpl implements IClassService {
         this.classImageRepository = classImageRepository;
         this.activityAuthorizeRepository = activityAuthorizeRepository;
         this.feedbackTemplateRepository = feedbackTemplateRepository;
+        this.feedbackSubmissionRepository = feedbackSubmissionRepository;
         this.timeTableRepository = timeTableRepository;
         this.subjectRepository = subjectRepository;
     }
@@ -122,6 +124,14 @@ public class ClassServiceImpl implements IClassService {
 //        }
 //
 //        response.setClasses(classDetailResponses);
+        FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
+                .filterByCourse(course.getId());
+        List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(builder.build());
+        List<Integer> rates = feedbackSubmissions.stream().map(FeedbackSubmission::getCourseRate).collect(Collectors.toList());
+        Map<Integer, Long> rateCount = FeedbackUtil.getRateCount(rates);
+        response.setAverageRate(FeedbackUtil.calculateAverageRate(rateCount));
+        response.setRateCount(rateCount);
+        response.setSubmissionCount(feedbackSubmissions.size());
         return response;
 
     }
@@ -160,7 +170,6 @@ public class ClassServiceImpl implements IClassService {
 
         Class classAndTimeInWeek = createClassAndTimeInWeek(currentUserAccountLogin, course, mentorCreateClassRequest);
 //        mentorCreateScheduleForClass(classAndTimeInWeek, mentorCreateClassRequest.getTimeTableRequest());
-        ;
         return classAndTimeInWeek.getId();
     }
 
@@ -272,24 +281,24 @@ public class ClassServiceImpl implements IClassService {
         return ClassUtil.convertClassToManagerGetClassResponse(clazz);
     }
 
-    private Class updateClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
-        if (subCourseRequest.getPrice() == null) {
+    private Class updateClassFromRequest(MentorCreateClass classRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
+        if (classRequest.getPrice() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE));
         }
         Class aClass = new Class();
-        aClass.setNumberOfSlot(subCourseRequest.getNumberOfSlot());
-        aClass.setMinStudent(subCourseRequest.getMinStudent());
-        aClass.setMaxStudent(subCourseRequest.getMaxStudent());
-        aClass.setStartDate(subCourseRequest.getStartDate());
-        aClass.setEndDate(subCourseRequest.getEndDate());
+        aClass.setNumberOfSlot(classRequest.getNumberOfSlot());
+        aClass.setMinStudent(classRequest.getMinStudent());
+        aClass.setMaxStudent(classRequest.getMaxStudent());
+        aClass.setStartDate(classRequest.getStartDate());
+        aClass.setEndDate(classRequest.getEndDate());
         aClass.setStatus(REQUESTING);
-        aClass.setPrice(subCourseRequest.getPrice());
+        aClass.setPrice(classRequest.getPrice());
         aClass.setMentor(currentUserAccountLogin);
         String codeRandom = ClassUtil.generateCode(course.getSubject().getCode());
         aClass.setCode(codeRandom);
 
-        Long imageId = subCourseRequest.getImageId();
+        Long imageId = classRequest.getImageId();
         ClassImage classImage = classImageRepository.findById(imageId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + imageId));
@@ -302,7 +311,7 @@ public class ClassServiceImpl implements IClassService {
             timeInWeekRepository.save(timeInWeek);
         });
 
-
+        classRepository.save(aClass);
         return aClass;
     }
 
@@ -355,22 +364,24 @@ public class ClassServiceImpl implements IClassService {
 
         // create time in week for subCourse
         List<TimeInWeek> timeInWeeksFromRequest = createTimeInWeeksFromRequest(timeInWeekRequests);
-
-        // create subCourse for course
-        Class classFromRequest = createClassFromRequest(mentorCreateClassRequest, course, currentUserAccountLogin, timeInWeeksFromRequest);
-        classFromRequest.setCourse(course);
-
-        classes.add(classFromRequest);
-
-        classFromRequest.setCourse(course);
-        classRepository.save(classFromRequest);
+        Class classFromRequest = null;
+        /**Kiểm tra Time In Week, Ngày bắt đầu, Ngày kết thúc, Số lượng slot của class*/
+        if (ClassValidator.isValidTimeOfClass(timeInWeeksFromRequest, mentorCreateClassRequest.getNumberOfSlot(), mentorCreateClassRequest.getStartDate(), mentorCreateClassRequest.getEndDate())) {
+            // create subCourse for course
+            classFromRequest = createClassFromRequest(mentorCreateClassRequest, course, currentUserAccountLogin, timeInWeeksFromRequest);
+            classFromRequest.setCourse(course);
+            classes.add(classFromRequest);
+            classFromRequest.setCourse(course);
+            classRepository.save(classFromRequest);
 
 //        classes.forEach(aClass -> {
 //                    classCodes.add(aClass.getCode());
 //                    ActivityHistoryUtil.logHistoryForCourseCreated(currentUserAccountLogin.getId(), aClass);
 //                }
 //        );
+        }
         return classFromRequest;
+
     }
 
     private Class createClassFromRequest(MentorCreateClass subCourseRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) throws Exception {
@@ -597,7 +608,7 @@ public class ClassServiceImpl implements IClassService {
         }
         User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         EUserRole memberOfClassAsRole = ClassValidator.isMemberOfClassAsRole(clazz, currentUser);
-        if (memberOfClassAsRole == null){
+        if (memberOfClassAsRole == null) {
             throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("Bạn không có quyền xem thông tin lớp học này !");
         }
         List<Activity> sectionActivities = clazz.getCourse().getActivities().stream()
@@ -743,7 +754,7 @@ public class ClassServiceImpl implements IClassService {
 //            throw ApiException.create(HttpStatus.NOT_FOUND)
 //                    .withMessage(CLASS_STATUS_NOT_ALLOW);
 //        }
-        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findByTypeAndIsDefault(EFeedbackType.FEEDBACK, true);
+        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findByTypeAndIsDefault(EFeedbackType.COURSE, true);
         if (feedbackTemplate == null) {
             throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage(messageUtil.getLocalMessage(""));
         }

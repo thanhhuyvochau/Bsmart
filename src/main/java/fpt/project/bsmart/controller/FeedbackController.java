@@ -2,7 +2,9 @@ package fpt.project.bsmart.controller;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
+import fpt.project.bsmart.entity.dto.FeedbackSubmissionDto;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.request.FeedbackSubmissionSearchRequest;
 import fpt.project.bsmart.entity.request.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.FeedbackTemplateSearchRequest;
 import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
@@ -34,10 +36,17 @@ public class FeedbackController {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.createFeedbackTemplate(request)));
     }
 
+//    @Operation(summary = "admin / manager tạo câu hỏi mặc đinh (Đánh giá Gv va khóa học)")
+//    @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
+//    @PostMapping("/question-default")
+//    public ResponseEntity<ApiResponse<Boolean>> createQuestionTemplate(@RequestBody List<FeedbackTemplateRequest.FeedbackQuestionRequest> questions) {
+//        return ResponseEntity.ok(ApiResponse.success(feedbackService.createQuestionTemplate(questions)));
+//    }
+
     @Operation(summary = "admin / manager update feedback template")
     @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
     @PutMapping("/template/{id}")
-    public ResponseEntity<ApiResponse<Long>> updateFeedbackTemplate(@PathVariable Long id,@RequestBody FeedbackTemplateRequest request) {
+    public ResponseEntity<ApiResponse<Long>> updateFeedbackTemplate(@PathVariable Long id, @RequestBody FeedbackTemplateRequest request) {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.updateFeedbackTemplate(id, request)));
     }
 
@@ -62,6 +71,7 @@ public class FeedbackController {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.getTemplateById(id)));
     }
 
+
     @Operation(summary = "admin / manager change default template")
     @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
     @PutMapping("/default/{id}")
@@ -76,19 +86,19 @@ public class FeedbackController {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.assignFeedbackTemplateForClass(id, classId)));
     }
 
-    @Operation(summary = "student submit feedback")
+    @Operation(summary = "Học sinh làm feedback ")
     @PreAuthorize("hasAnyRole('STUDENT')")
-    @PostMapping("/submit/class/{classId}")
+    @PostMapping("/{classId}/submit")
     public ResponseEntity<ApiResponse<Long>> studentSubmitFeedback(@PathVariable Long classId, @RequestBody StudentSubmitFeedbackRequest request) {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.studentSubmitFeedback(classId, request)));
     }
 
-    @Operation(summary = "student update feedback")
-    @PreAuthorize("hasAnyRole('STUDENT')")
-    @PutMapping("/submit/{id}")
-    public ResponseEntity<ApiResponse<Long>> studentUpdateFeedback(@PathVariable Long id, @RequestBody StudentSubmitFeedbackRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(feedbackService.studentUpdateFeedback(id, request)));
-    }
+//    @Operation(summary = "student update feedback")
+//    @PreAuthorize("hasAnyRole('STUDENT')")
+//    @PutMapping("/submit/{id}")
+//    public ResponseEntity<ApiResponse<Long>> studentUpdateFeedback(@PathVariable Long id, @RequestBody StudentSubmitFeedbackRequest request) {
+//        return ResponseEntity.ok(ApiResponse.success(feedbackService.studentUpdateFeedback(id, request)));
+//    }
 
     @Operation(summary = "get class feedback")
     @PreAuthorize("hasAnyRole('TEACHER','MANAGER','ADMIN')")
@@ -109,5 +119,8 @@ public class FeedbackController {
         return ResponseEntity.ok(ApiResponse.success(feedbackService.getMentorFeedback(id)));
     }
 
-
+    @GetMapping("/submissions")
+    public ResponseEntity<ApiResponse<ApiPage<FeedbackSubmissionDto>>> getFeedbackSubmissionForPage(@Nullable FeedbackSubmissionSearchRequest request, Pageable pageable){
+        return ResponseEntity.ok(ApiResponse.success(feedbackService.getFeedbackSubmission(request, pageable)));
+    }
 }

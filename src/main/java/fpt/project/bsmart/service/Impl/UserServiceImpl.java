@@ -1,10 +1,16 @@
 package fpt.project.bsmart.service.Impl;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fpt.project.bsmart.config.security.oauth2.dto.LocalUser;
 import fpt.project.bsmart.config.security.oauth2.dto.SignUpRequest;
 import fpt.project.bsmart.config.security.oauth2.user.OAuth2UserInfo;
 import fpt.project.bsmart.config.security.oauth2.user.OAuth2UserInfoFactory;
+import fpt.project.bsmart.director.NotificationDirector;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
@@ -16,8 +22,10 @@ import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.*;
+import fpt.project.bsmart.entity.request.mentorprofile.UserDtoRequest;
 import fpt.project.bsmart.entity.response.VerifyResponse;
 import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
+import fpt.project.bsmart.entity.response.mentor.MentorEditProfileResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IUserService;
 import fpt.project.bsmart.util.*;
@@ -25,7 +33,6 @@ import fpt.project.bsmart.util.adapter.MinioAdapter;
 import fpt.project.bsmart.util.email.EmailUtil;
 import fpt.project.bsmart.util.specification.ClassSpecificationBuilder;
 import fpt.project.bsmart.util.specification.FeedbackSubmissionSpecificationBuilder;
-import fpt.project.bsmart.util.specification.MentorProfileSpecificationBuilder;
 import fpt.project.bsmart.util.specification.UserSpecificationBuilder;
 import io.minio.ObjectWriteResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,8 +87,10 @@ public class UserServiceImpl implements IUserService {
     private final FeedbackSubmissionRepository feedbackSubmissionRepository;
     private final WebSocketUtil webSocketUtil;
 
+    private final MentorProfileEditRepository mentorProfileEditRepository;
 
-    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, UserImageRepository userImageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationRepository notificationRepository, ClassRepository classRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, WebSocketUtil webSocketUtil) {
+
+    public UserServiceImpl(UserRepository userRepository, MessageUtil messageUtil, RoleRepository roleRepository, PasswordEncoder encoder, ImageRepository imageRepository, UserImageRepository userImageRepository, MentorProfileRepository mentorProfileRepository, MinioAdapter minioAdapter, EmailUtil emailUtil, VerificationRepository verificationRepository, NotificationRepository notificationRepository, ClassRepository classRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, WebSocketUtil webSocketUtil, MentorProfileEditRepository mentorProfileEditRepository) {
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
         this.roleRepository = roleRepository;
@@ -96,6 +105,7 @@ public class UserServiceImpl implements IUserService {
         this.classRepository = classRepository;
         this.feedbackSubmissionRepository = feedbackSubmissionRepository;
         this.webSocketUtil = webSocketUtil;
+        this.mentorProfileEditRepository = mentorProfileEditRepository;
     }
 
     private static void accept(UserImage userImage) {
@@ -135,8 +145,8 @@ public class UserServiceImpl implements IUserService {
         UserDto userDto = ConvertUtil.convertUserForMentorProfilePage(user);
         TeachInformationDTO teachInformationDTO = new TeachInformationDTO();
         ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
-                        .byMentor(user)
-                      .filterByStatus(ECourseStatus.ENDED);
+                .byMentor(user)
+                .filterByStatus(ECourseStatus.ENDED);
         List<Class> classes = classRepository.findAll(classSpecificationBuilder.build());
         Integer numberOfMember = classes.stream().map(Class::getStudentClasses).distinct().collect(Collectors.toList()).stream().map(x -> x.size()).mapToInt(Integer::intValue).sum();
 
@@ -149,7 +159,7 @@ public class UserServiceImpl implements IUserService {
         teachInformationDTO.setNumberOfClass(classes.size());
         teachInformationDTO.setNumberOfMember(numberOfMember);
         teachInformationDTO.setNumberOfFeedBack(feedbackSubmissions.size());
-        teachInformationDTO.setScoreFeedback(FeedbackUtil.calculateCourseRate(feedbackSubmissions));
+        teachInformationDTO.setScoreFeedback(0.0);
         userDto.setTeachInformation(teachInformationDTO);
         return userDto;
     }
@@ -325,7 +335,7 @@ public class UserServiceImpl implements IUserService {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_PASSWORD));
             }
 
-            if (!PasswordUtil.validationPassword(changePasswordRequest.getNewPassword())) {
+            if (!PasswordUtil.isValidPassword(changePasswordRequest.getNewPassword())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
             }
             if (!PasswordUtil.IsOldPassword(changePasswordRequest.getOldPassword(), user.getPassword())) {
@@ -452,11 +462,7 @@ public class UserServiceImpl implements IUserService {
         User savedUser = userRepository.save(user);
         // Send verify mail
         emailUtil.sendVerifyEmailTo(savedUser);
-        Notification.NotificationBuilder builder = Notification.getBuilder();
-        Notification notification = builder
-                .viTitle("Đăng kí thành công")
-                .viContent("Chúc mừng bạn đã đăng ký tài khoản thành công")
-                .notifiers(savedUser).build();
+        Notification notification = NotificationDirector.buildRegisterSuccessAccount(user);
         notification = notificationRepository.save(notification);
         ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, user);
         webSocketUtil.sendPrivateNotification(createAccountRequest.getEmail(), responseMessage);
@@ -480,7 +486,7 @@ public class UserServiceImpl implements IUserService {
         if (!isValidGender) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_GENDER));
         }
-        if (!PasswordUtil.validationPassword(request.getPassword())) {
+        if (!PasswordUtil.isValidPassword(request.getPassword())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
         }
     }
@@ -563,6 +569,53 @@ public class UserServiceImpl implements IUserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id));
         return ConvertUtil.convertUserToMemberDetailResponse(user);
+
+    }
+
+    @Override
+    public MentorEditProfileResponse getProfileEdit() throws JsonProcessingException {
+
+        MentorEditProfileResponse mentorEditProfileResponse = new MentorEditProfileResponse() ;
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+
+
+        User currentLoginUser = getCurrentLoginUser();
+        MentorProfile mentorProfile = currentLoginUser.getMentorProfile();
+
+        List<MentorProfileEdit> mentorProfileEditCreating = mentorProfileEditRepository.
+                findAllByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.CREATING);
+
+        List<MentorProfileEdit> mentorProfileEditPending = mentorProfileEditRepository.
+                findAllByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.PENDING);
+
+
+        if (mentorProfileEditCreating.size() == 0 && mentorProfileEditPending.size() == 0) {
+            UserDto userDto = ConvertUtil.convertUsertoUserDto(currentLoginUser);
+            mentorEditProfileResponse.setId(null);
+            mentorEditProfileResponse.setUserDto(userDto);
+            return mentorEditProfileResponse;
+        }
+        else {
+            MentorProfileEdit mentorProfileByStatusCreating = mentorProfileEditRepository.
+                    findByMentorProfileAndStatus(mentorProfile,EMentorProfileEditStatus.CREATING);
+            if (mentorProfileByStatusCreating != null) {
+                UserDto userDto= objectMapper.readValue(mentorProfileByStatusCreating.getProfileData(), UserDto.class);
+                mentorEditProfileResponse.setId(mentorProfileByStatusCreating.getId());
+                mentorEditProfileResponse.setUserDto(userDto);
+                return mentorEditProfileResponse;
+
+            } else {
+                MentorProfileEdit mentorProfileByStatusPending = mentorProfileEditRepository.
+                        findByMentorProfileAndStatus(mentorProfile,EMentorProfileEditStatus.PENDING);
+
+                UserDto userDto= objectMapper.readValue(mentorProfileByStatusPending.getProfileData(), UserDto.class);
+                mentorEditProfileResponse.setId(mentorProfileByStatusPending.getId());
+                mentorEditProfileResponse.setUserDto(userDto);
+                return mentorEditProfileResponse;
+
+            }
+        }
 
     }
 

@@ -8,7 +8,6 @@ import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
-import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
@@ -198,13 +197,8 @@ public class ClassUtil {
     public static StudentClass findUserInClass(Class clazz, User user) {
         List<StudentClass> studentClasses = clazz.getStudentClasses();
         Optional<StudentClass> optionalStudentClass = studentClasses.stream().filter(studentClass -> Objects.equals(studentClass.getStudent().getId(), user.getId())).findFirst();
-        StudentClass studentClass = optionalStudentClass.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy học sinh trong lớp"));
+        StudentClass studentClass = optionalStudentClass.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Bạn không phải là học sinh trong lớp này! Không thể làm đánh giá! "));
         return studentClass;
     }
-
-//    public static StudentClass findClassOfStudent(User user, Course course) {
-//        List<StudentClass> studentClasses = staticStudentClassRepository.findByCourseAndStudent(course.getId(), user.getId());
-//        return studentClass.orElse(null);
-//    }
 }
 

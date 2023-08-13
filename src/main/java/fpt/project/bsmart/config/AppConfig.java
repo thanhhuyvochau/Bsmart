@@ -30,29 +30,37 @@ public class AppConfig {
     }
 
     @Bean
+    public String resetPasswordTemplate() {
+        return ResourceReader.readFileToString("reset-password.txt");
+    }
+
+    @Bean
     public String orderTemplate() {
         return ResourceReader.readFileToString("order.txt");
     }
 
     @Bean
-    public ArrayList<String> offensiveWord(){
+    public ArrayList<String> offensiveWord() {
         String offensiveWordString = ResourceReader.readFileToString("offensive-word.txt");
         String[] elements = offensiveWordString.split(",");
         ArrayList<String> offensiveWords = new ArrayList<>();
-        for(String element : elements){
+        for (String element : elements) {
             String trimmedElement = element.trim();
-            if(trimmedElement.startsWith("'") && trimmedElement.endsWith("'")){
+            if (trimmedElement.startsWith("'") && trimmedElement.endsWith("'")) {
                 offensiveWords.add(trimmedElement.substring(1, trimmedElement.length() - 1));
             }
         }
         System.out.println("Generate offensive word list success, total element: " + offensiveWords.size());
         return offensiveWords;
     }
+
     @Bean
     @Primary
     public ObjectMapper objectMapper() {
+
         JavaTimeModule module = new JavaTimeModule();
         ObjectMapper objectMapper = new ObjectMapper();
+
         objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
 
         objectMapper.registerModule(module);

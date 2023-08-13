@@ -6,7 +6,9 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.EFeedbackType;
 import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.dto.FeedbackSubmissionDto;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.request.FeedbackSubmissionSearchRequest;
 import fpt.project.bsmart.entity.request.FeedbackTemplateRequest;
 import fpt.project.bsmart.entity.request.FeedbackTemplateSearchRequest;
 import fpt.project.bsmart.entity.request.StudentSubmitFeedbackRequest;
@@ -26,13 +28,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.EMPTY_FEEDBACK_TEMPLATE_ID;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Empty.EMPTY_QUESTION_LIST;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_FEEDBACK_TYPE;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.*;
 
 @Service
 public class FeedbackServiceImpl implements IFeedbackService {
@@ -42,16 +44,22 @@ public class FeedbackServiceImpl implements IFeedbackService {
     private final CourseRepository courseRepository;
     private final MentorProfileRepository mentorProfileRepository;
     private final MessageUtil messageUtil;
+
+    private final FeedbackQuestionsRepository feedbackQuestionsRepository;
+
+    private final FeedbackAnswerRepository feedbackAnswerRepository;
     @Qualifier("offensiveWord")
     private final ArrayList<String> offensiveWord;
 
-    public FeedbackServiceImpl(FeedbackTemplateRepository feedbackTemplateRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, ClassRepository classRepository, CourseRepository courseRepository, MentorProfileRepository mentorProfileRepository, MessageUtil messageUtil, ArrayList<String> offensiveWord) {
+    public FeedbackServiceImpl(FeedbackTemplateRepository feedbackTemplateRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, ClassRepository classRepository, CourseRepository courseRepository, MentorProfileRepository mentorProfileRepository, MessageUtil messageUtil, FeedbackQuestionsRepository feedbackQuestionsRepository, FeedbackAnswerRepository feedbackAnswerRepository, ArrayList<String> offensiveWord) {
         this.feedbackTemplateRepository = feedbackTemplateRepository;
         this.feedbackSubmissionRepository = feedbackSubmissionRepository;
         this.classRepository = classRepository;
         this.courseRepository = courseRepository;
         this.mentorProfileRepository = mentorProfileRepository;
         this.messageUtil = messageUtil;
+        this.feedbackQuestionsRepository = feedbackQuestionsRepository;
+        this.feedbackAnswerRepository = feedbackAnswerRepository;
         this.offensiveWord = offensiveWord;
     }
 
@@ -63,7 +71,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
         if (request.getType() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_TYPE));
         }
-        if (!request.getType().equals(EFeedbackType.COURSE)) {
+        if (!request.getType().equals(EFeedbackType.COURSE) && !request.getType().equals(EFeedbackType.REPORT)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_TYPE));
         }
         if (request.getQuestions() == null || request.getQuestions().isEmpty()) {
@@ -82,19 +90,21 @@ public class FeedbackServiceImpl implements IFeedbackService {
     @Override
     public Long updateFeedbackTemplate(Long id, FeedbackTemplateRequest request) {
         FeedbackTemplate feedbackTemplate = findTemplateById(id);
+        // kiem tra xem feedback nay đã có người làm chưa
+        // nếu có rồi  ko cho updat
         if (Boolean.TRUE.equals(feedbackTemplate.getIsFixed())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(FEEDBACK_TEMPLATE_IS_FIXED) + id);
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(FEEDBACK_TEMPLATE_IS_FIXED));
         }
         if (StringUtil.isNotNullOrEmpty(request.getName())) {
             feedbackTemplate.setName(request.getName());
         }
         if (request.getType() != null) {
-            if (!request.getType().equals(EFeedbackType.FEEDBACK) && !request.getType().equals(EFeedbackType.REPORT)) {
+            if (!request.getType().equals(EFeedbackType.COURSE) && !request.getType().equals(EFeedbackType.REPORT)) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_TYPE));
             }
             feedbackTemplate.setType(request.getType());
         }
-        if (request.getQuestions() != null || !request.getQuestions().isEmpty()) {
+        if (request.getQuestions() != null && !request.getQuestions().isEmpty()) {
             List<FeedbackQuestion> feedbackQuestions = FeedbackUtil.validateFeedbackQuestionsInRequest(request, feedbackTemplate);
             feedbackTemplate.setQuestions(feedbackQuestions);
         }
@@ -126,7 +136,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
     public Boolean deleteFeedbackTemplate(Long id) {
         FeedbackTemplate feedbackTemplate = findTemplateById(id);
         if (Boolean.TRUE.equals(feedbackTemplate.getIsFixed())) {
-            return false;
+           throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(FEEDBACK_TEMPLATE_IS_FIXED));
         }
         feedbackTemplateRepository.delete(feedbackTemplate);
         return true;
@@ -165,8 +175,10 @@ public class FeedbackServiceImpl implements IFeedbackService {
     @Override
     public Boolean changeDefaultTemplate(Long id) {
         FeedbackTemplate updateTemplate = findTemplateById(id);
+        updateTemplate.setIsDefault(true);
+
         FeedbackTemplate defaultTemplate = feedbackTemplateRepository.findByTypeAndIsDefault(updateTemplate.getType(), true);
-        changeDefaultTemplate(updateTemplate);
+
         if (defaultTemplate != null) {
             defaultTemplate.setIsDefault(false);
             feedbackTemplateRepository.save(defaultTemplate);
@@ -175,69 +187,100 @@ public class FeedbackServiceImpl implements IFeedbackService {
         return true;
     }
 
-    private void changeDefaultTemplate(FeedbackTemplate feedbackTemplate) {
-        feedbackTemplate.setIsDefault(true);
-        feedbackTemplate.setIsFixed(true);
-    }
 
     public Long studentSubmitFeedback(Long classId, StudentSubmitFeedbackRequest request) {
-        if (request.getRate() < FeedbackUtil.MIN_RATE_PER_SUBMISSION
-                || request.getRate() > FeedbackUtil.MAX_RATE_PER_SUBMISSION) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
-        }
         Class clazz = findClassById(classId);
         User user = SecurityUtil.getCurrentUser();
         ClassUtil.findUserInClass(clazz, user);
-/*
-        if(!FeedbackUtil.isClassAvailableToFeedback(clazz)){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+        Boolean isAlreadySubmit = feedbackSubmissionRepository.findByClazzAndSubmitBy(clazz, user).isPresent();
+        if(isAlreadySubmit){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(STUDENT_ALREADY_FEEDBACK));
         }
-*/
         FeedbackTemplate feedbackTemplate = clazz.getFeedbackTemplate();
         if (feedbackTemplate == null) {
-            throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage(messageUtil.getLocalMessage(""));
+            throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("Hiện tại lớp chưa có mẫu đánh giá ! ");
         }
+        if(request.getCourseRate() < FeedbackUtil.MIN_RATE_PER_SUBMISSION || request.getCourseRate() > FeedbackUtil.MAX_RATE_PER_SUBMISSION){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_RATE) + request.getCourseRate());
+        }
+        if(request.getMentorRate() < FeedbackUtil.MIN_RATE_PER_SUBMISSION || request.getMentorRate() > FeedbackUtil.MAX_RATE_PER_SUBMISSION){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_RATE) + request.getMentorRate());
+        }
+
         FeedbackSubmission feedbackSubmission = new FeedbackSubmission();
-        feedbackSubmission.setTemplate(feedbackTemplate);
-        ArrayList<FeedbackSubmitAnswer> submitAnswers = FeedbackUtil.validateSubmittedAnswer(feedbackSubmission, request);
-        feedbackSubmission.setAnswers(submitAnswers);
-        if (StringUtil.isNotNullOrEmpty(request.getComment())) {
+        List<FeedbackQuestion> questionsOfTemplate = feedbackTemplate.getQuestions();
+        List<Long> questionsIdOfTemplate = questionsOfTemplate.stream().map(FeedbackQuestion::getId).collect(Collectors.toList());
+        // kiem tra danh sách học sinh trả lời câu hỏi có đủ chưa
+        List<StudentSubmitFeedbackRequest.SubmittedAnswer> submittedAnswers = request.getSubmittedAnswers();
+        List<Long> questionsIdOfMemberDoIt = submittedAnswers.stream().map(StudentSubmitFeedbackRequest.SubmittedAnswer::getQuestionId).distinct().collect(Collectors.toList());
+        if (questionsIdOfTemplate.size() != questionsIdOfMemberDoIt.size()) {
+            throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage(messageUtil.getLocalMessage(NOT_ENOUGH_ANSWER_IN_FEEDBACK_SUBMISSION));
+        }
+        List<FeedbackSubmitAnswer> feedbackSubmitAnswers = new ArrayList<>();
+        for (StudentSubmitFeedbackRequest.SubmittedAnswer studentSubmitFeedbackRequest : submittedAnswers) {
+            if (!questionsIdOfTemplate.contains(studentSubmitFeedbackRequest.getQuestionId())) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(FEEDBACK_QUESTION_NOT_FOUND_BY_ID) + studentSubmitFeedbackRequest.getQuestionId());
+            }
+            FeedbackQuestion feedbackQuestion = feedbackTemplate.getQuestions().stream()
+                    .filter(x -> x.getId().equals(studentSubmitFeedbackRequest.getQuestionId()))
+                    .findFirst()
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(FEEDBACK_QUESTION_NOT_FOUND_BY_ID) + studentSubmitFeedbackRequest.getQuestionId()));
+            // Lấy tất cả câu trả lời của câu hỏi
+            List<FeedbackAnswer> answersOfQuestion = feedbackQuestion.getAnswers();
+                for (FeedbackAnswer feedbackAnswer : answersOfQuestion) {
+                    if (feedbackAnswer.getId().equals(studentSubmitFeedbackRequest.getAnswerId())) {
+                        FeedbackSubmitAnswer submitAnswers = new FeedbackSubmitAnswer();
+                        submitAnswers.setSubmission(feedbackSubmission);
+                        submitAnswers.setAnswer(feedbackAnswer);
+                        feedbackSubmitAnswers.add(submitAnswers);
+                    }else{
+                        throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_ANSWER_OPTION) + feedbackAnswer.getId());
+                    }
+                }
+        }
+        if(request.getComment() != null && !request.getComment().isEmpty()){
+            if(request.getComment().length() < FeedbackUtil.MIN_CHARACTER_IN_COMMENT){
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(NOT_ENOUGH_CHARACTER_IN_FEEDBACK_COMMENT));
+            }
             Boolean isContainOffensiveWord = offensiveWord.stream().anyMatch(x -> request.getComment().contains(x));
-            if (Boolean.TRUE.equals(isContainOffensiveWord)) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            if(isContainOffensiveWord){
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(FEEDBACK_COMMENT_CONTAIN_OFFENSIVE_WORD));
             }
             feedbackSubmission.setComment(request.getComment());
         }
-        feedbackSubmission.setRate(request.getRate());
+        feedbackSubmission.setTemplate(feedbackTemplate);
+        feedbackSubmission.setAnswers(feedbackSubmitAnswers);
         feedbackSubmission.setSubmitBy(user);
         feedbackSubmission.setClazz(clazz);
-        feedbackSubmission.setName(FeedbackUtil.generateFeedbackSubmissionName(clazz, user));
         return feedbackSubmissionRepository.save(feedbackSubmission).getId();
     }
 
-    public Long studentUpdateFeedback(Long submissionId, StudentSubmitFeedbackRequest request) {
-        if (request.getRate() < FeedbackUtil.MIN_RATE_PER_SUBMISSION
-                || request.getRate() > FeedbackUtil.MAX_RATE_PER_SUBMISSION) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
-        }
-        FeedbackSubmission feedbackSubmission = feedbackSubmissionRepository.findById(submissionId)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("") + submissionId));
-        FeedbackTemplate feedbackTemplate = feedbackSubmission.getTemplate();
-        if (feedbackTemplate == null) {
-            throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage(messageUtil.getLocalMessage(""));
-        }
-        ArrayList<FeedbackSubmitAnswer> submitAnswers = FeedbackUtil.validateSubmittedAnswer(feedbackSubmission, request);
-        feedbackSubmission.setAnswers(submitAnswers);
-        if (StringUtil.isNotNullOrEmpty(request.getComment())) {
-            Boolean isContainOffensiveWord = offensiveWord.stream().anyMatch(x -> request.getComment().contains(x));
-            if (Boolean.TRUE.equals(isContainOffensiveWord)) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
-            }
-            feedbackSubmission.setComment(request.getComment());
-        }
-        feedbackSubmission.setRate(request.getRate());
-        return feedbackSubmissionRepository.save(feedbackSubmission).getId();
-    }
+//    public Long studentUpdateFeedback(Long submissionId, StudentSubmitFeedbackRequest request) {
+//        if (request.getRate() < FeedbackUtil.MIN_RATE_PER_SUBMISSION
+//                || request.getRate() > FeedbackUtil.MAX_RATE_PER_SUBMISSION) {
+//            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+//        }
+//        FeedbackSubmission feedbackSubmission = feedbackSubmissionRepository.findById(submissionId)
+//                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage("") + submissionId));
+//        FeedbackTemplate feedbackTemplate = feedbackSubmission.getTemplate();
+//        if (feedbackTemplate == null) {
+//            throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage(messageUtil.getLocalMessage(""));
+//        }
+//        ArrayList<FeedbackSubmitAnswer> submitAnswers = FeedbackUtil.validateSubmittedAnswer(feedbackSubmission, request);
+//        feedbackSubmission.setAnswers(submitAnswers);
+//        if (StringUtil.isNotNullOrEmpty(request.getComment())) {
+//            Boolean isContainOffensiveWord = offensiveWord.stream().anyMatch(x -> request.getComment().contains(x));
+//            if (Boolean.TRUE.equals(isContainOffensiveWord)) {
+//                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+//            }
+//            feedbackSubmission.setComment(request.getComment());
+//        }
+//        feedbackSubmission.setRate(request.getRate());
+//
+//        feedbackTemplate.setIsFixed(true);
+//        feedbackTemplateRepository.save(feedbackTemplate);
+//        return feedbackSubmissionRepository.save(feedbackSubmission).getId();
+//    }
 
     public ApiPage<FeedbackSubmissionResponse> getClassFeedback(Long classId, Pageable pageable) {
         Class clazz = findClassById(classId);
@@ -259,14 +302,12 @@ public class FeedbackServiceImpl implements IFeedbackService {
         FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
                 .filterByCourse(course.getId());
         List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(builder.build());
-        FeedbackResponse feedbackResponse = new FeedbackResponse();
-        List<FeedbackResponse.FeedbackSubmission> submissions = feedbackSubmissions.stream()
-                .map(ConvertUtil::convertFeedbackSubmissionToFeedbackResponse)
+        FeedbackResponse response = new FeedbackResponse();
+        List<FeedbackSubmissionDto> submissions = feedbackSubmissions.stream()
+                .map(x -> ConvertUtil.convertFeedbackSubmissionToFeedbackSubmissionDto(x, true))
                 .collect(Collectors.toList());
-        feedbackResponse.setAverageRate(FeedbackUtil.calculateCourseRate(feedbackSubmissions));
-        feedbackResponse.setSubmissions(submissions);
-        feedbackResponse.setSubmissionCount(feedbackSubmissions.size());
-        return feedbackResponse;
+        setValueForFeedbackResponse(response, submissions, feedbackSubmissions.stream().map(FeedbackSubmission::getCourseRate), feedbackSubmissions);
+        return response;
     }
 
     public FeedbackResponse getMentorFeedback(Long mentorId) {
@@ -276,12 +317,29 @@ public class FeedbackServiceImpl implements IFeedbackService {
                 .filterByMentor(mentorProfile.getUser().getId());
         List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(builder.build());
         FeedbackResponse response = new FeedbackResponse();
-        List<FeedbackResponse.FeedbackSubmission> submissions = feedbackSubmissions.stream()
-                .map(ConvertUtil::convertFeedbackSubmissionToFeedbackResponse)
+        List<FeedbackSubmissionDto> submissions = feedbackSubmissions.stream()
+                .map(x -> ConvertUtil.convertFeedbackSubmissionToFeedbackSubmissionDto(x, false))
                 .collect(Collectors.toList());
-        response.setSubmissions(submissions);
-        response.setAverageRate(FeedbackUtil.calculateCourseRate(feedbackSubmissions));
-        response.setSubmissionCount(feedbackSubmissions.size());
+        setValueForFeedbackResponse(response, submissions, feedbackSubmissions.stream().map(FeedbackSubmission::getMentorRate), feedbackSubmissions);
         return response;
+    }
+
+    private void setValueForFeedbackResponse(FeedbackResponse response, List<FeedbackSubmissionDto> submissions, Stream<Integer> integerStream, List<FeedbackSubmission> feedbackSubmissions) {
+        List<Integer> rates = integerStream.collect(Collectors.toList());
+        Map<Integer, Long> rateCount = FeedbackUtil.getRateCount(rates);
+        response.setAverageRate(FeedbackUtil.calculateAverageRate(rateCount));
+        response.setRateCount(rateCount);
+        response.setSubmissions(submissions);
+        response.setSubmissionCount(feedbackSubmissions.size());
+    }
+
+    public ApiPage<FeedbackSubmissionDto> getFeedbackSubmission(FeedbackSubmissionSearchRequest request, Pageable pageable){
+        FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
+                .filterByRate(request.getRate(), request.getIsCourse());
+        builder = request.getIsCourse() ? builder.filterByCourse(request.getId()) : builder.filterByMentor(request.getId());
+        Page<FeedbackSubmission> feedbackSubmissionPage = feedbackSubmissionRepository.findAll(builder.build(), pageable);
+        List<FeedbackSubmission> submissions = feedbackSubmissionPage.getContent().stream().collect(Collectors.toList());
+        Page<FeedbackSubmission> feedbackSubmissions = new PageImpl<>(submissions, pageable, submissions.size());
+        return PageUtil.convert(feedbackSubmissions.map(x -> ConvertUtil.convertFeedbackSubmissionToFeedbackSubmissionDto(x, request.getIsCourse())));
     }
 }

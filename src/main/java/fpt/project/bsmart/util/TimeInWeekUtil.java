@@ -40,6 +40,11 @@ public class TimeInWeekUtil {
                     i--;
                 }
             }
+            if (date.truncatedTo(ChronoUnit.DAYS).equals(clazz.getEndDate().truncatedTo(ChronoUnit.DAYS)) && i > 0) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Số lượng buổi học và ngày kết thúc không hợp lệ, vui lòng điều chỉnh lại");
+            } else if (!date.truncatedTo(ChronoUnit.DAYS).equals(clazz.getEndDate().truncatedTo(ChronoUnit.DAYS)) && i == 0) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Số lượng buổi học và ngày kết thúc không hợp lệ, vui lòng điều chỉnh lại");
+            }
             date = date.plus(1, ChronoUnit.DAYS);
         }
         return timeTables;

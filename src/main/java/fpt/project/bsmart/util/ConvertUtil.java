@@ -13,6 +13,7 @@ import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
 import fpt.project.bsmart.entity.response.member.StudyInformationDTO;
+import fpt.project.bsmart.payment.PaymentResponse;
 import fpt.project.bsmart.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -214,7 +215,7 @@ public class ConvertUtil {
     public static MemberDetailResponse convertUserToMemberDetailResponse(User user) {
         MemberDetailResponse memberDetailResponse = ObjectUtil.copyProperties(user, new MemberDetailResponse(), MemberDetailResponse.class);
         memberDetailResponse.setPhone(user.getPhone());
-
+        memberDetailResponse.setTimeParticipation(user.getCreated());
 
         List<StudentClass> byStudent = staticStudentClassRepository.findByStudent(user);
         List<Course> courses = byStudent.stream().map(studentClass -> studentClass.getClazz().getCourse()).distinct().collect(Collectors.toList());
@@ -450,7 +451,7 @@ public class ConvertUtil {
         courseResponse.setLevel(course.getLevel());
         List<String> mentorName = new ArrayList<>();
         //List<Class> collect = course.getClasses() ;
-        List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.NOTSTART)).collect(Collectors.toList());
+        List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.NOTSTART) && aClass.getStudentClasses().size() < aClass.getMaxStudent()).collect(Collectors.toList());
         List<ImageDto> images = new ArrayList<>();
         if (collect.isEmpty()) {
             ClassImage byType = staticClassImageRepository.findByType(EImageType.DEFAULT);
@@ -782,16 +783,21 @@ public class ConvertUtil {
     public static QuizDto convertQuizToQuizDto(Quiz quiz, boolean isAttempt) {
         QuizDto quizDto = ObjectUtil.copyProperties(quiz, new QuizDto(), QuizDto.class);
         quizDto.setQuestionCount(quiz.getQuizQuestions().size());
-        if (isAttempt) {
-            if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
-                List<QuizQuestionDto> questionDtos = new ArrayList<>();
-                for (QuizQuestion question : quiz.getQuizQuestions()) {
-                    questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
+        if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
+            Optional<User> userOptional = SecurityUtil.getCurrentUserOptional();
+            if (userOptional.isPresent()){
+                User user = userOptional.get();
+                if ((isAttempt && SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT))
+                        || Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER))) {
+                    List<QuizQuestionDto> questionDtos = new ArrayList<>();
+                    for (QuizQuestion question : quiz.getQuizQuestions()) {
+                        questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
+                    }
+                    if (Boolean.TRUE.equals(quiz.getIsSuffleQuestion())) {
+                        Collections.shuffle(questionDtos);
+                    }
+                    quizDto.setQuizQuestions(questionDtos);
                 }
-                if (quiz.getIsSuffleQuestion()) {
-                    Collections.shuffle(questionDtos);
-                }
-                quizDto.setQuizQuestions(questionDtos);
             }
         }
         return quizDto;
@@ -960,7 +966,6 @@ public class ConvertUtil {
 
             for (FeedbackQuestion question : feedbackTemplate.getQuestions()) {
                 FeedbackTemplateDto.FeedbackQuestionDto questionDto = ObjectUtil.copyProperties(question, new FeedbackTemplateDto.FeedbackQuestionDto(), FeedbackTemplateDto.FeedbackQuestionDto.class);
-                questionDto.setAnswerType(question.getQuestionType());
                 if (question.getAnswers() != null) {
                     ArrayList<FeedbackTemplateDto.FeedbackAnswerDto> answerDtos = new ArrayList<>();
                     for (FeedbackAnswer answer : question.getAnswers()) {
@@ -1003,9 +1008,9 @@ public class ConvertUtil {
         return response;
     }
 
-    public static FeedbackResponse.FeedbackSubmission convertFeedbackSubmissionToFeedbackResponse(FeedbackSubmission feedbackSubmission) {
-        FeedbackResponse.FeedbackSubmission submission = new FeedbackResponse.FeedbackSubmission();
-        submission.setRate(feedbackSubmission.getRate());
+    public static FeedbackSubmissionDto convertFeedbackSubmissionToFeedbackSubmissionDto(FeedbackSubmission feedbackSubmission, boolean isForCourse) {
+        FeedbackSubmissionDto submission = new FeedbackSubmissionDto();
+        submission.setRate(isForCourse ? feedbackSubmission.getCourseRate() : feedbackSubmission.getMentorRate());
         submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());
         submission.setComment(feedbackSubmission.getComment());
         return submission;
@@ -1041,6 +1046,25 @@ public class ConvertUtil {
         response.setBuyerName(buyer.getFullName());
         response.setSellerId(seller.getId());
         response.setSellerName(seller.getFullName());
+        return response;
+    }
+    public static PaymentResponse convertPaymentResponse(Order order, Transaction transaction) {
+        PaymentResponse paymentResponse = new PaymentResponse();
+        paymentResponse.setOrderId(order.getId());
+        paymentResponse.setOrderStatus(order.getStatus());
+        paymentResponse.setTransactionStatus(transaction.getStatus());
+        paymentResponse.setTransactionId(transaction.getId());
+        return paymentResponse;
+    }
+
+    public static WithDrawResponse convertWithdrawRequestToWithdrawResponse(Transaction transaction) {
+        WithDrawResponse response = new WithDrawResponse();
+        response.setId(transaction.getId());
+        response.setUserName(transaction.getWallet().getOwner().getFullName());
+        response.setAmount(transaction.getAmount());
+        response.setBankName(transaction.getBank().getName());
+        response.setBankAccount(transaction.getBankAccountOwner());
+        response.setBankNumber(transaction.getReceivedBankAccount());
         return response;
     }
 }

@@ -6,13 +6,13 @@ import java.io.Serializable;
 
 public class AddCartItemRequest implements Serializable {
     @NotNull
-    private Long subCourseId;
+    private Long classId;
 
-    public Long getSubCourseId() {
-        return subCourseId;
+    public Long getClassId() {
+        return classId;
     }
 
-    public void setSubCourseId(Long subCourseId) {
-        this.subCourseId = subCourseId;
+    public void setClassId(Long classId) {
+        this.classId = classId;
     }
 }

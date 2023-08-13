@@ -10,7 +10,9 @@ import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MentorGetCourseClassResponse {
 
@@ -33,7 +35,9 @@ public class MentorGetCourseClassResponse {
     private List<ClassDetailResponse> classes;
     private List<ActivityDto> activities = new ArrayList<>();
 
-
+    private Integer submissionCount = 0;
+    private Double averageRate = 0.0;
+    private Map<Integer, Long> rateCount = new HashMap<>();
     public Long getId() {
         return id;
     }
@@ -120,5 +124,29 @@ public class MentorGetCourseClassResponse {
 
     public void setActivities(List<ActivityDto> activities) {
         this.activities = activities;
+    }
+
+    public Integer getSubmissionCount() {
+        return submissionCount;
+    }
+
+    public void setSubmissionCount(Integer submissionCount) {
+        this.submissionCount = submissionCount;
+    }
+
+    public Double getAverageRate() {
+        return averageRate;
+    }
+
+    public void setAverageRate(Double averageRate) {
+        this.averageRate = averageRate;
+    }
+
+    public Map<Integer, Long> getRateCount() {
+        return rateCount;
+    }
+
+    public void setRateCount(Map<Integer, Long> rateCount) {
+        this.rateCount = rateCount;
     }
 }

@@ -70,7 +70,7 @@ public class FeedbackTemplate extends BaseEntity{
     public void setQuestions(List<FeedbackQuestion> questions) {
         this.questions.clear();
         if(questions != null){
-            this.questions = questions;
+            this.questions.addAll(questions);
         }
     }
 }

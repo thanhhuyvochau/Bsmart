@@ -8,12 +8,19 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.constant.QuestionType;
+import fpt.project.bsmart.entity.dto.AnswerDto;
 import fpt.project.bsmart.entity.dto.QuestionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.repository.QuestionRepository;
 import fpt.project.bsmart.repository.SubjectRepository;
 import fpt.project.bsmart.service.IQuestionService;
 import fpt.project.bsmart.util.*;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -247,5 +255,78 @@ public class QuestionServiceImpl implements IQuestionService {
         existedAnswers.removeAll(unusedAnswer);
         questionRepository.save(question);
         return true;
+    }
+
+    @Override
+    public List<QuestionDto> readQuestionFromFile(MultipartFile multipartFile) {
+        return getQuestionFromExcel(multipartFile);
+    }
+
+    private List<QuestionDto> getQuestionFromExcel(MultipartFile file) {
+        List<QuestionDto> questions = new ArrayList<>();
+
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook;
+            if (file.getOriginalFilename().endsWith(".xlsx")) {
+                workbook = new XSSFWorkbook(inputStream);
+            } else if (file.getOriginalFilename().endsWith(".xls")) {
+                workbook = new HSSFWorkbook(inputStream);
+            } else {
+                throw new IllegalArgumentException("Unsupported file format");
+            }
+
+            Sheet sheet = workbook.getSheetAt(0); // Assuming data is in the first sheet
+            Iterator<Row> rowIterator = sheet.iterator();
+            int rowIndex = 0;
+            while (rowIterator.hasNext()) {
+                if (rowIndex == 0) {
+                    rowIterator.next();
+                    rowIndex++;
+                    continue;
+                }
+                Row row = rowIterator.next();
+                boolean isHasRightAnswer = false;
+                Cell questionCell = row.getCell(0);
+                Cell optionsCell = row.getCell(1);
+                Cell answerCell = row.getCell(2);
+                Cell typeCell = row.getCell(3); // Assuming column 3 contains question type
+
+                String question = questionCell.getStringCellValue();
+                List<String> optionsArray = Arrays.asList(optionsCell.getStringCellValue().split(";"));
+                List<String> correctAnswers = Arrays.asList(answerCell.getStringCellValue().split(";"));
+                String questionType = typeCell.getStringCellValue(); // "single" or "multiple"
+                if (questionType.equals("single") && correctAnswers.size() != 1) {
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Tệp tin câu hỏi có câu hỏi không có đáp án đúng hoặc đáp án không hợp lệ với loại câu hỏi");
+                }
+                QuestionDto questionDto = new QuestionDto();
+                questionDto.setQuestion(question);
+                if (questionType.equals("single")) {
+                    questionDto.setQuestionType(QuestionType.SINGLE);
+                } else if (questionType.equals("multiple")) {
+                    questionDto.setQuestionType(QuestionType.MULTIPLE);
+                }
+                for (String optionAnswer : optionsArray) {
+                    AnswerDto answerDto = new AnswerDto();
+                    answerDto.setAnswer(optionAnswer);
+                    if (correctAnswers.stream().filter(correctAnswer -> correctAnswer.equalsIgnoreCase(optionAnswer)).count() == 1) {
+                        answerDto.setIsRight(true);
+                        isHasRightAnswer = true;
+                    } else {
+                        answerDto.setIsRight(false);
+                    }
+                    questionDto.getAnswers().add(answerDto);
+                }
+                if (!isHasRightAnswer) {
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Tệp tin câu hỏi có câu hỏi không có đáp án đúng hoặc đáp án không hợp lệ với loại câu hỏi");
+                }
+                questions.add(questionDto);
+                rowIndex++;
+            }
+            workbook.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return questions;
     }
 }

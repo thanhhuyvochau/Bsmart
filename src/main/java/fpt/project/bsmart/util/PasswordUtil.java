@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 public class PasswordUtil {
 
-    public static Boolean validationPassword(String password) {
+    public static Boolean isValidPassword(String password) {
         String regex = "^(?=.*[0-9])"
                 + "(?=.*[a-z])(?=.*[A-Z])"
                 + "(?=.*[@#$%^&+=])"
