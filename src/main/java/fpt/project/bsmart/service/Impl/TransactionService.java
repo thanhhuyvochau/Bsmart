@@ -13,6 +13,14 @@ import fpt.project.bsmart.entity.constant.ETransactionType;
 import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.response.RevenueResponse;
+import fpt.project.bsmart.entity.response.SystemRevenueResponse;
+import fpt.project.bsmart.entity.response.VnPayResponse;
+import fpt.project.bsmart.repository.*;
+import fpt.project.bsmart.service.ITransactionService;
+import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.specification.TransactionSpecificationBuilder;
+import org.jetbrains.annotations.NotNull;
 import fpt.project.bsmart.entity.response.WithDrawResponse;
 import fpt.project.bsmart.payment.PaymentGateway;
 import fpt.project.bsmart.payment.PaymentPicker;
@@ -29,6 +37,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -257,6 +268,18 @@ public class TransactionService implements ITransactionService {
         return false;
     }
 
+//    public List<RevenueResponse> getRevenueForAdminPage(TransactionRequest request){
+//        TransactionSpecificationBuilder builder = TransactionSpecificationBuilder.transactionSpecificationBuilder()
+//                .filterByStatus(ETransactionStatus.SUCCESS)
+//                .filterFromDate(request.getStartDate())
+//                .filterToDate(request.getEndDate())
+//                .filterByBuyer(request.getBuyerId())
+//                .filterBySeller(request.getSellerId())
+//                .filterByCourse(request.getCourseId());
+//        List<Transaction> transactions = transactionRepository.findAll(builder.build());
+//        return ConvertUtil.convertTransactionsToRevenueResponses(transactions);
+//    }
+    
     private List<Notification> getEnrollClassNotifications(Order order) {
         List<Notification> enrolledClassNotifications = new ArrayList<>();
         if (Objects.equals(order.getStatus(), EOrderStatus.SUCCESS)) {
@@ -268,5 +291,19 @@ public class TransactionService implements ITransactionService {
             }
         }
         return enrolledClassNotifications;
+    }
+
+    public List<SystemRevenueResponse> getSystemRevenue(Integer year){
+        TransactionSpecificationBuilder builder = TransactionSpecificationBuilder.transactionSpecificationBuilder()
+                .filterFromDate(InstantUtil.getFirstDayOfYear(year))
+                .filterToDate(InstantUtil.getLastDayOfYear(year))
+                .filterByTpe(ETransactionType.PAY)
+                .filterByStatus(ETransactionStatus.SUCCESS);
+        List<Transaction> transactions = transactionRepository.findAll(builder.build());
+        List<OrderDetail> orderDetails = transactions.stream()
+                .map(Transaction::getOrder)
+                .flatMap(obj -> obj.getOrderDetails().stream())
+                .collect(Collectors.toList());
+        return ConvertUtil.convertOrderDetailsToSystemRevenueResponse(orderDetails);
     }
 }

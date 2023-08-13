@@ -19,6 +19,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -1026,6 +1031,27 @@ public class ConvertUtil {
         return responseMessage;
     }
 
+    public static List<RevenueResponse> convertTransactionsToRevenueResponses(List<Transaction> transactions){
+        return transactions.stream()
+                .flatMap(transaction -> transaction.getOrder().getOrderDetails().stream()
+                        .map(ConvertUtil::convertOrderDetailToRevenueResponse))
+                .collect(Collectors.toList());
+    }
+
+    private static RevenueResponse convertOrderDetailToRevenueResponse(OrderDetail orderDetail){
+        User buyer = orderDetail.getOrder().getUser();
+        User seller = orderDetail.getClazz().getMentor();
+        RevenueResponse response = new RevenueResponse();
+        response.setOrderId(orderDetail.getOrder().getId());
+        response.setRevenue(orderDetail.getOriginalPrice().subtract(orderDetail.getFinalPrice()));
+        response.setTotal(orderDetail.getFinalPrice());
+        response.setDate(orderDetail.getCreated());
+        response.setBuyerId(buyer.getId());
+        response.setBuyerName(buyer.getFullName());
+        response.setSellerId(seller.getId());
+        response.setSellerName(seller.getFullName());
+        return response;
+    }
     public static PaymentResponse convertPaymentResponse(Order order, Transaction transaction) {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setOrderId(order.getId());
@@ -1044,5 +1070,33 @@ public class ConvertUtil {
         response.setBankAccount(transaction.getBankAccountOwner());
         response.setBankNumber(transaction.getReceivedBankAccount());
         return response;
+    }
+
+    public static List<SystemRevenueResponse> convertOrderDetailsToSystemRevenueResponse(List<OrderDetail> orderDetails){
+        List<SystemRevenueResponse> systemRevenueResponses = new ArrayList<>();
+        Map<YearMonth, List<OrderDetail>> monthListMap = orderDetails.stream()
+                .collect(Collectors.groupingBy(obj -> InstantUtil.getYearMonthFromInstant(obj.getCreated())));
+        for (YearMonth month : InstantUtil.getAllMonthInYear()){
+            SystemRevenueResponse systemRevenueResponse = new SystemRevenueResponse();
+            systemRevenueResponse.setMonth(month.getMonthValue());
+            if(monthListMap.containsKey(month)){
+                List<OrderDetail> orderDetailList = monthListMap.get(month);
+                BigDecimal totalOriginal = orderDetailList.stream()
+                        .map(OrderDetail::getOriginalPrice)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal totalFinal = orderDetailList.stream()
+                        .map(OrderDetail::getFinalPrice)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal promotion = totalOriginal.subtract(totalFinal);
+                BigDecimal mentorShare = totalFinal.multiply(new BigDecimal("0.3")).divideToIntegralValue(BigDecimal.ONE);
+                BigDecimal revenue = totalOriginal.subtract(promotion).subtract(mentorShare);
+                systemRevenueResponse.setTotalIncome(totalOriginal);
+                systemRevenueResponse.setPromotion(promotion);
+                systemRevenueResponse.setMentorShare(mentorShare);
+                systemRevenueResponse.setRevenue(revenue);
+            }
+            systemRevenueResponses.add(systemRevenueResponse);
+        }
+        return systemRevenueResponses;
     }
 }
