@@ -1,22 +1,23 @@
 package fpt.project.bsmart.util;
 
+import fpt.project.bsmart.director.NotificationDirector;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.dto.ClassProgressTimeDto;
-import fpt.project.bsmart.entity.dto.ImageDto;
-import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
-import fpt.project.bsmart.entity.dto.UserDto;
+import fpt.project.bsmart.entity.constant.EPaymentType;
+import fpt.project.bsmart.entity.constant.ETransactionStatus;
+import fpt.project.bsmart.entity.constant.ETransactionType;
+import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
-import fpt.project.bsmart.repository.FeedbackTemplateRepository;
-import fpt.project.bsmart.repository.StudentClassRepository;
+import fpt.project.bsmart.repository.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,18 +29,20 @@ public class ClassUtil {
     private static MessageUtil staticMessageUtil;
     private static StudentClassRepository staticStudentClassRepository;
 
-    private static FeedbackTemplateRepository staticFeedbackTemplateRepository;
-    public static double CLASS_PERCENTAGE_FOR_FIRST_FEEDBACK = 0.5f;
-    public static double CLASS_PERCENTAGE_FOR_SECOND_FEEDBACK = 0.8f;
-    public static double PERCENTAGE_RANGE = 0.1f;
+    private static OrderDetailRepository orderDetailRepository;
+
+    private static TransactionRepository transactionRepository;
+    private static WebSocketUtil webSocketUtil;
+    private static NotificationRepository notificationRepository;
 
     public ClassUtil(MessageUtil messageUtil,
-                     StudentClassRepository studentClassRepository,
-                     StudentClassRepository s,
-                     FeedbackTemplateRepository feedbackTemplateRepository) {
+                     StudentClassRepository studentClassRepository, OrderDetailRepository orderDetailRepository, TransactionRepository transactionRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository) {
         staticStudentClassRepository = studentClassRepository;
         staticMessageUtil = messageUtil;
-        staticFeedbackTemplateRepository = feedbackTemplateRepository;
+        this.orderDetailRepository = orderDetailRepository;
+        this.transactionRepository = transactionRepository;
+        this.webSocketUtil = webSocketUtil;
+        this.notificationRepository = notificationRepository;
     }
 
     /**
@@ -199,6 +202,42 @@ public class ClassUtil {
         Optional<StudentClass> optionalStudentClass = studentClasses.stream().filter(studentClass -> Objects.equals(studentClass.getStudent().getId(), user.getId())).findFirst();
         StudentClass studentClass = optionalStudentClass.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Bạn không phải là học sinh trong lớp này! Không thể làm đánh giá! "));
         return studentClass;
+    }
+
+    public static void handleCloseClassEvent(Class clazz){
+        clazz.setStatus(ECourseStatus.ENDED);
+        List<OrderDetail> orderDetails = orderDetailRepository.findAllByClazz(clazz);
+        BigDecimal amount = orderDetails.stream()
+                .map(OrderDetail::getOriginalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .multiply(new BigDecimal("0.3"))
+                .divideToIntegralValue(BigDecimal.ONE);
+        String message = sendNotification(clazz, amount);
+        generateTransaction(clazz, amount, message);
+    }
+
+    private static String sendNotification(Class clazz, BigDecimal amount){
+        Notification notification = NotificationDirector.buildCourseTransferMoneyToMentor(clazz, amount);
+        notificationRepository.save(notification);
+        ResponseMessage message = ConvertUtil.convertNotificationToResponseMessage(notification, clazz.getMentor());
+        webSocketUtil.sendPrivateNotification(clazz.getMentor().getEmail(), message);
+        return notification.getViContent();
+    }
+
+    private static void generateTransaction(Class clazz, BigDecimal amount, String message){
+        Wallet wallet = clazz.getMentor().getWallet();
+        BigDecimal afterBalance = wallet.getBalance().add(amount);
+        wallet.setBalance(afterBalance);
+        Transaction transaction = new Transaction();
+        transaction.setWallet(wallet);
+        transaction.setAmount(amount);
+        transaction.setStatus(ETransactionStatus.SUCCESS);
+        transaction.setType(ETransactionType.TRANSFER);
+        transaction.setBeforeBalance(wallet.getBalance());
+        transaction.setAfterBalance(afterBalance);
+        transaction.setPaymentType(EPaymentType.OTHER);
+        transaction.setNote(message);
+        transactionRepository.save(transaction);
     }
 }
 

@@ -142,6 +142,12 @@ public class ClassController {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassForSetTemplateFeedback(pageable)));
     }
 
+    @Operation(summary = "Giả lập đóng lớp")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PutMapping("/{classId}/simulate-close")
+    public ResponseEntity<ApiResponse<Boolean>> simulateCloseClassEvent(@PathVariable Long classId){
+        return ResponseEntity.ok(ApiResponse.success(iClassService.simulateCloseClassEvent(classId)));
+    }
     //     ################################## STUDENT ##########################################
 
     @Operation(summary = "Học sinh lấy điểm danh của lớp học")

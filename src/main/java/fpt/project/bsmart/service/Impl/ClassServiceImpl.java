@@ -804,10 +804,16 @@ public class ClassServiceImpl implements IClassService {
         byStatusIn.forEach(aClass -> {
             classResponses.add(ClassUtil.convertClassToMentorClassDetailResponse(aClass));
         });
-
-
         return PageUtil.convert(new PageImpl<>(classResponses, pageable, classResponses.size()));
+    }
 
-
+    public Boolean simulateCloseClassEvent(Long classId){
+        Class clazz = classRepository.findById(classId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
+        if(!clazz.getStatus().equals(STARTING)){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Trạng thái lớp không hợp lệ để giả lập: " + clazz.getStatus());
+        }
+        ClassUtil.handleCloseClassEvent(clazz);
+        return true;
     }
 }
