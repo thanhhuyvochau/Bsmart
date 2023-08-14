@@ -81,7 +81,8 @@ public class MentorProfileController {
 
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.mentorCreateEditProfileRequest(request)));
     }
- @Operation(summary = "mentor GỬI  yêu cầu sửa thông tin cá nhân")
+
+    @Operation(summary = "mentor GỬI  yêu cầu sửa thông tin cá nhân")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping("/{mentorProfileEditId}")
     public ResponseEntity<ApiResponse<Boolean>> mentorSendEditProfileRequest(@PathVariable Long mentorProfileEditId) throws JsonProcessingException {
@@ -160,15 +161,15 @@ public class MentorProfileController {
     @Operation(summary = "manager lấy  yêu cầu sửa thông tin cá nhân của mentor ")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/edit-profile")
-    public ResponseEntity<ApiResponse<ApiPage<MentorEditProfileResponse>>>managerGetEditProfileRequest(
-            @RequestBody ManagerSearchEditProfileRequest query , Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.managerGetEditProfileRequest(query , pageable)));
+    public ResponseEntity<ApiResponse<ApiPage<MentorEditProfileResponse>>> managerGetEditProfileRequest(
+            ManagerSearchEditProfileRequest query, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.managerGetEditProfileRequest(query, pageable)));
     }
 
     @Operation(summary = "manager xem chi tiết  yêu cầu sửa thông tin cá nhân của mentor và so sanh với profile cũ")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/{mentorProfileEditId}/edit-profile-detail")
-    public ResponseEntity<ApiResponse<MentorEditProfileDetailResponse>>managerGetEditProfileDetailRequest(
+    public ResponseEntity<ApiResponse<MentorEditProfileDetailResponse>> managerGetEditProfileDetailRequest(
             @PathVariable Long mentorProfileEditId) throws JsonProcessingException {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.managerGetEditProfileDetailRequest(mentorProfileEditId)));
     }
