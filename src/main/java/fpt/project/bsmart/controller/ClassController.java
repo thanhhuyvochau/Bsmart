@@ -165,7 +165,7 @@ public class ClassController {
     }
 
     @Operation(summary = "Manager lấy class không dùng template")
-    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @GetMapping("/feedback-template/{id}/not-use")
     public ResponseEntity<ApiResponse<List<MentorGetClassDetailResponse>>> getClassNotUseFeedbackTemplate(@PathVariable Long id){
         return ResponseEntity.ok(ApiResponse.success(iClassService.getClassesNotUseTemplate(id)));
