@@ -1,8 +1,12 @@
 package fpt.project.bsmart.config.security.oauth2;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fpt.project.bsmart.config.AppProperties;
 import fpt.project.bsmart.config.security.jwt.JwtUtils;
+import fpt.project.bsmart.config.security.oauth2.dto.LocalUser;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.request.JwtResponse;
 import fpt.project.bsmart.util.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,23 +21,27 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private JwtUtils tokenProvider;
+    private final JwtUtils tokenProvider;
 
-    private AppProperties appProperties;
+    private final AppProperties appProperties;
 
-    private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+    private final ObjectMapper objectMapper;
 
     @Autowired
     OAuth2AuthenticationSuccessHandler(JwtUtils tokenProvider, AppProperties appProperties,
-                                       HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository) {
+                                       HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository, ObjectMapper objectMapper) {
         this.tokenProvider = tokenProvider;
         this.appProperties = appProperties;
         this.httpCookieOAuth2AuthorizationRequestRepository = httpCookieOAuth2AuthorizationRequestRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -60,8 +68,21 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
 
         String token = tokenProvider.generateJwtToken(authentication);
-
-        return UriComponentsBuilder.fromUriString(targetUrl).queryParam("token", token).build().toUriString();
+        LocalUser localUser = (LocalUser) authentication.getPrincipal();
+        User user = localUser.getUser();
+        List<String> roles = user.getRoles().stream()
+                .map(role -> role.getCode().name())
+                .collect(Collectors.toList());
+        JwtResponse jwtResponse = new JwtResponse(token, user.getId(), user.getEmail(), roles);
+        response.setStatus(HttpServletResponse.SC_OK);
+        try {
+            response.getWriter().write(objectMapper.writeValueAsString(jwtResponse));
+            response.getWriter().flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+//        return UriComponentsBuilder.fromUriString(targetUrl).queryParam("token", token).build().toUriString();
+        return UriComponentsBuilder.fromUriString(targetUrl).build().toUriString();
     }
 
     protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {

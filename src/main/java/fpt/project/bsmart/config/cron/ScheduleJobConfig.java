@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.DayOfWeekRepository;
 import fpt.project.bsmart.repository.RoleRepository;
+import fpt.project.bsmart.util.ClassUtil;
 import fpt.project.bsmart.util.TimeInWeekUtil;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -119,5 +120,11 @@ public class ScheduleJobConfig {
         System.out.println("---------Task executed at 12 AM (midnight) for Open Class-----------");
     }
 
-
+    @Scheduled(cron = "0 0 0 * * *")
+    public void closeClassAutomatic() {
+        Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
+        List<Class> classesEndToday = classRepository.findByEndDateAndStatus(yesterday, ECourseStatus.STARTING);
+        classesEndToday.forEach(ClassUtil::handleCloseClassEvent);
+        classRepository.saveAll(classesEndToday);
+    }
 }

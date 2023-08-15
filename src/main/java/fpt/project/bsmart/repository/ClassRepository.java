@@ -37,7 +37,7 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
     Page<Class> findByStatus(ECourseStatus status, Pageable pageable);
 
     List<Class> findByStartDate(Instant startDate);
-
+    List<Class> findByEndDateAndStatus(Instant endDate, ECourseStatus status);
 
     List<Class> findByFeedbackTemplate(FeedbackTemplate feedbackTemplate);
 

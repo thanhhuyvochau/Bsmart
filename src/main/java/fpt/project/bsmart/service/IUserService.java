@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public interface IUserService {
 
     Boolean resendVerifyEmail();
 
-    LocalUser processUserRegistration(String registrationId, Map<String, Object> attributes, OidcIdToken idToken, OidcUserInfo userInfo);
+    LocalUser processUserRegistration(String registrationId, Map<String, Object> attributes, OidcIdToken idToken, OidcUserInfo userInfo) throws IOException;
 
     User registerNewUser(final SignUpRequest signUpRequest);
 

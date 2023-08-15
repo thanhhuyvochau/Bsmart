@@ -9,6 +9,7 @@ import fpt.project.bsmart.util.MessageUtil;
 import fpt.project.bsmart.util.TextUtil;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ public class NotificationDirector {
         parameters.put("totalPrice", transaction.getAmount().toString());
         content = TextUtil.format(content, parameters);
         Notification.NotificationBuilder builder = Notification.getBuilder();
-        Notification notification = builder
+        return builder
                 .viTitle(title)
                 .viContent(content)
                 .notifiers(order.getUser())
@@ -35,7 +36,6 @@ public class NotificationDirector {
                 .entity(ENotificationEntity.TRANSACTION)
                 .entityId(transaction.getId())
                 .build();
-        return notification;
     }
 
     public static Notification buildApprovalCourse(Course course, ECourseStatus status) {
@@ -118,7 +118,7 @@ public class NotificationDirector {
         Map<String, String> parameters = new HashMap<>();
         content = TextUtil.format(content, parameters);
         Notification.NotificationBuilder builder = Notification.getBuilder();
-        Notification notification = builder
+        return builder
                 .viTitle(title)
                 .viContent(content)
                 .notifiers(user)
@@ -126,6 +126,23 @@ public class NotificationDirector {
                 .entity(ENotificationEntity.ACCOUNT)
                 .entityId(user.getId())
                 .build();
-        return notification;
+    }
+
+    public static Notification buildCourseTransferMoneyToMentor(Class clazz, BigDecimal amount){
+        String title = staticMessageUtil.getLocalMessage(NotificationConstant.COURSE_TRANSFER_MONEY_TITLE);
+        String content = staticMessageUtil.getLocalMessage(NotificationConstant.COURSE_TRANSFER_MONEY_CONTENT);
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("classCode", clazz.getCode());
+        parameters.put("amount", amount.toPlainString());
+        content = TextUtil.format(content, parameters);
+        Notification.NotificationBuilder builder = Notification.getBuilder();
+        return builder
+                .viTitle(title)
+                .viContent(content)
+                .notifiers(clazz.getMentor())
+                .type(ENotificationType.PERSONAL)
+                .entity(ENotificationEntity.ACCOUNT)
+                .entityId(clazz.getMentor().getId())
+                .build();
     }
 }

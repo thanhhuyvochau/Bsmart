@@ -6,13 +6,11 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.constant.EOrderStatus;
-import fpt.project.bsmart.entity.constant.ETransactionStatus;
-import fpt.project.bsmart.entity.constant.ETransactionType;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.*;
+import fpt.project.bsmart.entity.response.SystemRevenueResponse;
 import fpt.project.bsmart.entity.response.WithDrawResponse;
 import fpt.project.bsmart.payment.PaymentGateway;
 import fpt.project.bsmart.payment.PaymentPicker;
@@ -20,6 +18,7 @@ import fpt.project.bsmart.payment.PaymentResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ITransactionService;
 import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.specification.TransactionSpecificationBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -113,14 +112,14 @@ public class TransactionService implements ITransactionService {
         return true;
     }
 
-    public List<WithDrawResponse> managerGetWithDrawRequest(){
+    public List<WithDrawResponse> managerGetWithDrawRequest() {
         List<Transaction> transactions = transactionRepository.findAllByStatus(ETransactionStatus.WAITING);
         return transactions.stream().map(ConvertUtil::convertWithdrawRequestToWithdrawResponse).collect(Collectors.toList());
     }
 
-    public Boolean managerProcessWithdrawRequest(List<ProcessWithdrawRequest> requests){
+    public Boolean managerProcessWithdrawRequest(List<ProcessWithdrawRequest> requests) {
         List<Transaction> pendingTransactions = transactionRepository.findAllByStatus(ETransactionStatus.WAITING);
-        for (ProcessWithdrawRequest request : requests){
+        for (ProcessWithdrawRequest request : requests) {
             Transaction transaction = pendingTransactions.stream().filter(x -> x.getId().equals(request.getId()))
                     .findFirst()
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(TRANSACTION_NOT_FOUND_BY_ID) + request.getId()));
@@ -130,8 +129,8 @@ public class TransactionService implements ITransactionService {
         return true;
     }
 
-    private void handleUpdatedProcess(Transaction transaction, ProcessWithdrawRequest request){
-        switch (request.getStatus()){
+    private void handleUpdatedProcess(Transaction transaction, ProcessWithdrawRequest request) {
+        switch (request.getStatus()) {
             case SUCCESS:
                 updateTransactionStatus(transaction, request.getStatus(), request.getNote());
                 break;
@@ -147,9 +146,9 @@ public class TransactionService implements ITransactionService {
         }
     }
 
-    private void updateTransactionStatus(Transaction transaction, ETransactionStatus status, String note){
+    private void updateTransactionStatus(Transaction transaction, ETransactionStatus status, String note) {
         transaction.setStatus(status);
-        if(StringUtil.isNotNullOrEmpty(note)){
+        if (StringUtil.isNotNullOrEmpty(note)) {
             transaction.setNote(note);
         }
     }
@@ -207,6 +206,19 @@ public class TransactionService implements ITransactionService {
         BigDecimal price = clazz.getPrice();
         orderDetail.setFinalPrice(price);
         orderDetail.setOriginalPrice(price);
+        if (request.isUseWallet()) {
+            Wallet studentWallet = SecurityUtil.getCurrentUserWallet();
+            BigDecimal balance = studentWallet.getBalance();
+            if (balance.compareTo(BigDecimal.ZERO) > 0) {
+                if (balance.compareTo(price) > 0) {
+                    studentWallet.decreaseBalance(balance.subtract(price));
+                    price = BigDecimal.ZERO;
+                } else if (balance.compareTo(price) < 0) {
+                    price = price.subtract(balance);
+                    studentWallet.decreaseBalance(balance);
+                }
+            }
+        }
         Order order = Order.Builder.builder()
                 .setOrderDetails(Arrays.asList(orderDetail))
                 .setTotalPrice(price)
@@ -214,9 +226,26 @@ public class TransactionService implements ITransactionService {
                 .setStatus(EOrderStatus.WAIT)
                 .build();
         orderDetail.setOrder(order);
+        if (price.compareTo(BigDecimal.ZERO) == 0) {
+            Transaction transaction = paySuccessByWallet(order);
+            PaymentResponse<Boolean> paymentResponse = ConvertUtil.convertPaymentResponse(order, transaction);
+            paymentResponse.setMetadata(true);
+            return paymentResponse;
+        } else {
+            PaymentGateway paymentGateway = paymentPicker.pickByType(request.getType());
+            return paymentGateway.pay(order);
+        }
+    }
 
-        PaymentGateway paymentGateway = paymentPicker.pickByType(request.getType());
-        return paymentGateway.pay(order);
+    private Transaction paySuccessByWallet(Order order) {
+        order.setStatus(EOrderStatus.SUCCESS);
+        Transaction transaction = new Transaction();
+        transaction.setOrder(order);
+        transaction.setAmount(order.getTotalPrice());
+        transaction.setPaymentType(EPaymentType.WALLET);
+        transaction.setType(ETransactionType.PAY);
+        transaction.setStatus(ETransactionStatus.SUCCESS);
+        return transactionRepository.save(transaction);
     }
 
     @Override
@@ -251,11 +280,24 @@ public class TransactionService implements ITransactionService {
                 ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, user);
                 webSocketUtil.sendPrivateNotification(user.getEmail(), responseMessage);
             }
+//            ReferralCodeUtil.generateRandomReferralCode();
             classRepository.saveAll(orderedClasses);
             return true;
         }
         return false;
     }
+
+//    public List<RevenueResponse> getRevenueForAdminPage(TransactionRequest request){
+//        TransactionSpecificationBuilder builder = TransactionSpecificationBuilder.transactionSpecificationBuilder()
+//                .filterByStatus(ETransactionStatus.SUCCESS)
+//                .filterFromDate(request.getStartDate())
+//                .filterToDate(request.getEndDate())
+//                .filterByBuyer(request.getBuyerId())
+//                .filterBySeller(request.getSellerId())
+//                .filterByCourse(request.getCourseId());
+//        List<Transaction> transactions = transactionRepository.findAll(builder.build());
+//        return ConvertUtil.convertTransactionsToRevenueResponses(transactions);
+//    }
 
     private List<Notification> getEnrollClassNotifications(Order order) {
         List<Notification> enrolledClassNotifications = new ArrayList<>();
@@ -268,5 +310,19 @@ public class TransactionService implements ITransactionService {
             }
         }
         return enrolledClassNotifications;
+    }
+
+    public List<SystemRevenueResponse> getSystemRevenue(Integer year) {
+        TransactionSpecificationBuilder builder = TransactionSpecificationBuilder.transactionSpecificationBuilder()
+                .filterFromDate(InstantUtil.getFirstDayOfYear(year))
+                .filterToDate(InstantUtil.getLastDayOfYear(year))
+                .filterByTpe(ETransactionType.PAY)
+                .filterByStatus(ETransactionStatus.SUCCESS);
+        List<Transaction> transactions = transactionRepository.findAll(builder.build());
+        List<OrderDetail> orderDetails = transactions.stream()
+                .map(Transaction::getOrder)
+                .flatMap(obj -> obj.getOrderDetails().stream())
+                .collect(Collectors.toList());
+        return ConvertUtil.convertOrderDetailsToSystemRevenueResponse(orderDetails);
     }
 }
