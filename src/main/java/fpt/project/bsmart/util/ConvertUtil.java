@@ -20,10 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -1031,27 +1028,29 @@ public class ConvertUtil {
         return responseMessage;
     }
 
-    public static List<RevenueResponse> convertTransactionsToRevenueResponses(List<Transaction> transactions){
-        return transactions.stream()
-                .flatMap(transaction -> transaction.getOrder().getOrderDetails().stream()
-                        .map(ConvertUtil::convertOrderDetailToRevenueResponse))
-                .collect(Collectors.toList());
-    }
-
-    private static RevenueResponse convertOrderDetailToRevenueResponse(OrderDetail orderDetail){
-        User buyer = orderDetail.getOrder().getUser();
-        User seller = orderDetail.getClazz().getMentor();
-        RevenueResponse response = new RevenueResponse();
-        response.setOrderId(orderDetail.getOrder().getId());
-        response.setRevenue(orderDetail.getOriginalPrice().subtract(orderDetail.getFinalPrice()));
-        response.setTotal(orderDetail.getFinalPrice());
-        response.setDate(orderDetail.getCreated());
-        response.setBuyerId(buyer.getId());
-        response.setBuyerName(buyer.getFullName());
-        response.setSellerId(seller.getId());
-        response.setSellerName(seller.getFullName());
+    public static UserRevenueResponse convertOrderDetailToRevenueResponse(List<OrderDetail> orderDetails, User user){
+        Integer numOfCourse = orderDetails.stream()
+                .map(x -> x.getClazz().getCourse())
+                .distinct()
+                .collect(Collectors.toList())
+                .size();
+        BigDecimal totalOriginal = orderDetails.stream()
+                .map(OrderDetail::getOriginalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalFinal = orderDetails.stream()
+                .map(OrderDetail::getFinalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal promotion = totalOriginal.subtract(totalFinal);
+        BigDecimal mentorShare = totalOriginal.multiply(new BigDecimal("0.3")).divideToIntegralValue(BigDecimal.ONE);
+        BigDecimal revenue = totalOriginal.subtract(promotion).subtract(mentorShare);
+        UserRevenueResponse response = new UserRevenueResponse();
+        response.setUserId(user.getId());
+        response.setNumOfCourse(numOfCourse);
+        response.setIncome(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT) ? totalFinal : totalOriginal);
+        response.setRevenue(revenue);
         return response;
     }
+
     public static PaymentResponse convertPaymentResponse(Order order, Transaction transaction) {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setOrderId(order.getId());
@@ -1088,7 +1087,7 @@ public class ConvertUtil {
                         .map(OrderDetail::getFinalPrice)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
                 BigDecimal promotion = totalOriginal.subtract(totalFinal);
-                BigDecimal mentorShare = totalFinal.multiply(new BigDecimal("0.3")).divideToIntegralValue(BigDecimal.ONE);
+                BigDecimal mentorShare = totalOriginal.multiply(new BigDecimal("0.3")).divideToIntegralValue(BigDecimal.ONE);
                 BigDecimal revenue = totalOriginal.subtract(promotion).subtract(mentorShare);
                 systemRevenueResponse.setTotalIncome(totalOriginal);
                 systemRevenueResponse.setPromotion(promotion);

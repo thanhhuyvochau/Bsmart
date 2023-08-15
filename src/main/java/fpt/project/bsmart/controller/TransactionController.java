@@ -4,7 +4,7 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.*;
-import fpt.project.bsmart.entity.response.RevenueResponse;
+import fpt.project.bsmart.entity.response.UserRevenueResponse;
 import fpt.project.bsmart.entity.response.SystemRevenueResponse;
 import fpt.project.bsmart.entity.response.WithDrawResponse;
 import fpt.project.bsmart.payment.PaymentResponse;
@@ -16,7 +16,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Nullable;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -97,16 +96,17 @@ public class TransactionController {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.executeAfterVnPayReturn(request)));
     }
 
-//    @Operation(summary = "Lấy thông tinh doanh thu cho trang admin")
-//    @GetMapping("/revenue")
-//    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-//    public ResponseEntity<ApiResponse<List<RevenueResponse>>> getRevenueForAdminPage(@Nullable TransactionRequest request){
-//        return ResponseEntity.ok(ApiResponse.success(iTransactionService.getRevenueForAdminPage(request)));
-//    }
     @Operation(summary = "Lấy doanh thu theo năm")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/revenue/year/{year}")
     public ResponseEntity<ApiResponse<List<SystemRevenueResponse>>> getSystemRevenue(@PathVariable Integer year){
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.getSystemRevenue(year)));
+    }
+
+    @Operation(summary = "Lấy doanh thu theo user")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @GetMapping("/revenue/user/{userId}")
+    public ResponseEntity<ApiResponse<UserRevenueResponse>> getUserRevenue(@PathVariable Long userId){
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.getUserRevenue(userId)));
     }
 }
