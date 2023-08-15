@@ -37,7 +37,7 @@ public interface IActivityService {
 
     Boolean studentSubmitQuiz(Long activityId, SubmitQuizRequest request);
 
-    QuizSubmissionResultResponse studentViewQuizResult(Long id);
+    List<QuizSubmissionResultResponse> studentViewQuizResult(Long id);
 
     ApiPage<QuizSubmissionResultResponse> teacherViewQuizResult(Long id, QuizResultRequest request, Pageable pageable);
 

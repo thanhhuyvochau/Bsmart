@@ -786,20 +786,14 @@ public class ActivityServiceImpl implements IActivityService {
         return quizDto;
     }
 
-    public QuizSubmissionResultResponse studentViewQuizResult(Long id) {
-        QuizSubmittion submittion = quizSubmissionRepository.findById(id)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(QUIZ_SUBMISSION_NOT_FOUND_BY_ID) + id));
+    public List<QuizSubmissionResultResponse> studentViewQuizResult(Long id) {
+        Quiz quiz = findQuizById(id);
         User user = SecurityUtil.getCurrentUser();
-        boolean isBelongToMentorOrStudent;
-        if (SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER)) {
-            isBelongToMentorOrStudent = ActivityUtil.isBelongToMentor(submittion.getQuiz().getActivity());
-        } else {
-            isBelongToMentorOrStudent = Objects.equals(user, submittion.getSubmittedBy());
-        }
-        if (!isBelongToMentorOrStudent) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(FORBIDDEN));
-        }
-        return ConvertUtil.convertQuizSubmissionToSubmissionResult(submittion);
+        List<QuizSubmittion> submittions = quizSubmissionRepository.findAllByQuizAndSubmittedBy(quiz, user);
+
+        return submittions.stream()
+                .map(ConvertUtil::convertQuizSubmissionToSubmissionResult)
+                .collect(Collectors.toList());
     }
 
     public ApiPage<QuizSubmissionResultResponse> teacherViewQuizResult(Long id, QuizResultRequest request, Pageable pageable) {
