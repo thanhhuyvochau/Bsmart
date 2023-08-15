@@ -164,7 +164,12 @@ public class ClassController {
         return ResponseEntity.ok(ApiResponse.success(iClassService.managerGetClass(status, pageable)));
     }
 
-
+    @Operation(summary = "Manager lấy class không dùng template")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @GetMapping("/feedback-template/{id}/not-use")
+    public ResponseEntity<ApiResponse<List<MentorGetClassDetailResponse>>> getClassNotUseFeedbackTemplate(@PathVariable Long id){
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassesNotUseTemplate(id)));
+    }
     //    @Operation(summary = "mentor tao lớp học")
 //    @PostMapping
 //    public ResponseEntity<ApiResponse<Boolean>> mentorCreateClass(@Valid @RequestBody CreateClassRequest request) {
