@@ -142,16 +142,16 @@ public class ActivityController {
         return ResponseEntity.ok(ApiResponse.success(activityService.studentSubmitQuiz(id, request)));
     }
 
-    @Operation(summary = "xem kết quả quiz")
+    @Operation(summary = "học sinh xem kết quả quiz")
     @PreAuthorize("hasAnyRole('STUDENT')")
-    @GetMapping("/quiz/result/{id}")
-    public ResponseEntity<ApiResponse<QuizSubmissionResultResponse>> studentViewQuizResult(@PathVariable Long id) {
+    @GetMapping("/quiz/{id}/result/student")
+    public ResponseEntity<ApiResponse<List<QuizSubmissionResultResponse>>> studentViewQuizResult(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(activityService.studentViewQuizResult(id)));
     }
 
     @Operation(summary = "Giáo viên xem kết quả quiz")
     @PreAuthorize("hasAnyRole('TEACHER')")
-    @GetMapping("/quiz/{id}/result")
+    @GetMapping("/quiz/{id}/result/teacher")
     public ResponseEntity<ApiResponse<ApiPage<QuizSubmissionResultResponse>>> teacherViewQuizResult(@PathVariable Long id, @Nullable QuizResultRequest request, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(activityService.teacherViewQuizResult(id, request, pageable)));
     }
