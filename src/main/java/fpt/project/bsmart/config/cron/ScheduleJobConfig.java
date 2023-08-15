@@ -1,21 +1,22 @@
 package fpt.project.bsmart.config.cron;
 
-import fpt.project.bsmart.director.NotificationDirector;
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.constant.*;
-import fpt.project.bsmart.entity.dto.ResponseMessage;
-import fpt.project.bsmart.repository.*;
+import fpt.project.bsmart.entity.DayOfWeek;
+import fpt.project.bsmart.entity.Role;
+import fpt.project.bsmart.entity.TimeTable;
+import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
+import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.repository.ClassRepository;
+import fpt.project.bsmart.repository.DayOfWeekRepository;
+import fpt.project.bsmart.repository.RoleRepository;
 import fpt.project.bsmart.util.ClassUtil;
-import fpt.project.bsmart.util.ConvertUtil;
 import fpt.project.bsmart.util.TimeInWeekUtil;
-import fpt.project.bsmart.util.WebSocketUtil;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.transaction.Transactional;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -120,7 +121,7 @@ public class ScheduleJobConfig {
     }
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void closeClassAutomatic(){
+    public void closeClassAutomatic() {
         Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
         List<Class> classesEndToday = classRepository.findByEndDateAndStatus(yesterday, ECourseStatus.STARTING);
         classesEndToday.forEach(ClassUtil::handleCloseClassEvent);

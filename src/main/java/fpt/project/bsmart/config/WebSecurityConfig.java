@@ -58,7 +58,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private UnAuthorizedUserAuthenticationEntryPoint authenticationEntryPoint;
     @Autowired
     private AuthTokenFilter secFilter;
-    private final String[] PERMIT_ENDPOINT = {"/api/**" ,"/api/users/register", "/api/users/login", "/oauth2/**", "/api/transactions/pay/vnpay/result", "/swagger-ui/**", "/websocket/**", "/send-message/**"};
+    private final String[] PERMIT_ENDPOINT = {"/api/**", "/api/users/register", "/api/users/login", "/login/oauth2/**", "/api/transactions/pay/vnpay/result", "/swagger-ui/**", "/websocket/**", "/send-message/**"};
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -95,25 +95,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/*").authenticated()
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint(authenticationEntryPoint);
-        //To Verify user from second request onwards............
-//                .and()
-//                .oauth2Login()
-//                .authorizationEndpoint()
-//                .authorizationRequestRepository(cookieAuthorizationRequestRepository())
-//                .and()
-//                .redirectionEndpoint()
-//                .and()
-//                .userInfoEndpoint()
-//                .oidcUserService(customOidcUserService)
-//                .userService(customOAuth2UserService)
-//                .and()
-//                .tokenEndpoint()
-//                .accessTokenResponseClient(authorizationCodeTokenResponseClient())
-//                .and()
-//                .successHandler(oAuth2AuthenticationSuccessHandler)
-//                .failureHandler(oAuth2AuthenticationFailureHandler);
-//        http.addFilter(new UsernamePasswordAuthenticationFilter(authenticationManager()));
+                .authenticationEntryPoint(authenticationEntryPoint)
+                //To Verify user from second request onwards............
+                .and()
+                .oauth2Login()
+                .authorizationEndpoint()
+                .authorizationRequestRepository(cookieAuthorizationRequestRepository())
+                .and()
+                .redirectionEndpoint()
+                .and()
+                .userInfoEndpoint()
+                .oidcUserService(customOidcUserService)
+                .userService(customOAuth2UserService)
+                .and()
+                .tokenEndpoint()
+                .accessTokenResponseClient(authorizationCodeTokenResponseClient())
+                .and()
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+                .failureHandler(oAuth2AuthenticationFailureHandler);
+        http.addFilter(new UsernamePasswordAuthenticationFilter(authenticationManager()));
         http.addFilterBefore(secFilter, UsernamePasswordAuthenticationFilter.class);
     }
 

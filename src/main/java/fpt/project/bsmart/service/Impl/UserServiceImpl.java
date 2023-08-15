@@ -1,9 +1,7 @@
 package fpt.project.bsmart.service.Impl;
 
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fpt.project.bsmart.config.security.oauth2.dto.LocalUser;
@@ -22,7 +20,6 @@ import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 import fpt.project.bsmart.entity.request.CreateAccountRequest;
 import fpt.project.bsmart.entity.request.UploadImageRequest;
 import fpt.project.bsmart.entity.request.User.*;
-import fpt.project.bsmart.entity.request.mentorprofile.UserDtoRequest;
 import fpt.project.bsmart.entity.response.VerifyResponse;
 import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
 import fpt.project.bsmart.entity.response.mentor.MentorEditProfileResponse;
@@ -521,15 +518,16 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public LocalUser processUserRegistration(String registrationId, Map<String, Object> attributes, OidcIdToken idToken, OidcUserInfo userInfo) {
+    public LocalUser processUserRegistration(String registrationId, Map<String, Object> attributes, OidcIdToken idToken, OidcUserInfo userInfo) throws IOException {
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, attributes);
+        String email = (String) attributes.get("email");
         if (StringUtils.isEmpty(oAuth2UserInfo.getName())) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(NAME_NOT_FOUND_FROM_OAUTH2_PROVIDER));
-        } else if (StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
+        } else if (StringUtils.isEmpty(email)) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(EMAIL_NOT_FOUND_FROM_OAUTH2_PROVIDER));
         }
         SignUpRequest userDetails = toUserRegistrationObject(registrationId, oAuth2UserInfo);
-        User user = getUserByEmail(oAuth2UserInfo.getEmail());
+        User user = getUserByEmail(email);
         if (user != null) {
             if (!user.getProvider().equals(registrationId) && !user.getProvider().equals(SocialProvider.LOCAL.getProviderType())) {
                 throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(String.format(messageUtil.getLocalMessage(INCORRECT_PROVIDER_LOGIN), user.getProvider(), user.getProvider()));
@@ -538,7 +536,6 @@ public class UserServiceImpl implements IUserService {
         } else {
             user = registerNewUser(userDetails);
         }
-
         return LocalUser.create(user, attributes, idToken, userInfo);
     }
 
@@ -554,7 +551,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + email));
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     @Override
@@ -575,7 +572,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public MentorEditProfileResponse getProfileEdit() throws JsonProcessingException {
 
-        MentorEditProfileResponse mentorEditProfileResponse = new MentorEditProfileResponse() ;
+        MentorEditProfileResponse mentorEditProfileResponse = new MentorEditProfileResponse();
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
@@ -595,21 +592,20 @@ public class UserServiceImpl implements IUserService {
             mentorEditProfileResponse.setId(null);
             mentorEditProfileResponse.setUserDto(userDto);
             return mentorEditProfileResponse;
-        }
-        else {
+        } else {
             MentorProfileEdit mentorProfileByStatusCreating = mentorProfileEditRepository.
-                    findByMentorProfileAndStatus(mentorProfile,EMentorProfileEditStatus.CREATING);
+                    findByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.CREATING);
             if (mentorProfileByStatusCreating != null) {
-                UserDto userDto= objectMapper.readValue(mentorProfileByStatusCreating.getProfileData(), UserDto.class);
+                UserDto userDto = objectMapper.readValue(mentorProfileByStatusCreating.getProfileData(), UserDto.class);
                 mentorEditProfileResponse.setId(mentorProfileByStatusCreating.getId());
                 mentorEditProfileResponse.setUserDto(userDto);
                 return mentorEditProfileResponse;
 
             } else {
                 MentorProfileEdit mentorProfileByStatusPending = mentorProfileEditRepository.
-                        findByMentorProfileAndStatus(mentorProfile,EMentorProfileEditStatus.PENDING);
+                        findByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.PENDING);
 
-                UserDto userDto= objectMapper.readValue(mentorProfileByStatusPending.getProfileData(), UserDto.class);
+                UserDto userDto = objectMapper.readValue(mentorProfileByStatusPending.getProfileData(), UserDto.class);
                 mentorEditProfileResponse.setId(mentorProfileByStatusPending.getId());
                 mentorEditProfileResponse.setUserDto(userDto);
                 return mentorEditProfileResponse;
@@ -636,6 +632,8 @@ public class UserServiceImpl implements IUserService {
         User user = new User();
         user.setEmail(formDTO.getEmail());
         user.setPassword(encoder.encode(formDTO.getPassword()));
+        user.setFullName(formDTO.getDisplayName());
+        user.setIsVerified(formDTO.getEmailVerified());
         final List<Role> roles = new ArrayList<>();
         roles.add(roleRepository.findRoleByCode(EUserRole.STUDENT).get());
         user.setRoles(roles);

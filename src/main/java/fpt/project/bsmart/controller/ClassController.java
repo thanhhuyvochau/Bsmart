@@ -18,7 +18,6 @@ import fpt.project.bsmart.entity.response.StudentClassResponse;
 import fpt.project.bsmart.service.AttendanceService;
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -187,5 +186,10 @@ public class ClassController {
 //    public ResponseEntity<ApiResponse<ClassProgressTimeDto>> getClassProgression(@Valid @RequestParam Long classId) {
 //        return ResponseEntity.ok(ApiResponse.success(iClassService.getClassProgression(classId)));
 //    }
-
+    @Operation(summary = "Lấy các lớp trùng thời khóa biểu trước khi thanh toán của học sinh")
+    @PreAuthorize("hasAnyRole('STUDENT')")
+    @GetMapping("/{id}/duplicate")
+    public ResponseEntity<ApiResponse<List<BaseClassResponse>>> getDuplicateTimeClasses(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getDuplicateTimeClassOfStudent(id)));
+    }
 }

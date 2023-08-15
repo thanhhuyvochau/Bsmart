@@ -1,14 +1,18 @@
 server:
   port: 8080
   forward-headers-strategy: framework
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
 spring:
   security:
     oauth2:
       client:
         registration:
           google:
-            clientId: 874513160878-adut1nl0uallr5jfbr9hm3fapu7oqkgc.apps.googleusercontent.com
-            clientSecret: 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
+            client-id: 1049827013619-28kvfou9147c817f8aaar257fs29rmun.apps.googleusercontent.com
+            client-secret: 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
   config:
     import: optional:file:.env[.properties]
   messages:
