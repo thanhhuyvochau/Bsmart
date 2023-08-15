@@ -10,15 +10,20 @@ import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.*;
+
 import fpt.project.bsmart.entity.response.SystemRevenueResponse;
-import fpt.project.bsmart.entity.response.WithDrawResponse;
-import fpt.project.bsmart.payment.PaymentGateway;
-import fpt.project.bsmart.payment.PaymentPicker;
-import fpt.project.bsmart.payment.PaymentResponse;
+import fpt.project.bsmart.entity.response.UserRevenueResponse;
+import fpt.project.bsmart.entity.response.SystemRevenueResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ITransactionService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.TransactionSpecificationBuilder;
+
+import fpt.project.bsmart.entity.response.WithDrawResponse;
+import fpt.project.bsmart.payment.PaymentGateway;
+import fpt.project.bsmart.payment.PaymentPicker;
+import fpt.project.bsmart.payment.PaymentResponse;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -312,7 +317,45 @@ public class TransactionService implements ITransactionService {
         return enrolledClassNotifications;
     }
 
-    public List<SystemRevenueResponse> getSystemRevenue(Integer year) {
+    @Override
+    public UserRevenueResponse getUserRevenue(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + userId));
+        boolean isStudentOrMentor = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER, EUserRole.STUDENT);
+        if(!isStudentOrMentor){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Người dùng không phải là học sinh hoặc giáo viên");
+        }
+        List<OrderDetail> orderDetails;
+        TransactionSpecificationBuilder transactionSpecificationBuilder = TransactionSpecificationBuilder.transactionSpecificationBuilder()
+                .filterByStatus(ETransactionStatus.SUCCESS);
+        if(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT)){
+            transactionSpecificationBuilder.filterByBuyer(userId);
+            List<Transaction> transactions = transactionRepository.findAll(transactionSpecificationBuilder.build());
+            orderDetails = getOrderDetails(transactions);
+        }else{
+            transactionSpecificationBuilder.filterBySeller(userId);
+            List<Transaction> transactions = transactionRepository.findAll(transactionSpecificationBuilder.build());
+            orderDetails = getOrderDetails(transactions, user);
+        }
+        return ConvertUtil.convertOrderDetailToRevenueResponse(orderDetails, user);
+    }
+
+    private List<OrderDetail> getOrderDetails(List<Transaction> transactions, User user){
+         return transactions.stream()
+                .map(Transaction::getOrder)
+                .flatMap(obj -> obj.getOrderDetails().stream())
+                .filter(x -> x.getClazz().getMentor().equals(user))
+                .collect(Collectors.toList());
+    }
+
+    private List<OrderDetail> getOrderDetails(List<Transaction> transactions){
+        return transactions.stream()
+                .map(Transaction::getOrder)
+                .flatMap(obj -> obj.getOrderDetails().stream())
+                .collect(Collectors.toList());
+    }
+
+    public List<SystemRevenueResponse> getSystemRevenue(Integer year){
         TransactionSpecificationBuilder builder = TransactionSpecificationBuilder.transactionSpecificationBuilder()
                 .filterFromDate(InstantUtil.getFirstDayOfYear(year))
                 .filterToDate(InstantUtil.getLastDayOfYear(year))

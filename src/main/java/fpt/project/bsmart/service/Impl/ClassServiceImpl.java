@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
+import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_FEEDBACK_TYPE;
 
 
 @Service
@@ -807,15 +808,16 @@ public class ClassServiceImpl implements IClassService {
         return PageUtil.convert(new PageImpl<>(classResponses, pageable, classResponses.size()));
     }
 
-    public Boolean simulateCloseClassEvent(Long classId){
+    public Boolean simulateCloseClassEvent(Long classId) {
         Class clazz = classRepository.findById(classId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
-        if(!clazz.getStatus().equals(STARTING)){
+        if (!clazz.getStatus().equals(STARTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Trạng thái lớp không hợp lệ để giả lập: " + clazz.getStatus());
         }
         ClassUtil.handleCloseClassEvent(clazz);
         return true;
     }
+
 
     @Override
     public List<BaseClassResponse> getDuplicateTimeClassOfStudent(Long id) {
@@ -847,5 +849,21 @@ public class ClassServiceImpl implements IClassService {
                 .collect(Collectors.toList());
 
         return baseClassResponses;
+    }
+
+    public List<MentorGetClassDetailResponse> getClassesNotUseTemplate(Long templateId) {
+        FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findById(templateId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(FEEDBACK_QUESTION_NOT_FOUND_BY_ID) + templateId));
+        if (!feedbackTemplate.getType().equals(EFeedbackType.COURSE)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_TYPE));
+        }
+        List<ECourseStatus> statuses = new ArrayList<>(Arrays.asList(NOTSTART, STARTING));
+        List<Class> byStatusIn = classRepository.findByStatus_In(statuses);
+        List<Class> classNotUseTemplate = byStatusIn.stream()
+                .filter(aClass -> !aClass.getFeedbackTemplate().equals(feedbackTemplate))
+                .collect(Collectors.toList());
+        return classNotUseTemplate.stream()
+                .map(ClassUtil::convertClassToMentorClassDetailResponse)
+                .collect(Collectors.toList());
     }
 }

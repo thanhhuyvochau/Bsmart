@@ -59,6 +59,10 @@ public interface IClassService {
     ApiPage<MentorGetClassDetailResponse> managerGetClass(ECourseStatus status, Pageable pageable);
 
     ApiPage<MentorGetClassDetailResponse> getAllClassForSetTemplateFeedback(Pageable pageable);
+
     List<BaseClassResponse> getDuplicateTimeClassOfStudent(Long id);
+
+    List<MentorGetClassDetailResponse> getClassesNotUseTemplate(Long templateId);
+
     Boolean simulateCloseClassEvent(Long classId);
 }
