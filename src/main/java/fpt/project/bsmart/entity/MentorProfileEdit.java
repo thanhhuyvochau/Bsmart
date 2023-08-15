@@ -12,7 +12,7 @@ public class MentorProfileEdit extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(columnDefinition  = "profile_data")
+    @Column(name = "profile_data")
     private String profileData;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mentor_profile_id")
