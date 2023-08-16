@@ -37,10 +37,13 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
     Page<Class> findByStatus(ECourseStatus status, Pageable pageable);
 
     List<Class> findByStartDate(Instant startDate);
+
     List<Class> findByEndDateAndStatus(Instant endDate, ECourseStatus status);
 
     List<Class> findByFeedbackTemplate(FeedbackTemplate feedbackTemplate);
 
     @Query("SELECT c  FROM Class c INNER JOIN c.studentClasses sc WHERE sc.student  = ?1 and (c.startDate <= ?2 AND c.endDate >= ?2)")
     List<Class> findByStudentAndStartDate(User student, Instant startDate);
+
+    List<Class> findByCourse(Course course);
 }
