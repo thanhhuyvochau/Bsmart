@@ -4,9 +4,11 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETransactionType;
+import fpt.project.bsmart.util.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,6 +91,37 @@ public class TransactionSpecificationBuilder {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Transaction_.TYPE), type));
+        return this;
+    }
+
+    public TransactionSpecificationBuilder filterFromAmount(BigDecimal amount){
+        if(amount == null){
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(root.get(Transaction_.AMOUNT), amount));
+        return this;
+    }
+
+    public TransactionSpecificationBuilder filterToAmount(BigDecimal amount){
+        if(amount == null){
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.lessThanOrEqualTo(root.get(Transaction_.AMOUNT), amount));
+        return this;
+    }
+
+    public TransactionSpecificationBuilder filterByName(String name){
+        if(StringUtil.isNullOrEmpty(name)){
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            String search = name.replaceAll("\\s\\s+", " ").trim();
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("%").append(search).append("%");
+            Join<Transaction, Wallet> transactionWalletJoin = root.join(Transaction_.WALLET);
+            Join<Wallet, User> walletUserJoin = root.join(Wallet_.OWNER);
+            return criteriaBuilder.like(walletUserJoin.get(User_.FULL_NAME), stringBuilder.toString());
+        });
         return this;
     }
 

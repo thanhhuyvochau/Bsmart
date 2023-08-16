@@ -21,6 +21,7 @@ public interface ITransactionService {
 //    Boolean deposit(DepositRequest request);
 
     Boolean withdraw(WithdrawRequest request);
+    ApiPage<MentorWithDrawRequest> managerGetWithdrawRequest(WithDrawSearchRequest request,Pageable pageable);
     List<WithDrawResponse> managerGetWithDrawRequest();
     Boolean managerProcessWithdrawRequest(List<ProcessWithdrawRequest> requests);
 

@@ -25,6 +25,7 @@ import fpt.project.bsmart.payment.PaymentPicker;
 import fpt.project.bsmart.payment.PaymentResponse;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -117,13 +119,49 @@ public class TransactionService implements ITransactionService {
         return true;
     }
 
+    @Override
+    public ApiPage<MentorWithDrawRequest> managerGetWithdrawRequest(WithDrawSearchRequest request,Pageable pageable){
+        if(request.getFromAmount() != null && request.getToAmount() != null){
+            if(request.getFromAmount().compareTo(BigDecimal.ZERO) == -1){
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            }
+            if(request.getToAmount().compareTo(BigDecimal.ZERO) == -1){
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            }
+            if(request.getFromAmount().compareTo(request.getToAmount()) <= 0) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            }
+        }
+        if(request.getFromDate() != null && request.getToDate() != null){
+            if(request.getFromDate().isAfter(Instant.now())){
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            }
+            if(request.getToDate().isAfter(Instant.now())){
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
+            }
+            if(request.getFromDate().isAfter(request.getToDate())) {
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_END_DATE));
+            }
+        }
+        TransactionSpecificationBuilder transactionSpecificationBuilder = TransactionSpecificationBuilder.transactionSpecificationBuilder()
+                .filterByTpe(ETransactionType.WITHDRAW)
+                .filterFromDate(request.getFromDate())
+                .filterToDate(request.getToDate())
+                .filterFromAmount(request.getFromAmount())
+                .filterToAmount(request.getToAmount())
+                .filterByStatus(request.getStatus())
+                .filterByName(request.getMentorName());
+        Page<Transaction> transactions = transactionRepository.findAll(transactionSpecificationBuilder.build(), pageable);
+        List<MentorWithDrawRequest> requests = transactions.getContent().stream().map(ConvertUtil::convertTransactionToMentorWithDrawRequest).collect(Collectors.toList());
+        return PageUtil.convert(new PageImpl<>(requests, pageable, transactions.getTotalElements()));
+    }
     public List<WithDrawResponse> managerGetWithDrawRequest() {
-        List<Transaction> transactions = transactionRepository.findAllByStatus(ETransactionStatus.WAITING);
+        List<Transaction> transactions = transactionRepository.findAllByStatusAndType(ETransactionStatus.WAITING, ETransactionType.WITHDRAW);
         return transactions.stream().map(ConvertUtil::convertWithdrawRequestToWithdrawResponse).collect(Collectors.toList());
     }
 
     public Boolean managerProcessWithdrawRequest(List<ProcessWithdrawRequest> requests) {
-        List<Transaction> pendingTransactions = transactionRepository.findAllByStatus(ETransactionStatus.WAITING);
+        List<Transaction> pendingTransactions = transactionRepository.findAllByStatusAndType(ETransactionStatus.WAITING, ETransactionType.WITHDRAW);
         for (ProcessWithdrawRequest request : requests) {
             Transaction transaction = pendingTransactions.stream().filter(x -> x.getId().equals(request.getId()))
                     .findFirst()

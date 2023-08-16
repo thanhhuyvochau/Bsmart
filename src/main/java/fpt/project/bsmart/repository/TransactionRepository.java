@@ -15,6 +15,7 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     Page<Transaction> findAllByWallet(Wallet wallet, Pageable pageable);
+    Page<Transaction> findAll(Specification<Transaction> specification, Pageable pageable);
     List<Transaction> findAll(Specification<Transaction> specification);
     List<Transaction> findAllByStatus(ETransactionStatus status);
 }
