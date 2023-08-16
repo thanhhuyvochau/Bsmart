@@ -27,15 +27,18 @@ public class JwtUtils {
 
     public String generateJwtToken(Authentication authentication) {
         String email = null;
-        try {
-            UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserDetailsImpl) {
+            UserDetailsImpl userPrincipal = (UserDetailsImpl) principal;
             email = userPrincipal.getEmail();
-        } catch (ClassCastException e) {
-            LocalUser userPrincipal = (LocalUser) authentication.getPrincipal();
+        } else if (principal instanceof LocalUser) {
+            LocalUser userPrincipal = (LocalUser) principal;
             Map<String, Object> attributes = userPrincipal.getAttributes();
             email = (String) attributes.get("email");
+        } else {
+            logger.error("Cannot cast Authentication to Classes is supported by application");
         }
-
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())

@@ -1,5 +1,6 @@
 package fpt.project.bsmart.util;
 
+import fpt.project.bsmart.config.security.oauth2.dto.LocalUser;
 import fpt.project.bsmart.config.security.service.UserDetailsImpl;
 import fpt.project.bsmart.entity.Cart;
 import fpt.project.bsmart.entity.Role;
@@ -10,6 +11,8 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.repository.CartRepository;
 import fpt.project.bsmart.repository.UserRepository;
 import fpt.project.bsmart.repository.WalletRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -17,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -26,6 +30,7 @@ public class SecurityUtil {
     private static UserRepository staticUserRepository;
     private static WalletRepository staticWalletRepository;
     private static CartRepository staticCartRepository;
+    private static final Logger logger = LoggerFactory.getLogger(SecurityUtil.class);
 
     public SecurityUtil(MessageUtil messageUtil, UserRepository userRepository, WalletRepository walletRepository, CartRepository cartRepository) {
         this.messageUtil = messageUtil;
@@ -38,13 +43,10 @@ public class SecurityUtil {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Object principal = securityContext.getAuthentication().getPrincipal();
         User user = null;
-        if (principal instanceof UserDetailsImpl) {
-            UserDetailsImpl userDetails = (UserDetailsImpl) principal;
-            String email = userDetails.getEmail();
-            user = staticUserRepository.findByEmail(email)
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage(messageUtil.getLocalMessage("Tài khoản đăng nhập hiện tại không tìm thấy") + email));
-        }
+        String email = getEmailCurrentUser(principal);
+        user = staticUserRepository.findByEmail(email)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage("Tài khoản đăng nhập hiện tại không tìm thấy") + email));
         return user;
     }
 
@@ -52,15 +54,10 @@ public class SecurityUtil {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Object principal = securityContext.getAuthentication().getPrincipal();
         User user = null;
-        if (principal instanceof UserDetailsImpl) {
-
-            UserDetailsImpl userDetails = (UserDetailsImpl) principal;
-            String email = userDetails.getEmail();
-            user = staticUserRepository.findByEmail(email)
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage(messageUtil.getLocalMessage("Tài khoản đăng nhập hiện tại không tìm thấy") + email));
-
-        }
+        String email = getEmailCurrentUser(principal);
+        user = staticUserRepository.findByEmail(email)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage("Tài khoản đăng nhập hiện tại không tìm thấy") + email));
         return Optional.ofNullable(user);
     }
 
@@ -88,12 +85,11 @@ public class SecurityUtil {
 
     public static Optional<String> getCurrentUserName() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getPrincipal().equals("anonymousUser")) {
+        if (authentication == null) {
             return Optional.empty();
+        } else {
+            return Optional.ofNullable(getEmailCurrentUser(authentication.getPrincipal()));
         }
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        System.out.println("------PRINCIPAL----:" + userDetails.getUsername());
-        return Optional.ofNullable(userDetails.getUsername());
     }
 
     public static Boolean isHasAnyRole(User user, EUserRole... checkedRoleCodes) {
@@ -108,5 +104,20 @@ public class SecurityUtil {
 
     public static User getUserOrThrowException(Optional<User> userOptional) {
         return userOptional.orElseThrow(() -> ApiException.create(HttpStatus.UNAUTHORIZED).withMessage("Người dùng chưa đăng nhập hoặc không tồn tại"));
+    }
+
+    public static String getEmailCurrentUser(Object principal) {
+        String email = null;
+        if (principal instanceof UserDetailsImpl) {
+            UserDetailsImpl userPrincipal = (UserDetailsImpl) principal;
+            email = userPrincipal.getEmail();
+        } else if (principal instanceof LocalUser) {
+            LocalUser userPrincipal = (LocalUser) principal;
+            Map<String, Object> attributes = userPrincipal.getAttributes();
+            email = (String) attributes.get("email");
+        } else {
+            logger.error("Cannot cast Authentication to Classes is supported by application");
+        }
+        return email;
     }
 }
