@@ -233,6 +233,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
                         submitAnswers.setSubmission(feedbackSubmission);
                         submitAnswers.setAnswer(feedbackAnswer);
                         feedbackSubmitAnswers.add(submitAnswers);
+                        break;
                     }else{
                         throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_ANSWER_OPTION) + feedbackAnswer.getId());
                     }
