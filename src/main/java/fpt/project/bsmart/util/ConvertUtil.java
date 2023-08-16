@@ -8,6 +8,7 @@ import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
+import fpt.project.bsmart.entity.request.MentorWithDrawRequest;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
 import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
@@ -1058,6 +1059,20 @@ public class ConvertUtil {
         paymentResponse.setTransactionStatus(transaction.getStatus());
         paymentResponse.setTransactionId(transaction.getId());
         return paymentResponse;
+    }
+
+    public static MentorWithDrawRequest convertTransactionToMentorWithDrawRequest(Transaction transaction){
+        MentorWithDrawRequest request = new MentorWithDrawRequest();
+        request.setId(transaction.getId());
+        request.setName(transaction.getWallet().getOwner().getFullName());
+        request.setBankName(transaction.getBank().getName());
+        request.setBankAccount(transaction.getBankAccountOwner());
+        request.setBankNumber(transaction.getReceivedBankAccount());
+        request.setAmount(transaction.getAmount());
+        request.setStatus(transaction.getStatus());
+        request.setCreatedAt(transaction.getCreated());
+        request.setNote(transaction.getNote());
+        return request;
     }
 
     public static WithDrawResponse convertWithdrawRequestToWithdrawResponse(Transaction transaction) {
