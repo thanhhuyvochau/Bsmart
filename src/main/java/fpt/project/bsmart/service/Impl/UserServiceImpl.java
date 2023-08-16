@@ -540,7 +540,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
-        existingUser.setEmail(oAuth2UserInfo.getName());
+        existingUser.setEmail(oAuth2UserInfo.getEmail());
         return userRepository.save(existingUser);
     }
 
