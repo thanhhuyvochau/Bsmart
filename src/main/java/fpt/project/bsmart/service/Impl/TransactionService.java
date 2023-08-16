@@ -118,12 +118,12 @@ public class TransactionService implements ITransactionService {
     }
 
     public List<WithDrawResponse> managerGetWithDrawRequest() {
-        List<Transaction> transactions = transactionRepository.findAllByStatus(ETransactionStatus.WAITING);
+        List<Transaction> transactions = transactionRepository.findAllByStatusAndType(ETransactionStatus.WAITING, ETransactionType.TRANSFER);
         return transactions.stream().map(ConvertUtil::convertWithdrawRequestToWithdrawResponse).collect(Collectors.toList());
     }
 
     public Boolean managerProcessWithdrawRequest(List<ProcessWithdrawRequest> requests) {
-        List<Transaction> pendingTransactions = transactionRepository.findAllByStatus(ETransactionStatus.WAITING);
+        List<Transaction> pendingTransactions = transactionRepository.findAllByStatusAndType(ETransactionStatus.WAITING, ETransactionType.TRANSFER);
         for (ProcessWithdrawRequest request : requests) {
             Transaction transaction = pendingTransactions.stream().filter(x -> x.getId().equals(request.getId()))
                     .findFirst()
