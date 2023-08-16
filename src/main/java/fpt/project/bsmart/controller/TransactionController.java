@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Nullable;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -62,8 +63,14 @@ public class TransactionController {
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.withdraw(request)));
     }
 
-    @Operation(summary = "Quản lý lất yêu cầu rút tiền")
-    @GetMapping("/withdraw/requests")
+    @Operation(summary = "Quản lý lấy danh sách yêu cầu rút tiền của giảng viên")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
+    @GetMapping("withdraw/requests")
+    public ResponseEntity<ApiResponse<ApiPage<MentorWithDrawRequest>>> managerGetWithdrawRequest(@Nullable WithDrawSearchRequest request, Pageable pageable){
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.managerGetWithdrawRequest(request, pageable)));
+    }
+    @Operation(summary = "Quản lý xuất yêu cầu rút tiền")
+    @GetMapping("/withdraw/requests/export")
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public ResponseEntity<ApiResponse<List<WithDrawResponse>>> managerGetWithdrawRequest(){
         return ResponseEntity.ok(ApiResponse.success(iTransactionService.managerGetWithDrawRequest()));
