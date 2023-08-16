@@ -808,20 +808,53 @@ public class ClassServiceImpl implements IClassService {
         return PageUtil.convert(new PageImpl<>(classResponses, pageable, classResponses.size()));
     }
 
-    public Boolean simulateCloseClassEvent(Long classId){
+    public Boolean simulateCloseClassEvent(Long classId) {
         Class clazz = classRepository.findById(classId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + classId));
-        if(!clazz.getStatus().equals(STARTING)){
+        if (!clazz.getStatus().equals(STARTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Trạng thái lớp không hợp lệ để giả lập: " + clazz.getStatus());
         }
         ClassUtil.handleCloseClassEvent(clazz);
         return true;
     }
 
-    public List<MentorGetClassDetailResponse> getClassesNotUseTemplate(Long templateId){
+
+    @Override
+    public List<BaseClassResponse> getDuplicateTimeClassOfStudent(Long id) {
+        User student = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        Class clazz = classRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
+
+        Set<EDayOfWeekCode> checkedClassEDayCodes = clazz.getTimeInWeeks()
+                .stream()
+                .map(TimeInWeek::getDayOfWeek)
+                .map(DayOfWeek::getCode)
+                .collect(Collectors.toSet());
+
+        List<Class> possibleDuplicateClasses = classRepository.findByStudentAndStartDate(student, clazz.getStartDate());
+        List<Class> duplicateClasses = possibleDuplicateClasses.stream()
+                .filter(possibleDuplicateClass -> possibleDuplicateClass.getTimeInWeeks()
+                        .stream()
+                        .anyMatch(timeInWeek -> checkedClassEDayCodes.contains(timeInWeek.getDayOfWeek().getCode())))
+                .filter(possibleDuplicateClass -> possibleDuplicateClass.getTimeInWeeks()
+                        .stream()
+                        .anyMatch(timeInWeek -> clazz.getTimeInWeeks().stream()
+                                .anyMatch(checkedTimeInWeek -> checkedTimeInWeek.getDayOfWeek().getCode().equals(timeInWeek.getDayOfWeek().getCode())
+                                        && checkedTimeInWeek.getSlot().getId().equals(timeInWeek.getSlot().getId()))))
+                .collect(Collectors.toList());
+
+        List<BaseClassResponse> baseClassResponses = duplicateClasses.stream()
+                .map(ClassUtil::convertClassToBaseclassResponse)
+                .collect(Collectors.toList());
+
+        return baseClassResponses;
+    }
+
+    public List<MentorGetClassDetailResponse> getClassesNotUseTemplate(Long templateId) {
         FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findById(templateId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(FEEDBACK_QUESTION_NOT_FOUND_BY_ID) + templateId));
-        if(!feedbackTemplate.getType().equals(EFeedbackType.COURSE)){
+        if (!feedbackTemplate.getType().equals(EFeedbackType.COURSE)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_TYPE));
         }
         List<ECourseStatus> statuses = new ArrayList<>(Arrays.asList(NOTSTART, STARTING));

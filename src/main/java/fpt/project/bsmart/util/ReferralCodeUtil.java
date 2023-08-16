@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Random;
 
 @Component
@@ -30,8 +31,14 @@ public class ReferralCodeUtil {
 
 
     public static void generateRandomReferralCode(OrderDetail orderDetail, User owner) {
+        String code = generateCode();
+        Optional<ReferralCode> existReferral = Optional.empty();
+        do {
+            existReferral = referralCodeRepository.findByCode(code);
+        } while (existReferral.isPresent());
+
         ReferralCode referralCode = new ReferralCode();
-        referralCode.setCode(generateCode());
+        referralCode.setCode(code);
         referralCode.setDiscountPercent(10);
         referralCode.setUsageLimit(10);
         referralCode.setUser(owner);

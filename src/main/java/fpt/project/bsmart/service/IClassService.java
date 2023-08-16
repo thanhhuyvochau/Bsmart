@@ -1,22 +1,17 @@
 package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.request.*;
-import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
-import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
-import fpt.project.bsmart.entity.response.*;
-import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
-
 import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
+import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
 import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
-
+import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
+import fpt.project.bsmart.entity.response.*;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -43,7 +38,7 @@ public interface IClassService {
     ManagerGetClassDetailResponse managerGetClassDetail(Long id);
 
 
-//        Boolean createClass(CreateClassRequest request);
+    //        Boolean createClass(CreateClassRequest request);
 //
 //    ApiPage<SimpleClassResponse> getClassFeedbacks(ClassFeedbackRequest classFeedbackRequest, Pageable pageable);
 //
@@ -57,12 +52,17 @@ public interface IClassService {
 
     ApiPage<MentorGetClassDetailResponse> mentorGetClass(ECourseStatus status, Pageable pageable);
 
-    Boolean mentorOpenClass(Long id,  List<MentorCreateScheduleRequest> timeTableRequest) throws ValidationErrorsException;
+    Boolean mentorOpenClass(Long id, List<MentorCreateScheduleRequest> timeTableRequest) throws ValidationErrorsException;
+
     ApiPage<StudentClassResponse> getClassMembers(Long id, Pageable pageable);
 
     ApiPage<MentorGetClassDetailResponse> managerGetClass(ECourseStatus status, Pageable pageable);
 
     ApiPage<MentorGetClassDetailResponse> getAllClassForSetTemplateFeedback(Pageable pageable);
+
+    List<BaseClassResponse> getDuplicateTimeClassOfStudent(Long id);
+
     List<MentorGetClassDetailResponse> getClassesNotUseTemplate(Long templateId);
+
     Boolean simulateCloseClassEvent(Long classId);
 }

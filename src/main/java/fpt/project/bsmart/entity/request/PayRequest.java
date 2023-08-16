@@ -6,6 +6,7 @@ public class PayRequest {
     private Long clazzId;
     private String referalCode;
     private EPaymentType type = EPaymentType.BANKING;
+    private boolean useWallet = false;
 
     public Long getClazzId() {
         return clazzId;
@@ -29,5 +30,13 @@ public class PayRequest {
 
     public void setType(EPaymentType type) {
         this.type = type;
+    }
+
+    public boolean isUseWallet() {
+        return useWallet;
+    }
+
+    public void setUseWallet(boolean useWallet) {
+        this.useWallet = useWallet;
     }
 }
