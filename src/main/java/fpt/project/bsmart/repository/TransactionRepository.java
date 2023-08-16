@@ -3,6 +3,7 @@ package fpt.project.bsmart.repository;
 import fpt.project.bsmart.entity.Transaction;
 import fpt.project.bsmart.entity.Wallet;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
+import fpt.project.bsmart.entity.constant.ETransactionType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,5 +18,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     Page<Transaction> findAllByWallet(Wallet wallet, Pageable pageable);
     Page<Transaction> findAll(Specification<Transaction> specification, Pageable pageable);
     List<Transaction> findAll(Specification<Transaction> specification);
-    List<Transaction> findAllByStatus(ETransactionStatus status);
+    List<Transaction> findAllByStatusAndType(ETransactionStatus status, ETransactionType type);
 }
