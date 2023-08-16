@@ -130,8 +130,8 @@ public class ClassController {
     @Operation(summary = "MANAGER lấy tất cả các class của course để phê duyệt")
     @GetMapping("/pending/course/{id}")
     @PreAuthorize("hasAnyRole('MANAGER')")
-    public ResponseEntity<ApiResponse<ManagerGetCourseClassResponse>> getAllClassOfCourseForManager(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourseForManager(id)));
+    public ResponseEntity<ApiResponse<ManagerGetCourseClassResponse>> getAllClassOfCourseForManager(@PathVariable Long id,@RequestParam ECourseStatus status) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourseForManager(id,status)));
     }
 
     @Operation(summary = "MANAGER lấy tất cả các class để set template feedback")
