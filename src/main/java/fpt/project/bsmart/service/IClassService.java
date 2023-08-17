@@ -14,6 +14,7 @@ import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.*;
 import org.springframework.data.domain.Pageable;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface IClassService {
@@ -62,7 +63,7 @@ public interface IClassService {
 
     List<BaseClassResponse> getDuplicateTimeClassOfStudent(Long id);
 
-    List<MentorGetClassDetailResponse> getClassesNotUseTemplate(Long templateId);
+    HashMap<String ,List<MentorGetClassDetailResponse>> getClassesNotUseTemplate(Long templateId);
 
     Boolean simulateCloseClassEvent(Long classId);
 }
