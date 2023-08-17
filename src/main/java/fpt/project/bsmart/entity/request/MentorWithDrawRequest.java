@@ -14,6 +14,7 @@ public class MentorWithDrawRequest {
     private BigDecimal amount = BigDecimal.ZERO;
     private ETransactionStatus status;
     private Instant createdAt;
+    private Instant processAt;
     private String note;
 
     public Long getId() {
@@ -78,6 +79,14 @@ public class MentorWithDrawRequest {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Instant getProcessAt() {
+        return processAt;
+    }
+
+    public void setProcessAt(Instant processAt) {
+        this.processAt = processAt;
     }
 
     public String getNote() {
