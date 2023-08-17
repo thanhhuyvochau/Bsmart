@@ -24,6 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -165,8 +166,8 @@ public class ClassController {
 
     @Operation(summary = "Manager lấy class không dùng template")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    @GetMapping("/feedback-template/{id}/not-use")
-    public ResponseEntity<ApiResponse<List<MentorGetClassDetailResponse>>> getClassNotUseFeedbackTemplate(@PathVariable Long id){
+    @GetMapping("/feedback-template/{id}")
+    public ResponseEntity<ApiResponse<HashMap<String ,List<MentorGetClassDetailResponse>>>> getClassNotUseFeedbackTemplate(@PathVariable Long id){
         return ResponseEntity.ok(ApiResponse.success(iClassService.getClassesNotUseTemplate(id)));
     }
     //    @Operation(summary = "mentor tao lớp học")

@@ -165,9 +165,6 @@ public class FeedbackServiceImpl implements IFeedbackService {
             classListToSave.add(aClass);
         });
 
-        if (Boolean.FALSE.equals(feedbackTemplate.getIsFixed())) {
-            feedbackTemplate.setIsFixed(true);
-        }
         classRepository.saveAll(classListToSave);
         return true;
     }
@@ -253,7 +250,11 @@ public class FeedbackServiceImpl implements IFeedbackService {
         feedbackSubmission.setAnswers(feedbackSubmitAnswers);
         feedbackSubmission.setSubmitBy(user);
         feedbackSubmission.setClazz(clazz);
-        return feedbackSubmissionRepository.save(feedbackSubmission).getId();
+        feedbackSubmissionRepository.save(feedbackSubmission);
+        if(Boolean.FALSE.equals(feedbackTemplate.getIsFixed())){
+            feedbackTemplate.setIsFixed(true);
+        }
+        return feedbackSubmission.getId();
     }
 
 //    public Long studentUpdateFeedback(Long submissionId, StudentSubmitFeedbackRequest request) {

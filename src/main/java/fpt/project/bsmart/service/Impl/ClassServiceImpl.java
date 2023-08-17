@@ -851,19 +851,27 @@ public class ClassServiceImpl implements IClassService {
         return baseClassResponses;
     }
 
-    public List<MentorGetClassDetailResponse> getClassesNotUseTemplate(Long templateId) {
+    public HashMap<String ,List<MentorGetClassDetailResponse>> getClassesNotUseTemplate(Long templateId) {
         FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findById(templateId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(FEEDBACK_QUESTION_NOT_FOUND_BY_ID) + templateId));
         if (!feedbackTemplate.getType().equals(EFeedbackType.COURSE)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_TYPE));
         }
         List<ECourseStatus> statuses = new ArrayList<>(Arrays.asList(NOTSTART, STARTING));
-        List<Class> byStatusIn = classRepository.findByStatus_In(statuses);
-        List<Class> classNotUseTemplate = byStatusIn.stream()
+        List<Class> classes = classRepository.findByStatus_In(statuses);
+        List<Class> classNotUseTemplate = classes.stream()
                 .filter(aClass -> !aClass.getFeedbackTemplate().equals(feedbackTemplate))
                 .collect(Collectors.toList());
-        return classNotUseTemplate.stream()
+        classes.removeAll(classNotUseTemplate);
+        List<MentorGetClassDetailResponse> notUseClass = classNotUseTemplate.stream()
                 .map(ClassUtil::convertClassToMentorClassDetailResponse)
                 .collect(Collectors.toList());
+        List<MentorGetClassDetailResponse> useClass = classes.stream()
+                .map(ClassUtil::convertClassToMentorClassDetailResponse)
+                .collect(Collectors.toList());
+        HashMap<String ,List<MentorGetClassDetailResponse>> map = new HashMap<>();
+        map.put("use", useClass);
+        map.put("notUse", notUseClass);
+        return map;
     }
 }
