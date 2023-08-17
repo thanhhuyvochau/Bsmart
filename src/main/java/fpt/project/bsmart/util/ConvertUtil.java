@@ -1065,12 +1065,13 @@ public class ConvertUtil {
         MentorWithDrawRequest request = new MentorWithDrawRequest();
         request.setId(transaction.getId());
         request.setName(transaction.getWallet().getOwner().getFullName());
-        request.setBankName(transaction.getBank().getName());
+        request.setBankName(transaction.getBank().getShortName());
         request.setBankAccount(transaction.getBankAccountOwner());
         request.setBankNumber(transaction.getReceivedBankAccount());
         request.setAmount(transaction.getAmount());
         request.setStatus(transaction.getStatus());
         request.setCreatedAt(transaction.getCreated());
+        request.setProcessAt(transaction.getLastModified());
         request.setNote(transaction.getNote());
         return request;
     }
@@ -1079,8 +1080,9 @@ public class ConvertUtil {
         WithDrawResponse response = new WithDrawResponse();
         response.setId(transaction.getId());
         response.setUserName(transaction.getWallet().getOwner().getFullName());
-        response.setAmount(transaction.getAmount());
-        response.setBankName(transaction.getBank().getName());
+        response.setAmount(transaction.getAmount().toString());
+        response.setBankName(transaction.getBank().getShortName());
+        response.setStatus(transaction.getStatus());
         response.setBankAccount(transaction.getBankAccountOwner());
         response.setBankNumber(transaction.getReceivedBankAccount());
         return response;

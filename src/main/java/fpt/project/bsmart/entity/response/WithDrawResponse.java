@@ -1,5 +1,7 @@
 package fpt.project.bsmart.entity.response;
 
+import fpt.project.bsmart.entity.constant.ETransactionStatus;
+
 import java.math.BigDecimal;
 
 public class WithDrawResponse {
@@ -8,7 +10,8 @@ public class WithDrawResponse {
     private String bankName;
     private String bankAccount;
     private Long bankNumber;
-    private BigDecimal amount = BigDecimal.ZERO;
+    private String amount;
+    private ETransactionStatus status;
 
     public Long getId() {
         return id;
@@ -50,11 +53,19 @@ public class WithDrawResponse {
         this.bankNumber = bankNumber;
     }
 
-    public BigDecimal getAmount() {
+    public String getAmount() {
         return amount;
     }
 
-    public void setAmount(BigDecimal amount) {
+    public void setAmount(String amount) {
         this.amount = amount;
+    }
+
+    public ETransactionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ETransactionStatus status) {
+        this.status = status;
     }
 }
