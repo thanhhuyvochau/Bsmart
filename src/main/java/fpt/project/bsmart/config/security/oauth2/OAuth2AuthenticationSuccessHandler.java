@@ -3,10 +3,7 @@ package fpt.project.bsmart.config.security.oauth2;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fpt.project.bsmart.config.AppProperties;
 import fpt.project.bsmart.config.security.jwt.JwtUtils;
-import fpt.project.bsmart.config.security.oauth2.dto.LocalUser;
-import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.request.JwtResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -20,9 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -63,6 +58,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 //        Optional<String> redirectUri = CookieUtils.getCookie(request, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME).map(Cookie::getValue);
         Optional<String> redirectUri = Optional.ofNullable(oauth2RedirectURL);
         if (redirectUri.isPresent() && !isAuthorizedRedirectUri(redirectUri.get())) {
+            System.out.println("---------OAUTH SUCESS:----------");
+            System.out.println(redirectUri.get());
+            System.out.println("---------OAUTH SUCESS:----------");
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication");
         }
 
@@ -83,6 +81,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 //            throw new RuntimeException(e);
 //        }
 //        return UriComponentsBuilder.fromUriString(targetUrl).build().toUriString();
+
         return UriComponentsBuilder.fromUriString(targetUrl).queryParam("tokenId", token).build().toUriString();
     }
 

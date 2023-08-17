@@ -64,7 +64,8 @@ app:
   firebase-configuration-file: /store/vuondau-450bf-firebase-adminsdk-al83z-5d94e1225d.json
   secret-key: J@!gt*K
   oauth2:
-    authorizedRedirectUris: http://localhost:8081/oauth2/redirect,myandroidapp://oauth2/redirect,myiosapp://oauth2/redirect,http://localhost:3000/login,http://localhost:3000/login
+    authorizedRedirectUris: http://localhost:8081/oauth2/redirect,myandroidapp://oauth2/redirect,myiosapp://oauth2/redirect,http://localhost:3000/login,http://localhost:3000/login,https://mismart.vercel.app/login-success
+
 
 # Return URL after payment
 payment-redirect: http://localhost:10000/processing
