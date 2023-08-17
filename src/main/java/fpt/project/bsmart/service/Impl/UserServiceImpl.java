@@ -540,7 +540,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
-        existingUser.setEmail(oAuth2UserInfo.getName());
+        existingUser.setEmail(oAuth2UserInfo.getEmail());
         return userRepository.save(existingUser);
     }
 
@@ -623,6 +623,7 @@ public class UserServiceImpl implements IUserService {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(REGISTERED_EMAIL) + signUpRequest.getEmail());
         }
         User user = buildUser(signUpRequest);
+        user.getWallet().setOwner(user);
         user = userRepository.save(user);
         userRepository.flush();
         return user;

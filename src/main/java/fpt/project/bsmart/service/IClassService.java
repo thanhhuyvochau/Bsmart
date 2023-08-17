@@ -30,7 +30,7 @@ public interface IClassService {
     Boolean mentorDeleteClassForCourse(Long id);
 
 
-    ManagerGetCourseClassResponse getAllClassOfCourseForManager(Long id);
+    ManagerGetCourseClassResponse getAllClassOfCourseForManager(Long id,ECourseStatus status);
 
 
     ApiPage<BaseClassResponse> getAllClassesForManager(Pageable pageable);

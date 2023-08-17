@@ -12,10 +12,8 @@ import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 import fpt.project.bsmart.entity.response.MentorGetCourseClassResponse;
-import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.repository.ActivityHistoryRepository;
 import fpt.project.bsmart.repository.ClassRepository;
-import fpt.project.bsmart.repository.StudentClassRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +39,7 @@ public class CourseUtil {
     public CourseUtil(ClassRepository classRepository, MessageUtil messageUtil, ActivityHistoryRepository activityHistoryRepository) {
         staticMessageUtil = messageUtil;
         staticClassRepository = classRepository;
-        staticActivityHistoryRepository = activityHistoryRepository ;
+        staticActivityHistoryRepository = activityHistoryRepository;
     }
 
     public static void checkCourseOwnership(Course course, User user) {
@@ -261,7 +259,7 @@ public class CourseUtil {
         return courseResponse;
     }
 
-    public static ManagerGetCourseClassResponse convertCourseToCourseClassResponseManager(Course course) {
+    public static ManagerGetCourseClassResponse convertCourseToCourseClassResponseManager(Course course, ECourseStatus status) {
 
 
         ManagerGetCourseClassResponse courseResponse = new ManagerGetCourseClassResponse();
@@ -280,7 +278,6 @@ public class CourseUtil {
 
 
         ActivityHistory byUserCourse = staticActivityHistoryRepository.findByTypeAndActivityId(EActivityType.COURSE, course.getId());
-
 
 
         if (byUserCourse != null) {
@@ -304,7 +301,10 @@ public class CourseUtil {
         }
 
         List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
-        List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseStatus.WAITING);
+        if (status == null) {
+            status = ALL;
+        }
+        List<Class> classes = status == ALL ? staticClassRepository.findByCourse(course) : staticClassRepository.findByCourseAndStatus(course, status);
         classes.forEach(aClass -> {
             classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(course.getCreator(), aClass));
         });

@@ -41,7 +41,7 @@ keycloak:
 #------------------Security Specific Properties-------
 app:
   secret-key: J@!gt*K
-
+  oauth2-redirect: https://mismart.vercel.app/login-success
 beholder:
   app:
     jwtSecret:

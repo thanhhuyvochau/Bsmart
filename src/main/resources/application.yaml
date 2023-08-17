@@ -13,6 +13,7 @@ spring:
           google:
             client-id: 1049827013619-28kvfou9147c817f8aaar257fs29rmun.apps.googleusercontent.com
             client-secret: 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
+
   config:
     import: optional:file:.env[.properties]
   messages:
