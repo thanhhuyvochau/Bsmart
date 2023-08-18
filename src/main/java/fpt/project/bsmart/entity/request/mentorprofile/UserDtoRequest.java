@@ -10,7 +10,6 @@ import java.time.Instant;
 public class UserDtoRequest  {
     private static final long serialVersionUID = 1L;
     private String fullName;
-    private String email;
     private Instant birthday;
     private String address;
     private String phone;
@@ -28,14 +27,6 @@ public class UserDtoRequest  {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public Instant getBirthday() {

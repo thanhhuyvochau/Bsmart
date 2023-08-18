@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.UserDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.request.User.MentorSendAddSkill;
+import fpt.project.bsmart.entity.request.mentorprofile.ManagerApprovalEditProfileRequest;
 import fpt.project.bsmart.entity.request.mentorprofile.ManagerSearchEditProfileRequest;
 import fpt.project.bsmart.entity.request.mentorprofile.UserDtoRequest;
 import fpt.project.bsmart.entity.response.mentor.*;
@@ -44,4 +45,6 @@ public interface IMentorProfileService {
 
     ApiPage<MentorEditProfileResponse> managerGetEditProfileRequest(ManagerSearchEditProfileRequest query  , Pageable pageable) ;
     MentorEditProfileDetailResponse managerGetEditProfileDetailRequest(Long mentorProfileEditId) throws JsonProcessingException;
+
+    Boolean approveMentorProfileEdit(Long id, ManagerApprovalEditProfileRequest request);
 }
