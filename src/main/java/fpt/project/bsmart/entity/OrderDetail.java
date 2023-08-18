@@ -20,7 +20,8 @@ public class OrderDetail extends BaseEntity {
     @Column(name = "final_price")
     private BigDecimal finalPrice;
 
-
+    @OneToOne(mappedBy = "orderDetail", cascade = CascadeType.ALL)
+    private ReferralCode referralCode;
 
 
     public Long getId() {
@@ -64,5 +65,11 @@ public class OrderDetail extends BaseEntity {
         this.finalPrice = finalPrice;
     }
 
+    public ReferralCode getReferralCode() {
+        return referralCode;
+    }
 
+    public void setReferralCode(ReferralCode referralCode) {
+        this.referralCode = referralCode;
+    }
 }

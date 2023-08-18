@@ -623,7 +623,6 @@ public class UserServiceImpl implements IUserService {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(REGISTERED_EMAIL) + signUpRequest.getEmail());
         }
         User user = buildUser(signUpRequest);
-        user.getWallet().setOwner(user);
         user = userRepository.save(user);
         userRepository.flush();
         return user;
@@ -640,6 +639,8 @@ public class UserServiceImpl implements IUserService {
         user.setRoles(roles);
         user.setProvider(formDTO.getSocialProvider().getProviderType());
         user.setStatus(true);
+        user.setIsVerified(true);
+        user.getWallet().setOwner(user);
 //        user.setProviderUserId(formDTO.getProviderUserId());
         return user;
     }
