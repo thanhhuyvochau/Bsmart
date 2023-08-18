@@ -29,6 +29,8 @@ public class CourseResponse {
 
     private int totalClass;
     private List<String> mentorName;
+    private Double averageRate = 0.0;
+    private Integer submissionCount = 0;
 
     public Long getId() {
         return id;
@@ -118,5 +120,21 @@ public class CourseResponse {
 
     public void setMentorName(List<String> mentorName) {
         this.mentorName = mentorName;
+    }
+
+    public Double getAverageRate() {
+        return averageRate;
+    }
+
+    public void setAverageRate(Double averageRate) {
+        this.averageRate = averageRate;
+    }
+
+    public Integer getSubmissionCount() {
+        return submissionCount;
+    }
+
+    public void setSubmissionCount(Integer submissionCount) {
+        this.submissionCount = submissionCount;
     }
 }
