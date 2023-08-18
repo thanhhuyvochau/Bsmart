@@ -616,7 +616,7 @@ public class ClassServiceImpl implements IClassService {
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
                 .collect(Collectors.toList());
 
-        if (memberOfClassAsRole.equals(EUserRole.TEACHER)) {
+        if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER) || memberOfClassAsRole.equals(EUserRole.TEACHER)) {
             ResponseUtil.responseForRole(memberOfClassAsRole);
             return ConvertUtil.convertClassToClassResponse(clazz, sectionActivities);
         } else if (memberOfClassAsRole.equals(EUserRole.STUDENT)) {
