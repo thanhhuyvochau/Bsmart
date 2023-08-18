@@ -467,7 +467,7 @@ public class ActivityServiceImpl implements IActivityService {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Định dạng file không hợp lệ (docx, doc, xlsx, xls, csv, pptx, ppt, pdf)");
         } else if (!AssignmentValidator.isValidFileNumber(assignment.getMaxFileSubmit(), submittedFiles)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Số lượng file vượt quá:" + assignment.getMaxFileSubmit());
-        } else if (!AssignmentValidator.isTotalSizeWithinLimit(assignment.getMaxFileSize(), submittedFiles)) {
+        } else if (AssignmentValidator.isTotalSizeWithinLimit(assignment.getMaxFileSize(), submittedFiles)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Tổng dung lượng file nộp vượt quá " + assignment.getMaxFileSize() + " Mb");
         }
         AssignmentSubmition assignmentSubmition = null;
