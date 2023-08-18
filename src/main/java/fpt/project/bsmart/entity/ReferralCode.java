@@ -2,6 +2,7 @@ package fpt.project.bsmart.entity;
 
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.Date;
 
 
@@ -25,21 +26,21 @@ public class ReferralCode extends BaseEntity {
     @Column(name = "usage_count")
     private Integer usageCount;
 
-    @Column(name = "point")
-    private Integer point;
-
     @Column(name = "expired_at")
-    private Date expiredAt;
+    private Instant expiredAt;
 
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "order_detail_id", referencedColumnName = "id")
-    private OrderDetail OrderDetail ;
+    private OrderDetail orderDetail;
 
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "owner_id")
     private User user;
+    @ManyToOne
+    @JoinColumn(name = "config_referral_id")
+    private ConfigReferralCode configReferralCode;
 
     public Long getId() {
         return id;
@@ -81,19 +82,11 @@ public class ReferralCode extends BaseEntity {
         this.usageCount = usageCount;
     }
 
-    public Integer getPoint() {
-        return point;
-    }
-
-    public void setPoint(Integer point) {
-        this.point = point;
-    }
-
-    public Date getExpiredAt() {
+    public Instant getExpiredAt() {
         return expiredAt;
     }
 
-    public void setExpiredAt(Date expiredAt) {
+    public void setExpiredAt(Instant expiredAt) {
         this.expiredAt = expiredAt;
     }
 
@@ -106,10 +99,18 @@ public class ReferralCode extends BaseEntity {
     }
 
     public fpt.project.bsmart.entity.OrderDetail getOrderDetail() {
-        return OrderDetail;
+        return orderDetail;
     }
 
     public void setOrderDetail(fpt.project.bsmart.entity.OrderDetail orderDetail) {
-        OrderDetail = orderDetail;
+        this.orderDetail = orderDetail;
+    }
+
+    public ConfigReferralCode getConfigReferralCode() {
+        return configReferralCode;
+    }
+
+    public void setConfigReferralCode(ConfigReferralCode configReferralCode) {
+        this.configReferralCode = configReferralCode;
     }
 }

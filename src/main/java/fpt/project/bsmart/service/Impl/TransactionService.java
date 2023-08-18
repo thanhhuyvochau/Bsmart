@@ -10,19 +10,20 @@ import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.*;
-
 import fpt.project.bsmart.entity.response.SystemRevenueResponse;
 import fpt.project.bsmart.entity.response.UserRevenueResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ITransactionService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.TransactionSpecificationBuilder;
-
 import fpt.project.bsmart.entity.response.WithDrawResponse;
 import fpt.project.bsmart.payment.PaymentGateway;
 import fpt.project.bsmart.payment.PaymentPicker;
 import fpt.project.bsmart.payment.PaymentResponse;
-
+import fpt.project.bsmart.repository.*;
+import fpt.project.bsmart.service.ITransactionService;
+import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.specification.TransactionSpecificationBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -119,26 +120,26 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public ApiPage<MentorWithDrawRequest> managerGetWithdrawRequest(WithDrawSearchRequest request,Pageable pageable){
-        if(request.getFromAmount() != null && request.getToAmount() != null){
-            if(request.getFromAmount().compareTo(BigDecimal.ZERO) == -1){
+    public ApiPage<MentorWithDrawRequest> managerGetWithdrawRequest(WithDrawSearchRequest request, Pageable pageable) {
+        if (request.getFromAmount() != null && request.getToAmount() != null) {
+            if (request.getFromAmount().compareTo(BigDecimal.ZERO) == -1) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
             }
-            if(request.getToAmount().compareTo(BigDecimal.ZERO) == -1){
+            if (request.getToAmount().compareTo(BigDecimal.ZERO) == -1) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
             }
-            if(request.getFromAmount().compareTo(request.getToAmount()) <= 0) {
+            if (request.getFromAmount().compareTo(request.getToAmount()) <= 0) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
             }
         }
-        if(request.getFromDate() != null && request.getToDate() != null){
-            if(request.getFromDate().isAfter(Instant.now())){
+        if (request.getFromDate() != null && request.getToDate() != null) {
+            if (request.getFromDate().isAfter(Instant.now())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
             }
-            if(request.getToDate().isAfter(Instant.now())){
+            if (request.getToDate().isAfter(Instant.now())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
             }
-            if(request.getFromDate().isAfter(request.getToDate())) {
+            if (request.getFromDate().isAfter(request.getToDate())) {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_END_DATE));
             }
         }
@@ -154,6 +155,7 @@ public class TransactionService implements ITransactionService {
         List<MentorWithDrawRequest> requests = transactions.getContent().stream().map(ConvertUtil::convertTransactionToMentorWithDrawRequest).collect(Collectors.toList());
         return PageUtil.convert(new PageImpl<>(requests, pageable, transactions.getTotalElements()));
     }
+
     public List<WithDrawResponse> managerGetWithDrawRequest() {
         List<Transaction> transactions = transactionRepository.findAllByStatusAndType(ETransactionStatus.WAITING, ETransactionType.WITHDRAW);
         return transactions.stream().map(ConvertUtil::convertWithdrawRequestToWithdrawResponse).collect(Collectors.toList());
@@ -272,6 +274,7 @@ public class TransactionService implements ITransactionService {
             Transaction transaction = paySuccessByWallet(order);
             PaymentResponse<Boolean> paymentResponse = ConvertUtil.convertPaymentResponse(order, transaction);
             paymentResponse.setMetadata(true);
+            ReferralCodeUtil.generateRandomReferralCode(orderDetail, order.getUser());
             return paymentResponse;
         } else {
             PaymentGateway paymentGateway = paymentPicker.pickByType(request.getType());
@@ -303,7 +306,9 @@ public class TransactionService implements ITransactionService {
             Order order = transaction.getOrder();
             order.setStatus(EOrderStatus.SUCCESS);
             transaction.setStatus(ETransactionStatus.SUCCESS);
-
+            for (OrderDetail orderDetail : order.getOrderDetails()) {
+                ReferralCodeUtil.generateRandomReferralCode(orderDetail, order.getUser());
+            }
             User user = order.getUser();
             List<Class> orderedClasses = order.getOrderDetails().stream().map(OrderDetail::getClazz).collect(Collectors.toList());
             for (Class orderedClass : orderedClasses) {
@@ -360,16 +365,16 @@ public class TransactionService implements ITransactionService {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID));
         }
         if(request.getFromDate() != null && request.getFromDate().isAfter(Instant.now())){
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_NOW_DATE));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_NOW_DATE));
 
         }
         if(request.getToDate() != null && request.getToDate().isAfter(Instant.now())){
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_END_NOW_DATE));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_END_NOW_DATE));
 
         }
         if(request.getToDate() != null && request.getFromDate() != null
                 && request.getFromDate().isAfter(request.getToDate())){
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_END_DATE));
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_END_DATE));
 
         }
         User user = userRepository.findById(request.getUserId())
@@ -395,23 +400,22 @@ public class TransactionService implements ITransactionService {
             return  ConvertUtil.convertOrderDetailToMentorRevenueResponse(orderDetails, user);
         }
     }
-
-    private List<OrderDetail> getOrderDetails(List<Transaction> transactions, User user){
-         return transactions.stream()
+    private List<OrderDetail> getOrderDetails(List<Transaction> transactions, User user) {
+        return transactions.stream()
                 .map(Transaction::getOrder)
                 .flatMap(obj -> obj.getOrderDetails().stream())
                 .filter(x -> x.getClazz().getMentor().equals(user))
                 .collect(Collectors.toList());
     }
 
-    private List<OrderDetail> getOrderDetails(List<Transaction> transactions){
+    private List<OrderDetail> getOrderDetails(List<Transaction> transactions) {
         return transactions.stream()
                 .map(Transaction::getOrder)
                 .flatMap(obj -> obj.getOrderDetails().stream())
                 .collect(Collectors.toList());
     }
 
-    public List<SystemRevenueResponse> getSystemRevenue(Integer year){
+    public List<SystemRevenueResponse> getSystemRevenue(Integer year) {
         TransactionSpecificationBuilder builder = TransactionSpecificationBuilder.transactionSpecificationBuilder()
                 .filterFromDate(InstantUtil.getFirstDayOfYear(year))
                 .filterToDate(InstantUtil.getLastDayOfYear(year))
