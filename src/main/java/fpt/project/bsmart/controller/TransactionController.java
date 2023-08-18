@@ -112,8 +112,8 @@ public class TransactionController {
 
     @Operation(summary = "Lấy doanh thu theo user")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    @GetMapping("/revenue/user/{userId}")
-    public ResponseEntity<ApiResponse<UserRevenueResponse>> getUserRevenue(@PathVariable Long userId){
-        return ResponseEntity.ok(ApiResponse.success(iTransactionService.getUserRevenue(userId)));
+    @GetMapping("/revenue/user")
+    public ResponseEntity<ApiResponse<UserRevenueResponse>> getUserRevenue(UserRevenueSearch request){
+        return ResponseEntity.ok(ApiResponse.success(iTransactionService.getUserRevenue(request)));
     }
 }
