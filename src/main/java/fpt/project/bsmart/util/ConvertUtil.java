@@ -1051,7 +1051,7 @@ public class ConvertUtil {
         return responseMessage;
     }
 
-    public static UserRevenueResponse convertOrderDetailToRevenueResponse(List<OrderDetail> orderDetails, User user){
+    public static UserRevenueResponse convertOrderDetailToMentorRevenueResponse(List<OrderDetail> orderDetails, User user){
         Integer numOfCourse = orderDetails.stream()
                 .map(x -> x.getClazz().getCourse())
                 .distinct()
@@ -1066,11 +1066,25 @@ public class ConvertUtil {
         BigDecimal promotion = totalOriginal.subtract(totalFinal);
         BigDecimal mentorShare = totalOriginal.multiply(new BigDecimal("0.3")).divideToIntegralValue(BigDecimal.ONE);
         BigDecimal revenue = totalOriginal.subtract(promotion).subtract(mentorShare);
-        UserRevenueResponse response = new UserRevenueResponse();
+        MentorRevenueResponse response = new MentorRevenueResponse();
         response.setUserId(user.getId());
         response.setNumOfCourse(numOfCourse);
-        response.setIncome(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT) ? totalFinal : totalOriginal);
+        response.setSystemIncome(Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT)) ? totalFinal : totalOriginal);
         response.setRevenue(revenue);
+        response.setPromotion(promotion);
+        if(Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER))){
+            List<Course> courses = user.getCourses();
+            List<Class> classes = courses.stream()
+                    .flatMap(x -> x.getClasses().stream())
+                    .filter(aClass -> aClass.getStatus().equals(ECourseStatus.STARTING) || aClass.getStatus().equals(ECourseStatus.ENDED))
+                    .collect(Collectors.toList());
+            List<StudentClass> studentClasses = classes.stream()
+                    .flatMap(x -> x.getStudentClasses().stream())
+                    .collect(Collectors.toList());
+            response.setNumOfClass(classes.size());
+            response.setNumOfStudent(studentClasses.size());
+
+        }
         return response;
     }
 
