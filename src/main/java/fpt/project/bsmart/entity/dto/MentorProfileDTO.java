@@ -8,10 +8,8 @@ public class MentorProfileDTO {
     private Long id;
     private String introduce;
     private String workingExperience;
-
     private EMentorProfileStatus status;
     private UserDto user;
-
     private List<MentorSkillDto> mentorSkills;
     private Double averageRate = 0.0;
     private Integer submissionCount = 0;

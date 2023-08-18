@@ -133,14 +133,15 @@ public class MentorProfileController {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getPendingMentorProfileList(request, pageable)));
     }
 
-    @Operation(summary = "Manager( phê duyêt / từ chối / yêu cầu thay đổi )  hồ sơ mentor  + handle Phỏng vấn ")
+    @Operation(summary = "Manager ( phê duyêt / từ chối / yêu cầu thay đổi )  hồ sơ mentor   ")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @PutMapping("/{id}/approval")
     public ResponseEntity<ApiResponse<Long>> approveMentorProfile(
             @PathVariable Long id,
             @RequestBody ManagerApprovalAccountRequest managerApprovalAccountRequest) {
 
-        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.approveMentorProfile(id, managerApprovalAccountRequest)));
+        return ResponseEntity.ok(ApiResponse.success(
+                mentorProfileService.approveMentorProfile(id, managerApprovalAccountRequest)));
     }
 
     @Operation(summary = "manager lấy yêu câu  mở  thêm môn học mới của mentor ")
