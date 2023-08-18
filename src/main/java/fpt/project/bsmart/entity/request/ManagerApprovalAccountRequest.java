@@ -8,17 +8,7 @@ import java.io.Serializable;
 public class ManagerApprovalAccountRequest implements Serializable {
 
     private EMentorProfileStatus status;
-
-    private Boolean isInterviewed;
     private String message;
-
-    public Boolean getInterviewed() {
-        return isInterviewed;
-    }
-
-    public void setInterviewed(Boolean interviewed) {
-        isInterviewed = interviewed;
-    }
 
     public EMentorProfileStatus getStatus() {
         return status;

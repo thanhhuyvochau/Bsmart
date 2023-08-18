@@ -1,8 +1,6 @@
 package fpt.project.bsmart.entity.dto;
 
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.EGenderType;
 import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 
@@ -14,37 +12,22 @@ import java.util.List;
 public class UserDto   {
     private static final long serialVersionUID = 1L;
     private Long id;
-
-
     private String fullName;
-
     private String email;
-
     private Instant birthday;
-
     private String address;
-
     private String phone;
-
     private Boolean status;
     private EGenderType gender;
-
     List<RoleDto> roles = new ArrayList<>();
-
-
     private String linkedinLink;
-
     private String facebookLink;
-
     private String website;
-
     private List<ImageDto> userImages = new ArrayList<>();
-
     private WalletDto wallet;
-
     private MentorProfileDTO mentorProfile;
-
     private TeachInformationDTO teachInformation;
+
     private boolean isVerified = false;
     private Integer finishedClassCount = 0;
 

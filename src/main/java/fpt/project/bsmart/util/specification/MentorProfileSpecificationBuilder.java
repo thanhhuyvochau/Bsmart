@@ -64,15 +64,6 @@ public class MentorProfileSpecificationBuilder {
         return this;
     }
 
-
-    public MentorProfileSpecificationBuilder queryByStatusInterviewed(Boolean isInterviewed){
-        if(isInterviewed == null){
-            return this;
-        }
-        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(MentorProfile_.IS_INTERVIEWED), isInterviewed));
-        return this;
-    }
-
     public Specification<MentorProfile> build(){
         return specifications.stream()
                 .filter(Objects::nonNull)
