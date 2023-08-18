@@ -24,10 +24,6 @@ public class MentorProfile extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private EMentorProfileStatus status;
 
-    @Column(name = "is_interviewed")
-    private boolean isInterviewed = false;
-
-
     @OneToMany(mappedBy = "mentorProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MentorSkill> skills = new ArrayList<>();
 
@@ -40,14 +36,6 @@ public class MentorProfile extends BaseEntity {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public boolean isInterviewed() {
-        return isInterviewed;
-    }
-
-    public void setInterviewed(boolean interviewed) {
-        isInterviewed = interviewed;
     }
 
     public String getIntroduce() {
