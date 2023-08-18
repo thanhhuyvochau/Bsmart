@@ -497,6 +497,15 @@ public class ConvertUtil {
             }
         }
 
+        FeedbackSubmissionSpecificationBuilder feedbackSubmissionSpecificationBuilder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
+                .filterByCourse(course.getId());
+        List<FeedbackSubmission> feedbackSubmissions = staticFeedbackSubmissionRepository.findAll(feedbackSubmissionSpecificationBuilder.build());
+        List<Integer> rate = feedbackSubmissions.stream()
+                .map(FeedbackSubmission::getCourseRate)
+                .collect(Collectors.toList());
+        Map<Integer, Long> rateMap = FeedbackUtil.getRateCount(rate);
+        courseResponse.setAverageRate(FeedbackUtil.calculateAverageRate(rateMap));
+        courseResponse.setSubmissionCount(feedbackSubmissions.size());
         return courseResponse;
     }
 
