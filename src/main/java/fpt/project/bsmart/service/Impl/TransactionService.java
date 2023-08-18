@@ -12,6 +12,10 @@ import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.SystemRevenueResponse;
 import fpt.project.bsmart.entity.response.UserRevenueResponse;
+import fpt.project.bsmart.repository.*;
+import fpt.project.bsmart.service.ITransactionService;
+import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.specification.TransactionSpecificationBuilder;
 import fpt.project.bsmart.entity.response.WithDrawResponse;
 import fpt.project.bsmart.payment.PaymentGateway;
 import fpt.project.bsmart.payment.PaymentPicker;
@@ -356,28 +360,46 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public UserRevenueResponse getUserRevenue(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + userId));
+    public  UserRevenueResponse getUserRevenue(UserRevenueSearch request){
+        if(request.getUserId() == null){
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID));
+        }
+        if(request.getFromDate() != null && request.getFromDate().isAfter(Instant.now())){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_NOW_DATE));
+
+        }
+        if(request.getToDate() != null && request.getToDate().isAfter(Instant.now())){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_END_NOW_DATE));
+
+        }
+        if(request.getToDate() != null && request.getFromDate() != null
+                && request.getFromDate().isAfter(request.getToDate())){
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_END_DATE));
+
+        }
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + request.getUserId()));
         boolean isStudentOrMentor = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER, EUserRole.STUDENT);
-        if (!isStudentOrMentor) {
+        if(!isStudentOrMentor){
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Người dùng không phải là học sinh hoặc giáo viên");
         }
         List<OrderDetail> orderDetails;
         TransactionSpecificationBuilder transactionSpecificationBuilder = TransactionSpecificationBuilder.transactionSpecificationBuilder()
+                .filterFromDate(request.getFromDate())
+                .filterToDate(request.getToDate())
                 .filterByStatus(ETransactionStatus.SUCCESS);
-        if (SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT)) {
-            transactionSpecificationBuilder.filterByBuyer(userId);
+        if(Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT))){
+            transactionSpecificationBuilder.filterByBuyer(request.getUserId());
             List<Transaction> transactions = transactionRepository.findAll(transactionSpecificationBuilder.build());
             orderDetails = getOrderDetails(transactions);
-        } else {
-            transactionSpecificationBuilder.filterBySeller(userId);
+            return ConvertUtil.convertOrderDetailToMentorRevenueResponse(orderDetails, user);
+        }else{
+            transactionSpecificationBuilder.filterBySeller(request.getUserId());
             List<Transaction> transactions = transactionRepository.findAll(transactionSpecificationBuilder.build());
             orderDetails = getOrderDetails(transactions, user);
+            return  ConvertUtil.convertOrderDetailToMentorRevenueResponse(orderDetails, user);
         }
-        return ConvertUtil.convertOrderDetailToRevenueResponse(orderDetails, user);
     }
-
     private List<OrderDetail> getOrderDetails(List<Transaction> transactions, User user) {
         return transactions.stream()
                 .map(Transaction::getOrder)

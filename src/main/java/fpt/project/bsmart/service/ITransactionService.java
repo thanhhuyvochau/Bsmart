@@ -33,6 +33,6 @@ public interface ITransactionService {
     Boolean executeAfterVnPayReturn(HttpServletRequest request);
 
 //    Boolean getBankPaymentResult(Long transaction)
-    UserRevenueResponse getUserRevenue(Long userId);
+    UserRevenueResponse getUserRevenue(UserRevenueSearch request);
     List<SystemRevenueResponse> getSystemRevenue(Integer year);
 }

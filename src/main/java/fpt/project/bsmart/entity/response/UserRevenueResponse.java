@@ -5,8 +5,9 @@ import java.math.BigDecimal;
 public class UserRevenueResponse {
     private Long userId;
     private Integer numOfCourse = 0;
-    private BigDecimal income = BigDecimal.ZERO;
+    private BigDecimal systemIncome = BigDecimal.ZERO;
     private BigDecimal revenue = BigDecimal.ZERO;
+    private BigDecimal promotion = BigDecimal.ZERO;
 
     public Long getUserId() {
         return userId;
@@ -24,12 +25,12 @@ public class UserRevenueResponse {
         this.numOfCourse = numOfCourse;
     }
 
-    public BigDecimal getIncome() {
-        return income;
+    public BigDecimal getSystemIncome() {
+        return systemIncome;
     }
 
-    public void setIncome(BigDecimal income) {
-        this.income = income;
+    public void setSystemIncome(BigDecimal systemIncome) {
+        this.systemIncome = systemIncome;
     }
 
     public BigDecimal getRevenue() {
@@ -38,5 +39,13 @@ public class UserRevenueResponse {
 
     public void setRevenue(BigDecimal revenue) {
         this.revenue = revenue;
+    }
+
+    public BigDecimal getPromotion() {
+        return promotion;
+    }
+
+    public void setPromotion(BigDecimal promotion) {
+        this.promotion = promotion;
     }
 }

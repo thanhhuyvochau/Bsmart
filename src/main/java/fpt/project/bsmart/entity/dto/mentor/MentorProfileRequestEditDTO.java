@@ -21,8 +21,6 @@ public class MentorProfileRequestEditDTO {
         this.id = id;
     }
 
-
-
     public String getIntroduce() {
         return introduce;
     }
