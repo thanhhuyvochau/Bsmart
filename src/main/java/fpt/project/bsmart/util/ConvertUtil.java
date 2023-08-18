@@ -16,6 +16,7 @@ import fpt.project.bsmart.entity.response.member.MemberDetailResponse;
 import fpt.project.bsmart.entity.response.member.StudyInformationDTO;
 import fpt.project.bsmart.payment.PaymentResponse;
 import fpt.project.bsmart.repository.*;
+import fpt.project.bsmart.util.specification.FeedbackSubmissionSpecificationBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -39,15 +40,18 @@ public class ConvertUtil {
     private static ClassImageRepository staticClassImageRepository;
 
     private static StudentClassRepository staticStudentClassRepository;
+    private static FeedbackSubmissionRepository staticFeedbackSubmissionRepository;
 
     public ConvertUtil(ClassRepository classRepository, UserRepository userRepository,
                        ActivityHistoryRepository activityHistoryRepository,
                        ClassImageRepository classImageRepository,
-                       StudentClassRepository StudentClassRepository) {
+                       StudentClassRepository StudentClassRepository,
+                       FeedbackSubmissionRepository feedbackSubmissionRepository) {
         staticClassRepository = classRepository;
         staticActivityHistoryRepository = activityHistoryRepository;
         staticClassImageRepository = classImageRepository;
         staticStudentClassRepository = StudentClassRepository;
+        staticFeedbackSubmissionRepository = feedbackSubmissionRepository;
     }
 
     @Value("${icon.success}")
@@ -612,6 +616,15 @@ public class ConvertUtil {
             }
             mentorProfileDTO.setMentorSkills(skillList);
         }
+        FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
+                .filterByMentor(mentorProfile.getUser().getId());
+        List<FeedbackSubmission> feedbackSubmissions = staticFeedbackSubmissionRepository.findAll(builder.build());
+        List<Integer> rates = feedbackSubmissions.stream()
+                .map(FeedbackSubmission::getMentorRate)
+                .collect(Collectors.toList());
+        Map<Integer, Long> rateMap = FeedbackUtil.getRateCount(rates);
+        mentorProfileDTO.setAverageRate(FeedbackUtil.calculateAverageRate(rateMap));
+        mentorProfileDTO.setSubmissionCount(feedbackSubmissions.size());
         if (mentorProfile.getUser() != null) {
             User temp = mentorProfile.getUser();
             temp.setMentorProfile(null);
