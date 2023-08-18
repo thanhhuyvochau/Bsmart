@@ -1,9 +1,7 @@
 package fpt.project.bsmart.entity.request.mentorprofile;
 
 
-import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.EGenderType;
-import fpt.project.bsmart.entity.dto.MentorProfileDTO;
 import fpt.project.bsmart.entity.dto.mentor.MentorProfileRequestEditDTO;
 
 import java.time.Instant;
