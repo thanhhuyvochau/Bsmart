@@ -2,23 +2,26 @@ package fpt.project.bsmart.entity.request.mentorprofile;
 
 
 import fpt.project.bsmart.entity.constant.EGenderType;
+import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorProfileRequestEditDTO;
+import fpt.project.bsmart.entity.request.UploadImageRequest;
 
 import java.time.Instant;
+import java.util.List;
 
 
-public class UserDtoRequest  {
+public class UserDtoRequest {
     private static final long serialVersionUID = 1L;
     private String fullName;
     private Instant birthday;
     private String address;
     private String phone;
-    private Boolean status;
     private EGenderType gender;
     private String linkedinLink;
     private String facebookLink;
     private String website;
-    private boolean verified;
+
+    private List<ImageEditDto> userImages;
     private MentorProfileRequestEditDTO mentorProfile;
 
     public String getFullName() {
@@ -53,13 +56,6 @@ public class UserDtoRequest  {
         this.phone = phone;
     }
 
-    public Boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(Boolean status) {
-        this.status = status;
-    }
 
     public EGenderType getGender() {
         return gender;
@@ -94,20 +90,19 @@ public class UserDtoRequest  {
     }
 
 
-
-    public boolean isVerified() {
-        return verified;
-    }
-
-    public void setVerified(boolean verified) {
-        this.verified = verified;
-    }
-
     public MentorProfileRequestEditDTO getMentorProfile() {
         return mentorProfile;
     }
 
     public void setMentorProfile(MentorProfileRequestEditDTO mentorProfile) {
         this.mentorProfile = mentorProfile;
+    }
+
+    public List<ImageEditDto> getUserImages() {
+        return userImages;
+    }
+
+    public void setUserImages(List<ImageEditDto> userImages) {
+        this.userImages = userImages;
     }
 }
