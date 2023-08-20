@@ -10,7 +10,6 @@ public class MentorProfileRequestEditDTO {
     private Long id;
     private String introduce;
     private String workingExperience;
-    private EMentorProfileStatus status;
     private List<MentorSkillDto> mentorSkills;
 
     public Long getId() {
@@ -45,11 +44,5 @@ public class MentorProfileRequestEditDTO {
         this.mentorSkills = mentorSkills;
     }
 
-    public EMentorProfileStatus getStatus() {
-        return status;
-    }
 
-    public void setStatus(EMentorProfileStatus status) {
-        this.status = status;
-    }
 }
