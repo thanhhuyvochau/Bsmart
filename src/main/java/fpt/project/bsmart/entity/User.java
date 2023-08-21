@@ -67,7 +67,7 @@ public class User extends BaseEntity {
 
     @JsonIgnore
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
-    private Wallet wallet = new Wallet();
+    private Wallet wallet;
 
     @JsonIgnore
     @OneToOne(mappedBy = "user")

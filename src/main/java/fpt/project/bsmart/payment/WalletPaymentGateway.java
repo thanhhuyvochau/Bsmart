@@ -50,9 +50,7 @@ public class WalletPaymentGateway implements PaymentGateway<Boolean> {
             transaction.setStatus(ETransactionStatus.SUCCESS);
             PaymentResponse<Boolean> paymentResponse = ConvertUtil.convertPaymentResponse(order, transaction);
             paymentResponse.setMetadata(true);
-            transaction.setBeforeBalance(presentBalance);
             wallet.decreaseBalance(transaction.getAmount());
-            transaction.setAfterBalance(wallet.getBalance());
             return paymentResponse;
         }
     }

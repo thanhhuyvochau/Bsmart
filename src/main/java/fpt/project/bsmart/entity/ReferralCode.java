@@ -3,7 +3,8 @@ package fpt.project.bsmart.entity;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -24,7 +25,7 @@ public class ReferralCode extends BaseEntity {
     private Integer usageLimit;
 
     @Column(name = "usage_count")
-    private Integer usageCount;
+    private Integer usageCount = 0;
 
     @Column(name = "expired_at")
     private Instant expiredAt;
@@ -41,6 +42,9 @@ public class ReferralCode extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "config_referral_id")
     private ConfigReferralCode configReferralCode;
+
+    @OneToMany(mappedBy = "appliedReferralCode", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderDetail> appliedOrderDetails = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -112,5 +116,13 @@ public class ReferralCode extends BaseEntity {
 
     public void setConfigReferralCode(ConfigReferralCode configReferralCode) {
         this.configReferralCode = configReferralCode;
+    }
+
+    public List<OrderDetail> getAppliedOrderDetails() {
+        return appliedOrderDetails;
+    }
+
+    public void setAppliedOrderDetails(List<OrderDetail> appliedOrderDetails) {
+        this.appliedOrderDetails = appliedOrderDetails;
     }
 }

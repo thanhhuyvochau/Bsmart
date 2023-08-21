@@ -12,10 +12,6 @@ import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.SystemRevenueResponse;
 import fpt.project.bsmart.entity.response.UserRevenueResponse;
-import fpt.project.bsmart.repository.*;
-import fpt.project.bsmart.service.ITransactionService;
-import fpt.project.bsmart.util.*;
-import fpt.project.bsmart.util.specification.TransactionSpecificationBuilder;
 import fpt.project.bsmart.entity.response.WithDrawResponse;
 import fpt.project.bsmart.payment.PaymentGateway;
 import fpt.project.bsmart.payment.PaymentPicker;
@@ -24,6 +20,7 @@ import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ITransactionService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.TransactionSpecificationBuilder;
+import fpt.project.bsmart.validator.ReferralCodeValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -35,10 +32,7 @@ import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
@@ -61,8 +55,9 @@ public class TransactionService implements ITransactionService {
     private final WebSocketUtil webSocketUtil;
     private final NotificationRepository notificationRepository;
     private final PaymentPicker paymentPicker;
+    private final ReferralCodeRepository referralCodeRepository;
 
-    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CartItemRepository cartItemRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, PaymentPicker paymentPicker) {
+    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CartItemRepository cartItemRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, PaymentPicker paymentPicker, ReferralCodeRepository referralCodeRepository) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
@@ -73,6 +68,7 @@ public class TransactionService implements ITransactionService {
         this.webSocketUtil = webSocketUtil;
         this.notificationRepository = notificationRepository;
         this.paymentPicker = paymentPicker;
+        this.referralCodeRepository = referralCodeRepository;
     }
 
     @Override
@@ -247,30 +243,50 @@ public class TransactionService implements ITransactionService {
         }
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setClazz(clazz);
-        BigDecimal price = clazz.getPrice();
-        orderDetail.setFinalPrice(price);
-        orderDetail.setOriginalPrice(price);
-        if (request.isUseWallet()) {
+        BigDecimal originalPrice = clazz.getPrice();
+        BigDecimal finalPrice = originalPrice;
+        orderDetail.setOriginalPrice(originalPrice);
+
+        /**Áp dụng giảm giá dùng mã giới thiệu*/
+        if (!request.getReferalCode().isEmpty()) {
+            Optional<ReferralCode> referralCodeOptional = referralCodeRepository.findByCode(request.getReferalCode().trim());
+            if (referralCodeOptional.isPresent()) {
+                ReferralCode referralCode = referralCodeOptional.get();
+                ReferralCodeValidator.validateReferralCode(referralCode, clazz.getCourse());
+                double discountPercent = Double.valueOf(referralCode.getDiscountPercent()) / 100;
+                finalPrice = finalPrice.subtract(finalPrice.multiply(BigDecimal.valueOf(discountPercent)));
+                orderDetail.setAppliedReferralCode(referralCode);
+            } else {
+                // Throw referral error not found referral code
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiệu không tồn tại vui lòng thử lại");
+            }
+        }
+
+
+        /**Áp dụng giảm giá dùng ví tiền*/
+        if (request.isUseWallet() && finalPrice.compareTo(BigDecimal.ZERO) > 0) {
             Wallet studentWallet = SecurityUtil.getCurrentUserWallet();
             BigDecimal balance = studentWallet.getBalance();
             if (balance.compareTo(BigDecimal.ZERO) > 0) {
-                if (balance.compareTo(price) > 0) {
-                    studentWallet.decreaseBalance(balance.subtract(price));
-                    price = BigDecimal.ZERO;
-                } else if (balance.compareTo(price) < 0) {
-                    price = price.subtract(balance);
+                if (balance.compareTo(finalPrice) > 0) {
+                    studentWallet.decreaseBalance(balance.subtract(finalPrice));
+                    finalPrice = BigDecimal.ZERO;
+                } else if (balance.compareTo(finalPrice) < 0) {
+                    finalPrice = finalPrice.subtract(balance);
                     studentWallet.decreaseBalance(balance);
                 }
             }
         }
+
+        orderDetail.setFinalPrice(finalPrice);
         Order order = Order.Builder.builder()
                 .setOrderDetails(Arrays.asList(orderDetail))
-                .setTotalPrice(price)
+                .setTotalPrice(finalPrice)
                 .setUser(user)
                 .setStatus(EOrderStatus.WAIT)
                 .build();
         orderDetail.setOrder(order);
-        if (price.compareTo(BigDecimal.ZERO) == 0) {
+        if (finalPrice.compareTo(BigDecimal.ZERO) == 0) {
             Transaction transaction = paySuccessByWallet(order);
             PaymentResponse<Boolean> paymentResponse = ConvertUtil.convertPaymentResponse(order, transaction);
             paymentResponse.setMetadata(true);
@@ -290,6 +306,13 @@ public class TransactionService implements ITransactionService {
         transaction.setPaymentType(EPaymentType.WALLET);
         transaction.setType(ETransactionType.PAY);
         transaction.setStatus(ETransactionStatus.SUCCESS);
+
+        OrderDetail orderDetail = order.getOrderDetails().get(0);
+        ReferralCode appliedReferralCode = orderDetail.getAppliedReferralCode();
+        if (appliedReferralCode != null) {
+            appliedReferralCode.setUsageCount(appliedReferralCode.getUsageCount() + 1);
+            addGiftToOwnerOfReferral(orderDetail);
+        }
         return transactionRepository.save(transaction);
     }
 
@@ -308,6 +331,11 @@ public class TransactionService implements ITransactionService {
             transaction.setStatus(ETransactionStatus.SUCCESS);
             for (OrderDetail orderDetail : order.getOrderDetails()) {
                 ReferralCodeUtil.generateRandomReferralCode(orderDetail, order.getUser());
+                ReferralCode referralCode = orderDetail.getAppliedReferralCode();
+                if (referralCode != null) {
+                    referralCode.setUsageCount(referralCode.getUsageCount() + 1);
+                    addGiftToOwnerOfReferral(orderDetail);
+                }
             }
             User user = order.getUser();
             List<Class> orderedClasses = order.getOrderDetails().stream().map(OrderDetail::getClazz).collect(Collectors.toList());
@@ -360,27 +388,27 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public  UserRevenueResponse getUserRevenue(UserRevenueSearch request){
-        if(request.getUserId() == null){
+    public UserRevenueResponse getUserRevenue(UserRevenueSearch request) {
+        if (request.getUserId() == null) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID));
         }
-        if(request.getFromDate() != null && request.getFromDate().isAfter(Instant.now())){
+        if (request.getFromDate() != null && request.getFromDate().isAfter(Instant.now())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_NOW_DATE));
 
         }
-        if(request.getToDate() != null && request.getToDate().isAfter(Instant.now())){
+        if (request.getToDate() != null && request.getToDate().isAfter(Instant.now())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_END_NOW_DATE));
 
         }
-        if(request.getToDate() != null && request.getFromDate() != null
-                && request.getFromDate().isAfter(request.getToDate())){
+        if (request.getToDate() != null && request.getFromDate() != null
+                && request.getFromDate().isAfter(request.getToDate())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_END_DATE));
 
         }
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + request.getUserId()));
         boolean isStudentOrMentor = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER, EUserRole.STUDENT);
-        if(!isStudentOrMentor){
+        if (!isStudentOrMentor) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Người dùng không phải là học sinh hoặc giáo viên");
         }
         List<OrderDetail> orderDetails;
@@ -388,18 +416,19 @@ public class TransactionService implements ITransactionService {
                 .filterFromDate(request.getFromDate())
                 .filterToDate(request.getToDate())
                 .filterByStatus(ETransactionStatus.SUCCESS);
-        if(Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT))){
+        if (Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT))) {
             transactionSpecificationBuilder.filterByBuyer(request.getUserId());
             List<Transaction> transactions = transactionRepository.findAll(transactionSpecificationBuilder.build());
             orderDetails = getOrderDetails(transactions);
             return ConvertUtil.convertOrderDetailToMentorRevenueResponse(orderDetails, user);
-        }else{
+        } else {
             transactionSpecificationBuilder.filterBySeller(request.getUserId());
             List<Transaction> transactions = transactionRepository.findAll(transactionSpecificationBuilder.build());
             orderDetails = getOrderDetails(transactions, user);
-            return  ConvertUtil.convertOrderDetailToMentorRevenueResponse(orderDetails, user);
+            return ConvertUtil.convertOrderDetailToMentorRevenueResponse(orderDetails, user);
         }
     }
+
     private List<OrderDetail> getOrderDetails(List<Transaction> transactions, User user) {
         return transactions.stream()
                 .map(Transaction::getOrder)
@@ -427,5 +456,21 @@ public class TransactionService implements ITransactionService {
                 .flatMap(obj -> obj.getOrderDetails().stream())
                 .collect(Collectors.toList());
         return ConvertUtil.convertOrderDetailsToSystemRevenueResponse(orderDetails);
+    }
+
+    private void addGiftToOwnerOfReferral(OrderDetail orderDetail) {
+        ReferralCode appliedReferralCode = orderDetail.getAppliedReferralCode();
+        BigDecimal finalPrice = orderDetail.getFinalPrice();
+        BigDecimal originalPrice = orderDetail.getOriginalPrice();
+        BigDecimal totalDiscount = originalPrice.subtract(finalPrice);
+        Transaction transaction = new Transaction();
+        transaction.setStatus(ETransactionStatus.SUCCESS);
+        Wallet wallet = appliedReferralCode.getOrderDetail().getOrder().getUser().getWallet();
+        transaction.setWallet(wallet);
+        transaction.setType(ETransactionType.GIFT);
+        BigDecimal giftAmount = totalDiscount.multiply(BigDecimal.valueOf(0.5));
+        transaction.setAmount(giftAmount);
+        wallet.increaseBalance(giftAmount);
+        transactionRepository.save(transaction);
     }
 }

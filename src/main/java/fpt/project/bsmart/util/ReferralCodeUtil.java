@@ -26,7 +26,7 @@ public class ReferralCodeUtil {
     private static ConfigReferralCodeRepository configReferralCodeRepository;
 
     @Autowired
-    public static void setReferralCodeRepository(ReferralCodeRepository referralCodeRepository, ConfigReferralCodeRepository configReferralCodeRepository) {
+    public ReferralCodeUtil(ReferralCodeRepository referralCodeRepository, ConfigReferralCodeRepository configReferralCodeRepository) {
         ReferralCodeUtil.referralCodeRepository = referralCodeRepository;
         ReferralCodeUtil.configReferralCodeRepository = configReferralCodeRepository;
     }

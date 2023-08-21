@@ -446,6 +446,9 @@ public class UserServiceImpl implements IUserService {
         user.getRoles().add(role);
         user.setBirthday(createAccountRequest.getBirthDay());
         user.setIsVerified(false);
+        Wallet wallet = new Wallet();
+        wallet.setOwner(user);
+        user.setWallet(wallet);
         if (role.getCode().equals(EUserRole.TEACHER)) {
             user.setStatus(false);
             MentorProfile mentorProfile = new MentorProfile();
@@ -639,7 +642,9 @@ public class UserServiceImpl implements IUserService {
         user.setProvider(formDTO.getSocialProvider().getProviderType());
         user.setStatus(true);
         user.setIsVerified(true);
-        user.getWallet().setOwner(user);
+        Wallet wallet = new Wallet();
+        wallet.setOwner(user);
+        user.setWallet(wallet);
 //        user.setProviderUserId(formDTO.getProviderUserId());
         return user;
     }
