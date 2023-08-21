@@ -1,9 +1,19 @@
 package fpt.project.bsmart.entity.dto;
 
 public class MentorSkillDto {
+    private Long id ;
     private Long skillId;
     private String name;
     private int yearOfExperiences;
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Long getSkillId() {
         return skillId;

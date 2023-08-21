@@ -621,7 +621,6 @@ public class ConvertUtil {
                     MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
                     skillList.add(mentorSkillDto);
                 }
-
             }
             mentorProfileDTO.setMentorSkills(skillList);
         }
@@ -645,6 +644,7 @@ public class ConvertUtil {
 
     public static MentorSkillDto convertMentorSkillToMentorSkillDto(MentorSkill mentorSkill) {
         MentorSkillDto mentorSkillDto = new MentorSkillDto();
+        mentorSkillDto.setId(mentorSkill.getId());
         mentorSkillDto.setSkillId(mentorSkill.getSkill().getId());
         mentorSkillDto.setName(mentorSkill.getSkill().getName());
         mentorSkillDto.setYearOfExperiences(mentorSkill.getYearOfExperiences());
@@ -810,10 +810,10 @@ public class ConvertUtil {
         quizDto.setQuestionCount(quiz.getQuizQuestions().size());
         if (quiz.getQuizQuestions() != null || !quiz.getQuizQuestions().isEmpty()) {
             Optional<User> userOptional = SecurityUtil.getCurrentUserOptional();
-            if (userOptional.isPresent()){
+            if (userOptional.isPresent()) {
                 User user = userOptional.get();
                 if ((isAttempt && SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT))
-                        || Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER))) {
+                    || Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER))) {
                     List<QuizQuestionDto> questionDtos = new ArrayList<>();
                     for (QuizQuestion question : quiz.getQuizQuestions()) {
                         questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
@@ -1051,7 +1051,7 @@ public class ConvertUtil {
         return responseMessage;
     }
 
-    public static UserRevenueResponse convertOrderDetailToMentorRevenueResponse(List<OrderDetail> orderDetails, User user){
+    public static UserRevenueResponse convertOrderDetailToMentorRevenueResponse(List<OrderDetail> orderDetails, User user) {
         Integer numOfCourse = orderDetails.stream()
                 .map(x -> x.getClazz().getCourse())
                 .distinct()
@@ -1072,7 +1072,7 @@ public class ConvertUtil {
         response.setSystemIncome(Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT)) ? totalFinal : totalOriginal);
         response.setRevenue(revenue);
         response.setPromotion(promotion);
-        if(Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER))){
+        if (Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER))) {
             List<Course> courses = user.getCourses();
             List<Class> classes = courses.stream()
                     .flatMap(x -> x.getClasses().stream())
@@ -1097,7 +1097,7 @@ public class ConvertUtil {
         return paymentResponse;
     }
 
-    public static MentorWithDrawRequest convertTransactionToMentorWithDrawRequest(Transaction transaction){
+    public static MentorWithDrawRequest convertTransactionToMentorWithDrawRequest(Transaction transaction) {
         MentorWithDrawRequest request = new MentorWithDrawRequest();
         request.setId(transaction.getId());
         request.setName(transaction.getWallet().getOwner().getFullName());
@@ -1124,14 +1124,14 @@ public class ConvertUtil {
         return response;
     }
 
-    public static List<SystemRevenueResponse> convertOrderDetailsToSystemRevenueResponse(List<OrderDetail> orderDetails){
+    public static List<SystemRevenueResponse> convertOrderDetailsToSystemRevenueResponse(List<OrderDetail> orderDetails) {
         List<SystemRevenueResponse> systemRevenueResponses = new ArrayList<>();
         Map<YearMonth, List<OrderDetail>> monthListMap = orderDetails.stream()
                 .collect(Collectors.groupingBy(obj -> InstantUtil.getYearMonthFromInstant(obj.getCreated())));
-        for (YearMonth month : InstantUtil.getAllMonthInYear()){
+        for (YearMonth month : InstantUtil.getAllMonthInYear()) {
             SystemRevenueResponse systemRevenueResponse = new SystemRevenueResponse();
             systemRevenueResponse.setMonth(month.getMonthValue());
-            if(monthListMap.containsKey(month)){
+            if (monthListMap.containsKey(month)) {
                 List<OrderDetail> orderDetailList = monthListMap.get(month);
                 BigDecimal totalOriginal = orderDetailList.stream()
                         .map(OrderDetail::getOriginalPrice)

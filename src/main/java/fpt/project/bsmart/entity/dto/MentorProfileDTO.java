@@ -1,7 +1,9 @@
 package fpt.project.bsmart.entity.dto;
 
+import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 
+import java.time.Instant;
 import java.util.List;
 
 public class MentorProfileDTO {
@@ -13,6 +15,7 @@ public class MentorProfileDTO {
     private List<MentorSkillDto> mentorSkills;
     private Double averageRate = 0.0;
     private Integer submissionCount = 0;
+
     public Long getId() {
         return id;
     }
@@ -76,4 +79,5 @@ public class MentorProfileDTO {
     public void setSubmissionCount(Integer submissionCount) {
         this.submissionCount = submissionCount;
     }
+
 }

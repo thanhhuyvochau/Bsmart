@@ -407,7 +407,6 @@ public class UserServiceImpl implements IUserService {
             user.setPhone(mentorPersonalProfileEditRequest.getPhone());
         }
 
-
         if (mentorPersonalProfileEditRequest.getFullName() != null) {
             user.setFullName(mentorPersonalProfileEditRequest.getFullName());
         }
