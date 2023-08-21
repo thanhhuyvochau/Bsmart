@@ -308,9 +308,10 @@ public class TransactionService implements ITransactionService {
         transaction.setStatus(ETransactionStatus.SUCCESS);
 
         OrderDetail orderDetail = order.getOrderDetails().get(0);
-        ReferralCode referralCode = orderDetail.getAppliedReferralCode();
-        if (referralCode != null) {
-            referralCode.setUsageCount(referralCode.getUsageCount() + 1);
+        ReferralCode appliedReferralCode = orderDetail.getAppliedReferralCode();
+        if (appliedReferralCode != null) {
+            appliedReferralCode.setUsageCount(appliedReferralCode.getUsageCount() + 1);
+            addGiftToOwnerOfReferral(orderDetail);
         }
         return transactionRepository.save(transaction);
     }
@@ -333,6 +334,7 @@ public class TransactionService implements ITransactionService {
                 ReferralCode referralCode = orderDetail.getAppliedReferralCode();
                 if (referralCode != null) {
                     referralCode.setUsageCount(referralCode.getUsageCount() + 1);
+                    addGiftToOwnerOfReferral(orderDetail);
                 }
             }
             User user = order.getUser();
@@ -456,13 +458,14 @@ public class TransactionService implements ITransactionService {
         return ConvertUtil.convertOrderDetailsToSystemRevenueResponse(orderDetails);
     }
 
-    private void addGiftToOwnerOfReferral(ReferralCode referralCode, OrderDetail orderDetail, Class clazz) {
+    private void addGiftToOwnerOfReferral(OrderDetail orderDetail) {
+        ReferralCode appliedReferralCode = orderDetail.getAppliedReferralCode();
         BigDecimal finalPrice = orderDetail.getFinalPrice();
         BigDecimal originalPrice = orderDetail.getOriginalPrice();
         BigDecimal totalDiscount = originalPrice.subtract(finalPrice);
         Transaction transaction = new Transaction();
         transaction.setStatus(ETransactionStatus.SUCCESS);
-        Wallet wallet = orderDetail.getOrder().getUser().getWallet();
+        Wallet wallet = appliedReferralCode.getOrderDetail().getOrder().getUser().getWallet();
         transaction.setWallet(wallet);
         transaction.setType(ETransactionType.GIFT);
         BigDecimal giftAmount = totalDiscount.multiply(BigDecimal.valueOf(0.5));
