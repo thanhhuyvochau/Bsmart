@@ -233,8 +233,6 @@ public class ClassUtil {
         transaction.setAmount(amount);
         transaction.setStatus(ETransactionStatus.SUCCESS);
         transaction.setType(ETransactionType.TRANSFER);
-        transaction.setBeforeBalance(wallet.getBalance());
-        transaction.setAfterBalance(afterBalance);
         transaction.setPaymentType(EPaymentType.OTHER);
         transaction.setNote(message);
         transactionRepository.save(transaction);

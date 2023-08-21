@@ -21,20 +21,12 @@ public class Transaction extends BaseEntity {
     private Wallet wallet;
     @Column(name = "amount")
     private BigDecimal amount;
-    @Column(name = "ipn_url")
-    private String ipnUrl;
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private ETransactionStatus status;
-    @Column(name = "redirect_url")
-    private String redirectUrl;
     @Column(name = "type_balance")
     @Enumerated(EnumType.STRING)
     private ETransactionType type;
-    @Column(name = "before_balance")
-    private BigDecimal beforeBalance;
-    @Column(name = "after_balance")
-    private BigDecimal afterBalance;
     @Column(name = "receiver_bank_account")
     private Long receivedBankAccount;
     @ManyToOne
@@ -77,14 +69,6 @@ public class Transaction extends BaseEntity {
         this.amount = amount;
     }
 
-    public String getIpnUrl() {
-        return ipnUrl;
-    }
-
-    public void setIpnUrl(String ipnUrl) {
-        this.ipnUrl = ipnUrl;
-    }
-
     public ETransactionStatus getStatus() {
         return status;
     }
@@ -93,13 +77,6 @@ public class Transaction extends BaseEntity {
         this.status = status;
     }
 
-    public String getRedirectUrl() {
-        return redirectUrl;
-    }
-
-    public void setRedirectUrl(String redirectUrl) {
-        this.redirectUrl = redirectUrl;
-    }
 
     public ETransactionType getType() {
         return type;
@@ -109,21 +86,6 @@ public class Transaction extends BaseEntity {
         this.type = type;
     }
 
-    public BigDecimal getBeforeBalance() {
-        return beforeBalance;
-    }
-
-    public void setBeforeBalance(BigDecimal beforeBalance) {
-        this.beforeBalance = beforeBalance;
-    }
-
-    public BigDecimal getAfterBalance() {
-        return afterBalance;
-    }
-
-    public void setAfterBalance(BigDecimal afterBalance) {
-        this.afterBalance = afterBalance;
-    }
 
     public Wallet getWallet() {
         return wallet;
@@ -137,19 +99,11 @@ public class Transaction extends BaseEntity {
         Transaction transaction = new Transaction();
         transaction.setAmount(amount);
         transaction.setType(type);
-        transaction.setBeforeBalance(wallet.getBalance());
         transaction.setReceivedBankAccount(receivedBankAccount);
         transaction.setBankAccountOwner(bankAccountOwner);
         transaction.setBank(bank);
         transaction.setStatus(ETransactionStatus.SUCCESS);
-//        if (type.equals(ETransactionType.DEPOSIT)) {
-//            transaction.setAfterBalance(wallet.getBalance().add(amount));
-//        } else if (type.equals(ETransactionType.WITHDRAW)) {
-//            transaction.setAfterBalance(wallet.getBalance().subtract(amount));
-//            transaction.setWallet(wallet);
-//        }
         transaction.setStatus(ETransactionStatus.WAITING);
-        transaction.setAfterBalance(wallet.getBalance().subtract(amount));
         transaction.setWallet(wallet);
         return transaction;
     }

@@ -243,30 +243,18 @@ public class TransactionService implements ITransactionService {
         }
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setClazz(clazz);
-        BigDecimal price = clazz.getPrice();
-        orderDetail.setFinalPrice(price);
-        /**Áp dụng giảm giá dùng ví tiền*/
-        if (request.isUseWallet()) {
-            Wallet studentWallet = SecurityUtil.getCurrentUserWallet();
-            BigDecimal balance = studentWallet.getBalance();
-            if (balance.compareTo(BigDecimal.ZERO) > 0) {
-                if (balance.compareTo(price) > 0) {
-                    studentWallet.decreaseBalance(balance.subtract(price));
-                    price = BigDecimal.ZERO;
-                } else if (balance.compareTo(price) < 0) {
-                    price = price.subtract(balance);
-                    studentWallet.decreaseBalance(balance);
-                }
-            }
-        }
+        BigDecimal originalPrice = clazz.getPrice();
+        BigDecimal finalPrice = originalPrice;
+        orderDetail.setOriginalPrice(originalPrice);
+
         /**Áp dụng giảm giá dùng mã giới thiệu*/
-        if (!request.getReferalCode().isEmpty() && price.compareTo(BigDecimal.ZERO) > 0) {
+        if (!request.getReferalCode().isEmpty()) {
             Optional<ReferralCode> referralCodeOptional = referralCodeRepository.findByCode(request.getReferalCode().trim());
             if (referralCodeOptional.isPresent()) {
                 ReferralCode referralCode = referralCodeOptional.get();
                 ReferralCodeValidator.validateReferralCode(referralCode, clazz.getCourse());
                 double discountPercent = Double.valueOf(referralCode.getDiscountPercent()) / 100;
-                price = price.subtract(price.multiply(BigDecimal.valueOf(discountPercent)));
+                finalPrice = finalPrice.subtract(finalPrice.multiply(BigDecimal.valueOf(discountPercent)));
                 orderDetail.setAppliedReferralCode(referralCode);
             } else {
                 // Throw referral error not found referral code
@@ -274,14 +262,31 @@ public class TransactionService implements ITransactionService {
             }
         }
 
+
+        /**Áp dụng giảm giá dùng ví tiền*/
+        if (request.isUseWallet() && finalPrice.compareTo(BigDecimal.ZERO) > 0) {
+            Wallet studentWallet = SecurityUtil.getCurrentUserWallet();
+            BigDecimal balance = studentWallet.getBalance();
+            if (balance.compareTo(BigDecimal.ZERO) > 0) {
+                if (balance.compareTo(finalPrice) > 0) {
+                    studentWallet.decreaseBalance(balance.subtract(finalPrice));
+                    finalPrice = BigDecimal.ZERO;
+                } else if (balance.compareTo(finalPrice) < 0) {
+                    finalPrice = finalPrice.subtract(balance);
+                    studentWallet.decreaseBalance(balance);
+                }
+            }
+        }
+
+        orderDetail.setFinalPrice(finalPrice);
         Order order = Order.Builder.builder()
                 .setOrderDetails(Arrays.asList(orderDetail))
-                .setTotalPrice(price)
+                .setTotalPrice(finalPrice)
                 .setUser(user)
                 .setStatus(EOrderStatus.WAIT)
                 .build();
         orderDetail.setOrder(order);
-        if (price.compareTo(BigDecimal.ZERO) == 0) {
+        if (finalPrice.compareTo(BigDecimal.ZERO) == 0) {
             Transaction transaction = paySuccessByWallet(order);
             PaymentResponse<Boolean> paymentResponse = ConvertUtil.convertPaymentResponse(order, transaction);
             paymentResponse.setMetadata(true);
@@ -449,5 +454,20 @@ public class TransactionService implements ITransactionService {
                 .flatMap(obj -> obj.getOrderDetails().stream())
                 .collect(Collectors.toList());
         return ConvertUtil.convertOrderDetailsToSystemRevenueResponse(orderDetails);
+    }
+
+    private void addGiftToOwnerOfReferral(ReferralCode referralCode, OrderDetail orderDetail, Class clazz) {
+        BigDecimal finalPrice = orderDetail.getFinalPrice();
+        BigDecimal originalPrice = orderDetail.getOriginalPrice();
+        BigDecimal totalDiscount = originalPrice.subtract(finalPrice);
+        Transaction transaction = new Transaction();
+        transaction.setStatus(ETransactionStatus.SUCCESS);
+        Wallet wallet = orderDetail.getOrder().getUser().getWallet();
+        transaction.setWallet(wallet);
+        transaction.setType(ETransactionType.GIFT);
+        BigDecimal giftAmount = totalDiscount.multiply(BigDecimal.valueOf(0.5));
+        transaction.setAmount(giftAmount);
+        wallet.increaseBalance(giftAmount);
+        transactionRepository.save(transaction);
     }
 }
