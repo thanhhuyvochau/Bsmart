@@ -23,6 +23,9 @@ public class OrderDetail extends BaseEntity {
     @OneToOne(mappedBy = "orderDetail", cascade = CascadeType.ALL)
     private ReferralCode referralCode;
 
+    @ManyToOne
+    @JoinColumn(name = "applied_referral_id")
+    private ReferralCode appliedReferralCode;
 
     public Long getId() {
         return id;
@@ -71,5 +74,13 @@ public class OrderDetail extends BaseEntity {
 
     public void setReferralCode(ReferralCode referralCode) {
         this.referralCode = referralCode;
+    }
+
+    public ReferralCode getAppliedReferralCode() {
+        return appliedReferralCode;
+    }
+
+    public void setAppliedReferralCode(ReferralCode appliedReferralCode) {
+        this.appliedReferralCode = appliedReferralCode;
     }
 }

@@ -12,10 +12,6 @@ import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.*;
 import fpt.project.bsmart.entity.response.SystemRevenueResponse;
 import fpt.project.bsmart.entity.response.UserRevenueResponse;
-import fpt.project.bsmart.repository.*;
-import fpt.project.bsmart.service.ITransactionService;
-import fpt.project.bsmart.util.*;
-import fpt.project.bsmart.util.specification.TransactionSpecificationBuilder;
 import fpt.project.bsmart.entity.response.WithDrawResponse;
 import fpt.project.bsmart.payment.PaymentGateway;
 import fpt.project.bsmart.payment.PaymentPicker;
@@ -24,6 +20,7 @@ import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ITransactionService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.specification.TransactionSpecificationBuilder;
+import fpt.project.bsmart.validator.ReferralCodeValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -35,10 +32,7 @@ import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
@@ -61,8 +55,9 @@ public class TransactionService implements ITransactionService {
     private final WebSocketUtil webSocketUtil;
     private final NotificationRepository notificationRepository;
     private final PaymentPicker paymentPicker;
+    private final ReferralCodeRepository referralCodeRepository;
 
-    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CartItemRepository cartItemRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, PaymentPicker paymentPicker) {
+    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CartItemRepository cartItemRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, PaymentPicker paymentPicker, ReferralCodeRepository referralCodeRepository) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
@@ -73,6 +68,7 @@ public class TransactionService implements ITransactionService {
         this.webSocketUtil = webSocketUtil;
         this.notificationRepository = notificationRepository;
         this.paymentPicker = paymentPicker;
+        this.referralCodeRepository = referralCodeRepository;
     }
 
     @Override
@@ -249,7 +245,7 @@ public class TransactionService implements ITransactionService {
         orderDetail.setClazz(clazz);
         BigDecimal price = clazz.getPrice();
         orderDetail.setFinalPrice(price);
-        orderDetail.setOriginalPrice(price);
+        /**Áp dụng giảm giá dùng ví tiền*/
         if (request.isUseWallet()) {
             Wallet studentWallet = SecurityUtil.getCurrentUserWallet();
             BigDecimal balance = studentWallet.getBalance();
@@ -263,6 +259,21 @@ public class TransactionService implements ITransactionService {
                 }
             }
         }
+        /**Áp dụng giảm giá dùng mã giới thiệu*/
+        if (!request.getReferalCode().isEmpty() && price.compareTo(BigDecimal.ZERO) > 0) {
+            Optional<ReferralCode> referralCodeOptional = referralCodeRepository.findByCode(request.getReferalCode().trim());
+            if (referralCodeOptional.isPresent()) {
+                ReferralCode referralCode = referralCodeOptional.get();
+                ReferralCodeValidator.validateReferralCode(referralCode, clazz.getCourse());
+                double discountPercent = Double.valueOf(referralCode.getDiscountPercent()) / 100;
+                price = price.subtract(price.multiply(BigDecimal.valueOf(discountPercent)));
+                orderDetail.setAppliedReferralCode(referralCode);
+            } else {
+                // Throw referral error not found referral code
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiệu không tồn tại vui lòng thử lại");
+            }
+        }
+
         Order order = Order.Builder.builder()
                 .setOrderDetails(Arrays.asList(orderDetail))
                 .setTotalPrice(price)
@@ -290,6 +301,12 @@ public class TransactionService implements ITransactionService {
         transaction.setPaymentType(EPaymentType.WALLET);
         transaction.setType(ETransactionType.PAY);
         transaction.setStatus(ETransactionStatus.SUCCESS);
+
+        OrderDetail orderDetail = order.getOrderDetails().get(0);
+        ReferralCode referralCode = orderDetail.getAppliedReferralCode();
+        if (referralCode != null) {
+            referralCode.setUsageCount(referralCode.getUsageCount() + 1);
+        }
         return transactionRepository.save(transaction);
     }
 
@@ -308,6 +325,10 @@ public class TransactionService implements ITransactionService {
             transaction.setStatus(ETransactionStatus.SUCCESS);
             for (OrderDetail orderDetail : order.getOrderDetails()) {
                 ReferralCodeUtil.generateRandomReferralCode(orderDetail, order.getUser());
+                ReferralCode referralCode = orderDetail.getAppliedReferralCode();
+                if (referralCode != null) {
+                    referralCode.setUsageCount(referralCode.getUsageCount() + 1);
+                }
             }
             User user = order.getUser();
             List<Class> orderedClasses = order.getOrderDetails().stream().map(OrderDetail::getClazz).collect(Collectors.toList());
@@ -360,27 +381,27 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public  UserRevenueResponse getUserRevenue(UserRevenueSearch request){
-        if(request.getUserId() == null){
+    public UserRevenueResponse getUserRevenue(UserRevenueSearch request) {
+        if (request.getUserId() == null) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID));
         }
-        if(request.getFromDate() != null && request.getFromDate().isAfter(Instant.now())){
+        if (request.getFromDate() != null && request.getFromDate().isAfter(Instant.now())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_NOW_DATE));
 
         }
-        if(request.getToDate() != null && request.getToDate().isAfter(Instant.now())){
+        if (request.getToDate() != null && request.getToDate().isAfter(Instant.now())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_END_NOW_DATE));
 
         }
-        if(request.getToDate() != null && request.getFromDate() != null
-                && request.getFromDate().isAfter(request.getToDate())){
+        if (request.getToDate() != null && request.getFromDate() != null
+                && request.getFromDate().isAfter(request.getToDate())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_END_DATE));
 
         }
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + request.getUserId()));
         boolean isStudentOrMentor = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER, EUserRole.STUDENT);
-        if(!isStudentOrMentor){
+        if (!isStudentOrMentor) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Người dùng không phải là học sinh hoặc giáo viên");
         }
         List<OrderDetail> orderDetails;
@@ -388,18 +409,19 @@ public class TransactionService implements ITransactionService {
                 .filterFromDate(request.getFromDate())
                 .filterToDate(request.getToDate())
                 .filterByStatus(ETransactionStatus.SUCCESS);
-        if(Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT))){
+        if (Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT))) {
             transactionSpecificationBuilder.filterByBuyer(request.getUserId());
             List<Transaction> transactions = transactionRepository.findAll(transactionSpecificationBuilder.build());
             orderDetails = getOrderDetails(transactions);
             return ConvertUtil.convertOrderDetailToMentorRevenueResponse(orderDetails, user);
-        }else{
+        } else {
             transactionSpecificationBuilder.filterBySeller(request.getUserId());
             List<Transaction> transactions = transactionRepository.findAll(transactionSpecificationBuilder.build());
             orderDetails = getOrderDetails(transactions, user);
-            return  ConvertUtil.convertOrderDetailToMentorRevenueResponse(orderDetails, user);
+            return ConvertUtil.convertOrderDetailToMentorRevenueResponse(orderDetails, user);
         }
     }
+
     private List<OrderDetail> getOrderDetails(List<Transaction> transactions, User user) {
         return transactions.stream()
                 .map(Transaction::getOrder)

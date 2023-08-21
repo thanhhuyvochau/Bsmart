@@ -107,10 +107,10 @@ minio:
   access:
     key: Ed9hULk92IyS2Glb
     secret: GVk3tHgV3x6tiCR158V0RyFxOFH5IM5O
-  url: http://103.173.155.221:9000
+  url: https://mismart.online
   bucket:
     name: bsmart
-  endpoint: http://103.173.155.221:9000
+  endpoint: https://mismart.online
 
 keycloak:
   realm: bsmart
