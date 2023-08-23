@@ -3,8 +3,8 @@ package fpt.project.bsmart.service;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.*;
-import fpt.project.bsmart.entity.response.UserRevenueResponse;
 import fpt.project.bsmart.entity.response.SystemRevenueResponse;
+import fpt.project.bsmart.entity.response.UserRevenueResponse;
 import fpt.project.bsmart.entity.response.WithDrawResponse;
 import fpt.project.bsmart.payment.PaymentResponse;
 import org.springframework.data.domain.Pageable;
@@ -21,8 +21,11 @@ public interface ITransactionService {
 //    Boolean deposit(DepositRequest request);
 
     Boolean withdraw(WithdrawRequest request);
-    ApiPage<MentorWithDrawRequest> managerGetWithdrawRequest(WithDrawSearchRequest request,Pageable pageable);
+
+    ApiPage<MentorWithDrawRequest> managerGetWithdrawRequest(WithDrawSearchRequest request, Pageable pageable);
+
     List<WithDrawResponse> managerGetWithDrawRequest();
+
     Boolean managerProcessWithdrawRequest(List<ProcessWithdrawRequest> requests);
 
     // Hiện tại sẽ chỉ làm các giao dịch rút tiền và nạp tiền
@@ -32,7 +35,10 @@ public interface ITransactionService {
 
     Boolean executeAfterVnPayReturn(HttpServletRequest request);
 
-//    Boolean getBankPaymentResult(Long transaction)
+    //    Boolean getBankPaymentResult(Long transaction)
     UserRevenueResponse getUserRevenue(UserRevenueSearch request);
+
     List<SystemRevenueResponse> getSystemRevenue(Integer year);
+
+    boolean refundClassFeeToStudentWallet();
 }

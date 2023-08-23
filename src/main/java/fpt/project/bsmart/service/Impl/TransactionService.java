@@ -473,4 +473,9 @@ public class TransactionService implements ITransactionService {
         wallet.increaseBalance(giftAmount);
         transactionRepository.save(transaction);
     }
+
+    @Override
+    public boolean refundClassFeeToStudentWallet() {
+        return false;
+    }
 }
