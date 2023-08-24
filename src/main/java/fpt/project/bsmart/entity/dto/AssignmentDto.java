@@ -15,10 +15,6 @@ public class AssignmentDto extends BaseEntity {
     private Long id;
 
     private String description;
-
-    private Instant startDate;
-
-    private Instant endDate;
     private EAssignmentStatus status;
     private Long passPoint; // Default 5
     @JsonView(View.Teacher.class)
@@ -45,22 +41,6 @@ public class AssignmentDto extends BaseEntity {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Instant getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Instant startDate) {
-        this.startDate = startDate;
-    }
-
-    public Instant getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Instant endDate) {
-        this.endDate = endDate;
     }
 
     public Integer getEditBeForSubmitMin() {

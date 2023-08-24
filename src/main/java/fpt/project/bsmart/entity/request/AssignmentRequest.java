@@ -3,7 +3,6 @@ package fpt.project.bsmart.entity.request;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,9 +10,6 @@ public class AssignmentRequest extends ActivityRequest {
 
     private String description;
 
-    private Instant startDate;
-
-    private Instant endDate;
 
     private Integer editBeForSubmitMin = 0;
 
@@ -30,22 +26,6 @@ public class AssignmentRequest extends ActivityRequest {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Instant getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Instant startDate) {
-        this.startDate = startDate;
-    }
-
-    public Instant getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Instant endDate) {
-        this.endDate = endDate;
     }
 
     public Integer getEditBeForSubmitMin() {

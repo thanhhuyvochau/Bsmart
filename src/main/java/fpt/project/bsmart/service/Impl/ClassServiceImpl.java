@@ -246,7 +246,7 @@ public class ClassServiceImpl implements IClassService {
     }
 
     @Override
-    public ManagerGetCourseClassResponse getAllClassOfCourseForManager(Long id,ECourseStatus status) {
+    public ManagerGetCourseClassResponse getAllClassOfCourseForManager(Long id, ECourseStatus status) {
 //        Course course = courseRepository.findByIdAndStatus(id, WAITING)
 //                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
 //                        .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
@@ -255,7 +255,7 @@ public class ClassServiceImpl implements IClassService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
 
-        ManagerGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponseManager(course,status);
+        ManagerGetCourseClassResponse response = CourseUtil.convertCourseToCourseClassResponseManager(course, status);
         List<Activity> sectionActivities = course.getActivities().stream()
                 .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
                 .collect(Collectors.toList());
@@ -851,7 +851,7 @@ public class ClassServiceImpl implements IClassService {
         return baseClassResponses;
     }
 
-    public HashMap<String ,List<MentorGetClassDetailResponse>> getClassesNotUseTemplate(Long templateId) {
+    public HashMap<String, List<MentorGetClassDetailResponse>> getClassesNotUseTemplate(Long templateId) {
         FeedbackTemplate feedbackTemplate = feedbackTemplateRepository.findById(templateId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(FEEDBACK_QUESTION_NOT_FOUND_BY_ID) + templateId));
         if (!feedbackTemplate.getType().equals(EFeedbackType.COURSE)) {
@@ -869,7 +869,7 @@ public class ClassServiceImpl implements IClassService {
         List<MentorGetClassDetailResponse> useClass = classes.stream()
                 .map(ClassUtil::convertClassToMentorClassDetailResponse)
                 .collect(Collectors.toList());
-        HashMap<String ,List<MentorGetClassDetailResponse>> map = new HashMap<>();
+        HashMap<String, List<MentorGetClassDetailResponse>> map = new HashMap<>();
         map.put("use", useClass);
         map.put("notUse", notUseClass);
         return map;

@@ -12,12 +12,12 @@ public class AssignmentValidator {
 
     private static final List<String> validFileTypes = Arrays.asList("docx", "doc", "xlsx", "xls", "csv", "pptx", "ppt", "pdf");
 
-    public static boolean isValidSubmitDate(Assignment assignment) {
-        Instant now = Instant.now();
-        Instant startDate = assignment.getStartDate();
-        Instant endDate = assignment.getEndDate();
-        return now.isAfter(startDate) && now.isBefore(endDate);
-    }
+//    public static boolean isValidSubmitDate(Assignment assignment) {
+//        Instant now = Instant.now();
+//        Instant startDate = assignment.getStartDate();
+//        Instant endDate = assignment.getEndDate();
+//        return now.isAfter(startDate) && now.isBefore(endDate);
+//    }
 
     public static boolean isValidNumberOfSubmitFile(Assignment assignment, List<MultipartFile> submitFiles) {
         Integer maxFileSubmit = assignment.getMaxFileSubmit();

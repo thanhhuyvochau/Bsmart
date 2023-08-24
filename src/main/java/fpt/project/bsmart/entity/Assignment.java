@@ -3,7 +3,6 @@ package fpt.project.bsmart.entity;
 import fpt.project.bsmart.entity.constant.EAssignmentStatus;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,10 +14,6 @@ public class Assignment extends BaseEntity {
     private Long id;
     @Column(name = "description", columnDefinition = "BLOB")
     private String description;
-    @Column(name = "startDate")
-    private Instant startDate;
-    @Column(name = "endDate")
-    private Instant endDate;
     @Column(name = "edit_before_submit_min")
     private Integer editBeForSubmitMin = 0;
     @Column(name = "max_file_submit")
@@ -39,10 +34,8 @@ public class Assignment extends BaseEntity {
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<AssignmentSubmition> assignmentSubmitions = new ArrayList<>();
 
-    public Assignment(String description, Instant startDate, Instant endDate, Integer editBeForSubmitMin, Integer maxFileSubmit, Integer maxFileSize, EAssignmentStatus status, Activity activity, List<AssignmentFile> assignmentFiles, Long passPoint) {
+    public Assignment(String description, Integer editBeForSubmitMin, Integer maxFileSubmit, Integer maxFileSize, EAssignmentStatus status, Activity activity, List<AssignmentFile> assignmentFiles, Long passPoint) {
         this.description = description;
-        this.startDate = startDate;
-        this.endDate = endDate;
         this.editBeForSubmitMin = editBeForSubmitMin;
         this.maxFileSubmit = maxFileSubmit;
         this.maxFileSize = maxFileSize;
@@ -69,22 +62,6 @@ public class Assignment extends BaseEntity {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Instant getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Instant startDate) {
-        this.startDate = startDate;
-    }
-
-    public Instant getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Instant endDate) {
-        this.endDate = endDate;
     }
 
     public Integer getEditBeForSubmitMin() {
