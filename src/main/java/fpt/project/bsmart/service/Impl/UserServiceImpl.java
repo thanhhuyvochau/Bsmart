@@ -449,6 +449,7 @@ public class UserServiceImpl implements IUserService {
         Wallet wallet = new Wallet();
         wallet.setOwner(user);
         user.setWallet(wallet);
+        user.setProvider("original");
         if (role.getCode().equals(EUserRole.TEACHER)) {
             user.setStatus(false);
             MentorProfile mentorProfile = new MentorProfile();

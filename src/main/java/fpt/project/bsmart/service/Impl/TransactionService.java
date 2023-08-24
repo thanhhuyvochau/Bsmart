@@ -355,7 +355,6 @@ public class TransactionService implements ITransactionService {
                 ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, user);
                 webSocketUtil.sendPrivateNotification(user.getEmail(), responseMessage);
             }
-//            ReferralCodeUtil.generateRandomReferralCode();
             classRepository.saveAll(orderedClasses);
             return true;
         }

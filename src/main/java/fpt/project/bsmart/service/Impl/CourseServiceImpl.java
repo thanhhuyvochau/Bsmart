@@ -252,7 +252,7 @@ public class CourseServiceImpl implements ICourseService {
         User user = MentorUtil.checkIsMentor();
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-
+        CourseValidator.checkEmptySectionOfCourseActivity(course.getActivities());
         if (!course.getApproved()) {
             List<Class> classesInRequest = classRepository.findAllById(classIds);
 
