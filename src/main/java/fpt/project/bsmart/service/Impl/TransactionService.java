@@ -56,8 +56,9 @@ public class TransactionService implements ITransactionService {
     private final NotificationRepository notificationRepository;
     private final PaymentPicker paymentPicker;
     private final ReferralCodeRepository referralCodeRepository;
+    private final OrderDetailRepository orderDetailRepository;
 
-    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CartItemRepository cartItemRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, PaymentPicker paymentPicker, ReferralCodeRepository referralCodeRepository) {
+    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CartItemRepository cartItemRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, PaymentPicker paymentPicker, ReferralCodeRepository referralCodeRepository, OrderDetailRepository orderDetailRepository) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
@@ -69,6 +70,7 @@ public class TransactionService implements ITransactionService {
         this.notificationRepository = notificationRepository;
         this.paymentPicker = paymentPicker;
         this.referralCodeRepository = referralCodeRepository;
+        this.orderDetailRepository = orderDetailRepository;
     }
 
     @Override
@@ -474,7 +476,15 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public boolean refundClassFeeToStudentWallet() {
-        return false;
+    public boolean refundClassFeeToStudentWallet(List<Class> unsatisfiedClasses) {
+        for (Class unsatisfiedClass : unsatisfiedClasses) {
+            List<OrderDetail> successOrderDetails = orderDetailRepository
+                    .findAllByClazzAndStatus(unsatisfiedClass, EOrderStatus.SUCCESS);
+            for (OrderDetail successOrderDetail : successOrderDetails) {
+                User user = successOrderDetail.getOrder().getUser();
+                user.getWallet().increaseBalance(successOrderDetail.getFinalPrice());
+            }
+        }
+        return true;
     }
 }

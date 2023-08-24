@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.DayOfWeekRepository;
 import fpt.project.bsmart.repository.RoleRepository;
+import fpt.project.bsmart.service.Impl.TransactionService;
 import fpt.project.bsmart.util.ClassUtil;
 import fpt.project.bsmart.util.TimeInWeekUtil;
 import org.springframework.context.annotation.Configuration;
@@ -36,11 +37,13 @@ public class ScheduleJobConfig {
     private final ClassRepository classRepository;
 
     private final RoleRepository roleRepository;
+    private final TransactionService transactionService;
 
-    public ScheduleJobConfig(DayOfWeekRepository dayOfWeekRepository, ClassRepository classRepository, RoleRepository roleRepository) {
+    public ScheduleJobConfig(DayOfWeekRepository dayOfWeekRepository, ClassRepository classRepository, RoleRepository roleRepository, TransactionService transactionService) {
         this.dayOfWeekRepository = dayOfWeekRepository;
         this.classRepository = classRepository;
         this.roleRepository = roleRepository;
+        this.transactionService = transactionService;
     }
 
 
@@ -115,7 +118,8 @@ public class ScheduleJobConfig {
             unSatisfyMinClass.setStatus(ECourseStatus.UNSATISFY);
             // Send thông báo cho giáo viên đó cần phải mở thủ công
         }
-        // Send notification for teacher if not satisfy (let teacher manually open)
+        transactionService.refundClassFeeToStudentWallet(unSatisfyMinClasses);
+        // Send notification for teacher if not satisfy and student to inform class is closed
         classRepository.saveAll(classesStartToday);
         System.out.println("---------Task executed at 12 AM (midnight) for Open Class-----------");
     }

@@ -1,5 +1,6 @@
 package fpt.project.bsmart.service;
 
+import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.dto.TransactionDto;
 import fpt.project.bsmart.entity.request.*;
@@ -40,5 +41,6 @@ public interface ITransactionService {
 
     List<SystemRevenueResponse> getSystemRevenue(Integer year);
 
-    boolean refundClassFeeToStudentWallet();
+    boolean refundClassFeeToStudentWallet(List<Class> unsatisfiedClasses);
+
 }
