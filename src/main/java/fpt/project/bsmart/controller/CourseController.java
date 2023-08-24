@@ -118,7 +118,8 @@ public class CourseController {
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/pending")
     public ResponseEntity<ApiResponse<ApiPage<ManagerGetCourse>>> coursePendingToApprove(ECourseStatus status,
-                                                                                         @Nullable CourseSearchRequest query, @PageableDefault(sort = "lastModified", direction = Sort.Direction.DESC) Pageable pageable) {
+                                                                                         @Nullable CourseSearchRequest query,
+                                                                                         @PageableDefault(sort = "lastModified", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(status, pageable)));
     }
 

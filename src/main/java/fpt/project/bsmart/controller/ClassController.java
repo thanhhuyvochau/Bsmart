@@ -5,16 +5,14 @@ import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.request.clazz.GetPointStudentClassRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
-import fpt.project.bsmart.entity.response.AttendanceStudentResponse;
+import fpt.project.bsmart.entity.response.*;
 import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetCourseClassResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
-import fpt.project.bsmart.entity.response.ClassResponse;
-import fpt.project.bsmart.entity.response.MentorGetCourseClassResponse;
-import fpt.project.bsmart.entity.response.StudentClassResponse;
 import fpt.project.bsmart.service.AttendanceService;
 import fpt.project.bsmart.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -193,4 +191,13 @@ public class ClassController {
     public ResponseEntity<ApiResponse<List<BaseClassResponse>>> getDuplicateTimeClasses(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getDuplicateTimeClassOfStudent(id)));
     }
+
+
+    @Operation(summary = "mentor / student xem điểm theo class")
+    @PreAuthorize("hasAnyRole('TEACHER' , 'STUDENT')")
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<GetPointStudentClassResponse>>> getStudentPoint(@RequestParam GetPointStudentClassRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getStudentPoint(request)));
+    }
+
 }

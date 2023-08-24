@@ -16,6 +16,7 @@ public class MentorProfileDTO {
     private Double averageRate = 0.0;
     private Integer submissionCount = 0;
 
+
     public Long getId() {
         return id;
     }
@@ -79,5 +80,7 @@ public class MentorProfileDTO {
     public void setSubmissionCount(Integer submissionCount) {
         this.submissionCount = submissionCount;
     }
+
+
 
 }

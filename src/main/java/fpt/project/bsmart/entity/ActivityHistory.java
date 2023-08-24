@@ -39,6 +39,7 @@ public class ActivityHistory extends BaseEntity {
     @JoinColumn(name = "count")
     private Integer count = 0;
 
+
     public Long getId() {
         return id;
     }

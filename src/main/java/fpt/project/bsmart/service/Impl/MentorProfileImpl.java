@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.lang.Class;
 import java.lang.reflect.Field;
+import java.time.Instant;
 import java.time.Year;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -162,8 +163,7 @@ public class MentorProfileImpl implements IMentorProfileService {
             mentorProfile.setSkills(skillsActive);
         }
         mentorProfile.setStatus(managerApprovalAccountRequest.getStatus());
-        // gán giá trị xem profile này đã phỏng vấn chưa
-        // nếu chưa thì sẽ chuyển qua tab mentor chờ PV rồi mới được làm mentor chính thưc của hệ thông .
+
 //        ActivityHistoryUtil.logHistoryForAccountSendRequestApprove(mentorProfile.getUser(), managerApprovalAccountRequest.getMessage());
         Notification notification = NotificationDirector.buildApprovalMentorProfile(mentorProfile);
         notificationRepository.save(notification);
@@ -277,7 +277,6 @@ public class MentorProfileImpl implements IMentorProfileService {
 
         requiredInfoList.forEach(requiredInfo -> {
             requiredInfo.getFields().stream().map(CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field::getField).findFirst().ifPresent(invalidParams::add);
-
         });
         validationError.setMessage("Vui lòng cập nhật đây đủ thông tin trước khi yêu cầu phê duyệt tài khoản");
         validationError.setInvalidParams(invalidParams);
@@ -288,12 +287,12 @@ public class MentorProfileImpl implements IMentorProfileService {
         }
         ActivityHistory activityHistory = activityHistoryRepository.findByTypeAndActivityId(EActivityType.USER, currentUserAccountLogin.getId());
         if (activityHistory != null) {
+            activityHistory.setLastModified(Instant.now());
             activityHistory.setCount(activityHistory.getCount() + 1);
             activityHistoryRepository.save(activityHistory);
         } else {
             ActivityHistoryUtil.logHistoryForAccountSendRequestApprove(currentUserAccountLogin);
         }
-
         mentorProfile.setStatus(EMentorProfileStatus.WAITING);
         mentorProfileRepository.save(mentorProfile);
         return true;
@@ -734,7 +733,8 @@ public class MentorProfileImpl implements IMentorProfileService {
         MentorProfileEdit byStatusPending = mentorProfileEditRepository.findByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.PENDING);
 
         if (byStatusPending != null) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Hồ sơ của bạn đang được xử lý! Không thể gửi thêm yêu cầu!");
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage("Hồ sơ của bạn đang được xử lý! Không thể gửi thêm yêu cầu!");
         }
 
         mentorProfileEdit.setStatus(EMentorProfileEditStatus.PENDING);
@@ -743,7 +743,8 @@ public class MentorProfileImpl implements IMentorProfileService {
     }
 
     @Override
-    public ApiPage<MentorEditProfileResponse> managerGetEditProfileRequest(ManagerSearchEditProfileRequest query, Pageable pageable) {
+    public ApiPage<MentorEditProfileResponse> managerGetEditProfileRequest(ManagerSearchEditProfileRequest query,
+                                                                           Pageable pageable) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
