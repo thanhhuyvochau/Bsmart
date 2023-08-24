@@ -542,6 +542,11 @@ public class MentorProfileImpl implements IMentorProfileService {
     public Long mentorCreateEditProfileRequest(UserDtoRequest request) throws JsonProcessingException {
         User user = SecurityUtil.getCurrentUser();
         MentorProfile mentorProfile = user.getMentorProfile();
+
+        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Trạng thái tài khoản không cho phép chỉnh sửa!");
+        }
+
         MentorProfileEdit byStatusPending = mentorProfileEditRepository.findByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.PENDING);
 
         if (byStatusPending != null) {
@@ -556,7 +561,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         mentorCreateEditMentorProfile(userDtoEdit, request, mentorProfile);
 
         // chỉnh sưa thông tin về hinh ảnh (avt , bằng cấp , cmnd)
-        mentorCreateEditImage(userDtoEdit, request, mentorProfile);
+        mentorCreateEditImage(userDtoEdit, request);
 
         // kiểm tra xem user này đã gửi request edit trước đó chưa => nếu rồi thì không cho gửi nữa !!!
         MentorProfileEdit byStatus = mentorProfileEditRepository.findByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.PENDING);
@@ -678,6 +683,7 @@ public class MentorProfileImpl implements IMentorProfileService {
             if (mentorProfileRequest.getMentorSkills() != null) {
                 List<MentorSkillDto> mentorUpdateSkills = mentorProfileRequest.getMentorSkills();
                 Set<Long> skillIds = new HashSet<>();
+                List<MentorSkillDto> mentorUpdateSkillsSkillDtoList = new ArrayList<>();
                 for (MentorSkillDto mentorUpdateSkill : mentorUpdateSkills) {
                     if (mentorUpdateSkill.getYearOfExperiences() <= 0) {
                         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.NEGATIVE_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
@@ -694,9 +700,12 @@ public class MentorProfileImpl implements IMentorProfileService {
                     if (!skillIds.add(mentorUpdateSkill.getSkillId())) {
                         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(SUBJECT_ID_DUPLICATE) + mentorUpdateSkill.getSkillId());
                     }
+                    MentorSkillDto mentorSkillDto = ObjectUtil.copyProperties(mentorUpdateSkill, new MentorSkillDto(), MentorSkillDto.class);
+                    mentorUpdateSkillsSkillDtoList.add(mentorSkillDto);
+
                 }
                 List<MentorSkillDto> mentorSkills = new ArrayList<>();
-                mentorSkills.addAll(mentorUpdateSkills) ;
+                mentorSkills.addAll(mentorUpdateSkillsSkillDtoList);
 //                for (MentorSkillDto mentorUpdateSkill : mentorUpdateSkills) {
 //                    MentorSkillDto mentorSkillDto = ObjectUtil.copyProperties(mentorUpdateSkill, new MentorSkillDto(), MentorSkillDto.class);
 //                    mentorSkills.add(mentorSkillDto);
@@ -709,13 +718,15 @@ public class MentorProfileImpl implements IMentorProfileService {
 
     }
 
-    public void mentorCreateEditImage(UserDto userDtoEdit, UserDtoRequest request, MentorProfile mentorProfile) {
+    public void mentorCreateEditImage(UserDto userDtoEdit, UserDtoRequest request) {
         List<ImageDto> imageDtoList = new ArrayList<>();
         List<ImageEditDto> imageDtoEditRequest = request.getUserImages();
-        for (ImageEditDto imageEditDto : imageDtoEditRequest) {
-            if (imageEditDto.getId() != null) {
-                ImageDto imageDto = ObjectUtil.copyProperties(imageEditDto, new ImageDto(), ImageDto.class);
-                imageDtoList.add(imageDto);
+        if (imageDtoEditRequest != null) {
+            for (ImageEditDto imageEditDto : imageDtoEditRequest) {
+                if (imageEditDto.getId() != null) {
+                    ImageDto imageDto = ObjectUtil.copyProperties(imageEditDto, new ImageDto(), ImageDto.class);
+                    imageDtoList.add(imageDto);
+                }
             }
         }
         userDtoEdit.setUserImages(imageDtoList);
