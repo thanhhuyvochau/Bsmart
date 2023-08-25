@@ -9,7 +9,7 @@ public class WithDrawResponse {
     private String userName;
     private String bankName;
     private String bankAccount;
-    private Long bankNumber;
+    private String bankNumber;
     private String amount;
     private ETransactionStatus status;
 
@@ -45,11 +45,11 @@ public class WithDrawResponse {
         this.bankAccount = bankAccount;
     }
 
-    public Long getBankNumber() {
+    public String getBankNumber() {
         return bankNumber;
     }
 
-    public void setBankNumber(Long bankNumber) {
+    public void setBankNumber(String bankNumber) {
         this.bankNumber = bankNumber;
     }
 
