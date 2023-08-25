@@ -458,7 +458,8 @@ public class ConvertUtil {
         courseResponse.setLevel(course.getLevel());
         List<String> mentorName = new ArrayList<>();
         //List<Class> collect = course.getClasses() ;
-        List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.NOTSTART) && aClass.getStudentClasses().size() < aClass.getMaxStudent()).collect(Collectors.toList());
+        List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.NOTSTART)
+                && aClass.getStudentClasses().size() < aClass.getMaxStudent()).collect(Collectors.toList());
         List<ImageDto> images = new ArrayList<>();
         if (collect.isEmpty()) {
             ClassImage byType = staticClassImageRepository.findByType(EImageType.DEFAULT);
@@ -1069,7 +1070,7 @@ public class ConvertUtil {
         MentorRevenueResponse response = new MentorRevenueResponse();
         response.setUserId(user.getId());
         response.setNumOfCourse(numOfCourse);
-        response.setSystemIncome(Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT)) ? totalFinal : totalOriginal);
+        response.setSystemIncome(totalOriginal);
         response.setRevenue(revenue);
         response.setPromotion(promotion);
         if (Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER))) {
@@ -1120,7 +1121,7 @@ public class ConvertUtil {
         response.setBankName(transaction.getBank().getShortName());
         response.setStatus(transaction.getStatus());
         response.setBankAccount(transaction.getBankAccountOwner());
-        response.setBankNumber(transaction.getReceivedBankAccount());
+        response.setBankNumber(String.valueOf(transaction.getReceivedBankAccount()));
         return response;
     }
 
