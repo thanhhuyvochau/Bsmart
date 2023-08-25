@@ -10,6 +10,7 @@ import fpt.project.bsmart.entity.constant.EActivityType;
 import fpt.project.bsmart.repository.ActivityHistoryRepository;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Component
@@ -62,7 +63,8 @@ public class ActivityHistoryUtil {
         activityHistory.setActivityName(user.getEmail());
         activityHistory.setUserId(user.getId());
         activityHistory.setCount(1);
-        activityHistory.setDetail("Đã gửi yêu cầu phê duyệt tài khoản !");
+        activityHistory.setDetail("Đã gửi yêu cầu phê duyệt tài khoản.");
+        activityHistory.setLastModified(Instant.now());
         staticActivityHistoryRepository.save(activityHistory);
     }
 //

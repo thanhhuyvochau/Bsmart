@@ -11,4 +11,6 @@ import java.util.List;
 @Repository
 public interface ActivityAuthorizeRepository extends JpaRepository<ActivityAuthorize, Long> {
     List<ActivityAuthorize> findAllByAuthorizeClassAndActivity(Class clazz, Activity activity);
+
+    List<ActivityAuthorize> findAllByAuthorizeClass(Class clazz);
 }
