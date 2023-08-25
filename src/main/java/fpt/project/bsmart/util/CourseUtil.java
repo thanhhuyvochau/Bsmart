@@ -251,8 +251,9 @@ public class CourseUtil {
         List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
         List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART);
         classes.forEach(aClass -> {
-
-            classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(course.getCreator(), aClass));
+            if(aClass.getStudentClasses().size() < aClass.getMaxStudent()){
+                classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(course.getCreator(), aClass));
+            }
         });
         courseResponse.setClasses(classDetailResponses);
 
