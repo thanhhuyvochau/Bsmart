@@ -6,6 +6,8 @@ public class MentorSkillDto {
     private String name;
     private int yearOfExperiences;
 
+    private Boolean status ;
+
 
     public Long getId() {
         return id;
@@ -39,4 +41,11 @@ public class MentorSkillDto {
         this.yearOfExperiences = yearOfExperiences;
     }
 
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
 }

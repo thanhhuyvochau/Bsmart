@@ -118,8 +118,9 @@ public class MentorProfileController {
     @Operation(summary = "Manager Lấy danh sách giảng viên chờ duyệt")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/pending")
-    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getPendingMentorProfile(@Nullable MentorSearchRequest request,
-                                                                                 Pageable pageable) {
+    public ResponseEntity<ApiResponse<ApiPage<UserDto>>> getPendingMentorProfile(
+            @Nullable MentorSearchRequest request,
+            @PageableDefault(sort = "timeSendRequest", direction = Sort.Direction.DESC) Pageable pageable) {
 
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getPendingMentorProfileList(request, pageable)));
     }
@@ -158,7 +159,7 @@ public class MentorProfileController {
         return ResponseEntity.ok(ApiResponse.success(mentorProfileService.managerGetEditProfileDetailRequest(mentorProfileEditId)));
     }
 
-    @Operation(summary = "Manager ( phê duyêt / từ chối / yêu cầu thay đổi )  hồ sơ mentor   ")
+    @Operation(summary = "Manager ( phê duyêt / từ chối / yêu cầu thay đổi )  hồ sơ mentor ")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @PutMapping("/{id}/approval-edit-profile-detail")
     public ResponseEntity<ApiResponse<Boolean>> approveMentorProfileEdit(

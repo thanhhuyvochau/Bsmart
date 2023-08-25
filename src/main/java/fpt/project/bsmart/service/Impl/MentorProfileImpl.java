@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.lang.Class;
 import java.lang.reflect.Field;
+import java.time.Instant;
 import java.time.Year;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -162,8 +163,7 @@ public class MentorProfileImpl implements IMentorProfileService {
             mentorProfile.setSkills(skillsActive);
         }
         mentorProfile.setStatus(managerApprovalAccountRequest.getStatus());
-        // gán giá trị xem profile này đã phỏng vấn chưa
-        // nếu chưa thì sẽ chuyển qua tab mentor chờ PV rồi mới được làm mentor chính thưc của hệ thông .
+
 //        ActivityHistoryUtil.logHistoryForAccountSendRequestApprove(mentorProfile.getUser(), managerApprovalAccountRequest.getMessage());
         Notification notification = NotificationDirector.buildApprovalMentorProfile(mentorProfile);
         notificationRepository.save(notification);
@@ -277,7 +277,6 @@ public class MentorProfileImpl implements IMentorProfileService {
 
         requiredInfoList.forEach(requiredInfo -> {
             requiredInfo.getFields().stream().map(CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field::getField).findFirst().ifPresent(invalidParams::add);
-
         });
         validationError.setMessage("Vui lòng cập nhật đây đủ thông tin trước khi yêu cầu phê duyệt tài khoản");
         validationError.setInvalidParams(invalidParams);
@@ -288,12 +287,12 @@ public class MentorProfileImpl implements IMentorProfileService {
         }
         ActivityHistory activityHistory = activityHistoryRepository.findByTypeAndActivityId(EActivityType.USER, currentUserAccountLogin.getId());
         if (activityHistory != null) {
+            activityHistory.setLastModified(Instant.now());
             activityHistory.setCount(activityHistory.getCount() + 1);
             activityHistoryRepository.save(activityHistory);
         } else {
             ActivityHistoryUtil.logHistoryForAccountSendRequestApprove(currentUserAccountLogin);
         }
-
         mentorProfile.setStatus(EMentorProfileStatus.WAITING);
         mentorProfileRepository.save(mentorProfile);
         return true;
@@ -543,6 +542,11 @@ public class MentorProfileImpl implements IMentorProfileService {
     public Long mentorCreateEditProfileRequest(UserDtoRequest request) throws JsonProcessingException {
         User user = SecurityUtil.getCurrentUser();
         MentorProfile mentorProfile = user.getMentorProfile();
+
+        if (!mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)) {
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Trạng thái tài khoản không cho phép chỉnh sửa!");
+        }
+
         MentorProfileEdit byStatusPending = mentorProfileEditRepository.findByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.PENDING);
 
         if (byStatusPending != null) {
@@ -557,7 +561,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         mentorCreateEditMentorProfile(userDtoEdit, request, mentorProfile);
 
         // chỉnh sưa thông tin về hinh ảnh (avt , bằng cấp , cmnd)
-        mentorCreateEditImage(userDtoEdit, request, mentorProfile);
+        mentorCreateEditImage(userDtoEdit, request);
 
         // kiểm tra xem user này đã gửi request edit trước đó chưa => nếu rồi thì không cho gửi nữa !!!
         MentorProfileEdit byStatus = mentorProfileEditRepository.findByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.PENDING);
@@ -679,6 +683,7 @@ public class MentorProfileImpl implements IMentorProfileService {
             if (mentorProfileRequest.getMentorSkills() != null) {
                 List<MentorSkillDto> mentorUpdateSkills = mentorProfileRequest.getMentorSkills();
                 Set<Long> skillIds = new HashSet<>();
+                List<MentorSkillDto> mentorUpdateSkillsSkillDtoList = new ArrayList<>();
                 for (MentorSkillDto mentorUpdateSkill : mentorUpdateSkills) {
                     if (mentorUpdateSkill.getYearOfExperiences() <= 0) {
                         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.Invalid.NEGATIVE_YEAR_OF_EXPERIENCES) + mentorUpdateSkill.getYearOfExperiences());
@@ -695,9 +700,12 @@ public class MentorProfileImpl implements IMentorProfileService {
                     if (!skillIds.add(mentorUpdateSkill.getSkillId())) {
                         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(SUBJECT_ID_DUPLICATE) + mentorUpdateSkill.getSkillId());
                     }
+                    MentorSkillDto mentorSkillDto = ObjectUtil.copyProperties(mentorUpdateSkill, new MentorSkillDto(), MentorSkillDto.class);
+                    mentorUpdateSkillsSkillDtoList.add(mentorSkillDto);
+
                 }
                 List<MentorSkillDto> mentorSkills = new ArrayList<>();
-                mentorSkills.addAll(mentorUpdateSkills) ;
+                mentorSkills.addAll(mentorUpdateSkillsSkillDtoList);
 //                for (MentorSkillDto mentorUpdateSkill : mentorUpdateSkills) {
 //                    MentorSkillDto mentorSkillDto = ObjectUtil.copyProperties(mentorUpdateSkill, new MentorSkillDto(), MentorSkillDto.class);
 //                    mentorSkills.add(mentorSkillDto);
@@ -710,13 +718,15 @@ public class MentorProfileImpl implements IMentorProfileService {
 
     }
 
-    public void mentorCreateEditImage(UserDto userDtoEdit, UserDtoRequest request, MentorProfile mentorProfile) {
+    public void mentorCreateEditImage(UserDto userDtoEdit, UserDtoRequest request) {
         List<ImageDto> imageDtoList = new ArrayList<>();
         List<ImageEditDto> imageDtoEditRequest = request.getUserImages();
-        for (ImageEditDto imageEditDto : imageDtoEditRequest) {
-            if (imageEditDto.getId() != null) {
-                ImageDto imageDto = ObjectUtil.copyProperties(imageEditDto, new ImageDto(), ImageDto.class);
-                imageDtoList.add(imageDto);
+        if (imageDtoEditRequest != null) {
+            for (ImageEditDto imageEditDto : imageDtoEditRequest) {
+                if (imageEditDto.getId() != null) {
+                    ImageDto imageDto = ObjectUtil.copyProperties(imageEditDto, new ImageDto(), ImageDto.class);
+                    imageDtoList.add(imageDto);
+                }
             }
         }
         userDtoEdit.setUserImages(imageDtoList);
@@ -734,7 +744,8 @@ public class MentorProfileImpl implements IMentorProfileService {
         MentorProfileEdit byStatusPending = mentorProfileEditRepository.findByMentorProfileAndStatus(mentorProfile, EMentorProfileEditStatus.PENDING);
 
         if (byStatusPending != null) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Hồ sơ của bạn đang được xử lý! Không thể gửi thêm yêu cầu!");
+            throw ApiException.create(HttpStatus.BAD_REQUEST)
+                    .withMessage("Hồ sơ của bạn đang được xử lý! Không thể gửi thêm yêu cầu!");
         }
 
         mentorProfileEdit.setStatus(EMentorProfileEditStatus.PENDING);
@@ -743,7 +754,8 @@ public class MentorProfileImpl implements IMentorProfileService {
     }
 
     @Override
-    public ApiPage<MentorEditProfileResponse> managerGetEditProfileRequest(ManagerSearchEditProfileRequest query, Pageable pageable) {
+    public ApiPage<MentorEditProfileResponse> managerGetEditProfileRequest(ManagerSearchEditProfileRequest query,
+                                                                           Pageable pageable) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
