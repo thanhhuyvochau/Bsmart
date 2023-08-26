@@ -3,6 +3,7 @@ package fpt.project.bsmart.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import fpt.project.bsmart.entity.constant.EGenderType;
+import fpt.project.bsmart.entity.constant.SocialProvider;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -98,9 +99,9 @@ public class User extends BaseEntity {
     @Column(name = "is_verified")
     private boolean isVerified = false;
 
-    @JsonIgnore
     @Column(name = "provider")
-    private String provider;
+    @Enumerated(EnumType.STRING)
+    private SocialProvider provider = SocialProvider.LOCAL;
 
     @JsonIgnore
     @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -301,11 +302,11 @@ public class User extends BaseEntity {
         isVerified = verified;
     }
 
-    public String getProvider() {
+    public SocialProvider getProvider() {
         return provider;
     }
 
-    public void setProvider(String provider) {
+    public void setProvider(SocialProvider provider) {
         this.provider = provider;
     }
 

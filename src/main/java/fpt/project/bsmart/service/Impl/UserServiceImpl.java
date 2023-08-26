@@ -449,7 +449,7 @@ public class UserServiceImpl implements IUserService {
         Wallet wallet = new Wallet();
         wallet.setOwner(user);
         user.setWallet(wallet);
-        user.setProvider("original");
+        user.setProvider(SocialProvider.LOCAL);
         if (role.getCode().equals(EUserRole.TEACHER)) {
             user.setStatus(false);
             MentorProfile mentorProfile = new MentorProfile();
@@ -532,10 +532,10 @@ public class UserServiceImpl implements IUserService {
         SignUpRequest userDetails = toUserRegistrationObject(registrationId, oAuth2UserInfo);
         User user = getUserByEmail(email);
         if (user != null) {
-            if (!user.getProvider().equals(registrationId) && !user.getProvider().equals(SocialProvider.LOCAL.getProviderType())) {
+            if (!user.getProvider().equals(SocialProvider.GOOGLE.getProviderType())) {
                 throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(String.format(messageUtil.getLocalMessage(INCORRECT_PROVIDER_LOGIN), user.getProvider(), user.getProvider()));
             }
-            user = updateExistingUser(user, oAuth2UserInfo);
+//            user = updateExistingUser(user, oAuth2UserInfo);
         } else {
             user = registerNewUser(userDetails);
         }
@@ -625,13 +625,13 @@ public class UserServiceImpl implements IUserService {
         } else if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(REGISTERED_EMAIL) + signUpRequest.getEmail());
         }
-        User user = buildUser(signUpRequest);
+        User user = buildStudentUser(signUpRequest);
         user = userRepository.save(user);
         userRepository.flush();
         return user;
     }
 
-    private User buildUser(final SignUpRequest formDTO) {
+    private User buildStudentUser(final SignUpRequest formDTO) {
         User user = new User();
         user.setEmail(formDTO.getEmail());
         user.setPassword(encoder.encode(formDTO.getPassword()));
@@ -640,7 +640,7 @@ public class UserServiceImpl implements IUserService {
         final List<Role> roles = new ArrayList<>();
         roles.add(roleRepository.findRoleByCode(EUserRole.STUDENT).get());
         user.setRoles(roles);
-        user.setProvider(formDTO.getSocialProvider().getProviderType());
+        user.setProvider(formDTO.getSocialProvider());
         user.setStatus(true);
         user.setIsVerified(true);
         Wallet wallet = new Wallet();
