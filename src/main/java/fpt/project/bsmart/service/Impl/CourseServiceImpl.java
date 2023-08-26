@@ -82,7 +82,6 @@ public class CourseServiceImpl implements ICourseService {
         List<Course> collect = coursesPage.stream().distinct().collect(Collectors.toList());
         // Add a call to the distinct() method to remove duplicates
         Page<Course> coursePages = new PageImpl<>(collect, pageable, collect.size());
-
         return PageUtil.convert(coursePages.map(ConvertUtil::convertCourseCourseResponsePage));
     }
 

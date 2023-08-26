@@ -299,7 +299,7 @@ public class MentorUtil {
             if (mentorProfile.getSkills() == null || mentorProfile.getSkills().isEmpty()) {
                 fieldRequired = new CompletenessMentorProfileResponse.MissingInformation.RequiredInfo.Field();
                 fieldRequired.setField("skills");
-                fieldRequired.setName("Kinh nghiệm");
+                fieldRequired.setName("Kỹ năng");
                 requiredInfoFiled.add(fieldRequired);
             } else {
                 completionPercentage++;

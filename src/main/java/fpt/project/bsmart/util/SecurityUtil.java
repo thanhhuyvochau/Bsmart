@@ -61,6 +61,15 @@ public class SecurityUtil {
         return Optional.ofNullable(user);
     }
 
+    public static User hasCurrentUser() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Object principal = securityContext.getAuthentication().getPrincipal();
+        String email = getEmailCurrentUser(principal);
+        User user = staticUserRepository.findByEmail(email).orElse(null);
+
+        return user;
+    }
+
     public static Wallet getCurrentUserWallet() {
         User currentUserAccountLogin = getCurrentUser();
         Wallet wallet = currentUserAccountLogin.getWallet();
