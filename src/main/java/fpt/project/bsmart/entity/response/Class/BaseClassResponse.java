@@ -1,8 +1,6 @@
 package fpt.project.bsmart.entity.response.Class;
 
-import fpt.project.bsmart.entity.constant.ECourseStatus;
-import fpt.project.bsmart.entity.dto.ImageDto;
-import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 
 import java.time.Instant;
 
@@ -20,7 +18,7 @@ public class BaseClassResponse {
     private Integer numberOfSlot ;
 
 
-    private ECourseStatus status;
+    private ECourseClassStatus status;
 
     private int minStudent;
 
@@ -75,11 +73,11 @@ public class BaseClassResponse {
         this.numberOfSlot = numberOfSlot;
     }
 
-    public ECourseStatus getStatus() {
+    public ECourseClassStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ECourseStatus status) {
+    public void setStatus(ECourseClassStatus status) {
         this.status = status;
     }
 

@@ -1,12 +1,11 @@
 package fpt.project.bsmart.entity.response.Class;
 
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.constant.ECourseLevel;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,7 @@ public class ManagerGetCourseClassResponse {
 
     private SubjectDto subjectResponse;
 
-    private ECourseStatus status;
+    private ECourseClassStatus status;
 
     private MentorDto mentor;
     private List<ClassDetailResponse> classes;
@@ -90,11 +89,11 @@ public class ManagerGetCourseClassResponse {
         this.subjectResponse = subjectResponse;
     }
 
-    public ECourseStatus getStatus() {
+    public ECourseClassStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ECourseStatus status) {
+    public void setStatus(ECourseClassStatus status) {
         this.status = status;
     }
 

@@ -1,6 +1,6 @@
 package fpt.project.bsmart.entity;
 
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -24,7 +24,7 @@ public class Class extends BaseEntity {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private ECourseStatus status;
+    private ECourseClassStatus status;
     @Column(name = "price")
     private BigDecimal price;
     @Column(name = "min_student")
@@ -118,11 +118,11 @@ public class Class extends BaseEntity {
     }
 
 
-    public ECourseStatus getStatus() {
+    public ECourseClassStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ECourseStatus status) {
+    public void setStatus(ECourseClassStatus status) {
         this.status = status;
     }
 

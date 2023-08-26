@@ -56,8 +56,9 @@ public class TransactionService implements ITransactionService {
     private final NotificationRepository notificationRepository;
     private final PaymentPicker paymentPicker;
     private final ReferralCodeRepository referralCodeRepository;
+    private final OrderDetailRepository orderDetailRepository;
 
-    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CartItemRepository cartItemRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, PaymentPicker paymentPicker, ReferralCodeRepository referralCodeRepository) {
+    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CartItemRepository cartItemRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, PaymentPicker paymentPicker, ReferralCodeRepository referralCodeRepository, OrderDetailRepository orderDetailRepository) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
@@ -69,6 +70,7 @@ public class TransactionService implements ITransactionService {
         this.notificationRepository = notificationRepository;
         this.paymentPicker = paymentPicker;
         this.referralCodeRepository = referralCodeRepository;
+        this.orderDetailRepository = orderDetailRepository;
     }
 
     @Override
@@ -228,7 +230,7 @@ public class TransactionService implements ITransactionService {
         Class clazz = classRepository.findById(request.getClazzId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(SUB_COURSE_NOT_FOUND_BY_ID) + request.getClazzId()));
-        if (!clazz.getStatus().equals(ECourseStatus.NOTSTART)) {
+        if (!clazz.getStatus().equals(ECourseClassStatus.NOTSTART)) {
             throw ApiException.create(HttpStatus.METHOD_NOT_ALLOWED).withMessage(messageUtil.getLocalMessage(INVALID_COURSE_STATUS_TO_PURCHASE));
         }
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
@@ -353,7 +355,6 @@ public class TransactionService implements ITransactionService {
                 ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, user);
                 webSocketUtil.sendPrivateNotification(user.getEmail(), responseMessage);
             }
-//            ReferralCodeUtil.generateRandomReferralCode();
             classRepository.saveAll(orderedClasses);
             return true;
         }
@@ -470,5 +471,18 @@ public class TransactionService implements ITransactionService {
         transaction.setAmount(giftAmount);
         wallet.increaseBalance(giftAmount);
         transactionRepository.save(transaction);
+    }
+
+    @Override
+    public boolean refundClassFeeToStudentWallet(List<Class> unsatisfiedClasses) {
+        for (Class unsatisfiedClass : unsatisfiedClasses) {
+            List<OrderDetail> successOrderDetails = orderDetailRepository
+                    .findAllByClazzAndStatus(unsatisfiedClass, EOrderStatus.SUCCESS);
+            for (OrderDetail successOrderDetail : successOrderDetails) {
+                User user = successOrderDetail.getOrder().getUser();
+                user.getWallet().increaseBalance(successOrderDetail.getFinalPrice());
+            }
+        }
+        return true;
     }
 }

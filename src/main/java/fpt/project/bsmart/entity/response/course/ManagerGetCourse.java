@@ -1,7 +1,7 @@
 package fpt.project.bsmart.entity.response.course;
 
 import fpt.project.bsmart.entity.constant.ECourseLevel;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.dto.CategoryDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
@@ -20,7 +20,7 @@ public class ManagerGetCourse {
 
     private SubjectDto subjectResponse;
 
-    private ECourseStatus status;
+    private ECourseClassStatus status;
 
 
     private MentorDto mentor;
@@ -86,11 +86,11 @@ public class ManagerGetCourse {
         this.subjectResponse = subjectResponse;
     }
 
-    public ECourseStatus getStatus() {
+    public ECourseClassStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ECourseStatus status) {
+    public void setStatus(ECourseClassStatus status) {
         this.status = status;
     }
 

@@ -15,10 +15,6 @@ public class Quiz extends BaseEntity {
     private Long id;
     @Column(name = "code")
     private String code;
-    @Column(name = "start_date")
-    private Instant startDate;
-    @Column(name = "end_date")
-    private Instant endDate;
     @Column(name = "time")
     private Integer time;
     @Column(name = "status")
@@ -48,10 +44,8 @@ public class Quiz extends BaseEntity {
     public Quiz() {
     }
 
-    public Quiz(String code, Instant startDate, Instant endDate, Integer time, QuizStatus status, Float defaultPoint, Boolean isSuffleQuestion, Boolean isAllowReview, Integer allowReviewAfterMin, String password, Activity activity, List<QuizQuestion> quizQuestions, boolean isUnlimitedAttempt, int attemptNumber) {
+    public Quiz(String code, Integer time, QuizStatus status, Float defaultPoint, Boolean isSuffleQuestion, Boolean isAllowReview, Integer allowReviewAfterMin, String password, Activity activity, List<QuizQuestion> quizQuestions, boolean isUnlimitedAttempt, int attemptNumber) {
         this.code = code;
-        this.startDate = startDate;
-        this.endDate = endDate;
         this.time = time;
         this.status = status;
         this.defaultPoint = defaultPoint;
@@ -79,22 +73,6 @@ public class Quiz extends BaseEntity {
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public Instant getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Instant startDate) {
-        this.startDate = startDate;
-    }
-
-    public Instant getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Instant endDate) {
-        this.endDate = endDate;
     }
 
     public Integer getTime() {

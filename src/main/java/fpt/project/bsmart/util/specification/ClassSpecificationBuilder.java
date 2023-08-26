@@ -2,7 +2,7 @@ package fpt.project.bsmart.util.specification;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.util.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -100,11 +100,11 @@ public class ClassSpecificationBuilder {
         return this;
     }
 
-    public ClassSpecificationBuilder filterByStatus(ECourseStatus status) {
+    public ClassSpecificationBuilder filterByStatus(ECourseClassStatus status) {
         if (status == null) {
             return this;
         }
-        if (status.equals(ECourseStatus.ALL)){
+        if (status.equals(ECourseClassStatus.ALL)){
             return this;
         }
 
@@ -152,7 +152,7 @@ public class ClassSpecificationBuilder {
     }
 
     public ClassSpecificationBuilder getPendingClass() {
-        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Class_.STATUS), ECourseStatus.WAITING));
+        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Class_.STATUS), ECourseClassStatus.WAITING));
         return this;
     }
 

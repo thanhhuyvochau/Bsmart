@@ -11,8 +11,6 @@ import java.util.List;
 
 public class QuizBuilder {
     private String code;
-    private Instant startDate;
-    private Instant endDate;
     private Integer time;
     private QuizStatus status;
     private Float defaultPoint;
@@ -27,16 +25,6 @@ public class QuizBuilder {
 
     public QuizBuilder withCode(String code) {
         this.code = code;
-        return this;
-    }
-
-    public QuizBuilder withStartDate(Instant startDate) {
-        this.startDate = startDate;
-        return this;
-    }
-
-    public QuizBuilder withEndDate(Instant endDate) {
-        this.endDate = endDate;
         return this;
     }
 
@@ -97,7 +85,7 @@ public class QuizBuilder {
 
     public Quiz build() {
         // TODO: Validation
-        Quiz quiz = new Quiz(code, startDate, endDate, time, status, defaultPoint, isSuffleQuestion, isAllowReview, allowReviewAfterMin, password, activity, quizQuestions, isUnlimitedAttempt, attemptNumber);
+        Quiz quiz = new Quiz(code, time, status, defaultPoint, isSuffleQuestion, isAllowReview, allowReviewAfterMin, password, activity, quizQuestions, isUnlimitedAttempt, attemptNumber);
         return quiz;
     }
 

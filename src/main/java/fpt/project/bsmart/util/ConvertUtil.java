@@ -22,9 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -172,7 +170,6 @@ public class ConvertUtil {
 
 
     public static UserDto convertUsertoUserDto(User user) {
-
         UserDto userDto = ObjectUtil.copyProperties(user, new UserDto(), UserDto.class);
 
         ActivityHistory byUserCourse = staticActivityHistoryRepository.findByTypeAndActivityId(EActivityType.USER, user.getId());
@@ -213,7 +210,7 @@ public class ConvertUtil {
             userDto.setTeachInformation(teachingInformation);
         } else {
             Integer finishedClassCount = user.getStudentClasses().stream()
-                    .filter(x -> x.getClazz().getStatus().equals(ECourseStatus.ENDED))
+                    .filter(x -> x.getClazz().getStatus().equals(ECourseClassStatus.ENDED))
                     .distinct()
                     .collect(Collectors.toList()).size();
             userDto.setFinishedClassCount(finishedClassCount);
@@ -461,12 +458,8 @@ public class ConvertUtil {
         courseResponse.setLevel(course.getLevel());
         List<String> mentorName = new ArrayList<>();
         //List<Class> collect = course.getClasses() ;
-//        List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.NOTSTART)
-//                && aClass.getStudentClasses().size() < aClass.getMaxStudent()).collect(Collectors.toList());
-
-        List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.NOTSTART))
-                .collect((Collectors.toList()));
-
+        List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseClassStatus.NOTSTART)
+                && aClass.getStudentClasses().size() < aClass.getMaxStudent()).collect(Collectors.toList());
         List<ImageDto> images = new ArrayList<>();
         if (collect.isEmpty()) {
             ClassImage byType = staticClassImageRepository.findByType(EImageType.DEFAULT);
@@ -556,7 +549,7 @@ public class ConvertUtil {
         List<Class> classes = course.getClasses();
         if (classes != null) {
             for (Class aClass : classes) {
-                if (aClass.getStatus().equals(ECourseStatus.WAITING)) {
+                if (aClass.getStatus().equals(ECourseClassStatus.WAITING)) {
                     ++totalClassToApproval;
                 }
             }
@@ -596,7 +589,7 @@ public class ConvertUtil {
         }
 
         List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
-        List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseStatus.WAITING);
+        List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseClassStatus.WAITING);
         classes.forEach(aClass -> {
             classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(course.getCreator(), aClass));
         });
@@ -1084,7 +1077,7 @@ public class ConvertUtil {
             List<Course> courses = user.getCourses();
             List<Class> classes = courses.stream()
                     .flatMap(x -> x.getClasses().stream())
-                    .filter(aClass -> aClass.getStatus().equals(ECourseStatus.STARTING) || aClass.getStatus().equals(ECourseStatus.ENDED))
+                    .filter(aClass -> aClass.getStatus().equals(ECourseClassStatus.STARTING) || aClass.getStatus().equals(ECourseClassStatus.ENDED))
                     .collect(Collectors.toList());
             List<StudentClass> studentClasses = classes.stream()
                     .flatMap(x -> x.getStudentClasses().stream())

@@ -4,7 +4,7 @@ package fpt.project.bsmart.util;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.constant.EImageType;
 import fpt.project.bsmart.entity.constant.EMentorProfileStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.ACCOUNT_IS_NOT_MENTOR;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.ACCOUNT_STATUS_NOT_ALLOW;
-import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_MENTOR_PROFILE_STATUS;
 
 
 @Component
@@ -333,7 +331,7 @@ public class MentorUtil {
         MentorProfile mentorProfile = user.getMentorProfile();
         ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
                 .byMentor(user)
-                .filterByStatus(ECourseStatus.ENDED);
+                .filterByStatus(ECourseClassStatus.ENDED);
         List<Class> classes = staticClassRepository.findAll(classSpecificationBuilder.build());
         Integer numberOfMember = classes.stream().map(Class::getStudentClasses).distinct().collect(Collectors.toList()).stream().map(x -> x.size()).mapToInt(Integer::intValue).sum();
 

@@ -4,7 +4,7 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.request.AttendanceDetailRequest;
 import fpt.project.bsmart.entity.request.AttendanceRequest;
 import fpt.project.bsmart.entity.response.*;
@@ -79,7 +79,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         Class clazz = timeTable.getClazz();
         if (!AttendanceValidator.isEnableTimeForDoAttendance(timeTable.getDate())) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(INVALID_ATTENDANCE_DAY));
-        } else if (clazz.getStatus().equals(ECourseStatus.ENDED)) {
+        } else if (clazz.getStatus().equals(ECourseClassStatus.ENDED)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Lớp đã kết thúc không thể điểm danh");
         }
         List<AttendanceDetailRequest> details = request.getDetails();
@@ -104,7 +104,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         Class clazz = timeTable.getClazz();
         if (!AttendanceValidator.isEnableTimeForDoAttendance(timeTable.getDate())) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(INVALID_ATTENDANCE_DAY));
-        } else if (clazz.getStatus().equals(ECourseStatus.ENDED)) {
+        } else if (clazz.getStatus().equals(ECourseClassStatus.ENDED)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Lớp đã kết thúc không thể điểm danh");
         }
         List<AttendanceDetailRequest> details = request.getDetails();
