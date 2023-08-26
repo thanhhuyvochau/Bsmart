@@ -3,7 +3,7 @@
    <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Verify Your Account</title>
+      <title>Xác Thực Tài Khoản Của Bạn</title>
       <style type="text/css">
          * {
          box-sizing: border-box;
@@ -76,16 +76,16 @@
    </head>
    <body>
       <div class="wrapper">
-         <h1>Verify Your Account</h1>
-         <p>Thank you for creating an account with us. To activate your account, please click on the button below:</p>
-         <a href="%s" class="button">Activate Account</a>
-         <h2>Why Verify Your Account?</h2>
-         <p>Verifying your account helps us ensure the security of your personal information and prevent unauthorized access. By verifying your account, you will be able to access all the features of our platform and get the most out of our services.</p>
-         <p>If you have any questions or concerns, please contact our support team at support@yourcompany.com.</p>
-         <p>Thank you for choosing our platform!</p>
+         <h1>Xác Thực Tài Khoản Của Bạn</h1>
+         <p>Xin cảm ơn bạn đã tạo tài khoản với chúng tôi. Để kích hoạt tài khoản của bạn, vui lòng nhấn vào nút bên dưới:</p>
+         <a href="%s" class="button">Kích Hoạt Tài Khoản</a>
+         <h2>Tại Sao Cần Xác Thực Tài Khoản?</h2>
+         <p>Xác thực tài khoản giúp chúng tôi đảm bảo an toàn cho thông tin cá nhân của bạn và ngăn chặn truy cập trái phép. Bằng cách xác thực tài khoản, bạn có thể truy cập tất cả các tính năng của nền tảng của chúng tôi và tận hưởng hết các dịch vụ mà chúng tôi cung cấp.</p>
+         <p>Nếu bạn có bất kỳ câu hỏi hoặc lo ngại, vui lòng liên hệ với đội hỗ trợ của chúng tôi qua địa chỉ email support@yourcompany.com.</p>
+         <p>Xin cảm ơn bạn đã lựa chọn nền tảng của chúng tôi!</p>
          <div class="footer">
-            <p>BSmart Learning Platform<br>
-               Phone: 555-555-5555<br>
+            <p>Nền tảng Học Tập BSmart<br>
+               Điện thoại: 555-555-5555<br>
                Email: bsmart@gmail.com
             </p>
          </div>

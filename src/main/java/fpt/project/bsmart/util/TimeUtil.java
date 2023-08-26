@@ -6,6 +6,7 @@ import fpt.project.bsmart.entity.constant.EUserRole;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
@@ -132,5 +133,13 @@ public class TimeUtil {
             throw new Exception("Ngày kết thúc lớp phải sau ngày bắt đầu ít nhất 15 ngày");
         }
         return endDate;
+    }
+
+    public static String formatInstant(Instant instant) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+                .withZone(ZoneId.systemDefault()); // Set the desired time zone
+
+        // Format the Instant object
+        return formatter.format(instant);
     }
 }

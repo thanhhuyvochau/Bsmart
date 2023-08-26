@@ -1,14 +1,26 @@
 package fpt.project.bsmart.entity.constant;
 
 public enum EMentorProfileStatus {
-    REQUESTING, // tài khoản được yêu cầu mở nhưng chưa sẵn sàng duyệt
-    WAITING, // tài khoản đã sẵn được  duyệt
-    EDITREQUEST , //  tài khoản ko hợp lê , admin yêu câu giáo viên thay đổi rồi request mở tai khoan lai lại
-    REJECTED, // Từ chối mở  tài khoản
-    STARTING, //  tài khoản đã đươc sử dung
-    CLOSED,// tài khoản đã bị khóa (hoặc bỏ)
+    REQUESTING("Yêu cầu Mở", "Requesting"),
+    WAITING("Đang Chờ", "Waiting"),
+    EDITREQUEST("Yêu cầu Sửa", "Edit Request"),
+    REJECTED("Bị Từ chối", "Rejected"),
+    STARTING("Đang Sử dụng", "Starting"),
+    CLOSED("Đã Đóng", "Closed");
 
-    EAccountStatus() {
+    private final String vietnameseLabel;
+    private final String englishLabel;
+
+    EMentorProfileStatus(String vietnameseLabel, String englishLabel) {
+        this.vietnameseLabel = vietnameseLabel;
+        this.englishLabel = englishLabel;
     }
 
+    public String getVietnameseLabel() {
+        return vietnameseLabel;
+    }
+
+    public String getEnglishLabel() {
+        return englishLabel;
+    }
 }

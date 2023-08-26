@@ -39,6 +39,33 @@ public class AppConfig {
         return ResourceReader.readFileToString("order.txt");
     }
 
+
+    @Bean
+    public String courseApprovalTemplate() {
+        return ResourceReader.readFileToString("course-approval.txt");
+    }
+
+    @Bean
+    public String mentorProfileApprovalTemplate() {
+        return ResourceReader.readFileToString("mentor-profile-approval.txt");
+    }
+
+    @Bean
+    public String payStudentFeeForTemplate() {
+        return ResourceReader.readFileToString("pay-mentor.txt");
+    }
+    @Bean
+    public String refundTemplate() {
+        return ResourceReader.readFileToString("refund.txt");
+    }
+    @Bean
+    public String unsatisfyClassTemplate() {
+        return ResourceReader.readFileToString("class-cancel.txt");
+    }
+    @Bean
+    public String startingClassTemplate() {
+        return ResourceReader.readFileToString("class-start.txt");
+    }
     @Bean
     public ArrayList<String> offensiveWord() {
         String offensiveWordString = ResourceReader.readFileToString("offensive-word.txt");

@@ -19,6 +19,7 @@ import fpt.project.bsmart.payment.PaymentResponse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ITransactionService;
 import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.email.EmailUtil;
 import fpt.project.bsmart.util.specification.TransactionSpecificationBuilder;
 import fpt.project.bsmart.validator.ReferralCodeValidator;
 import org.springframework.data.domain.Page;
@@ -57,8 +58,9 @@ public class TransactionService implements ITransactionService {
     private final PaymentPicker paymentPicker;
     private final ReferralCodeRepository referralCodeRepository;
     private final OrderDetailRepository orderDetailRepository;
+    private final EmailUtil emailUtil;
 
-    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CartItemRepository cartItemRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, PaymentPicker paymentPicker, ReferralCodeRepository referralCodeRepository, OrderDetailRepository orderDetailRepository) {
+    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, MessageUtil messageUtil, BankRepository bankRepository, CartItemRepository cartItemRepository, VnpConfig vnpConfig, ClassRepository classRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, PaymentPicker paymentPicker, ReferralCodeRepository referralCodeRepository, OrderDetailRepository orderDetailRepository, EmailUtil emailUtil) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
@@ -71,6 +73,7 @@ public class TransactionService implements ITransactionService {
         this.paymentPicker = paymentPicker;
         this.referralCodeRepository = referralCodeRepository;
         this.orderDetailRepository = orderDetailRepository;
+        this.emailUtil = emailUtil;
     }
 
     @Override
@@ -291,6 +294,7 @@ public class TransactionService implements ITransactionService {
             PaymentResponse<Boolean> paymentResponse = ConvertUtil.convertPaymentResponse(order, transaction);
             paymentResponse.setMetadata(true);
             ReferralCodeUtil.generateRandomReferralCode(orderDetail, order.getUser());
+            emailUtil.sendOrderEmailTo(user, order);
             return paymentResponse;
         } else {
             PaymentGateway paymentGateway = paymentPicker.pickByType(request.getType());
@@ -356,6 +360,7 @@ public class TransactionService implements ITransactionService {
                 webSocketUtil.sendPrivateNotification(user.getEmail(), responseMessage);
             }
             classRepository.saveAll(orderedClasses);
+            emailUtil.sendOrderEmailTo(user, order);
             return true;
         }
         return false;
@@ -479,10 +484,27 @@ public class TransactionService implements ITransactionService {
             List<OrderDetail> successOrderDetails = orderDetailRepository
                     .findAllByClazzAndStatus(unsatisfiedClass, EOrderStatus.SUCCESS);
             for (OrderDetail successOrderDetail : successOrderDetails) {
-                User user = successOrderDetail.getOrder().getUser();
-                user.getWallet().increaseBalance(successOrderDetail.getFinalPrice());
+                Order order = successOrderDetail.getOrder();
+                User student = order.getUser();
+                student.getWallet().increaseBalance(successOrderDetail.getFinalPrice());
+                Transaction refundTransaction = createRefundTransaction(order);
+                transactionRepository.save(refundTransaction);
+                emailUtil.sendRefundEmailToStudent(successOrderDetail);
+                Notification notification = NotificationDirector.buildRefundMoneyToStudent(unsatisfiedClass, refundTransaction, student);
+                notificationRepository.save(notification);
+                webSocketUtil.sendPrivateNotification(notification);
             }
         }
         return true;
+    }
+
+    private Transaction createRefundTransaction(Order order) {
+        Transaction transaction = new Transaction();
+        transaction.setOrder(order);
+        transaction.setAmount(order.getTotalPrice());
+        transaction.setPaymentType(EPaymentType.OTHER);
+        transaction.setType(ETransactionType.REFUND);
+        transaction.setStatus(ETransactionStatus.SUCCESS);
+        return transaction;
     }
 }

@@ -13,7 +13,11 @@ import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.Class.MentorGetClassDetailResponse;
 import fpt.project.bsmart.entity.response.ClassDetailResponse;
-import fpt.project.bsmart.repository.*;
+import fpt.project.bsmart.repository.NotificationRepository;
+import fpt.project.bsmart.repository.OrderDetailRepository;
+import fpt.project.bsmart.repository.StudentClassRepository;
+import fpt.project.bsmart.repository.TransactionRepository;
+import fpt.project.bsmart.util.email.EmailUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -34,15 +38,17 @@ public class ClassUtil {
     private static TransactionRepository transactionRepository;
     private static WebSocketUtil webSocketUtil;
     private static NotificationRepository notificationRepository;
+    private static EmailUtil staticEmailUtil;
 
     public ClassUtil(MessageUtil messageUtil,
-                     StudentClassRepository studentClassRepository, OrderDetailRepository orderDetailRepository, TransactionRepository transactionRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository) {
+                     StudentClassRepository studentClassRepository, OrderDetailRepository orderDetailRepository, TransactionRepository transactionRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, EmailUtil emailUtil) {
         staticStudentClassRepository = studentClassRepository;
         staticMessageUtil = messageUtil;
         this.orderDetailRepository = orderDetailRepository;
         this.transactionRepository = transactionRepository;
         this.webSocketUtil = webSocketUtil;
         this.notificationRepository = notificationRepository;
+        staticEmailUtil = emailUtil;
     }
 
     /**
@@ -172,7 +178,7 @@ public class ClassUtil {
         });
         classDetailResponse.setTimeInWeeks(timeInWeekDTOS);
         classDetailResponse.setImage(imageDto);
-        if (userLogin != null) {
+        if (currentUserAccountLogin != null) {
             List<Order> orders = userLogin.getOrder();
             orders.forEach(order -> {
                 List<OrderDetail> orderDetails = order.getOrderDetails();
@@ -261,7 +267,7 @@ public class ClassUtil {
         return studentClass;
     }
 
-    public static void handleCloseClassEvent(Class clazz){
+    public static void handleCloseClassEvent(Class clazz) {
         clazz.setStatus(ECourseClassStatus.ENDED);
         List<OrderDetail> orderDetails = orderDetailRepository.findAllByClazz(clazz);
         BigDecimal amount = orderDetails.stream()
@@ -270,6 +276,7 @@ public class ClassUtil {
                 .multiply(new BigDecimal("0.3"))
                 .divideToIntegralValue(BigDecimal.ONE);
         String message = sendNotification(clazz, amount);
+        staticEmailUtil.sendIncomeEmailForMentor(clazz);
         generateTransaction(clazz, amount, message);
     }
 
