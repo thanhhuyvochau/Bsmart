@@ -14,6 +14,7 @@ import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.CreateClassInformationRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
+import fpt.project.bsmart.entity.request.clazz.GetPointStudentClassRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
 import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
@@ -35,6 +36,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -67,8 +69,16 @@ public class ClassServiceImpl implements IClassService {
     private final FeedbackSubmissionRepository feedbackSubmissionRepository;
     private final TimeTableRepository timeTableRepository;
     private final SubjectRepository subjectRepository;
+    private final UserRepository userRepository;
 
-    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, FeedbackTemplateRepository feedbackTemplateRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, TimeTableRepository timeTableRepository, SubjectRepository subjectRepository) {
+    private final StudentClassRepository studentClassRepository;
+
+    private final AssignmentSubmittionRepository assignmentSubmittionRepository;
+
+    private final QuizSubmissionRepository quizSubmissionRepository;
+
+
+    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, FeedbackTemplateRepository feedbackTemplateRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, TimeTableRepository timeTableRepository, SubjectRepository subjectRepository, UserRepository userRepository, StudentClassRepository studentClassRepository, AssignmentSubmittionRepository assignmentSubmittionRepository, QuizSubmissionRepository quizSubmissionRepository) {
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.classRepository = classRepository;
@@ -82,6 +92,10 @@ public class ClassServiceImpl implements IClassService {
         this.feedbackSubmissionRepository = feedbackSubmissionRepository;
         this.timeTableRepository = timeTableRepository;
         this.subjectRepository = subjectRepository;
+        this.userRepository = userRepository;
+        this.studentClassRepository = studentClassRepository;
+        this.assignmentSubmittionRepository = assignmentSubmittionRepository;
+        this.quizSubmissionRepository = quizSubmissionRepository;
     }
 
     /**
@@ -818,6 +832,74 @@ public class ClassServiceImpl implements IClassService {
         return true;
     }
 
+    @Override
+    public List<GetPointStudentClassResponse> getStudentPoint(GetPointStudentClassRequest request) {
+
+        Class clazz = classRepository.findById(request.getClassId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + request.getClassId()));
+
+        User user = userRepository.findById(request.getStudentId())
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + request.getStudentId()));
+
+        StudentClass studentClass = studentClassRepository.findByClazzAndStudent(clazz, user)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Không tìm thấy học sinh trong lớp học này "));
+
+        List<GetPointStudentClassResponse> pointStudentClassResponses = new ArrayList<>();
+
+        Optional<AssignmentSubmition> byStudentClass = assignmentSubmittionRepository.findByStudentClass(studentClass);
+        if (byStudentClass.isPresent()) {
+            AssignmentSubmition assignmentSubmition = byStudentClass.get();
+            GetPointStudentClassResponse response = new GetPointStudentClassResponse();
+            response.setPoint(assignmentSubmition.getPoint());
+            response.setActivityId(assignmentSubmition.getAssignment().getId());
+            response.setType(ECourseActivityType.ASSIGNMENT);
+            pointStudentClassResponses.add(response);
+        }
+
+
+        Course course = clazz.getCourse();
+        List<Activity> activities = course.getActivities();
+        List<Activity> activitiesOfClasses = getActivitiesOfClasses(clazz, activities);
+        List<Activity> collectQuiz = activitiesOfClasses.stream().filter(activity
+                        -> activity.getType().equals(ECourseActivityType.QUIZ))
+                .collect(Collectors.toList());
+
+        for (Activity activity : collectQuiz) {
+            Quiz quiz = activity.getQuiz();
+            List<QuizSubmittion> quizSubmissions = quiz.getQuizSubmittions();
+            for (QuizSubmittion quizSubmittion : quizSubmissions) {
+                if (quizSubmittion.getSubmittedBy().equals(user)) {
+                    GetPointStudentClassResponse response = new GetPointStudentClassResponse();
+                    response.setPoint(quizSubmittion.getPoint());
+                    response.setActivityId(quizSubmittion.getQuiz().getId());
+                    response.setType(ECourseActivityType.QUIZ);
+                    pointStudentClassResponses.add(response);
+                }
+            }
+        }
+        return pointStudentClassResponses;
+    }
+
+    @NotNull
+    private static List<Activity> getActivitiesOfClasses(Class clazz, List<Activity> activities) {
+        List<Activity> sectionActivities = activities.stream()
+                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
+                .collect(Collectors.toList());
+        List<Activity> authorizeActivities = sectionActivities.stream().filter(activity -> {
+            if (activity.getFixed()) {
+                return true;
+            }
+            long isAuthorized = activity.getActivityAuthorizes().stream().filter(activityAuthorize -> {
+                Class authorizeClass = activityAuthorize.getAuthorizeClass();
+                return Objects.equals(authorizeClass.getId(), clazz.getId());
+            }).count();
+            return isAuthorized > 0;
+        }).collect(Collectors.toList());
+        return authorizeActivities;
+    }
 
     @Override
     public List<BaseClassResponse> getDuplicateTimeClassOfStudent(Long id) {
@@ -825,6 +907,7 @@ public class ClassServiceImpl implements IClassService {
         Class clazz = classRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
+
 
         Set<EDayOfWeekCode> checkedClassEDayCodes = clazz.getTimeInWeeks()
                 .stream()
@@ -841,7 +924,7 @@ public class ClassServiceImpl implements IClassService {
                         .stream()
                         .anyMatch(timeInWeek -> clazz.getTimeInWeeks().stream()
                                 .anyMatch(checkedTimeInWeek -> checkedTimeInWeek.getDayOfWeek().getCode().equals(timeInWeek.getDayOfWeek().getCode())
-                                        && checkedTimeInWeek.getSlot().getId().equals(timeInWeek.getSlot().getId()))))
+                                                               && checkedTimeInWeek.getSlot().getId().equals(timeInWeek.getSlot().getId()))))
                 .collect(Collectors.toList());
 
         List<BaseClassResponse> baseClassResponses = duplicateClasses.stream()

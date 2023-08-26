@@ -15,11 +15,16 @@ public class UserDtoRequest {
     private String fullName;
     private Instant birthday;
     private String address;
+    private String email;
     private String phone;
     private EGenderType gender;
     private String linkedinLink;
     private String facebookLink;
     private String website;
+
+    private Boolean status;
+
+    private Boolean verified;
 
     private List<ImageEditDto> userImages;
     private MentorProfileRequestEditDTO mentorProfile;
@@ -38,6 +43,14 @@ public class UserDtoRequest {
 
     public void setBirthday(Instant birthday) {
         this.birthday = birthday;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getAddress() {
@@ -89,6 +102,21 @@ public class UserDtoRequest {
         this.website = website;
     }
 
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    public Boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(Boolean verified) {
+        this.verified = verified;
+    }
 
     public MentorProfileRequestEditDTO getMentorProfile() {
         return mentorProfile;

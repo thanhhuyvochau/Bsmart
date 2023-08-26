@@ -5,6 +5,7 @@ import fpt.project.bsmart.entity.common.ValidationErrorsException;
 import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
+import fpt.project.bsmart.entity.request.clazz.GetPointStudentClassRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
 import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
@@ -66,4 +67,6 @@ public interface IClassService {
     HashMap<String ,List<MentorGetClassDetailResponse>> getClassesNotUseTemplate(Long templateId);
 
     Boolean simulateCloseClassEvent(Long classId);
+
+    List<GetPointStudentClassResponse> getStudentPoint(GetPointStudentClassRequest request);
 }

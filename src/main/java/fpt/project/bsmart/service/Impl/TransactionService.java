@@ -107,7 +107,7 @@ public class TransactionService implements ITransactionService {
     public Boolean withdraw(WithdrawRequest request) {
         Wallet wallet = SecurityUtil.getCurrentUserWallet();
         BigDecimal amount = request.getAmount();
-        if (amount.compareTo(BigDecimal.ZERO) <= 0 || amount.compareTo(wallet.getBalance()) > 0) {
+        if (amount.compareTo(new BigDecimal(100000)) <= 0 || amount.compareTo(wallet.getBalance()) > 0) {
             return false;
         }
         Bank bank = bankRepository.findById(request.getBankId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(BANK_NOT_FOUND_BY_ID) + request.getBankId()));
@@ -177,12 +177,10 @@ public class TransactionService implements ITransactionService {
                 updateTransactionStatus(transaction, request.getStatus(), request.getNote());
                 break;
             case FAIL:
-            case CANCEL:
                 Wallet wallet = transaction.getWallet();
                 wallet.setBalance(wallet.getBalance().add(transaction.getAmount()));
                 updateTransactionStatus(transaction, request.getStatus(), request.getNote());
                 break;
-            case WAITING:
             default:
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_TRANSACTION_STATUS) + request.getStatus());
         }

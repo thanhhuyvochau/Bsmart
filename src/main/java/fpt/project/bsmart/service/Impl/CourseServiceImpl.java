@@ -73,6 +73,7 @@ public class CourseServiceImpl implements ICourseService {
         List<Long> classIds = byStatus.stream().map(Class::getId).collect(Collectors.toList());
         CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
                 .queryLike(query.getQ())
+                .queryByCourseStatus(NOTSTART)
                 .queryByClassId(classIds)
                 .queryBySubjectId(query.getSubjectId())
                 .queryByCategoryId(query.getCategoryId());

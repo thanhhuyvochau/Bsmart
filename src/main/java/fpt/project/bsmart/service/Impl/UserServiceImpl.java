@@ -216,7 +216,7 @@ public class UserServiceImpl implements IUserService {
         image.setName(name);
         image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
         image.setUser(user);
-        image.setStatus(true);
+        image.setStatus(uploadImageRequest.getStatus());
         image.setVerified(true);
         if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
             image.setType(EImageType.AVATAR);
@@ -232,7 +232,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Boolean uploadDegree(List<Long> degreeIdsToDelete, MultipartFile[] file) throws IOException {
+    public Boolean uploadDegree(List<Long> degreeIdsToDelete, MultipartFile[] file, Boolean status) throws IOException {
         User user = getCurrentLoginUser();
         List<UserImage> userImages = user.getUserImages();
 
@@ -267,7 +267,7 @@ public class UserServiceImpl implements IUserService {
                 String name = file1.getOriginalFilename() + "-" + Instant.now().toString();
                 ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, file1.getContentType(), file1.getInputStream(), file1.getSize());
                 image.setName(name);
-                image.setStatus(true);
+                image.setStatus(status);
                 image.setVerified(true);
                 image.setType(EImageType.DEGREE);
                 image.setUrl(UrlUtil.buildUrl(minioUrl, objectWriteResponse));
