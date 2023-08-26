@@ -630,8 +630,12 @@ public class ClassServiceImpl implements IClassService {
         if (memberOfClassAsRole == null && !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER)) {
             throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("Bạn không có quyền xem thông tin lớp học này !");
         }
+//        List<Activity> sectionActivities = clazz.getCourse().getActivities().stream()
+//                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
+//                .collect(Collectors.toList());
+
         List<Activity> sectionActivities = clazz.getCourse().getActivities().stream()
-                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
+                .filter(activity -> activity.getType().equals(ECourseActivityType.SECTION))
                 .collect(Collectors.toList());
 
         if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER) || memberOfClassAsRole.equals(EUserRole.TEACHER)) {
