@@ -118,9 +118,46 @@ public class ClassUtil {
 
     }
 
+//    public static ClassDetailResponse convertClassToClassDetailResponse(User userLogin, Class clazz) {
+//
+//        ClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ClassDetailResponse(), ClassDetailResponse.class);
+//        User currentUserAccountLogin = SecurityUtil.getCurrentUser();
+//        Optional<StudentClass> byClassAndStudent = staticStudentClassRepository.findByClazzAndStudent(clazz, currentUserAccountLogin);
+//        if (byClassAndStudent.isPresent()) {
+//            classDetailResponse.setPurchase(true);
+//        } else {
+//            classDetailResponse.setPurchase(false);
+//        }
+//        ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
+//        List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>();
+//        clazz.getTimeInWeeks().forEach(timeInWeek -> {
+//            timeInWeekDTOS.add(ConvertUtil.convertTimeInWeekToDto(timeInWeek));
+//        });
+//        classDetailResponse.setTimeInWeeks(timeInWeekDTOS);
+//        classDetailResponse.setImage(imageDto);
+//        if (userLogin != null) {
+//            List<Order> orders = userLogin.getOrder();
+//            orders.forEach(order -> {
+//                List<OrderDetail> orderDetails = order.getOrderDetails();
+//                orderDetails.forEach(orderDetail -> {
+//                    Class aClass = orderDetail.getClazz();
+//                    if (aClass.equals(clazz)) {
+//                        classDetailResponse.setPurchase(true);
+//                    }
+//                });
+//            });
+//        }
+//        ActivityUtil.setSectionForCourse(clazz, classDetailResponse);
+//
+//
+//        return classDetailResponse;
+//    }
+
     public static ClassDetailResponse convertClassToClassDetailResponse(User userLogin, Class clazz) {
 
         ClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ClassDetailResponse(), ClassDetailResponse.class);
+        List<StudentClass> byClass = staticStudentClassRepository.findByClazz(clazz);
+        classDetailResponse.setNumberOfStudent(byClass.size());
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
         Optional<StudentClass> byClassAndStudent = staticStudentClassRepository.findByClazzAndStudent(clazz, currentUserAccountLogin);
         if (byClassAndStudent.isPresent()) {
@@ -147,6 +184,26 @@ public class ClassUtil {
                 });
             });
         }
+        ActivityUtil.setSectionForCourse(clazz, classDetailResponse);
+
+
+        return classDetailResponse;
+    }
+
+    public static ClassDetailResponse convertClassToClassDetailResponseNoLogin(Class clazz) {
+
+        ClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ClassDetailResponse(), ClassDetailResponse.class);
+        List<StudentClass> byClass = staticStudentClassRepository.findByClazz(clazz);
+        classDetailResponse.setNumberOfStudent(byClass.size());
+        classDetailResponse.setPurchase(false);
+        ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
+        List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>();
+        clazz.getTimeInWeeks().forEach(timeInWeek -> {
+            timeInWeekDTOS.add(ConvertUtil.convertTimeInWeekToDto(timeInWeek));
+        });
+        classDetailResponse.setTimeInWeeks(timeInWeekDTOS);
+        classDetailResponse.setImage(imageDto);
+
         ActivityUtil.setSectionForCourse(clazz, classDetailResponse);
 
 
@@ -216,7 +273,7 @@ public class ClassUtil {
         generateTransaction(clazz, amount, message);
     }
 
-    private static String sendNotification(Class clazz, BigDecimal amount){
+    private static String sendNotification(Class clazz, BigDecimal amount) {
         Notification notification = NotificationDirector.buildCourseTransferMoneyToMentor(clazz, amount);
         notificationRepository.save(notification);
         ResponseMessage message = ConvertUtil.convertNotificationToResponseMessage(notification, clazz.getMentor());
@@ -224,7 +281,7 @@ public class ClassUtil {
         return notification.getViContent();
     }
 
-    private static void generateTransaction(Class clazz, BigDecimal amount, String message){
+    private static void generateTransaction(Class clazz, BigDecimal amount, String message) {
         Wallet wallet = clazz.getMentor().getWallet();
         BigDecimal afterBalance = wallet.getBalance().add(amount);
         wallet.setBalance(afterBalance);

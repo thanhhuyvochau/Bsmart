@@ -459,7 +459,7 @@ public class ConvertUtil {
         List<String> mentorName = new ArrayList<>();
         //List<Class> collect = course.getClasses() ;
         List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseClassStatus.NOTSTART)
-                && aClass.getStudentClasses().size() < aClass.getMaxStudent()).collect(Collectors.toList());
+                                                                            && aClass.getStudentClasses().size() < aClass.getMaxStudent()).collect(Collectors.toList());
         List<ImageDto> images = new ArrayList<>();
         if (collect.isEmpty()) {
             ClassImage byType = staticClassImageRepository.findByType(EImageType.DEFAULT);

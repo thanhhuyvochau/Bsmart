@@ -120,8 +120,8 @@ public class TimeUtil {
 
         Instant currentDate = Instant.now();
         Duration duration = Duration.between(currentDate, inputDate);
-        if (duration.toDays() < 10) {
-            throw new Exception("Ngày bắt đầu lớp phải cách ngày hiện tại ít nhất 10 ngày !");
+        if (duration.toDays() < 15) {
+            throw new Exception("Ngày bắt đầu lớp phải cách ngày hiện tại ít nhất 15 ngày !");
         }
         return inputDate;
     }
