@@ -4,7 +4,7 @@ import fpt.project.bsmart.director.NotificationDirector;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.constant.EPaymentType;
 import fpt.project.bsmart.entity.constant.ETransactionStatus;
 import fpt.project.bsmart.entity.constant.ETransactionType;
@@ -51,11 +51,11 @@ public class ClassUtil {
     public static ClassProgressTimeDto getPercentageOfClassTime(Class clazz) {
         ClassProgressTimeDto classProgressTimeDto = new ClassProgressTimeDto();
         /**Exit point of function if class is ENDED or not STARING*/
-        if (Objects.equals(clazz.getStatus(), ECourseStatus.ENDED)) {
+        if (Objects.equals(clazz.getStatus(), ECourseClassStatus.ENDED)) {
             classProgressTimeDto.setPercentage(100);
             classProgressTimeDto.setCurrentSlot(clazz.getNumberOfSlot());
             return classProgressTimeDto;
-        } else if (!Objects.equals(clazz.getStatus(), ECourseStatus.STARTING)) {
+        } else if (!Objects.equals(clazz.getStatus(), ECourseClassStatus.STARTING)) {
             classProgressTimeDto.setPercentage(0);
             classProgressTimeDto.setCurrentSlot(0);
             return classProgressTimeDto;
@@ -107,11 +107,11 @@ public class ClassUtil {
     }
 
     public static void checkClassStatusToDelete(Class aClass, Course course) {
-        if (aClass.getStatus().equals(ECourseStatus.NOTSTART)) {
+        if (aClass.getStatus().equals(ECourseClassStatus.NOTSTART)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(staticMessageUtil.getLocalMessage(COURSE_STATUS_IS_NOT_START_NOT_ALLOW_TO_DELETE));
         }
-        if (aClass.getStatus().equals(ECourseStatus.STARTING)) {
+        if (aClass.getStatus().equals(ECourseClassStatus.STARTING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(staticMessageUtil.getLocalMessage(COURSE_STATUS_IS_NOT_STARTING_ALLOW_TO_DELETE));
         }
@@ -205,7 +205,7 @@ public class ClassUtil {
     }
 
     public static void handleCloseClassEvent(Class clazz){
-        clazz.setStatus(ECourseStatus.ENDED);
+        clazz.setStatus(ECourseClassStatus.ENDED);
         List<OrderDetail> orderDetails = orderDetailRepository.findAllByClazz(clazz);
         BigDecimal amount = orderDetails.stream()
                 .map(OrderDetail::getOriginalPrice)

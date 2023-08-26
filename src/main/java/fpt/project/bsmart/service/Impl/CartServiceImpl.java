@@ -5,7 +5,7 @@ import fpt.project.bsmart.entity.CartItem;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.Course;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.request.AddCartItemRequest;
 import fpt.project.bsmart.entity.request.DeleteCartItemRequest;
 import fpt.project.bsmart.entity.response.CartResponse;
@@ -55,7 +55,7 @@ public class CartServiceImpl implements ICartService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SUB_COURSE_NOT_FOUND_BY_ID) + request.getClassId()));
 
         Course course = clazz.getCourse();
-        if (!Objects.equals(clazz.getStatus(), ECourseStatus.NOTSTART)) {
+        if (!Objects.equals(clazz.getStatus(), ECourseClassStatus.NOTSTART)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.SUB_COURSE_NOT_FOUND_BY_ID) + request.getClassId());
         }
         boolean anyMatch = cart.getCartItems().stream().anyMatch(cartItem -> {

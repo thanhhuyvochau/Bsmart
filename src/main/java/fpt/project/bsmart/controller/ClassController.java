@@ -4,7 +4,7 @@ package fpt.project.bsmart.controller;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.request.clazz.GetPointStudentClassRequest;
 import fpt.project.bsmart.entity.request.clazz.MentorCreateClass;
 import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
@@ -86,7 +86,7 @@ public class ClassController {
     @Operation(summary = "mentor lấy các class  ")
     @PreAuthorize("hasAnyRole('TEACHER')")
     @GetMapping("/mentor")
-    public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> mentorGetClass(ECourseStatus status, Pageable pageable) {
+    public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> mentorGetClass(ECourseClassStatus status, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.mentorGetClass(status, pageable)));
     }
 
@@ -129,7 +129,7 @@ public class ClassController {
     @Operation(summary = "MANAGER lấy tất cả các class của course để phê duyệt")
     @GetMapping("/pending/course/{id}")
     @PreAuthorize("hasAnyRole('MANAGER')")
-    public ResponseEntity<ApiResponse<ManagerGetCourseClassResponse>> getAllClassOfCourseForManager(@PathVariable Long id,@RequestParam ECourseStatus status) {
+    public ResponseEntity<ApiResponse<ManagerGetCourseClassResponse>> getAllClassOfCourseForManager(@PathVariable Long id,@RequestParam ECourseClassStatus status) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourseForManager(id,status)));
     }
 
@@ -158,7 +158,7 @@ public class ClassController {
     @Operation(summary = "Manager lấy các class  ")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/manager")
-    public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> managerGetClass(ECourseStatus status, Pageable pageable) {
+    public ResponseEntity<ApiResponse<ApiPage<MentorGetClassDetailResponse>>> managerGetClass(ECourseClassStatus status, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.managerGetClass(status, pageable)));
     }
 

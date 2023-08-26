@@ -4,7 +4,7 @@ import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.entity.dto.activity.SectionDto;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
@@ -105,10 +105,10 @@ public class ActivityUtil {
     }
 
     public static void checkCourseIsAllowedUpdateOrDelete(Course course) {
-        if (!course.getStatus().equals(ECourseStatus.REQUESTING) && !course.getStatus().equals(ECourseStatus.EDITREQUEST)) {
+        if (!course.getStatus().equals(ECourseClassStatus.REQUESTING) && !course.getStatus().equals(ECourseClassStatus.EDITREQUEST)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(staticMessageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
         }
-        List<Class> classesOfCourse = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseStatus.WAITING) || aClass.getStatus().equals(ECourseStatus.STARTING)).collect(Collectors.toList());
+        List<Class> classesOfCourse = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseClassStatus.WAITING) || aClass.getStatus().equals(ECourseClassStatus.STARTING)).collect(Collectors.toList());
         if (classesOfCourse.size() > 0) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(staticMessageUtil.getLocalMessage(CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_UPDATE));
         }

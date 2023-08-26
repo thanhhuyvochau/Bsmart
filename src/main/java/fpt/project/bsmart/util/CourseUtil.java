@@ -5,7 +5,7 @@ import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EActivityType;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.constant.EOrderStatus;
 import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
+import static fpt.project.bsmart.entity.constant.ECourseClassStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 
 @Component
@@ -249,7 +249,7 @@ public class CourseUtil {
         }
 
         List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
-        List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART);
+        List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseClassStatus.NOTSTART);
         classes.forEach(aClass -> {
             if(aClass.getStudentClasses().size() < aClass.getMaxStudent()){
                 classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(course.getCreator(), aClass));
@@ -260,7 +260,7 @@ public class CourseUtil {
         return courseResponse;
     }
 
-    public static ManagerGetCourseClassResponse convertCourseToCourseClassResponseManager(Course course, ECourseStatus status) {
+    public static ManagerGetCourseClassResponse convertCourseToCourseClassResponseManager(Course course, ECourseClassStatus status) {
 
 
         ManagerGetCourseClassResponse courseResponse = new ManagerGetCourseClassResponse();

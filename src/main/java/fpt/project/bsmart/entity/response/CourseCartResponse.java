@@ -1,8 +1,8 @@
 package fpt.project.bsmart.entity.response;
 
 
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.constant.ECourseLevel;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.SubjectDto;
 
@@ -17,7 +17,7 @@ public class CourseCartResponse {
     private String name;
 
     private String code;
-    private ECourseStatus status;
+    private ECourseClassStatus status;
 
     private ECourseLevel level;
 
@@ -55,11 +55,11 @@ public class CourseCartResponse {
         this.code = code;
     }
 
-    public ECourseStatus getStatus() {
+    public ECourseClassStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ECourseStatus status) {
+    public void setStatus(ECourseClassStatus status) {
         this.status = status;
     }
 

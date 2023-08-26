@@ -2,7 +2,7 @@ package fpt.project.bsmart.util.specification;
 
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.util.SpecificationUtil;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -62,11 +62,11 @@ public class CourseSpecificationBuilder {
         return this;
     }
 
-    public CourseSpecificationBuilder queryByCourseStatus(ECourseStatus status) {
+    public CourseSpecificationBuilder queryByCourseStatus(ECourseClassStatus status) {
         if (status == null) {
             return this;
         }
-        if (status.equals(ECourseStatus.ALL)) {
+        if (status.equals(ECourseClassStatus.ALL)) {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {

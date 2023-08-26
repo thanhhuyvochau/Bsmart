@@ -2,7 +2,7 @@ package fpt.project.bsmart.entity.response;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import fpt.project.bsmart.config.json.View;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
 
@@ -16,7 +16,7 @@ public class ClassResponse {
     private String code;
     private Instant startDate;
     private Instant endDate;
-    private ECourseStatus status;
+    private ECourseClassStatus status;
     private BigDecimal price;
     @JsonView(View.Teacher.class)
     private Integer minStudent;
@@ -73,11 +73,11 @@ public class ClassResponse {
         this.endDate = endDate;
     }
 
-    public ECourseStatus getStatus() {
+    public ECourseClassStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ECourseStatus status) {
+    public void setStatus(ECourseClassStatus status) {
         this.status = status;
     }
 

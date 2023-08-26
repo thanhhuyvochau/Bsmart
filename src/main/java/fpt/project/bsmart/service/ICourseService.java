@@ -2,7 +2,7 @@ package fpt.project.bsmart.service;
 
 
 import fpt.project.bsmart.entity.common.ApiPage;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
@@ -39,7 +39,7 @@ public interface ICourseService {
 
     //     ################################## START MANAGER ##########################################
 
-    ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status ,Pageable pageable);
+    ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseClassStatus status , Pageable pageable);
     Boolean managerApprovalCourseRequest(Long id, ManagerApprovalCourseRequest approvalCourseRequest);
 
     Boolean managerBlockCourse(Long id);

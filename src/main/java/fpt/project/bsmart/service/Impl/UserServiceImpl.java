@@ -143,7 +143,7 @@ public class UserServiceImpl implements IUserService {
         TeachInformationDTO teachInformationDTO = new TeachInformationDTO();
         ClassSpecificationBuilder classSpecificationBuilder = ClassSpecificationBuilder.classSpecificationBuilder()
                 .byMentor(user)
-                .filterByStatus(ECourseStatus.ENDED);
+                .filterByStatus(ECourseClassStatus.ENDED);
         List<Class> classes = classRepository.findAll(classSpecificationBuilder.build());
         Integer numberOfMember = classes.stream().map(Class::getStudentClasses).distinct().collect(Collectors.toList()).stream().map(x -> x.size()).mapToInt(Integer::intValue).sum();
 

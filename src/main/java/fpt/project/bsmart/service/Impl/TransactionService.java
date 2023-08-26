@@ -230,7 +230,7 @@ public class TransactionService implements ITransactionService {
         Class clazz = classRepository.findById(request.getClazzId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(SUB_COURSE_NOT_FOUND_BY_ID) + request.getClazzId()));
-        if (!clazz.getStatus().equals(ECourseStatus.NOTSTART)) {
+        if (!clazz.getStatus().equals(ECourseClassStatus.NOTSTART)) {
             throw ApiException.create(HttpStatus.METHOD_NOT_ALLOWED).withMessage(messageUtil.getLocalMessage(INVALID_COURSE_STATUS_TO_PURCHASE));
         }
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());

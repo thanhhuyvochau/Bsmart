@@ -2,7 +2,7 @@ package fpt.project.bsmart.director;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.constant.ENotificationEntity;
 import fpt.project.bsmart.entity.constant.ENotificationType;
 import fpt.project.bsmart.util.MessageUtil;
@@ -38,7 +38,7 @@ public class NotificationDirector {
                 .build();
     }
 
-    public static Notification buildApprovalCourse(Course course, ECourseStatus status) {
+    public static Notification buildApprovalCourse(Course course, ECourseClassStatus status) {
         String title = staticMessageUtil.getLocalMessage(NotificationConstant.COURSE_APPROVAL_TITLE);
         String content = staticMessageUtil.getLocalMessage(NotificationConstant.COURSE_APPROVAL_CONTENT);
         Map<String, String> parameters = new HashMap<>();
@@ -94,7 +94,7 @@ public class NotificationDirector {
                 .build();
     }
 
-    public static Notification buildApprovalClass(Class clazz, ECourseStatus status) {
+    public static Notification buildApprovalClass(Class clazz, ECourseClassStatus status) {
         String title = staticMessageUtil.getLocalMessage(NotificationConstant.CLASS_APPROVAL_TITLE);
         String content = staticMessageUtil.getLocalMessage(NotificationConstant.CLASS_APPROVAL_CONTENT);
         Map<String, String> parameters = new HashMap<>();

@@ -1,8 +1,8 @@
 package fpt.project.bsmart.entity.response;
 
 
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.constant.ECourseLevel;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.UserDto;
 
@@ -16,7 +16,7 @@ public class SubCourseCartResponse {
     private ECourseLevel level;
 
     private String title ;
-    private ECourseStatus status;
+    private ECourseClassStatus status;
 
     private Instant startDateExpected;
 
@@ -56,11 +56,11 @@ public class SubCourseCartResponse {
         this.level = level;
     }
 
-    public ECourseStatus getStatus() {
+    public ECourseClassStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ECourseStatus status) {
+    public void setStatus(ECourseClassStatus status) {
         this.status = status;
     }
 

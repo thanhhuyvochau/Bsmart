@@ -2,7 +2,7 @@ package fpt.project.bsmart.service;
 
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ValidationErrorsException;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.request.ClassFilterRequest;
 import fpt.project.bsmart.entity.request.MentorCreateClassRequest;
 import fpt.project.bsmart.entity.request.clazz.GetPointStudentClassRequest;
@@ -32,7 +32,7 @@ public interface IClassService {
     Boolean mentorDeleteClassForCourse(Long id);
 
 
-    ManagerGetCourseClassResponse getAllClassOfCourseForManager(Long id,ECourseStatus status);
+    ManagerGetCourseClassResponse getAllClassOfCourseForManager(Long id, ECourseClassStatus status);
 
 
     ApiPage<BaseClassResponse> getAllClassesForManager(Pageable pageable);
@@ -52,13 +52,13 @@ public interface IClassService {
 
     List<WorkTimeResponse> getWorkingTime();
 
-    ApiPage<MentorGetClassDetailResponse> mentorGetClass(ECourseStatus status, Pageable pageable);
+    ApiPage<MentorGetClassDetailResponse> mentorGetClass(ECourseClassStatus status, Pageable pageable);
 
     Boolean mentorOpenClass(Long id, List<MentorCreateScheduleRequest> timeTableRequest) throws ValidationErrorsException;
 
     ApiPage<StudentClassResponse> getClassMembers(Long id, Pageable pageable);
 
-    ApiPage<MentorGetClassDetailResponse> managerGetClass(ECourseStatus status, Pageable pageable);
+    ApiPage<MentorGetClassDetailResponse> managerGetClass(ECourseClassStatus status, Pageable pageable);
 
     ApiPage<MentorGetClassDetailResponse> getAllClassForSetTemplateFeedback(Pageable pageable);
 

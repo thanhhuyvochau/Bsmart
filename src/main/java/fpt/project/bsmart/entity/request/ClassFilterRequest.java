@@ -1,6 +1,6 @@
 package fpt.project.bsmart.entity.request;
 
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -12,7 +12,7 @@ public class ClassFilterRequest {
     private Instant startDate;
     private Instant endDate;
     @NotNull
-    private ECourseStatus status;
+    private ECourseClassStatus status;
     // Student = 1 | Teacher = 2
     private int asRole = 0;
     private List<Long> categoryId = new ArrayList<>();
@@ -50,11 +50,11 @@ public class ClassFilterRequest {
         this.asRole = asRole;
     }
 
-    public ECourseStatus getStatus() {
+    public ECourseClassStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ECourseStatus status) {
+    public void setStatus(ECourseClassStatus status) {
         this.status = status;
     }
 
