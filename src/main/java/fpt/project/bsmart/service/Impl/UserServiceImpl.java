@@ -117,7 +117,10 @@ public class UserServiceImpl implements IUserService {
     @Override
     public ApiPage<UserDto> adminGetAllUser(UserSearchRequest request, Pageable pageable) {
 
-        UserSpecificationBuilder builder = UserSpecificationBuilder.specificationBuilder().queryLike(request.getQ()).hasRole(request.getRole()).isVerified(request.getIsVerified());
+        UserSpecificationBuilder builder = UserSpecificationBuilder.specificationBuilder()
+                .queryLike(request.getQ())
+                .hasRole(request.getRole())
+                .isVerified(request.getIsVerified());
         Page<User> userPage = userRepository.findAll(builder.build(), pageable);
         List<UserDto> userInfoResponses = userPage.getContent().stream().map(ConvertUtil::convertUsertoUserDto).collect(Collectors.toList());
         return PageUtil.convert(new PageImpl<>(userInfoResponses, pageable, userPage.getTotalElements()));

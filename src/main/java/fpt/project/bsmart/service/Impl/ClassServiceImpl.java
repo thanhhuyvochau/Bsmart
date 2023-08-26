@@ -117,7 +117,7 @@ public class ClassServiceImpl implements IClassService {
 
     @Override
     public MentorGetCourseClassResponse getAllClassOfCourse(Long id) {
-
+        User currentUserAccountLogin = SecurityUtil.hasCurrentUser();
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
@@ -132,13 +132,20 @@ public class ClassServiceImpl implements IClassService {
         response.setActivities(activityDtos);
         List<Class> classList = classRepository.findByCourseAndStatus(course, ECourseClassStatus.NOTSTART);
 
-//        List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
-//        for (Class aClass : classList) {
-//            ClassDetailResponse classDetailResponse = ClassUtil.convertClassToClassDetailResponse(currentUser, aClass);
-//            classDetailResponses.add(classDetailResponse);
-//        }
-//
-//        response.setClasses(classDetailResponses);
+        List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
+        for (Class aClass : classList) {
+            ClassDetailResponse classDetailResponse;
+            if (currentUserAccountLogin != null) {
+                classDetailResponse = ClassUtil.convertClassToClassDetailResponse(currentUserAccountLogin, aClass);
+            } else {
+                classDetailResponse = ClassUtil.convertClassToClassDetailResponseNoLogin(aClass);
+            }
+
+            classDetailResponses.add(classDetailResponse);
+
+        }
+
+        response.setClasses(classDetailResponses);
         FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
                 .filterByCourse(course.getId());
         List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(builder.build());
@@ -371,8 +378,6 @@ public class ClassServiceImpl implements IClassService {
         MentorUtil.checkIsMentor();
 
 
-        List<String> classCodes = new ArrayList<>();
-
         List<Class> classes = new ArrayList<>();
 
         List<TimeInWeekRequest> timeInWeekRequests = mentorCreateClassRequest.getTimeInWeekRequests();
@@ -431,7 +436,6 @@ public class ClassServiceImpl implements IClassService {
         aClass.setTimeInWeeks(timeInWeeks);
         timeInWeeks.forEach(timeInWeek -> {
             timeInWeek.setClazz(aClass);
-//            timeInWeekRepository.save(timeInWeek);
         });
 
 

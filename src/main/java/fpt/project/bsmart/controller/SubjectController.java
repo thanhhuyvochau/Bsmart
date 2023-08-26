@@ -65,4 +65,5 @@ public class SubjectController {
     public ResponseEntity<ApiResponse<List<SubjectDto>>> getSubjectsByMentorSkill(){
         return ResponseEntity.ok(ApiResponse.success(iSubjectService.getSubjectsByMentorSkill()));
     }
+
 }
