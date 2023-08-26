@@ -1,11 +1,17 @@
 package fpt.project.bsmart.util;
 
 
+import fpt.project.bsmart.entity.Notification;
+import fpt.project.bsmart.entity.Notifier;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.dto.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class WebSocketUtil {
@@ -26,6 +32,14 @@ public class WebSocketUtil {
         }
         ApiResponse<ResponseMessage> apiResponse = ApiResponse.success(message);
         messagingTemplate.convertAndSend(topic, apiResponse);
+    }
+
+    public void sendPrivateNotification(Notification notification) {
+        List<User> receivedUsers = notification.getNotifiers().stream().map(Notifier::getUser).collect(Collectors.toList());
+        for (User receivedUser : receivedUsers) {
+            ResponseMessage responseMessage = ConvertUtil.convertNotificationToResponseMessage(notification, receivedUser);
+            sendPrivateNotification(receivedUser.getEmail(), responseMessage);
+        }
     }
 
     public void sendPrivateNotification(String userID, ResponseMessage message) {

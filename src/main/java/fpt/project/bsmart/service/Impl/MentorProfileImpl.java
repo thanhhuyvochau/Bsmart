@@ -23,6 +23,7 @@ import fpt.project.bsmart.entity.response.mentor.*;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.IMentorProfileService;
 import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.email.EmailUtil;
 import fpt.project.bsmart.util.specification.MentorProfileSpecificationBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,8 +32,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.lang.Class;
-import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.Year;
 import java.time.ZoneOffset;
@@ -59,8 +58,9 @@ public class MentorProfileImpl implements IMentorProfileService {
     private final WebSocketUtil webSocketUtil;
 
     private final MentorProfileEditRepository mentorProfileEditRepository;
+    private final EmailUtil emailUtil;
 
-    public MentorProfileImpl(MentorProfileRepository mentorProfileRepository, MentorSkillRepository mentorSkillRepository, SubjectRepository subjectRepository, MessageUtil messageUtil, UserImageRepository userImageRepository, MentorSkillRepository mentorSkillRepository1, ActivityHistoryRepository activityHistoryRepository, NotificationRepository notificationRepository, WebSocketUtil webSocketUtil, MentorProfileEditRepository mentorProfileEditRepository) {
+    public MentorProfileImpl(MentorProfileRepository mentorProfileRepository, MentorSkillRepository mentorSkillRepository, SubjectRepository subjectRepository, MessageUtil messageUtil, UserImageRepository userImageRepository, MentorSkillRepository mentorSkillRepository1, ActivityHistoryRepository activityHistoryRepository, NotificationRepository notificationRepository, WebSocketUtil webSocketUtil, MentorProfileEditRepository mentorProfileEditRepository, EmailUtil emailUtil) {
         this.mentorProfileRepository = mentorProfileRepository;
         this.subjectRepository = subjectRepository;
         this.messageUtil = messageUtil;
@@ -70,6 +70,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         this.notificationRepository = notificationRepository;
         this.webSocketUtil = webSocketUtil;
         this.mentorProfileEditRepository = mentorProfileEditRepository;
+        this.emailUtil = emailUtil;
     }
 
     private MentorProfile findById(Long id) {
@@ -169,6 +170,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         notificationRepository.save(notification);
         ResponseMessage responseMessage = convertNotificationToResponseMessage(notification, mentorProfile.getUser());
         webSocketUtil.sendPrivateNotification(mentorProfile.getUser().getEmail(), responseMessage);
+        emailUtil.sendApprovalMentorProfile(mentorProfile, managerApprovalAccountRequest);
         return mentorProfileRepository.save(mentorProfile).getId();
     }
 

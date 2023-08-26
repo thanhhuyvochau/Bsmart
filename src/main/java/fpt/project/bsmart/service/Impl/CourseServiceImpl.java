@@ -18,6 +18,7 @@ import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
 import fpt.project.bsmart.repository.*;
 import fpt.project.bsmart.service.ICourseService;
 import fpt.project.bsmart.util.*;
+import fpt.project.bsmart.util.email.EmailUtil;
 import fpt.project.bsmart.util.specification.CourseSpecificationBuilder;
 import fpt.project.bsmart.validator.CourseValidator;
 import org.springframework.data.domain.Page;
@@ -52,8 +53,9 @@ public class CourseServiceImpl implements ICourseService {
     private final NotificationRepository notificationRepository;
 
     private final FeedbackTemplateRepository feedbackTemplateRepository;
+    private final EmailUtil emailUtil;
 
-    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository, ClassRepository classRepository, ActivityHistoryRepository activityHistoryRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, FeedbackTemplateRepository feedbackTemplateRepository) {
+    public CourseServiceImpl(CourseRepository courseRepository, MessageUtil messageUtil, CategoryRepository categoryRepository, ActivityRepository activityRepository, ClassRepository classRepository, ActivityHistoryRepository activityHistoryRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, FeedbackTemplateRepository feedbackTemplateRepository, EmailUtil emailUtil) {
         this.courseRepository = courseRepository;
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
@@ -63,6 +65,7 @@ public class CourseServiceImpl implements ICourseService {
         this.webSocketUtil = webSocketUtil;
         this.notificationRepository = notificationRepository;
         this.feedbackTemplateRepository = feedbackTemplateRepository;
+        this.emailUtil = emailUtil;
     }
 
 
@@ -432,7 +435,7 @@ public class CourseServiceImpl implements ICourseService {
             notificationRepository.saveAll(classNotifications);
             for (Notification classNotification : classNotifications) {
                 ResponseMessage classResponseMessage = ConvertUtil.convertNotificationToResponseMessage(classNotification, creator);
-                webSocketUtil.sendPrivateNotification(creator.getEmail(), responseMessage);
+                webSocketUtil.sendPrivateNotification(creator.getEmail(), classResponseMessage);
             }
         } else {
             List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
@@ -443,11 +446,12 @@ public class CourseServiceImpl implements ICourseService {
                 classList.add(aClass);
             }
             classRepository.saveAll(classList);
-            /**Notification for classes*/
+            /**Notification and send email for classes*/
             List<Notification> classNotifications = new ArrayList<>();
             for (Class clazz : classList) {
                 Notification clazzNotification = NotificationDirector.buildApprovalClass(clazz, clazz.getStatus());
                 classNotifications.add(clazzNotification);
+                emailUtil.sendApprovalClassEmail(course, approvalCourseRequest, clazz);
             }
             notificationRepository.saveAll(classNotifications);
             for (Notification classNotification : classNotifications) {
@@ -458,6 +462,7 @@ public class CourseServiceImpl implements ICourseService {
                     webSocketUtil.sendPrivateNotification(notifier.getUser().getEmail(), classResponseMessage);
                 }
             }
+            emailUtil.sendApprovalCourseEmail(course, approvalCourseRequest);
         }
 
 

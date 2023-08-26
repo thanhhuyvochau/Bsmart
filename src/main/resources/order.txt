@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Order Confirmation</title>
+  <title>Xác Nhận Đơn Hàng</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -19,38 +19,38 @@
     p {
       margin-bottom: 20px;
     }
-    .order-details {
+    .orderDetails {
       background-color: #f5f5f5;
       padding: 20px;
       border-radius: 5px;
     }
-    .order-details h2 {
+    .orderDetails h2 {
       margin-top: 0;
       color: #333;
     }
-    .order-details p {
+    .orderDetails p {
       margin-bottom: 10px;
     }
-    .order-details strong {
+    .orderDetails strong {
       color: #006400;
     }
-    .referral-code {
+    .referralCode {
       background-color: #f5f5f5;
       padding: 20px;
       border-radius: 5px;
       margin-top: 30px;
     }
-    .referral-code h2 {
+    .referralCode h2 {
       margin-top: 0;
       color: #333;
     }
-    .referral-code p {
+    .referralCode p {
       margin-bottom: 10px;
     }
-    .referral-code strong {
+    .referralCode strong {
       color: #006400;
     }
-    .thank-you {
+    .thankYou {
       text-align: center;
       margin-top: 30px;
     }
@@ -58,26 +58,25 @@
 </head>
 <body>
   <div class="container">
-    <h1>Order Confirmation</h1>
-    <p>Dear [Customer Name],</p>
-    <p>Thank you for your order! We are pleased to confirm that your order has been successfully processed.</p>
-    <div class="order-details">
-      <h2>Order Details</h2>
-      <p><strong>Order Number:</strong> [Order Number]</p>
-      <p><strong>Order Date:</strong> [Order Date]</p>
-      <p><strong>Shipping Address:</strong> [Shipping Address]</p>
-      <p><strong>Payment Method:</strong> [Payment Method]</p>
-      <p><strong>Total Amount:</strong> [Total Amount]</p>
+    <h1>Xác Nhận Đơn Hàng</h1>
+    <p>Kính gửi ${customerName},</p>
+    <p>Xin cảm ơn bạn đã đặt hàng! Chúng tôi rất vui thông báo rằng đơn hàng của bạn đã được xử lý thành công.</p>
+    <div class="orderDetails">
+      <h2>Chi Tiết Đơn Hàng</h2>
+      <p><strong>Khóa học:</strong> ${courseName}</p>
+      <p><strong>Mã Lớp Học:</strong> ${classCode}</p>
+      <p><strong>Ngày Đặt Hàng:</strong> ${orderDate}</p>
+      <p><strong>Tổng Số Tiền:</strong> ${totalAmount}</p>
     </div>
-    <div class="referral-code">
-      <h2>Referral Code</h2>
-      <p>Share your unique referral code <strong>[Referral Code]</strong> with your friends and family.</p>
-      <p>When they make a purchase using your code, they will receive a [Discount Percentage]% discount on their order, and you will also receive a [Discount Percentage]% discount on your next purchase!</p>
+    <div class="referralCode">
+      <h2>Mã Giới Thiệu</h2>
+      <p>Hãy chia sẻ mã giới thiệu duy nhất của bạn <strong>${referralCode}</strong> với bạn bè và gia đình.</p>
+      <p>Khi họ mua hàng bằng mã của bạn, họ sẽ nhận được giảm giá ${discountPercentage}% cho đơn hàng của họ.</p>
     </div>
-    <div class="thank-you">
-      <p>Thank you for choosing our services. If you have any questions or need further assistance, please feel free to contact us.</p>
-      <p>Best regards,</p>
-      <p>The [Your Company] Team</p>
+    <div class="thankYou">
+      <p>Cảm ơn bạn đã lựa chọn dịch vụ của chúng tôi. Nếu bạn có bất kỳ câu hỏi hoặc cần sự hỗ trợ thêm, hãy thoải mái liên hệ với chúng tôi.</p>
+      <p>Trân trọng,</p>
+      <p>Đội Người Quản Lý ${yourCompany}</p>
     </div>
   </div>
 </body>

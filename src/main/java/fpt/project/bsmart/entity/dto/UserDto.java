@@ -1,8 +1,8 @@
 package fpt.project.bsmart.entity.dto;
 
 
-import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.EGenderType;
+import fpt.project.bsmart.entity.constant.SocialProvider;
 import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 
 import java.time.Instant;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class UserDto  {
+public class UserDto {
     private static final long serialVersionUID = 1L;
     private Long id;
     private String fullName;
@@ -34,6 +34,7 @@ public class UserDto  {
 
     private Instant timeSendRequest;
     private Integer count;
+    private SocialProvider provider;
 
     public Long getId() {
         return id;
@@ -212,5 +213,13 @@ public class UserDto  {
 
     public void setCount(Integer count) {
         this.count = count;
+    }
+
+    public SocialProvider getProvider() {
+        return provider;
+    }
+
+    public void setProvider(SocialProvider provider) {
+        this.provider = provider;
     }
 }

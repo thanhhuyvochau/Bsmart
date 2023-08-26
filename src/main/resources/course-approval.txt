@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cập Nhật Trạng Thái Khóa Học</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        ul li {
+            margin-bottom: 10px;
+        }
+        p {
+            color: #555;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cập Nhật Trạng Thái Khóa Học</h1>
+
+        <p>Xin chào ${mentorName},</p>
+
+        <p>Chúng tôi rất vui thông báo rằng khóa học mà bạn đã tạo trên trang web của chúng tôi hiện đang ở trạng thái ${courseStatus}.</p>
+
+        <p>Dưới đây là thông tin về khóa học của bạn:</p>
+        <ul>
+            <li><strong>Tên Khóa Học:</strong> ${courseName}</li>
+        </ul>
+        <p><strong>Nội Dung Phản Hồi:</strong> ${replyContent}</p>
+        <p>Chúng tôi trân trọng sự đóng góp của bạn trong việc tạo ra nội dung giáo dục chất lượng cho cộng đồng của chúng tôi. Chúng tôi hy vọng rằng khóa học của bạn sẽ mang lại giá trị quan trọng cho những người học tham gia.</p>
+
+        <p>Nếu bạn có bất kỳ câu hỏi hoặc cần sự hỗ trợ thêm, xin vui lòng liên hệ với chúng tôi qua địa chỉ email này.</p>
+
+        <p>Trân trọng,<br>
+    </div>
+</body>
+</html>

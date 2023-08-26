@@ -1,18 +1,20 @@
 package fpt.project.bsmart.config.cron;
 
+import fpt.project.bsmart.director.NotificationDirector;
 import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.DayOfWeek;
-import fpt.project.bsmart.entity.Role;
-import fpt.project.bsmart.entity.TimeTable;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.constant.EUserRole;
 import fpt.project.bsmart.repository.ClassRepository;
 import fpt.project.bsmart.repository.DayOfWeekRepository;
+import fpt.project.bsmart.repository.NotificationRepository;
 import fpt.project.bsmart.repository.RoleRepository;
 import fpt.project.bsmart.service.Impl.TransactionService;
 import fpt.project.bsmart.util.ClassUtil;
 import fpt.project.bsmart.util.TimeInWeekUtil;
+import fpt.project.bsmart.util.WebSocketUtil;
+import fpt.project.bsmart.util.email.EmailUtil;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -38,12 +40,18 @@ public class ScheduleJobConfig {
 
     private final RoleRepository roleRepository;
     private final TransactionService transactionService;
+    private final EmailUtil emailUtil;
+    private final NotificationRepository notificationRepository;
+    private final WebSocketUtil webSocketUtil;
 
-    public ScheduleJobConfig(DayOfWeekRepository dayOfWeekRepository, ClassRepository classRepository, RoleRepository roleRepository, TransactionService transactionService) {
+    public ScheduleJobConfig(DayOfWeekRepository dayOfWeekRepository, ClassRepository classRepository, RoleRepository roleRepository, TransactionService transactionService, EmailUtil emailUtil, NotificationRepository notificationRepository, WebSocketUtil webSocketUtil) {
         this.dayOfWeekRepository = dayOfWeekRepository;
         this.classRepository = classRepository;
         this.roleRepository = roleRepository;
         this.transactionService = transactionService;
+        this.emailUtil = emailUtil;
+        this.notificationRepository = notificationRepository;
+        this.webSocketUtil = webSocketUtil;
     }
 
 
@@ -112,11 +120,19 @@ public class ScheduleJobConfig {
             satisfyMinClass.getTimeTables().clear();
             satisfyMinClass.getTimeTables().addAll(timeTables);
             satisfyMinClass.setStatus(ECourseClassStatus.STARTING);
+            emailUtil.sendStartClass(satisfyMinClass);
+            List<User> studentOfClass = satisfyMinClass.getStudentClasses().stream().map(StudentClass::getStudent).collect(Collectors.toList());
+            Notification notification = NotificationDirector.buildStartClass(satisfyMinClass, satisfyMinClass.getCourse().getCreator(), studentOfClass);
+            notificationRepository.save(notification);
+            webSocketUtil.sendPrivateNotification(notification);
         }
         List<Class> unSatisfyMinClasses = classesStartToday.stream().filter(clazz -> clazz.getMinStudent() > clazz.getStudentClasses().size()).collect(Collectors.toList());
         for (Class unSatisfyMinClass : unSatisfyMinClasses) {
             unSatisfyMinClass.setStatus(ECourseClassStatus.UNSATISFY);
-            // Send thông báo cho giáo viên đó cần phải mở thủ công
+            emailUtil.sendEndClassToMentor(unSatisfyMinClass);
+            Notification notification = NotificationDirector.buildCancelClass(unSatisfyMinClass);
+            notificationRepository.save(notification);
+            webSocketUtil.sendPrivateNotification(notification);
         }
         transactionService.refundClassFeeToStudentWallet(unSatisfyMinClasses);
         // Send notification for teacher if not satisfy and student to inform class is closed

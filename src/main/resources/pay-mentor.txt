@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Thông Báo Thanh Toán Cho Giảng Viên</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #333333;
+        }
+
+        p {
+            color: #555555;
+            margin: 10px 0;
+        }
+
+        .thanks {
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Thông Báo Thanh Toán Cho Giảng Viên</h1>
+        <p>Chào bạn <span class="thanks">${mentorName}</span>,</p>
+
+        <p>Chúng tôi hy vọng bạn đang khỏe. Chúng tôi muốn thông báo về việc thanh toán cho giảng viên sau khóa học mà bạn đã dạy.</p>
+
+        <p><strong>Mã Lớp Học:</strong> ${classCode}</p>
+        <p><strong>Tên Khóa Học:</strong> ${courseName}</p>
+        <p><strong>Tổng Số Học Sinh:</strong> ${studentClassNumber}</p>
+
+        <p>Dựa trên số lượng học sinh đăng ký, thanh toán cho giảng viên đã được tính như sau:</p>
+
+        <p><strong>Phần của Bạn:</strong> 30%</p>
+        <p><strong>Phần của Giảng Viên:</strong> 70%</p>
+
+        <p><strong>Tổng Học Phí:</strong> ${totalIncome}VND</p>
+        <p><strong>Chiếu Khấu Phải Trả Cho MiSmart:</strong> ${mismartIncome} VND</p>
+        <p><strong>Thu Nhập Của Giảng Viên:</strong> ${mentorIncome}VND</p>
+
+        <p>Chúng tôi trân trọng sự tận tâm và công sức của bạn trong việc dạy lớp học này. Nếu bạn có bất kỳ câu hỏi hoặc thắc mắc nào về thanh toán, xin vui lòng liên hệ với chúng tôi.</p>
+
+        <p>Cảm ơn bạn đã là một phần của hệ thống giáo dục của chúng tôi.</p>
+
+        <p>Trân trọng,</p>
+        <p>MiSmart</p>
+    </div>
+
+</body>
+</html>

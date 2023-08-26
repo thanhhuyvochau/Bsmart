@@ -247,15 +247,15 @@ public class CourseUtil {
                 }
             }
         }
-
-        List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
-        List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseClassStatus.NOTSTART);
-        classes.forEach(aClass -> {
-            if(aClass.getStudentClasses().size() < aClass.getMaxStudent()){
-                classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(course.getCreator(), aClass));
-            }
-        });
-        courseResponse.setClasses(classDetailResponses);
+//
+//        List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
+//        List<Class> classes = staticClassRepository.findByCourseAndStatus(course, ECourseClassStatus.NOTSTART);
+//        classes.forEach(aClass -> {
+//            if(aClass.getStudentClasses().size() < aClass.getMaxStudent()){
+//                classDetailResponses.add(ClassUtil.convertClassToClassDetailResponse(course.getCreator(), aClass));
+//            }
+//        });
+//        courseResponse.setClasses(classDetailResponses);
 
         return courseResponse;
     }

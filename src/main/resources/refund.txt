@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Thông Báo Hủy Lớp Học</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #333333;
+        }
+
+        p {
+            color: #555555;
+            margin: 10px 0;
+        }
+
+        .class-details {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+
+        .highlight {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Thông Báo Hủy Lớp Học</h1>
+
+        <div class="class-details">
+            <p>Lớp học <span class="highlight">${classCode}</span> đã phải bị hủy do không đủ số lượng học sinh đăng ký.</p>
+            <p>Khóa học <span class="highlight">${courseName}</span></p>
+            <p><strong>Ngày Bắt Đầu:</strong> ${startDate}</p>
+            <p><strong>Ngày Kết Thúc:</strong> ${endDate}</p>
+        </div>
+
+        <p>Chúng tôi thành thật xin lỗi vì sự bất tiện này. Tất cả học phí đã được thanh toán sẽ được hoàn trả vào trong ví của bạn và bạn có thể dùng ví để mua khóa học khác.</p>
+
+        <p>Nếu bạn có bất kỳ câu hỏi hoặc cần sự hỗ trợ thêm, đừng ngần ngại liên hệ với chúng tôi. Chúc bạn có những trải nghiệm học tập tốt trong tương lai.</p>
+
+        <p>Trân trọng,</p>
+        <p>MiSmart</p>
+    </div>
+
+</body>
+</html>

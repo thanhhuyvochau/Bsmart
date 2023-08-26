@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Thông Báo Hủy Lớp Học</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #333333;
+        }
+
+        p {
+            color: #555555;
+            margin: 10px 0;
+        }
+
+        .class-details {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+
+        .highlight {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Thông Báo Hủy Lớp Học</h1>
+
+        <div class="class-details">
+            <p>Lớp học <span class="highlight">${className}</span> đã phải bị hủy do không đạt đủ số lượng học sinh tối thiểu.</p>
+            <p><strong>Ngày Bắt Đầu:</strong> ${startDate}</p>
+            <p><strong>Ngày Kết Thúc:</strong> ${endDate}</p>
+            <p><strong>Số Học Sinh Đã Đăng Ký:</strong> ${studentNumber}</p>
+        </div>
+
+        <p>Xin lỗi vì sự bất tiện này. Lớp học đã phải bị hủy và tất cả học phí đã được thanh toán sẽ được hoàn trả cho học viên.</p>
+
+        <p>Giảng viên thân mến, chúng tôi xin thông báo rằng lớp học mà bạn đang dự kiến dạy đã bị hủy do không đạt đủ số lượng học sinh tối thiểu. Xin hãy liên hệ với chúng tôi nếu bạn cần thêm thông tin hoặc hỗ trợ.</p>
+
+         <p>Cảm ơn bạn đã chia sẻ kiến thức và thời gian của mình. Chúng tôi rất trân trọng sự đóng góp của bạn trong hệ thống giáo dục của chúng tôi.</p>
+
+               <p>Trân trọng,</p>
+               <p>MiSmart</p>
+           </div>
+
+       </body>
+       </html>
