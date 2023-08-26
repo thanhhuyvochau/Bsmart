@@ -224,17 +224,13 @@ public class FeedbackServiceImpl implements IFeedbackService {
                     .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(FEEDBACK_QUESTION_NOT_FOUND_BY_ID) + studentSubmitFeedbackRequest.getQuestionId()));
             // Lấy tất cả câu trả lời của câu hỏi
             List<FeedbackAnswer> answersOfQuestion = feedbackQuestion.getAnswers();
-                for (FeedbackAnswer feedbackAnswer : answersOfQuestion) {
-                    if (feedbackAnswer.getId().equals(studentSubmitFeedbackRequest.getAnswerId())) {
-                        FeedbackSubmitAnswer submitAnswers = new FeedbackSubmitAnswer();
-                        submitAnswers.setSubmission(feedbackSubmission);
-                        submitAnswers.setAnswer(feedbackAnswer);
-                        feedbackSubmitAnswers.add(submitAnswers);
-                        break;
-                    }else{
-                        throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_ANSWER_OPTION) + feedbackAnswer.getId());
-                    }
-                }
+            FeedbackAnswer feedbackAnswer = answersOfQuestion.stream().filter(x -> x.getId().equals(studentSubmitFeedbackRequest.getAnswerId()))
+                    .findFirst()
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_ANSWER_OPTION) + studentSubmitFeedbackRequest.getAnswerId()));
+            FeedbackSubmitAnswer submitAnswers = new FeedbackSubmitAnswer();
+            submitAnswers.setSubmission(feedbackSubmission);
+            submitAnswers.setAnswer(feedbackAnswer);
+            feedbackSubmitAnswers.add(submitAnswers);
         }
         if(request.getComment() != null && !request.getComment().isEmpty()){
             if(request.getComment().length() < FeedbackUtil.MIN_CHARACTER_IN_COMMENT){
