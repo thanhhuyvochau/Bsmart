@@ -1,7 +1,7 @@
 package fpt.project.bsmart.entity.response;
 
 
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.dto.ImageDto;
 import fpt.project.bsmart.entity.dto.TimeInWeekDTO;
 
@@ -23,7 +23,7 @@ public class ClassDetailResponse {
     private Integer numberOfStudent = 0  ;
     private Integer numberOfSlot  ;
 
-    private ECourseStatus status;
+    private ECourseClassStatus status;
 
     private BigDecimal price;
 
@@ -85,11 +85,11 @@ public class ClassDetailResponse {
         this.numberOfSlot = numberOfSlot;
     }
 
-    public ECourseStatus getStatus() {
+    public ECourseClassStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ECourseStatus status) {
+    public void setStatus(ECourseClassStatus status) {
         this.status = status;
     }
 

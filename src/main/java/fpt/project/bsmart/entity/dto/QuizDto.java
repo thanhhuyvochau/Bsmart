@@ -4,15 +4,12 @@ import com.fasterxml.jackson.annotation.JsonView;
 import fpt.project.bsmart.config.json.View;
 import fpt.project.bsmart.entity.constant.QuizStatus;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 public class QuizDto {
     private Long id;
     private String code;
-    private Instant startDate;
-    private Instant endDate;
     private Integer time;
     private Integer questionCount = 0;
     private QuizStatus status;
@@ -42,22 +39,6 @@ public class QuizDto {
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public Instant getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Instant startDate) {
-        this.startDate = startDate;
-    }
-
-    public Instant getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Instant endDate) {
-        this.endDate = endDate;
     }
 
     public Integer getTime() {

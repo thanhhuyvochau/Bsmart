@@ -296,8 +296,6 @@ public class ActivityServiceImpl implements IActivityService {
             quizQuestions.add(quizQuestion);
         }
         quiz.setCode(addQuizRequest.getCode());
-        quiz.setStartDate(addQuizRequest.getStartDate());
-        quiz.setEndDate(addQuizRequest.getEndDate());
         quiz.setTime(addQuizRequest.getTime());
         quiz.setStatus(QuizStatus.PENDING);
         quiz.setDefaultPoint(addQuizRequest.getDefaultPoint());
@@ -360,27 +358,12 @@ public class ActivityServiceImpl implements IActivityService {
 
     private Assignment addAssignment(AssignmentRequest request, Activity activity) throws IOException {
         Instant now = Instant.now();
-        Instant startDate = request.getStartDate();
-        Instant endDate = request.getEndDate();
-
-        if (startDate.isBefore(now)) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Invalid.INVALID_START_NOW_DATE));
-        }
-        if (endDate.isBefore(now)) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Invalid.INVALID_END_NOW_DATE));
-        }
-        if (startDate.isAfter(endDate)) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Invalid.INVALID_START_END_DATE));
-        }
 
         Assignment assignment = new Assignment();
         assignment.setDescription(request.getDescription());
-        assignment.setStartDate(request.getStartDate());
-        assignment.setEndDate(request.getEndDate());
         assignment.setEditBeForSubmitMin(request.getEditBeForSubmitMin());
         assignment.setMaxFileSubmit(request.getMaxFileSubmit());
         assignment.setMaxFileSize(request.getMaxFileSize());
-        assignment.setStatus(now.equals(request.getStartDate()) ? EAssignmentStatus.OPENING : EAssignmentStatus.PENDING);
         assignment.setActivity(activity);
         assignment.setPassPoint(request.getPassPoint());
         // Lấy file đính kèm của assignment
@@ -456,9 +439,6 @@ public class ActivityServiceImpl implements IActivityService {
         List<MultipartFile> submittedFiles = request.getSubmittedFiles();
         if (!ActivityValidator.isAuthorizeForClass(clazz, activity) && !activity.getFixed()) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Lớp bạn không có thẩm quyền với assignment");
-
-        } else if (!AssignmentValidator.isValidSubmitDate(assignment)) {
-            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Ngày nộp không hợp lệ");
 
         } else if (!AssignmentValidator.isValidNumberOfSubmitFile(assignment, submittedFiles)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Số lượng file phải ít hơn:" + assignment.getMaxFileSubmit());
@@ -619,29 +599,10 @@ public class ActivityServiceImpl implements IActivityService {
     private Assignment editAssignment(AssignmentRequest request, Activity activity) throws IOException {
         Instant now = Instant.now();
         Assignment assignment = activity.getAssignment();
-        Instant startDate = request.getStartDate();
-        Instant endDate = request.getEndDate();
-        long minDiffOfStartDate = TimeUtil.compareTwoInstantTruncated(startDate, assignment.getStartDate(), ChronoUnit.MINUTES);
-        long minDiffOfEndDate = TimeUtil.compareTwoInstantTruncated(endDate, assignment.getEndDate(), ChronoUnit.MINUTES);
-        if (minDiffOfEndDate == 0 && minDiffOfStartDate == 0) {
-            if (startDate.isBefore(now)) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Invalid.INVALID_START_NOW_DATE));
-            }
-            if (endDate.isBefore(now)) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Invalid.INVALID_END_NOW_DATE));
-
-            }
-            if (startDate.isAfter(endDate)) {
-                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(Invalid.INVALID_START_END_DATE));
-            }
-        }
         assignment.setDescription(request.getDescription());
-        assignment.setStartDate(request.getStartDate());
-        assignment.setEndDate(request.getEndDate());
         assignment.setEditBeForSubmitMin(request.getEditBeForSubmitMin());
         assignment.setMaxFileSubmit(request.getMaxFileSubmit());
         assignment.setMaxFileSize(request.getMaxFileSize());
-        assignment.setStatus(now.equals(request.getStartDate()) ? EAssignmentStatus.OPENING : EAssignmentStatus.PENDING);
         // Lấy file đính kèm của assignment
         List<MultipartFile> attachFiles = request.getAttachFiles();
         List<AssignmentFile> existedAssignmentFiles = assignment.getAssignmentFiles();
@@ -663,10 +624,7 @@ public class ActivityServiceImpl implements IActivityService {
         Instant now = Instant.now();
         boolean isValidQuizDate = request.getStartDate().isAfter(now) || request.getEndDate().isAfter(now)
                 || request.getStartDate().isBefore(request.getEndDate());
-        if (isValidQuizDate) {
-            quiz.setStartDate(request.getStartDate());
-            quiz.setEndDate(request.getEndDate());
-        }
+
         if (request.getIsSuffleQuestion() != null) {
             quiz.setIsSuffleQuestion(request.getIsSuffleQuestion());
         }
@@ -743,9 +701,7 @@ public class ActivityServiceImpl implements IActivityService {
 
     private void isAvailableToAttempt(Quiz quiz, User user) {
         Instant currentTime = Instant.now();
-        if (currentTime.isBefore(quiz.getStartDate()) || currentTime.isAfter(quiz.getEndDate())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_QUIZ_ATTEMPT_TIME));
-        }
+
         if (!quiz.getStatus().equals(QuizStatus.OPENING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_QUIZ_STATUS_FOR_ATTEMPT));
         }

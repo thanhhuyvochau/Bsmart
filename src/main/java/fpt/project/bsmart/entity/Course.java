@@ -1,8 +1,8 @@
 package fpt.project.bsmart.entity;
 
 
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.constant.ECourseLevel;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class Course extends BaseEntity {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private ECourseStatus status;
+    private ECourseClassStatus status;
 
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
@@ -96,11 +96,11 @@ public class Course extends BaseEntity {
         this.subject = subject;
     }
 
-    public ECourseStatus getStatus() {
+    public ECourseClassStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ECourseStatus status) {
+    public void setStatus(ECourseClassStatus status) {
         this.status = status;
     }
 

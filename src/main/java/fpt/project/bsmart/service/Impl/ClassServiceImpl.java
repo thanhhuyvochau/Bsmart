@@ -43,7 +43,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
+import static fpt.project.bsmart.entity.constant.ECourseClassStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.Invalid.INVALID_FEEDBACK_TYPE;
 
@@ -130,7 +130,7 @@ public class ClassServiceImpl implements IClassService {
         ResponseUtil.responseForRole(EUserRole.TEACHER);
         List<ActivityDto> activityDtos = ConvertUtil.convertActivityAsTree(sectionActivities, true);
         response.setActivities(activityDtos);
-        List<Class> classList = classRepository.findByCourseAndStatus(course, ECourseStatus.NOTSTART);
+        List<Class> classList = classRepository.findByCourseAndStatus(course, ECourseClassStatus.NOTSTART);
 
 //        List<ClassDetailResponse> classDetailResponses = new ArrayList<>();
 //        for (Class aClass : classList) {
@@ -260,7 +260,7 @@ public class ClassServiceImpl implements IClassService {
     }
 
     @Override
-    public ManagerGetCourseClassResponse getAllClassOfCourseForManager(Long id, ECourseStatus status) {
+    public ManagerGetCourseClassResponse getAllClassOfCourseForManager(Long id, ECourseClassStatus status) {
 //        Course course = courseRepository.findByIdAndStatus(id, WAITING)
 //                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
 //                        .withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
@@ -618,7 +618,7 @@ public class ClassServiceImpl implements IClassService {
     @Override
     public ClassResponse getDetailClass(Long id) {
         Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
-        if (!Objects.equals(clazz.getStatus(), ECourseStatus.STARTING)) {
+        if (!Objects.equals(clazz.getStatus(), ECourseClassStatus.STARTING)) {
             // throw error later
         }
         User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
@@ -745,7 +745,7 @@ public class ClassServiceImpl implements IClassService {
     }
 
     @Override
-    public ApiPage<MentorGetClassDetailResponse> mentorGetClass(ECourseStatus status, Pageable pageable) {
+    public ApiPage<MentorGetClassDetailResponse> mentorGetClass(ECourseClassStatus status, Pageable pageable) {
         User user = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         Page<Class> byMentorAndStatus = classRepository.findByMentorAndStatus(user, status, pageable);
         List<MentorGetClassDetailResponse> classResponses = byMentorAndStatus.getContent().stream()
@@ -783,7 +783,7 @@ public class ClassServiceImpl implements IClassService {
     @Override
     public ApiPage<StudentClassResponse> getClassMembers(Long id, Pageable pageable) {
         Class clazz = classRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
-        ECourseStatus status = clazz.getStatus();
+        ECourseClassStatus status = clazz.getStatus();
         boolean mentorOfClass = ClassValidator.isMentorOfClass(SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional()), clazz);
         if (!mentorOfClass) {
             throw ApiException.create(HttpStatus.NOT_FOUND)
@@ -799,7 +799,7 @@ public class ClassServiceImpl implements IClassService {
     }
 
     @Override
-    public ApiPage<MentorGetClassDetailResponse> managerGetClass(ECourseStatus status, Pageable pageable) {
+    public ApiPage<MentorGetClassDetailResponse> managerGetClass(ECourseClassStatus status, Pageable pageable) {
 
         Page<Class> byStatus = classRepository.findByStatus(status, pageable);
         List<MentorGetClassDetailResponse> classResponses = byStatus.getContent().stream()
@@ -812,7 +812,7 @@ public class ClassServiceImpl implements IClassService {
     @Override
     public ApiPage<MentorGetClassDetailResponse> getAllClassForSetTemplateFeedback(Pageable pageable) {
 
-        List<ECourseStatus> statuses = new ArrayList<>(Arrays.asList(NOTSTART, STARTING));
+        List<ECourseClassStatus> statuses = new ArrayList<>(Arrays.asList(NOTSTART, STARTING));
         List<Class> byStatusIn = classRepository.findByStatus_In(statuses);
 
         List<MentorGetClassDetailResponse> classResponses = new ArrayList<>();
@@ -940,7 +940,7 @@ public class ClassServiceImpl implements IClassService {
         if (!feedbackTemplate.getType().equals(EFeedbackType.COURSE)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_FEEDBACK_TYPE));
         }
-        List<ECourseStatus> statuses = new ArrayList<>(Arrays.asList(NOTSTART, STARTING));
+        List<ECourseClassStatus> statuses = new ArrayList<>(Arrays.asList(NOTSTART, STARTING));
         List<Class> classes = classRepository.findByStatus_In(statuses);
         List<Class> classNotUseTemplate = classes.stream()
                 .filter(aClass -> !aClass.getFeedbackTemplate().equals(feedbackTemplate))

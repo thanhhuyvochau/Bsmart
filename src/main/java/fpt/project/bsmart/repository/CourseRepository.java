@@ -1,18 +1,15 @@
 package fpt.project.bsmart.repository;
 
-import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.Course;
 import fpt.project.bsmart.entity.User;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 
@@ -26,7 +23,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Page<Course> findAll(  Specification<Course> build, Pageable pageable);
 
     Page<Course> findByCreator(User user, Pageable pageable);
-    Optional<Course> findByIdAndStatus(Long id, ECourseStatus status);
+    Optional<Course> findByIdAndStatus(Long id, ECourseClassStatus status);
 
 
 }

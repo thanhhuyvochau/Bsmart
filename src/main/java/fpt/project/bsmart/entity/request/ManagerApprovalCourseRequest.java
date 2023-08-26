@@ -1,7 +1,7 @@
 package fpt.project.bsmart.entity.request;
 
 
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 
 import java.io.Serializable;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
 public class ManagerApprovalCourseRequest implements Serializable {
 
     List<Long> classIds;
-    private ECourseStatus status;
+    private ECourseClassStatus status;
     private String message;
 
     public List<Long> getClassIds() {
@@ -20,11 +20,11 @@ public class ManagerApprovalCourseRequest implements Serializable {
         this.classIds = classIds;
     }
 
-    public ECourseStatus getStatus() {
+    public ECourseClassStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ECourseStatus status) {
+    public void setStatus(ECourseClassStatus status) {
         this.status = status;
     }
 

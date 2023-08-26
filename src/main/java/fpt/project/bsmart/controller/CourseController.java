@@ -3,7 +3,7 @@ package fpt.project.bsmart.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
-import fpt.project.bsmart.entity.constant.ECourseStatus;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.dto.ActivityDto;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
@@ -117,7 +117,7 @@ public class CourseController {
     @Operation(summary = "Manager get tất cả yêu cầu mở khóa học của mentor")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/pending")
-    public ResponseEntity<ApiResponse<ApiPage<ManagerGetCourse>>> coursePendingToApprove(ECourseStatus status,
+    public ResponseEntity<ApiResponse<ApiPage<ManagerGetCourse>>> coursePendingToApprove(ECourseClassStatus status,
                                                                                          @Nullable CourseSearchRequest query,
                                                                                          @PageableDefault(sort = "lastModified", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(status, pageable)));

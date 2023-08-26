@@ -11,8 +11,6 @@ import java.util.List;
 
 public class AssignmentBuilder {
     private String description;
-    private Instant startDate;
-    private Instant endDate;
     private Integer editBeForSubmitMin = 0;
     private Integer maxFileSubmit = 1;
     private Integer maxFileSize = 5; // Dd
@@ -23,16 +21,6 @@ public class AssignmentBuilder {
 
     public AssignmentBuilder setDescription(String description) {
         this.description = description;
-        return this;
-    }
-
-    public AssignmentBuilder setStartDate(Instant startDate) {
-        this.startDate = startDate;
-        return this;
-    }
-
-    public AssignmentBuilder setEndDate(Instant endDate) {
-        this.endDate = endDate;
         return this;
     }
 
@@ -73,10 +61,11 @@ public class AssignmentBuilder {
 
     public Assignment build() {
         // TODO: Validation
-        Assignment assignment = new Assignment(description, startDate, endDate, editBeForSubmitMin, maxFileSubmit, maxFileSize, status, activity, assignmentFiles, passPoint);
+        Assignment assignment = new Assignment(description, editBeForSubmitMin, maxFileSubmit, maxFileSize, status, activity, assignmentFiles, passPoint);
         return assignment;
     }
-    public static AssignmentBuilder getBuilder(){
+
+    public static AssignmentBuilder getBuilder() {
         return new AssignmentBuilder();
     }
 }

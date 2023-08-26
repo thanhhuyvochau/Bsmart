@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static fpt.project.bsmart.entity.constant.ECourseStatus.*;
+import static fpt.project.bsmart.entity.constant.ECourseClassStatus.*;
 import static fpt.project.bsmart.util.Constants.ErrorMessage.*;
 import static fpt.project.bsmart.util.CourseUtil.checkCourseOwnership;
 
@@ -219,8 +219,8 @@ public class CourseServiceImpl implements ICourseService {
                     .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
         }
         List<Class> classes = course.getClasses();
-        List<ECourseStatus> statusClasses = classes.stream().map(Class::getStatus).collect(Collectors.toList());
-        if (statusClasses.contains(ECourseStatus.NOTSTART) || statusClasses.contains(STARTING) || statusClasses.contains(WAITING)) {
+        List<ECourseClassStatus> statusClasses = classes.stream().map(Class::getStatus).collect(Collectors.toList());
+        if (statusClasses.contains(ECourseClassStatus.NOTSTART) || statusClasses.contains(STARTING) || statusClasses.contains(WAITING)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(CLASSES_ARE_CURRENTLY_STARTING_FROM_THIS_COURSE_CANNOT_DELETE));
         }
@@ -253,7 +253,7 @@ public class CourseServiceImpl implements ICourseService {
         User user = MentorUtil.checkIsMentor();
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
-
+        CourseValidator.checkEmptySectionOfCourseActivity(course.getActivities());
         if (!course.getApproved()) {
             List<Class> classesInRequest = classRepository.findAllById(classIds);
 
@@ -366,7 +366,7 @@ public class CourseServiceImpl implements ICourseService {
 
     //     ################################## START MANAGER ##########################################
     @Override
-    public ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseStatus status, Pageable pageable) {
+    public ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseClassStatus status, Pageable pageable) {
 
         if (status.equals(WAITING)) {
             List<Class> byStatus = classRepository.findByStatus(WAITING);
@@ -466,8 +466,8 @@ public class CourseServiceImpl implements ICourseService {
     }
 
 
-    private void validateApprovalCourseRequest(ECourseStatus statusRequest) {
-        List<ECourseStatus> ALLOWED_STATUSES = Arrays.asList(NOTSTART, EDITREQUEST, REJECTED);
+    private void validateApprovalCourseRequest(ECourseClassStatus statusRequest) {
+        List<ECourseClassStatus> ALLOWED_STATUSES = Arrays.asList(NOTSTART, EDITREQUEST, REJECTED);
         if (!ALLOWED_STATUSES.contains(statusRequest)) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
