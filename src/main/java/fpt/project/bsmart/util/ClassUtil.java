@@ -156,6 +156,8 @@ public class ClassUtil {
     public static ClassDetailResponse convertClassToClassDetailResponse(User userLogin, Class clazz) {
 
         ClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ClassDetailResponse(), ClassDetailResponse.class);
+        List<StudentClass> byClass = staticStudentClassRepository.findByClazz(clazz);
+        classDetailResponse.setNumberOfStudent(byClass.size());
         User currentUserAccountLogin = SecurityUtil.getCurrentUser();
         Optional<StudentClass> byClassAndStudent = staticStudentClassRepository.findByClazzAndStudent(clazz, currentUserAccountLogin);
         if (byClassAndStudent.isPresent()) {
@@ -191,6 +193,8 @@ public class ClassUtil {
     public static ClassDetailResponse convertClassToClassDetailResponseNoLogin(Class clazz) {
 
         ClassDetailResponse classDetailResponse = ObjectUtil.copyProperties(clazz, new ClassDetailResponse(), ClassDetailResponse.class);
+        List<StudentClass> byClass = staticStudentClassRepository.findByClazz(clazz);
+        classDetailResponse.setNumberOfStudent(byClass.size());
         classDetailResponse.setPurchase(false);
         ImageDto imageDto = ConvertUtil.convertClassImageToImageDto(clazz.getClassImage());
         List<TimeInWeekDTO> timeInWeekDTOS = new ArrayList<>();
