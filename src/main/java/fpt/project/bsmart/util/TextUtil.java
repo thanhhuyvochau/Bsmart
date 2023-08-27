@@ -23,7 +23,25 @@ public class TextUtil {
                 valueList.add(parameters.get(key));
             }
         }
-        String debug = newTemplate.toString();
         return String.format(newTemplate.toString(), valueList.toArray());
+    }
+
+    public static String extractBaseUrl(String urlString) {
+        int protocolEndIndex = urlString.indexOf("://");
+        if (protocolEndIndex == -1) {
+            return null;
+        }
+
+        int pathStartIndex = urlString.indexOf("/", protocolEndIndex + 3);
+        if (pathStartIndex == -1) {
+            return urlString;
+        }
+
+        String baseUrl = urlString.substring(0, pathStartIndex);
+        if (baseUrl.startsWith("www.")) {
+            baseUrl = baseUrl.substring(4);
+        }
+
+        return baseUrl;
     }
 }

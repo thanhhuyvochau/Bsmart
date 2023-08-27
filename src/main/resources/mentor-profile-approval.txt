@@ -9,16 +9,16 @@
     <table style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
         <tr>
             <td style="text-align: center; padding: 20px;">
-                <img src="your_logo_url_here" alt="Your Logo">
+                <img src="your_logo_url_here" alt="MiSmart Logo">
             </td>
         </tr>
         <tr>
             <td style="padding: 20px;">
                 <h2>Thông Báo Về Trạng Thái Hồ Sơ Giảng dạy</h2>
                 <p>Kính gửi ${mentorName},</p>
-                <p>Chúng tôi xin thông báo về trạng thái hiện tại của hồ sơ mentor của bạn:</p>
+                <p>Chúng tôi xin thông báo về trạng thái hiện tại của hồ sơ giảng dạy của bạn:</p>
                 <p><strong>Trạng Thái:</strong> ${mentorProfileStatus}</p>
-                <p><strong>Nội dung phản hôi</strong>:${replyContent}</p>
+                <p><strong>Nội dung phản hồi</strong>:${replyContent}</p>
                 <p>Nếu bạn có bất kỳ câu hỏi hoặc cần hỗ trợ, vui lòng liên hệ đội hỗ trợ qua email: mismart@gmail.com.</p>
                 <p>Xin cảm ơn sự đóng góp của bạn trong việc chia sẻ kiến thức và hướng dẫn!</p>
                 <p>Trân trọng</p>

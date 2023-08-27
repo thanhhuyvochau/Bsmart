@@ -11,8 +11,8 @@ spring:
       client:
         registration:
           google:
-            client-id: 1049827013619-28kvfou9147c817f8aaar257fs29rmun.apps.googleusercontent.com
-            client-secret: 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
+            client-id: 1062517910184-tkrs8onebj1p401sb2qvao7an4pvrq23.apps.googleusercontent.com
+            client-secret: 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
 
   config:
     import: optional:file:.env[.properties]
@@ -132,6 +132,9 @@ host:
 
 forgot-password:
   url: https://mismart.vercel.app/forgot_password/
+
+meeting:
+  url: https://us05web.zoom.us,https://meet.google.com
 
 
 

@@ -1,7 +1,7 @@
 package fpt.project.bsmart.util.specification;
 
-import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.util.SpecificationUtil;
 import org.springframework.data.jpa.domain.Specification;
@@ -70,12 +70,27 @@ public class CourseSpecificationBuilder {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
-
             return criteriaBuilder.equal(root.get(Course_.STATUS), status);
         });
         return this;
     }
 
+    public CourseSpecificationBuilder queryByCourseStatusForManager(ECourseClassStatus status) {
+        if (status == null) {
+            return this;
+        }
+        if (status.equals(ECourseClassStatus.ALL)) {
+            return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> {
+            Join<Course, Class> courseClassJoin = root.join(Course_.CLASSES);
+            Predicate courseByStatus = criteriaBuilder.equal(root.get(Course_.STATUS), status);
+            Predicate classByStatus = criteriaBuilder.equal(courseClassJoin.get(Class_.STATUS), status);
+            query.distinct(true);
+            return criteriaBuilder.or(courseByStatus, classByStatus);
+        });
+        return this;
+    }
 
     public CourseSpecificationBuilder queryByCreatorId(Long creatorId) {
         if (creatorId == null) {

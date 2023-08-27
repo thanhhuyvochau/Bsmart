@@ -76,9 +76,10 @@ public class ClassServiceImpl implements IClassService {
     private final AssignmentSubmittionRepository assignmentSubmittionRepository;
 
     private final QuizSubmissionRepository quizSubmissionRepository;
+    private final ClassUtil classUtil;
 
 
-    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, FeedbackTemplateRepository feedbackTemplateRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, TimeTableRepository timeTableRepository, SubjectRepository subjectRepository, UserRepository userRepository, StudentClassRepository studentClassRepository, AssignmentSubmittionRepository assignmentSubmittionRepository, QuizSubmissionRepository quizSubmissionRepository) {
+    public ClassServiceImpl(MessageUtil messageUtil, CategoryRepository categoryRepository, ClassRepository classRepository, DayOfWeekRepository dayOfWeekRepository, SlotRepository slotRepository, TimeInWeekRepository timeInWeekRepository, CourseRepository courseRepository, ClassImageRepository classImageRepository, ActivityAuthorizeRepository activityAuthorizeRepository, FeedbackTemplateRepository feedbackTemplateRepository, FeedbackSubmissionRepository feedbackSubmissionRepository, TimeTableRepository timeTableRepository, SubjectRepository subjectRepository, UserRepository userRepository, StudentClassRepository studentClassRepository, AssignmentSubmittionRepository assignmentSubmittionRepository, QuizSubmissionRepository quizSubmissionRepository, ClassUtil classUtil) {
         this.messageUtil = messageUtil;
         this.categoryRepository = categoryRepository;
         this.classRepository = classRepository;
@@ -96,6 +97,7 @@ public class ClassServiceImpl implements IClassService {
         this.studentClassRepository = studentClassRepository;
         this.assignmentSubmittionRepository = assignmentSubmittionRepository;
         this.quizSubmissionRepository = quizSubmissionRepository;
+        this.classUtil = classUtil;
     }
 
     /**
@@ -932,7 +934,7 @@ public class ClassServiceImpl implements IClassService {
                         .stream()
                         .anyMatch(timeInWeek -> clazz.getTimeInWeeks().stream()
                                 .anyMatch(checkedTimeInWeek -> checkedTimeInWeek.getDayOfWeek().getCode().equals(timeInWeek.getDayOfWeek().getCode())
-                                                               && checkedTimeInWeek.getSlot().getId().equals(timeInWeek.getSlot().getId()))))
+                                        && checkedTimeInWeek.getSlot().getId().equals(timeInWeek.getSlot().getId()))))
                 .collect(Collectors.toList());
 
         List<BaseClassResponse> baseClassResponses = duplicateClasses.stream()
@@ -964,5 +966,25 @@ public class ClassServiceImpl implements IClassService {
         map.put("use", useClass);
         map.put("notUse", notUseClass);
         return map;
+    }
+
+    @Override
+    public boolean setClassURL(Long id, String url) {
+        List<String> allowedMeetingUrls = classUtil.getAllowedMeetingUrl();
+        boolean isValidMeeting = ClassValidator.checkAllowMeetingLink(url, allowedMeetingUrls);
+        if (!isValidMeeting) {
+            throw ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage("Liên kết không hợp lệ, vui lòng chỉ sử dụng liên kết được cho phép");
+        }
+        Class clazz = classRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
+        User mentor = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        if (!ClassValidator.isMentorOfClass(mentor, clazz)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
+        }
+        clazz.setClassURL(url);
+        classRepository.save(clazz);
+        return true;
     }
 }

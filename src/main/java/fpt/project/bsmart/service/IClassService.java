@@ -64,9 +64,11 @@ public interface IClassService {
 
     List<BaseClassResponse> getDuplicateTimeClassOfStudent(Long id);
 
-    HashMap<String ,List<MentorGetClassDetailResponse>> getClassesNotUseTemplate(Long templateId);
+    HashMap<String, List<MentorGetClassDetailResponse>> getClassesNotUseTemplate(Long templateId);
 
     Boolean simulateCloseClassEvent(Long classId);
 
     List<GetPointStudentClassResponse> getStudentPoint(GetPointStudentClassRequest request);
+
+    boolean setClassURL(Long id, String url);
 }

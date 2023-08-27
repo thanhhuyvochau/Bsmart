@@ -129,8 +129,8 @@ public class ClassController {
     @Operation(summary = "MANAGER lấy tất cả các class của course để phê duyệt")
     @GetMapping("/pending/course/{id}")
     @PreAuthorize("hasAnyRole('MANAGER')")
-    public ResponseEntity<ApiResponse<ManagerGetCourseClassResponse>> getAllClassOfCourseForManager(@PathVariable Long id,@RequestParam ECourseClassStatus status) {
-        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourseForManager(id,status)));
+    public ResponseEntity<ApiResponse<ManagerGetCourseClassResponse>> getAllClassOfCourseForManager(@PathVariable Long id, @RequestParam ECourseClassStatus status) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.getAllClassOfCourseForManager(id, status)));
     }
 
     @Operation(summary = "MANAGER lấy tất cả các class để set template feedback")
@@ -143,7 +143,7 @@ public class ClassController {
     @Operation(summary = "Giả lập đóng lớp")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PutMapping("/{classId}/simulate-close")
-    public ResponseEntity<ApiResponse<Boolean>> simulateCloseClassEvent(@PathVariable Long classId){
+    public ResponseEntity<ApiResponse<Boolean>> simulateCloseClassEvent(@PathVariable Long classId) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.simulateCloseClassEvent(classId)));
     }
     //     ################################## STUDENT ##########################################
@@ -165,9 +165,10 @@ public class ClassController {
     @Operation(summary = "Manager lấy class không dùng template")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @GetMapping("/feedback-template/{id}")
-    public ResponseEntity<ApiResponse<HashMap<String ,List<MentorGetClassDetailResponse>>>> getClassNotUseFeedbackTemplate(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<HashMap<String, List<MentorGetClassDetailResponse>>>> getClassNotUseFeedbackTemplate(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getClassesNotUseTemplate(id)));
     }
+
     //    @Operation(summary = "mentor tao lớp học")
 //    @PostMapping
 //    public ResponseEntity<ApiResponse<Boolean>> mentorCreateClass(@Valid @RequestBody CreateClassRequest request) {
@@ -200,4 +201,9 @@ public class ClassController {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getStudentPoint(request)));
     }
 
+    @PutMapping("/{id}/meeting")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    public ResponseEntity<ApiResponse<Boolean>> setMeetingForClass(@PathVariable Long id, @RequestParam String url) {
+        return ResponseEntity.ok(ApiResponse.success(iClassService.setClassURL(id, url)));
+    }
 }

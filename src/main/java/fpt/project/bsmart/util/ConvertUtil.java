@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.dto.mentor.LearningInformationDTO;
 import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 import fpt.project.bsmart.entity.request.MentorWithDrawRequest;
 import fpt.project.bsmart.entity.request.activity.LessonDto;
@@ -208,14 +209,17 @@ public class ConvertUtil {
             userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
             TeachInformationDTO teachingInformation = MentorUtil.getTeachingInformation(user);
             userDto.setTeachInformation(teachingInformation);
-        } else {
-            Integer finishedClassCount = user.getStudentClasses().stream()
+        } else if (SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT)) {
+            List<StudentClass> studentClasses = user.getStudentClasses();
+            long finishedClassCount = studentClasses.stream()
                     .filter(x -> x.getClazz().getStatus().equals(ECourseClassStatus.ENDED))
                     .distinct()
-                    .collect(Collectors.toList()).size();
-            userDto.setFinishedClassCount(finishedClassCount);
+                    .count();
+            long numberOfJoinClass = studentClasses.size();
+            long numberOfJoinCourse = studentClasses.stream().map(studentClass -> studentClass.getClazz().getCourse()).distinct().count();
+            LearningInformationDTO learningInformationDTO = new LearningInformationDTO(numberOfJoinCourse, numberOfJoinClass, finishedClassCount);
+            userDto.setLearningInformation(learningInformationDTO);
         }
-
         return userDto;
     }
 
@@ -459,7 +463,7 @@ public class ConvertUtil {
         List<String> mentorName = new ArrayList<>();
         //List<Class> collect = course.getClasses() ;
         List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseClassStatus.NOTSTART)
-                                                                            && aClass.getStudentClasses().size() < aClass.getMaxStudent()).collect(Collectors.toList());
+                && aClass.getStudentClasses().size() < aClass.getMaxStudent()).collect(Collectors.toList());
         List<ImageDto> images = new ArrayList<>();
         if (collect.isEmpty()) {
             ClassImage byType = staticClassImageRepository.findByType(EImageType.DEFAULT);
@@ -510,7 +514,7 @@ public class ConvertUtil {
         return courseResponse;
     }
 
-    public static ManagerGetCourse convertCourseToManagerGetCourse(Course course) {
+    public static ManagerGetCourse convertCourseToManagerGetCourse(Course course, ECourseClassStatus status) {
         ActivityHistory byUserCourse = staticActivityHistoryRepository.findByTypeAndActivityId(EActivityType.COURSE, course.getId());
 
 
@@ -549,7 +553,7 @@ public class ConvertUtil {
         List<Class> classes = course.getClasses();
         if (classes != null) {
             for (Class aClass : classes) {
-                if (aClass.getStatus().equals(ECourseClassStatus.WAITING)) {
+                if (aClass.getStatus().equals(status)) {
                     ++totalClassToApproval;
                 }
             }
@@ -814,7 +818,9 @@ public class ConvertUtil {
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
                 if ((isAttempt && SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT))
-                    || Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER, EUserRole.MANAGER))) {
+
+                        || Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER, EUserRole.MANAGER))) {
+
                     List<QuizQuestionDto> questionDtos = new ArrayList<>();
                     for (QuizQuestion question : quiz.getQuizQuestions()) {
                         questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
