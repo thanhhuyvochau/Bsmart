@@ -134,7 +134,7 @@ public class CourseServiceImpl implements ICourseService {
 
         Course course = new Course();
         course.setName(createCourseRequest.getName());
-        course.setCode(CourseUtil.generateRandomCode(8));
+        course.setCode(CourseUtil.generateRandomCode(subject.getCode()));
         course.setDescription(createCourseRequest.getDescription());
         course.setSubject(subject);
         course.setLevel(createCourseRequest.getLevel());

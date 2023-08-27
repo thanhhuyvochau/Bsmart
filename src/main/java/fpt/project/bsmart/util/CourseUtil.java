@@ -17,6 +17,9 @@ import fpt.project.bsmart.repository.ClassRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -54,11 +57,12 @@ public class CourseUtil {
         }
     }
 
-
-    public static String generateRandomCode(int length) {
+    public static String generateRandomCode(String subject) {
         String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        StringBuilder sb = new StringBuilder(length);
-        for (int i = 0; i < length; ++i) {
+        StringBuilder sb = new StringBuilder(9);
+        sb.append(subject);
+        sb.append("#");
+        for (int i = 0; i < 8 - subject.length(); ++i) {
             int randomIndex = (int) (Math.random() * alphabet.length());
             char randomChar = alphabet.charAt(randomIndex);
             sb.append(randomChar);
@@ -66,7 +70,7 @@ public class CourseUtil {
         return sb.toString();
     }
 
-    public static Boolean checkCourseValidToSendApproval(Course course, User user, List<Class> classesInRequest) {
+    public static Boolean checkCourseValidToSendApproval(Course course, User user, List<Class> classesInRequest){
         if (!course.getStatus().equals(REQUESTING) && !course.getStatus().equals(EDITREQUEST)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(staticMessageUtil.getLocalMessage(COURSE_STATUS_NOT_ALLOW));
         }
@@ -102,9 +106,12 @@ public class CourseUtil {
                 throw ApiException.create(HttpStatus.BAD_REQUEST)
                         .withMessage(staticMessageUtil.getLocalMessage(THE_CLASS_HAS_NO_TIME_TABLE) + aClass.getId());
             }
-
+            try{
+                TimeUtil.checkDateToCreateClass(aClass.getStartDate());
+            }catch (Exception e){
+                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(e.getMessage());
+            }
         }
-
         return true;
     }
 

@@ -475,7 +475,7 @@ public class ClassServiceImpl implements IClassService {
 
         Course course = new Course();
         course.setName(mentorCreateClassRequest.getName());
-        course.setCode(CourseUtil.generateRandomCode(8));
+        course.setCode(CourseUtil.generateRandomCode(subject.getCode()));
         course.setDescription(mentorCreateClassRequest.getDescription());
         course.setSubject(subject);
         course.setStatus(REQUESTING);
