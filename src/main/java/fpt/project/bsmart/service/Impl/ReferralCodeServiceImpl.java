@@ -2,14 +2,20 @@ package fpt.project.bsmart.service.Impl;
 
 import fpt.project.bsmart.entity.Course;
 import fpt.project.bsmart.entity.ReferralCode;
+import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
+import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.response.ReferralCodeResponse;
 import fpt.project.bsmart.repository.CourseRepository;
 import fpt.project.bsmart.repository.ReferralCodeRepository;
 import fpt.project.bsmart.service.ReferralCodeService;
 import fpt.project.bsmart.util.MessageUtil;
 import fpt.project.bsmart.util.ObjectUtil;
+import fpt.project.bsmart.util.PageUtil;
+import fpt.project.bsmart.util.SecurityUtil;
 import fpt.project.bsmart.validator.ReferralCodeValidator;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -42,5 +48,12 @@ public class ReferralCodeServiceImpl implements ReferralCodeService {
         } else {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Mã giới thiệu không tồn tại vui lòng thử lại sau");
         }
+    }
+
+    @Override
+    public ApiPage<ReferralCodeResponse> getAllReferralCodeByCurrentUser(Pageable pageable) {
+        User student = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        Page<ReferralCode> repositoryAllByUser = referralCodeRepository.findAllByUser(student, pageable);
+        return PageUtil.convert(repositoryAllByUser.map(referralCode -> ObjectUtil.copyProperties(referralCode, new ReferralCodeResponse(), ReferralCodeResponse.class, true)));
     }
 }

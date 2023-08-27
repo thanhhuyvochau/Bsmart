@@ -1,10 +1,12 @@
 package fpt.project.bsmart.controller;
 
 
+import fpt.project.bsmart.entity.common.ApiPage;
 import fpt.project.bsmart.entity.common.ApiResponse;
 import fpt.project.bsmart.entity.response.ReferralCodeResponse;
 import fpt.project.bsmart.service.ReferralCodeService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,4 +36,9 @@ public class ReferralCodeController {
         return ResponseEntity.ok(ApiResponse.success(referralCodeService.getReferralCodeToApplyDiscount(code, courseId)));
     }
 
+    @GetMapping("/self")
+    @Operation(summary = "Học sinh tự lấy mã giảm giá")
+    public ResponseEntity<ApiResponse<ApiPage<ReferralCodeResponse>>> getReferralCodeBySelf(Pageable pageable) throws IOException {
+        return ResponseEntity.ok(ApiResponse.success(referralCodeService.getAllReferralCodeByCurrentUser(pageable)));
+    }
 }
