@@ -370,22 +370,21 @@ public class CourseServiceImpl implements ICourseService {
     @Override
     public ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseClassStatus status, Pageable pageable) {
 
-        if (status.equals(WAITING)) {
-            List<Class> byStatus = classRepository.findByStatus(WAITING);
-            List<Course> courseList = byStatus.stream().map(aClass -> aClass.getCourse()).distinct().collect(Collectors.toList());
-            List<ManagerGetCourse> managerGetCourses = new ArrayList<>();
-            for (Course course : courseList) {
-                managerGetCourses.add(ConvertUtil.convertCourseToManagerGetCourse(course));
-            }
-            Page<ManagerGetCourse> pages = new PageImpl<ManagerGetCourse>(managerGetCourses, pageable, managerGetCourses.size());
-            return PageUtil.convert(pages);
-        }
-        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications().queryByCourseStatus(status);
+//        if (status.equals(WAITING)) {
+//            List<Class> byStatus = classRepository.findByStatus(WAITING);
+//            List<Course> courseList = byStatus.stream().map(aClass -> aClass.getCourse()).distinct().collect(Collectors.toList());
+//            List<ManagerGetCourse> managerGetCourses = new ArrayList<>();
+//            for (Course course : courseList) {
+//                managerGetCourses.add(ConvertUtil.convertCourseToManagerGetCourse(course, status));
+//            }
+//            Page<ManagerGetCourse> pages = new PageImpl<ManagerGetCourse>(managerGetCourses, pageable, managerGetCourses.size());
+//            return PageUtil.convert(pages);
+//        }
 
-
+        /**Get course status same with parameter or one of class of course is that parameter*/
+        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications().queryByCourseStatusForManager(status);
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
-        return PageUtil.convert(coursesPage.map(ConvertUtil::convertCourseToManagerGetCourse));
-//        return PageUtil.convert(new PageImpl<>(userDtoList, pageable, userDtoList.size()));
+        return PageUtil.convert(coursesPage.map(course -> ConvertUtil.convertCourseToManagerGetCourse(course, status)));
     }
 
     @Override
@@ -431,12 +430,14 @@ public class CourseServiceImpl implements ICourseService {
             for (Class clazz : classList) {
                 Notification clazzNotification = NotificationDirector.buildApprovalClass(clazz, clazz.getStatus());
                 classNotifications.add(clazzNotification);
+                emailUtil.sendApprovalClassEmail(course, approvalCourseRequest, clazz);
             }
             notificationRepository.saveAll(classNotifications);
             for (Notification classNotification : classNotifications) {
                 ResponseMessage classResponseMessage = ConvertUtil.convertNotificationToResponseMessage(classNotification, creator);
                 webSocketUtil.sendPrivateNotification(creator.getEmail(), classResponseMessage);
             }
+            emailUtil.sendApprovalCourseEmail(course, approvalCourseRequest);
         } else {
             List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
             List<Class> classList = new ArrayList<>();

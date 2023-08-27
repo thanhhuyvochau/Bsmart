@@ -514,7 +514,7 @@ public class ConvertUtil {
         return courseResponse;
     }
 
-    public static ManagerGetCourse convertCourseToManagerGetCourse(Course course) {
+    public static ManagerGetCourse convertCourseToManagerGetCourse(Course course,ECourseClassStatus status) {
         ActivityHistory byUserCourse = staticActivityHistoryRepository.findByTypeAndActivityId(EActivityType.COURSE, course.getId());
 
 
@@ -553,7 +553,7 @@ public class ConvertUtil {
         List<Class> classes = course.getClasses();
         if (classes != null) {
             for (Class aClass : classes) {
-                if (aClass.getStatus().equals(ECourseClassStatus.WAITING)) {
+                if (aClass.getStatus().equals(status)) {
                     ++totalClassToApproval;
                 }
             }
