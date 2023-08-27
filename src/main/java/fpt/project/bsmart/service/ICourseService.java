@@ -30,7 +30,6 @@ public interface ICourseService {
     Boolean mentorDeleteCourse(Long id);
 
 
-
     List<ActivityDto> getAllActivityByCourseId(Long id);
 
     Boolean mentorRequestApprovalCourse(Long id, List<Long> classIds);
@@ -39,10 +38,13 @@ public interface ICourseService {
 
     //     ################################## START MANAGER ##########################################
 
-    ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseClassStatus status , Pageable pageable);
+    ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseClassStatus status, Pageable pageable);
+
     Boolean managerApprovalCourseRequest(Long id, ManagerApprovalCourseRequest approvalCourseRequest);
 
     Boolean managerBlockCourse(Long id);
 
     //     ################################## END MANAGER ##########################################
+
+    Boolean changeCourseToWaitingForEdit(Long id);
 }

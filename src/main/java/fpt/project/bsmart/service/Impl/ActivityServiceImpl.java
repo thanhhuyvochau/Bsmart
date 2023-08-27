@@ -397,7 +397,8 @@ public class ActivityServiceImpl implements IActivityService {
         if (!Objects.equals(creator.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN, EUserRole.TEACHER)) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
-        activityRepository.delete(activity);
+        activity.setDeleted(true);
+        activityRepository.save(activity);
         return true;
     }
 

@@ -518,4 +518,20 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     //     ################################## END MANAGER ##########################################
+
+    @Override
+    public Boolean changeCourseToWaitingForEdit(Long id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        User mentor = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        if (!CourseValidator.isMentorOfCourse(mentor, course)) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
+        }
+        if (!CourseValidator.checkValidStateToReturnWaitingStatus(course)) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Khóa học đang có lớp đang hoạt động, không thể thay đổi trạng thái về ban đầu");
+        }
+        course.setStatus(WAITING);
+        courseRepository.save(course);
+        return true;
+    }
 }
