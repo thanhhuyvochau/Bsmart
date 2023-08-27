@@ -1,7 +1,6 @@
 package fpt.project.bsmart.entity.request.clazz;
 
 import fpt.project.bsmart.entity.request.TimeInWeekRequest;
-import fpt.project.bsmart.entity.request.timetable.MentorCreateScheduleRequest;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -15,19 +14,21 @@ public class MentorCreateClass {
 
     private BigDecimal price;
 
-    private Integer minStudent ;
+    private Integer minStudent;
 
-    private Integer maxStudent ;
+    private Integer maxStudent;
 
-    private Instant startDate ;
+    private Instant startDate;
 
-    private Instant endDate ;
+    private Instant endDate;
 
-    private Integer  numberOfSlot ;
+    private Integer numberOfSlot;
 
     private List<TimeInWeekRequest> timeInWeekRequests = new ArrayList<>();
 
 //    private List<MentorCreateScheduleRequest> timeTableRequest;
+
+    private String classURL;
 
     public Long getImageId() {
         return imageId;
@@ -100,4 +101,12 @@ public class MentorCreateClass {
 //    public void setTimeTableRequest(List<MentorCreateScheduleRequest> timeTableRequest) {
 //        this.timeTableRequest = timeTableRequest;
 //    }
+
+    public String getClassURL() {
+        return classURL;
+    }
+
+    public void setClassURL(String classURL) {
+        this.classURL = classURL;
+    }
 }
