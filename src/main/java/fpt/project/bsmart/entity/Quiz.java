@@ -15,8 +15,6 @@ public class Quiz extends BaseEntity {
     private Long id;
     @Column(name = "code")
     private String code;
-    @Column(name = "time")
-    private Integer time;
     @Column(name = "status")
     private QuizStatus status;
     @Column(name = "default_point")
@@ -44,9 +42,8 @@ public class Quiz extends BaseEntity {
     public Quiz() {
     }
 
-    public Quiz(String code, Integer time, QuizStatus status, Float defaultPoint, Boolean isSuffleQuestion, Boolean isAllowReview, Integer allowReviewAfterMin, String password, Activity activity, List<QuizQuestion> quizQuestions, boolean isUnlimitedAttempt, int attemptNumber) {
+    public Quiz(String code, QuizStatus status, Float defaultPoint, Boolean isSuffleQuestion, Boolean isAllowReview, Integer allowReviewAfterMin, String password, Activity activity, List<QuizQuestion> quizQuestions, boolean isUnlimitedAttempt, int attemptNumber) {
         this.code = code;
-        this.time = time;
         this.status = status;
         this.defaultPoint = defaultPoint;
         this.isSuffleQuestion = isSuffleQuestion;
@@ -73,14 +70,6 @@ public class Quiz extends BaseEntity {
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public Integer getTime() {
-        return time;
-    }
-
-    public void setTime(Integer time) {
-        this.time = time;
     }
 
     public QuizStatus getStatus() {

@@ -937,7 +937,7 @@ public class ConvertUtil {
         classResponse.setProgress(percentageOfClassTime);
         User creator = course.getCreator();
         if (creator != null) {
-            classResponse.setMentor(convertUsertoUserDto(creator));
+            classResponse.setMentor(MentorUtil.convertUserToMentorDto(creator));
         }
         List<ActivityDto> activityDtos = convertActivityAsTree(authorizeSectionActivities, false);
         classResponse.getActivities().addAll(activityDtos);

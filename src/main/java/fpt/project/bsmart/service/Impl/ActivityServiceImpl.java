@@ -296,7 +296,6 @@ public class ActivityServiceImpl implements IActivityService {
             quizQuestions.add(quizQuestion);
         }
         quiz.setCode(addQuizRequest.getCode());
-        quiz.setTime(addQuizRequest.getTime());
         quiz.setStatus(QuizStatus.PENDING);
         quiz.setDefaultPoint(addQuizRequest.getDefaultPoint());
         quiz.setIsSuffleQuestion(addQuizRequest.getIsSuffleQuestion());
@@ -357,8 +356,6 @@ public class ActivityServiceImpl implements IActivityService {
     }
 
     private Assignment addAssignment(AssignmentRequest request, Activity activity) throws IOException {
-        Instant now = Instant.now();
-
         Assignment assignment = new Assignment();
         assignment.setDescription(request.getDescription());
         assignment.setEditBeForSubmitMin(request.getEditBeForSubmitMin());
@@ -622,8 +619,6 @@ public class ActivityServiceImpl implements IActivityService {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(""));
         }
         Instant now = Instant.now();
-        boolean isValidQuizDate = request.getStartDate().isAfter(now) || request.getEndDate().isAfter(now)
-                || request.getStartDate().isBefore(request.getEndDate());
 
         if (request.getIsSuffleQuestion() != null) {
             quiz.setIsSuffleQuestion(request.getIsSuffleQuestion());
@@ -640,9 +635,6 @@ public class ActivityServiceImpl implements IActivityService {
         if (request.getDefaultPoint() != null && request.getDefaultPoint() >= 0
                 && request.getDefaultPoint() <= 10) {
             quiz.setDefaultPoint(request.getDefaultPoint());
-        }
-        if (request.getTime() != null && request.getTime() > 0) {
-            quiz.setTime(request.getTime());
         }
         if (StringUtil.isNotNullOrEmpty(request.getCode())) {
             quiz.setCode(request.getCode());
