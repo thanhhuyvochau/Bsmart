@@ -242,6 +242,8 @@ public class FeedbackServiceImpl implements IFeedbackService {
             }
             feedbackSubmission.setComment(request.getComment());
         }
+        feedbackSubmission.setCourseRate(request.getCourseRate());
+        feedbackSubmission.setMentorRate(request.getMentorRate());
         feedbackSubmission.setTemplate(feedbackTemplate);
         feedbackSubmission.setAnswers(feedbackSubmitAnswers);
         feedbackSubmission.setSubmitBy(user);
