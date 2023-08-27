@@ -14,9 +14,9 @@ public class MentorGetClassDetailResponse {
 
     private Long id;
 
-    private Long courseId ;
+    private Long courseId;
 
-    private String courseCode ;
+    private String courseCode;
 
     private String code;
 
@@ -24,9 +24,9 @@ public class MentorGetClassDetailResponse {
 
     private Instant endDate;
 
-    private Integer numberOfStudent ;
+    private Integer numberOfStudent;
 
-    private Integer numberOfSlot ;
+    private Integer numberOfSlot;
 
 
     private ECourseClassStatus status;
@@ -40,7 +40,7 @@ public class MentorGetClassDetailResponse {
     private ImageDto image;
     private List<TimeInWeekDTO> timeInWeeks;
 
-
+    private String classURL;
 
     public Long getId() {
         return id;
@@ -107,7 +107,6 @@ public class MentorGetClassDetailResponse {
     }
 
 
-
     public ECourseClassStatus getStatus() {
         return status;
     }
@@ -156,5 +155,11 @@ public class MentorGetClassDetailResponse {
         this.timeInWeeks = timeInWeeks;
     }
 
+    public String getClassURL() {
+        return classURL;
+    }
 
+    public void setClassURL(String classURL) {
+        this.classURL = classURL;
+    }
 }

@@ -41,7 +41,7 @@ public class ClassResponse {
 
     private FeedbackTemplateDto feedback;
 
-
+    private String classURL;
     public Long getId() {
         return id;
     }
@@ -200,5 +200,13 @@ public class ClassResponse {
 
     public void setFeedback(FeedbackTemplateDto feedback) {
         this.feedback = feedback;
+    }
+
+    public String getClassURL() {
+        return classURL;
+    }
+
+    public void setClassURL(String classURL) {
+        this.classURL = classURL;
     }
 }

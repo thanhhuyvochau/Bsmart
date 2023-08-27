@@ -32,6 +32,7 @@ public class ManagerGetCourseClassResponse {
     private Instant timeSendRequest;
     private Integer count;
     private Boolean isApproved;
+    private String classURL;
 
     public Long getId() {
         return id;
@@ -143,5 +144,13 @@ public class ManagerGetCourseClassResponse {
 
     public void setApproved(Boolean approved) {
         isApproved = approved;
+    }
+
+    public String getClassURL() {
+        return classURL;
+    }
+
+    public void setClassURL(String classURL) {
+        this.classURL = classURL;
     }
 }
