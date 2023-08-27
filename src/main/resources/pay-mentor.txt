@@ -49,8 +49,8 @@
 
         <p>Dựa trên số lượng học sinh đăng ký, thanh toán cho giảng viên đã được tính như sau:</p>
 
-        <p><strong>Phần của Bạn:</strong> 30%</p>
-        <p><strong>Phần của Giảng Viên:</strong> 70%</p>
+        <p><strong>Phần của Bạn:</strong> 30 phần trăm</p>
+        <p><strong>Phần của Giảng Viên:</strong> 70 phần trăm</p>
 
         <p><strong>Tổng Học Phí:</strong> ${totalIncome}VND</p>
         <p><strong>Chiếu Khấu Phải Trả Cho MiSmart:</strong> ${mismartIncome} VND</p>
