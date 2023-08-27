@@ -650,6 +650,7 @@ public class ActivityServiceImpl implements IActivityService {
         User currentUser = SecurityUtil.getCurrentUser();
 
         if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN)) {
+            ResponseUtil.responseForRole(EUserRole.MANAGER);
             return ConvertUtil.convertActivityDetailToDto(activity);
         }
 

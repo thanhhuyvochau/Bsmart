@@ -814,7 +814,7 @@ public class ConvertUtil {
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
                 if ((isAttempt && SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT))
-                    || Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER))) {
+                    || Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER, EUserRole.MANAGER))) {
                     List<QuizQuestionDto> questionDtos = new ArrayList<>();
                     for (QuizQuestion question : quiz.getQuizQuestions()) {
                         questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
