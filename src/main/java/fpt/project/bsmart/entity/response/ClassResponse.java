@@ -5,6 +5,7 @@ import fpt.project.bsmart.config.json.View;
 import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.dto.feedback.FeedbackTemplateDto;
+import fpt.project.bsmart.entity.dto.mentor.MentorDto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -28,7 +29,7 @@ public class ClassResponse {
     @JsonView(View.Teacher.class)
     private Integer numberReferralCode;
     private ImageDto classImage;
-    private UserDto mentor;
+    private MentorDto mentor;
     private List<ActivityDto> activities = new ArrayList<>();
     private List<TimeInWeekDTO> timeInWeeks = new ArrayList<>();
     private CourseDto course;
@@ -137,11 +138,11 @@ public class ClassResponse {
         this.classImage = classImage;
     }
 
-    public UserDto getMentor() {
+    public MentorDto getMentor() {
         return mentor;
     }
 
-    public void setMentor(UserDto mentor) {
+    public void setMentor(MentorDto mentor) {
         this.mentor = mentor;
     }
 
