@@ -134,6 +134,7 @@ public class ScheduleJobConfig {
             notificationRepository.save(notification);
             webSocketUtil.sendPrivateNotification(notification);
         }
+        /**Refund for all student of unstatisfy min student of class */
         transactionService.refundClassFeeToStudentWallet(unSatisfyMinClasses);
         // Send notification for teacher if not satisfy and student to inform class is closed
         classRepository.saveAll(classesStartToday);
