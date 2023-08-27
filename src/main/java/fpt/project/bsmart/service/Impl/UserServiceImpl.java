@@ -139,6 +139,7 @@ public class UserServiceImpl implements IUserService {
     public UserDto getUserProfileForMentorPage(Long id) {
         User user = findUserById(id);
         Boolean isMentor = SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER) && user.getMentorProfile().getStatus().equals(EMentorProfileStatus.STARTING);
+
         if (!isMentor) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(USER_NOT_FOUND_BY_ID) + id);
         }

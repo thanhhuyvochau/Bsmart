@@ -3,6 +3,7 @@ package fpt.project.bsmart.entity.dto;
 
 import fpt.project.bsmart.entity.constant.EGenderType;
 import fpt.project.bsmart.entity.constant.SocialProvider;
+import fpt.project.bsmart.entity.dto.mentor.LearningInformationDTO;
 import fpt.project.bsmart.entity.dto.mentor.TeachInformationDTO;
 
 import java.time.Instant;
@@ -28,13 +29,11 @@ public class UserDto {
     private WalletDto wallet;
     private MentorProfileDTO mentorProfile;
     private TeachInformationDTO teachInformation;
-
     private boolean isVerified = false;
-    private Integer finishedClassCount = 0;
-
     private Instant timeSendRequest;
     private Integer count;
     private SocialProvider provider;
+    private LearningInformationDTO learningInformation;
 
     public Long getId() {
         return id;
@@ -191,14 +190,6 @@ public class UserDto {
         isVerified = verified;
     }
 
-    public Integer getFinishedClassCount() {
-        return finishedClassCount;
-    }
-
-    public void setFinishedClassCount(Integer finishedClassCount) {
-        this.finishedClassCount = finishedClassCount;
-    }
-
     public Instant getTimeSendRequest() {
         return timeSendRequest;
     }
@@ -221,5 +212,13 @@ public class UserDto {
 
     public void setProvider(SocialProvider provider) {
         this.provider = provider;
+    }
+
+    public LearningInformationDTO getLearningInformation() {
+        return learningInformation;
+    }
+
+    public void setLearningInformation(LearningInformationDTO learningInformation) {
+        this.learningInformation = learningInformation;
     }
 }
