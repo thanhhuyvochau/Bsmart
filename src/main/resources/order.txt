@@ -66,17 +66,17 @@
       <p><strong>Khóa học:</strong> ${courseName}</p>
       <p><strong>Mã Lớp Học:</strong> ${classCode}</p>
       <p><strong>Ngày Đặt Hàng:</strong> ${orderDate}</p>
-      <p><strong>Tổng Số Tiền:</strong> ${totalAmount}</p>
+      <p><strong>Tổng Số Tiền:</strong> ${totalAmount} VND</p>
     </div>
     <div class="referralCode">
       <h2>Mã Giới Thiệu</h2>
       <p>Hãy chia sẻ mã giới thiệu duy nhất của bạn <strong>${referralCode}</strong> với bạn bè và gia đình.</p>
-      <p>Khi họ mua hàng bằng mã của bạn, họ sẽ nhận được giảm giá ${discountPercentage}% cho đơn hàng của họ.</p>
+      <p>Khi họ mua hàng bằng mã của bạn, họ sẽ nhận được giảm giá ${discountPercentage} cho đơn hàng của họ.</p>
     </div>
     <div class="thankYou">
       <p>Cảm ơn bạn đã lựa chọn dịch vụ của chúng tôi. Nếu bạn có bất kỳ câu hỏi hoặc cần sự hỗ trợ thêm, hãy thoải mái liên hệ với chúng tôi.</p>
       <p>Trân trọng,</p>
-      <p>Đội Người Quản Lý ${yourCompany}</p>
+      <p>MiSmart</p>
     </div>
   </div>
 </body>
