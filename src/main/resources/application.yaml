@@ -30,7 +30,7 @@ spring:
           auth: 'true'
     host: smtp.gmail.com
     username: thanhhuyne113@gmail.com
-    password: ymhcnyghgsrfukdj
+    password: drzltompxzhpoffe
     port: '587'
 moodle:
   url:

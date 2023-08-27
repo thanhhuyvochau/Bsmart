@@ -423,7 +423,9 @@ public class ClassServiceImpl implements IClassService {
         aClass.setMentor(currentUserAccountLogin);
         String codeRandom = ClassUtil.generateCode(course.getSubject().getCode());
         aClass.setCode(codeRandom);
-
+        String classURL = subCourseRequest.getClassURL();
+        validateMeetingURL(classURL);
+        aClass.setClassURL(classURL);
         Long imageId = subCourseRequest.getImageId();
         ClassImage classImage = classImageRepository.findById(imageId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
@@ -970,12 +972,7 @@ public class ClassServiceImpl implements IClassService {
 
     @Override
     public boolean setClassURL(Long id, String url) {
-        List<String> allowedMeetingUrls = classUtil.getAllowedMeetingUrl();
-        boolean isValidMeeting = ClassValidator.checkAllowMeetingLink(url, allowedMeetingUrls);
-        if (!isValidMeeting) {
-            throw ApiException.create(HttpStatus.NOT_FOUND)
-                    .withMessage("Liên kết không hợp lệ, vui lòng chỉ sử dụng liên kết được cho phép");
-        }
+        validateMeetingURL(url);
         Class clazz = classRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(CLASS_NOT_FOUND_BY_ID) + id));
@@ -986,5 +983,14 @@ public class ClassServiceImpl implements IClassService {
         clazz.setClassURL(url);
         classRepository.save(clazz);
         return true;
+    }
+
+    private void validateMeetingURL(String url) {
+        List<String> allowedMeetingUrls = classUtil.getAllowedMeetingUrl();
+        boolean isValidMeeting = ClassValidator.checkAllowMeetingLink(url, allowedMeetingUrls);
+        if (!isValidMeeting) {
+            throw ApiException.create(HttpStatus.NOT_FOUND)
+                    .withMessage("Liên kết không hợp lệ, vui lòng chỉ sử dụng liên kết được cho phép");
+        }
     }
 }
