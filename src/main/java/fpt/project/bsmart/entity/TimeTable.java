@@ -15,10 +15,6 @@ public class TimeTable {
     private Instant date;
     @Column(name = "current_slot_num")
     private Integer currentSlotNum = 0;
-    @Column(name = "class_room")
-    private String classRoom;
-    @Column(name = "class_url")
-    private String classURL;
     @ManyToOne
     @JoinColumn(name = "slot_id")
     private Slot slot;
@@ -54,22 +50,6 @@ public class TimeTable {
 
     public void setCurrentSlotNum(Integer currentSlotNum) {
         this.currentSlotNum = currentSlotNum;
-    }
-
-    public String getClassRoom() {
-        return classRoom;
-    }
-
-    public void setClassRoom(String classRoom) {
-        this.classRoom = classRoom;
-    }
-
-    public String getClassURL() {
-        return classURL;
-    }
-
-    public void setClassURL(String classURL) {
-        this.classURL = classURL;
     }
 
     public Slot getSlot() {

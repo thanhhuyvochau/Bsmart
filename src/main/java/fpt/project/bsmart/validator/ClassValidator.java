@@ -7,6 +7,7 @@ import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.util.TextUtil;
 import fpt.project.bsmart.util.TimeUtil;
 import org.springframework.http.HttpStatus;
 
@@ -87,4 +88,10 @@ public class ClassValidator {
         }
         return true;
     }
+
+    public static boolean checkAllowMeetingLink(String meetingURL, List<String> allowedMeetingURLs) {
+        String baseUrl = TextUtil.extractBaseUrl(meetingURL);
+        return allowedMeetingURLs.stream().anyMatch(allowedMeetingURL -> allowedMeetingURL.equalsIgnoreCase(baseUrl));
+    }
+
 }

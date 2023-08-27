@@ -18,6 +18,7 @@ import fpt.project.bsmart.repository.OrderDetailRepository;
 import fpt.project.bsmart.repository.StudentClassRepository;
 import fpt.project.bsmart.repository.TransactionRepository;
 import fpt.project.bsmart.util.email.EmailUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +40,8 @@ public class ClassUtil {
     private static WebSocketUtil webSocketUtil;
     private static NotificationRepository notificationRepository;
     private static EmailUtil staticEmailUtil;
+    @Value("${meeting.url}")
+    private String validMeetingURL;
 
     public ClassUtil(MessageUtil messageUtil,
                      StudentClassRepository studentClassRepository, OrderDetailRepository orderDetailRepository, TransactionRepository transactionRepository, WebSocketUtil webSocketUtil, NotificationRepository notificationRepository, EmailUtil emailUtil) {
@@ -300,6 +303,11 @@ public class ClassUtil {
         transaction.setPaymentType(EPaymentType.OTHER);
         transaction.setNote(message);
         transactionRepository.save(transaction);
+    }
+
+    public List<String> getAllowedMeetingUrl() {
+        String[] meetingURLs = validMeetingURL.split(",");
+        return Arrays.asList(meetingURLs);
     }
 }
 

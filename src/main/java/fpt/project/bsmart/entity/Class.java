@@ -66,7 +66,8 @@ public class Class extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "feedback_template")
     private FeedbackTemplate feedbackTemplate;
-
+    @Column(name = "class_url")
+    private String classURL;
 
     public Long getId() {
         return id;
@@ -230,5 +231,13 @@ public class Class extends BaseEntity {
 
     public void setFeedbackTemplate(FeedbackTemplate feedbackTemplate) {
         this.feedbackTemplate = feedbackTemplate;
+    }
+
+    public String getClassURL() {
+        return classURL;
+    }
+
+    public void setClassURL(String classURL) {
+        this.classURL = classURL;
     }
 }

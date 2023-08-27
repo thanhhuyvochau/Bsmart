@@ -133,6 +133,9 @@ host:
 forgot-password:
   url: https://mismart.vercel.app/forgot_password/
 
+meeting:
+  url: https://us05web.zoom.us,https://meet.google.com
+
 
 
 
