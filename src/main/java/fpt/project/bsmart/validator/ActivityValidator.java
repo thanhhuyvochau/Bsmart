@@ -45,23 +45,7 @@ public class ActivityValidator {
         if (addQuizRequest.getCode().trim().isEmpty()) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(EMPTY_CODE));
         }
-        
-        if (addQuizRequest.getStartDate().isBefore(Instant.now())){
-           throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_NOW_DATE));
-        }
 
-        if(addQuizRequest.getEndDate().isBefore(Instant.now())){
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_END_NOW_DATE));
-        }
-
-        if (addQuizRequest.getStartDate().isAfter(addQuizRequest.getEndDate())) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_START_END_DATE));
-        }
-
-        if (addQuizRequest.getTime() < QuizUtil.MIN_QUIZ_TIME
-                || addQuizRequest.getTime() > QuizUtil.MAX_QUIZ_TIME) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_QUIZ_TIME) + addQuizRequest.getTime());
-        }
         if (addQuizRequest.getDefaultPoint() < 0
                 || addQuizRequest.getDefaultPoint() > 10) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_QUIZ_DEFAULT_POINT) + addQuizRequest.getDefaultPoint());

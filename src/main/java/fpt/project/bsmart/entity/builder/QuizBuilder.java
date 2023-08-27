@@ -5,7 +5,6 @@ import fpt.project.bsmart.entity.Quiz;
 import fpt.project.bsmart.entity.QuizQuestion;
 import fpt.project.bsmart.entity.constant.QuizStatus;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,7 +84,7 @@ public class QuizBuilder {
 
     public Quiz build() {
         // TODO: Validation
-        Quiz quiz = new Quiz(code, time, status, defaultPoint, isSuffleQuestion, isAllowReview, allowReviewAfterMin, password, activity, quizQuestions, isUnlimitedAttempt, attemptNumber);
+        Quiz quiz = new Quiz(code, status, defaultPoint, isSuffleQuestion, isAllowReview, allowReviewAfterMin, password, activity, quizQuestions, isUnlimitedAttempt, attemptNumber);
         return quiz;
     }
 

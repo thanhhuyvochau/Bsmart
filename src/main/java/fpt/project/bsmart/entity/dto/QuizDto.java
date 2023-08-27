@@ -10,17 +10,16 @@ import java.util.List;
 public class QuizDto {
     private Long id;
     private String code;
-    private Integer time;
     private Integer questionCount = 0;
     private QuizStatus status;
-    @JsonView(View.Teacher.class)
+    @JsonView(View.Manager.class)
     private Float defaultPoint;
-    @JsonView(View.Teacher.class)
+    @JsonView(View.Manager.class)
     private Boolean isSuffleQuestion;
-    @JsonView(View.Teacher.class)
+    @JsonView(View.Manager.class)
     private Boolean isAllowReview;
     private Integer allowReviewAfterMin;
-    @JsonView(View.Teacher.class)
+    @JsonView(View.Manager.class)
     private String password;
     private Long activityId;
     private List<QuizQuestionDto> quizQuestions = new ArrayList<>();
@@ -39,14 +38,6 @@ public class QuizDto {
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public Integer getTime() {
-        return time;
-    }
-
-    public void setTime(Integer time) {
-        this.time = time;
     }
 
     public Integer getQuestionCount() {

@@ -6,9 +6,6 @@ import java.util.List;
 
 public class AddQuizRequest extends ActivityRequest{
     private String code;
-    private Instant startDate;
-    private Instant endDate;
-    private Integer time;
     private Float defaultPoint;
     private Boolean isSuffleQuestion = false;
     private Boolean isAllowReview = true;
@@ -22,30 +19,6 @@ public class AddQuizRequest extends ActivityRequest{
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public Instant getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Instant startDate) {
-        this.startDate = startDate;
-    }
-
-    public Instant getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Instant endDate) {
-        this.endDate = endDate;
-    }
-
-    public Integer getTime() {
-        return time;
-    }
-
-    public void setTime(Integer time) {
-        this.time = time;
     }
 
     public Float getDefaultPoint() {
