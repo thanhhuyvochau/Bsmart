@@ -12,14 +12,14 @@ public class QuizDto {
     private String code;
     private Integer questionCount = 0;
     private QuizStatus status;
-    @JsonView(View.Manager.class)
+    @JsonView(View.Teacher.class)
     private Float defaultPoint;
-    @JsonView(View.Manager.class)
+    @JsonView(View.Teacher.class)
     private Boolean isSuffleQuestion;
-    @JsonView(View.Manager.class)
+    @JsonView(View.Teacher.class)
     private Boolean isAllowReview;
     private Integer allowReviewAfterMin;
-    @JsonView(View.Manager.class)
+    @JsonView(View.Teacher.class)
     private String password;
     private Long activityId;
     private List<QuizQuestionDto> quizQuestions = new ArrayList<>();
