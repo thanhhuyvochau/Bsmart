@@ -23,7 +23,7 @@ public class TextUtil {
                 valueList.add(parameters.get(key));
             }
         }
-
+        String debug = newTemplate.toString();
         return String.format(newTemplate.toString(), valueList.toArray());
     }
 }

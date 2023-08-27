@@ -40,6 +40,9 @@ public class NotificationService {
     }
 
     public Boolean readNotification(Long[] ids) {
+        if (ids == null) {
+            return true;
+        }
         List<Notification> notifications = notificationRepository.findAllById(Arrays.asList(ids));
         User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         if (notifications.size() != ids.length) {

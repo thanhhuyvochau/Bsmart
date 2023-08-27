@@ -125,10 +125,9 @@ public class EmailUtil {
         parameters.put("courseName", course.getName());
         parameters.put("classCode", clazz.getCode());
         parameters.put("orderDate", TimeUtil.formatInstant(order.getCreated()));
-        parameters.put("totalAmount", order.getTotalPrice().toString() + " VND");
+        parameters.put("totalAmount", order.getTotalPrice().toString());
         parameters.put("referralCode", referralCode.getCode());
         parameters.put("discountPercentage", referralCode.getDiscountPercent().toString() + "%");
-        parameters.put("yourCompany", "MiSmart");
         String formattedTemplate = TextUtil.format(orderTemplate, parameters);
         sendHtmlEmail(formattedTemplate, user.getEmail(), SEND_FROM, subject);
     }
