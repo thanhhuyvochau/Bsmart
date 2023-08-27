@@ -310,6 +310,11 @@ public class CourseServiceImpl implements ICourseService {
             if (isValidCourse) {
                 classesInRequest
                         .forEach(aClass -> {
+                            try{
+                                TimeUtil.checkDateToCreateClass(aClass.getStartDate());
+                            }catch (Exception e){
+                                throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(e.getMessage());
+                            }
                             aClass.setStatus(WAITING);
                             ActivityHistoryUtil.logHistoryForMentorSendRequestClass(user.getId(), aClass);
                             classRepository.save(aClass);
