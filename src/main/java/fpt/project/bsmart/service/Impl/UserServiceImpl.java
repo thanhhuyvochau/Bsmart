@@ -536,10 +536,10 @@ public class UserServiceImpl implements IUserService {
         SignUpRequest userDetails = toUserRegistrationObject(registrationId, oAuth2UserInfo);
         User user = getUserByEmail(email);
         if (user != null) {
-            if (!user.getProvider().equals(SocialProvider.GOOGLE.getProviderType())) {
-                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(String.format(messageUtil.getLocalMessage(INCORRECT_PROVIDER_LOGIN), user.getProvider(), user.getProvider()));
-            }
-//            user = updateExistingUser(user, oAuth2UserInfo);
+//            if (!user.getProvider().equals(SocialProvider.GOOGLE)) {
+//                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(String.format(messageUtil.getLocalMessage(INCORRECT_PROVIDER_LOGIN), user.getProvider(), user.getProvider()));
+//            }
+////            user = updateExistingUser(user, oAuth2UserInfo);
         } else {
             user = registerNewUser(userDetails);
         }
