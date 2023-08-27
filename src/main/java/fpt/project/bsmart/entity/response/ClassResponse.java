@@ -35,7 +35,7 @@ public class ClassResponse {
     private CourseDto course;
     private int numberOfCurrentStudent;
     private ClassProgressTimeDto progress;
-
+    private List<UserDto> studentClass = new ArrayList<>();
 
     private ImageDto image;
 
@@ -200,5 +200,13 @@ public class ClassResponse {
 
     public void setFeedback(FeedbackTemplateDto feedback) {
         this.feedback = feedback;
+    }
+
+    public List<UserDto> getStudentClass() {
+        return studentClass;
+    }
+
+    public void setStudentClass(List<UserDto> studentClass) {
+        this.studentClass = studentClass;
     }
 }

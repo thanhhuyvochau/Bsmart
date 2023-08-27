@@ -943,6 +943,11 @@ public class ConvertUtil {
         }
         List<ActivityDto> activityDtos = convertActivityAsTree(authorizeSectionActivities, false);
         classResponse.getActivities().addAll(activityDtos);
+        List<UserDto> studentClass = clazz.getStudentClasses().stream()
+                .map(StudentClass::getStudent)
+                .map(ConvertUtil::convertUsertoUserDto)
+                .collect(Collectors.toList());
+        classResponse.setStudentClass(studentClass);
         return classResponse;
     }
 
