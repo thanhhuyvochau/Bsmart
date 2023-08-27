@@ -35,13 +35,14 @@ public class ClassResponse {
     private CourseDto course;
     private int numberOfCurrentStudent;
     private ClassProgressTimeDto progress;
-
+    private List<UserDto> studentClass = new ArrayList<>();
 
     private ImageDto image;
 
     private FeedbackTemplateDto feedback;
 
     private String classURL;
+
     public Long getId() {
         return id;
     }
@@ -202,11 +203,20 @@ public class ClassResponse {
         this.feedback = feedback;
     }
 
+
     public String getClassURL() {
         return classURL;
     }
 
     public void setClassURL(String classURL) {
         this.classURL = classURL;
+    }
+
+    public List<UserDto> getStudentClass() {
+        return studentClass;
+    }
+
+    public void setStudentClass(List<UserDto> studentClass) {
+        this.studentClass = studentClass;
     }
 }
