@@ -310,9 +310,9 @@ public class CourseServiceImpl implements ICourseService {
             if (isValidCourse) {
                 classesInRequest
                         .forEach(aClass -> {
-                            try{
+                            try {
                                 TimeUtil.checkDateToCreateClass(aClass.getStartDate());
-                            }catch (Exception e){
+                            } catch (Exception e) {
                                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(e.getMessage());
                             }
                             aClass.setStatus(WAITING);
@@ -410,6 +410,12 @@ public class CourseServiceImpl implements ICourseService {
             List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
             List<Class> classList = new ArrayList<>();
             for (Class aClass : classToApproval) {
+                /**Tạo thời khóa biểu sau khi được phê duyệt để public ngoài trang chủ*/
+                if (approvalCourseRequest.getStatus().equals(NOTSTART)) {
+                    List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(aClass.getTimeInWeeks(), aClass.getNumberOfSlot(), aClass.getStartDate(), aClass);
+                    aClass.getTimeTables().clear();
+                    aClass.getTimeTables().addAll(timeTables);
+                }
                 aClass.setStatus(approvalCourseRequest.getStatus());
                 aClass.setFeedbackTemplate(feedbackIsDefault);
                 classList.add(aClass);
