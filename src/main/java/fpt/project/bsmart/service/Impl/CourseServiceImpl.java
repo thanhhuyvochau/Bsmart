@@ -410,15 +410,15 @@ public class CourseServiceImpl implements ICourseService {
             List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
             List<Class> classList = new ArrayList<>();
             for (Class aClass : classToApproval) {
+                aClass.setStatus(approvalCourseRequest.getStatus());
+                aClass.setFeedbackTemplate(feedbackIsDefault);
+                classList.add(aClass);
                 /**Tạo thời khóa biểu sau khi được phê duyệt để public ngoài trang chủ*/
                 if (approvalCourseRequest.getStatus().equals(NOTSTART)) {
                     List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(aClass.getTimeInWeeks(), aClass.getNumberOfSlot(), aClass.getStartDate(), aClass);
                     aClass.getTimeTables().clear();
                     aClass.getTimeTables().addAll(timeTables);
                 }
-                aClass.setStatus(approvalCourseRequest.getStatus());
-                aClass.setFeedbackTemplate(feedbackIsDefault);
-                classList.add(aClass);
             }
             classRepository.saveAll(classList);
             course.setStatus(approvalCourseRequest.getStatus());
@@ -453,15 +453,15 @@ public class CourseServiceImpl implements ICourseService {
             List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
             List<Class> classList = new ArrayList<>();
             for (Class aClass : classToApproval) {
+                aClass.setStatus(approvalCourseRequest.getStatus());
+                aClass.setFeedbackTemplate(feedbackIsDefault);
+                classList.add(aClass);
                 /**Tạo thời khóa biểu sau khi được phê duyệt để public ngoài trang chủ*/
                 if (approvalCourseRequest.getStatus().equals(NOTSTART)) {
                     List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(aClass.getTimeInWeeks(), aClass.getNumberOfSlot(), aClass.getStartDate(), aClass);
                     aClass.getTimeTables().clear();
                     aClass.getTimeTables().addAll(timeTables);
                 }
-                aClass.setStatus(approvalCourseRequest.getStatus());
-                aClass.setFeedbackTemplate(feedbackIsDefault);
-                classList.add(aClass);
             }
             classRepository.saveAll(classList);
             /**Notification and send email for classes*/
