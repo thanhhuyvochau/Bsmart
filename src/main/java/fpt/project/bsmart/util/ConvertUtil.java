@@ -826,7 +826,7 @@ public class ConvertUtil {
                     for (QuizQuestion question : quiz.getQuizQuestions()) {
                         questionDtos.add(ConvertUtil.convertQuizQuestionToQuizQuestionDto(question, quiz.getIsSuffleQuestion()));
                     }
-                    if (Boolean.TRUE.equals(quiz.getIsSuffleQuestion())) {
+                    if (Boolean.TRUE.equals(quiz.getIsSuffleQuestion()) && !SecurityUtil.isHasAnyRole(user, EUserRole.MANAGER)) {
                         Collections.shuffle(questionDtos);
                     }
                     quizDto.setQuizQuestions(questionDtos);

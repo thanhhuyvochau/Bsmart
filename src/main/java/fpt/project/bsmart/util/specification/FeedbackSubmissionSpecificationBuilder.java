@@ -26,6 +26,14 @@ public class FeedbackSubmissionSpecificationBuilder {
         return this;
     }
 
+    public FeedbackSubmissionSpecificationBuilder filterBySubmitted(User user){
+        if(user == null){
+        return this;
+        }
+        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(FeedbackSubmission_.SUBMIT_BY), user));
+        return this;
+    }
+
     public FeedbackSubmissionSpecificationBuilder filterByMentor(Long mentorId){
         if(mentorId == null){
             return this;

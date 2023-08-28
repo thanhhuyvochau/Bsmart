@@ -24,6 +24,7 @@ public interface IFeedbackService {
     Long studentSubmitFeedback(Long classId, StudentSubmitFeedbackRequest request);
 //    Long studentUpdateFeedback(Long submissionId, StudentSubmitFeedbackRequest request);
     ApiPage<FeedbackSubmissionResponse> getClassFeedback(Long clazzId, Pageable pageable);
+    FeedbackSubmissionResponse studentGetFeedback(Long classId);
     FeedbackResponse getCourseFeedback(Long courseId);
     FeedbackResponse getMentorFeedback(Long mentorId);
     ApiPage<FeedbackSubmissionDto> getFeedbackSubmission(FeedbackSubmissionSearchRequest request, Pageable pageable);

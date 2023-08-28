@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -294,6 +295,27 @@ public class FeedbackServiceImpl implements IFeedbackService {
                 .map(ConvertUtil::convertFeedbackSubmissionToResponse)
                 .collect(Collectors.toList());
         return PageUtil.convert(new PageImpl<>(responses, pageable, feedbackSubmissionPage.getTotalElements()));
+    }
+
+    public FeedbackSubmissionResponse studentGetFeedback(Long classId){
+        Class clazz = findClassById(classId);
+        Optional<User> optionalUser = SecurityUtil.getCurrentUserOptional();
+        User user = SecurityUtil.getUserOrThrowException(optionalUser);
+        boolean isStudentBelongToClass = clazz.getStudentClasses().stream()
+                .map(StudentClass::getStudent)
+                .anyMatch(student -> student.getId().equals(user.getId()));
+        if(!isStudentBelongToClass){
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(STUDENT_NOT_BELONG_TO_CLASS));
+        }
+        FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
+                .filterByCourse(clazz.getCourse().getId())
+                .filterBySubmitted(user);
+        List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(builder.build());
+        if(feedbackSubmissions.isEmpty()){
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Học sinh chưa feedback");
+        }
+        FeedbackSubmission feedbackSubmission = feedbackSubmissions.get(0);
+        return ConvertUtil.convertFeedbackSubmissionToResponse(feedbackSubmission);
     }
 
     public FeedbackResponse getCourseFeedback(Long courseId) {
