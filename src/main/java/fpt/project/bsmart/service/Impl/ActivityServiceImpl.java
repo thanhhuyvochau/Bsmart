@@ -366,6 +366,7 @@ public class ActivityServiceImpl implements IActivityService {
         assignment.setMaxFileSize(request.getMaxFileSize());
         assignment.setActivity(activity);
         assignment.setPassPoint(request.getPassPoint());
+        assignment.setPassword(request.getPassword());
         // Lấy file đính kèm của assignment
         List<MultipartFile> attachFiles = request.getAttachFiles();
         for (MultipartFile attachFile : attachFiles) {
@@ -429,6 +430,8 @@ public class ActivityServiceImpl implements IActivityService {
         Assignment assignment = activity.getAssignment();
         if (assignment == null) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Hoạt động này không phải là Assigment!");
+        } else if (!assignment.getPassword().equals(request.getPassword())) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không thể nộp vì sai mật khẩu");
         }
         User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         Course course = activity.getCourse();
@@ -608,6 +611,7 @@ public class ActivityServiceImpl implements IActivityService {
         assignment.setEditBeForSubmitMin(request.getEditBeForSubmitMin());
         assignment.setMaxFileSubmit(request.getMaxFileSubmit());
         assignment.setMaxFileSize(request.getMaxFileSize());
+        assignment.setPassword(request.getPassword());
         // Lấy file đính kèm của assignment
         List<MultipartFile> attachFiles = request.getAttachFiles();
         List<AssignmentFile> existedAssignmentFiles = assignment.getAssignmentFiles();

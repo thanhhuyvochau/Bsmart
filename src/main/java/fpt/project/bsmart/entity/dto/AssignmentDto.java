@@ -5,8 +5,6 @@ import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.EAssignmentStatus;
 import org.codehaus.jackson.map.annotate.JsonView;
 
-import javax.persistence.Column;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +23,8 @@ public class AssignmentDto extends BaseEntity {
     private Integer maxFileSize = 5; // Dd
     @JsonView(View.Teacher.class)
     private List<AssignmentFileDto> assignmentFiles = new ArrayList<>();
-
+    @JsonView(View.Teacher.class)
+    private String password;
 
     public Long getId() {
         return id;
@@ -89,5 +88,13 @@ public class AssignmentDto extends BaseEntity {
 
     public void setPassPoint(Long passPoint) {
         this.passPoint = passPoint;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

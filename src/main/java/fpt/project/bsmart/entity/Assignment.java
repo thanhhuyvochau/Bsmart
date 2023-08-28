@@ -33,8 +33,10 @@ public class Assignment extends BaseEntity {
 
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<AssignmentSubmition> assignmentSubmitions = new ArrayList<>();
+    @Column(name = "password")
+    private String password;
 
-    public Assignment(String description, Integer editBeForSubmitMin, Integer maxFileSubmit, Integer maxFileSize, EAssignmentStatus status, Activity activity, List<AssignmentFile> assignmentFiles, Long passPoint) {
+    public Assignment(String description, Integer editBeForSubmitMin, Integer maxFileSubmit, Integer maxFileSize, EAssignmentStatus status, Activity activity, List<AssignmentFile> assignmentFiles, Long passPoint, String password) {
         this.description = description;
         this.editBeForSubmitMin = editBeForSubmitMin;
         this.maxFileSubmit = maxFileSubmit;
@@ -43,6 +45,7 @@ public class Assignment extends BaseEntity {
         this.activity = activity;
         this.assignmentFiles = assignmentFiles;
         this.passPoint = passPoint;
+        this.password = password;
     }
 
     public Assignment() {
@@ -126,5 +129,13 @@ public class Assignment extends BaseEntity {
 
     public void setAssignmentSubmitions(List<AssignmentSubmition> assignmentSubmitions) {
         this.assignmentSubmitions = assignmentSubmitions;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

@@ -47,9 +47,9 @@ public class Activity extends BaseEntity {
     @JoinColumn(name = "course_id")
     private Course course;
     @Column(name = "is_visible")
-    private Boolean visible = false;
+    private boolean visible = false;
     @Column(name = "is_deleted")
-    private Boolean deleted = false;
+    private boolean deleted = false;
 
     public Activity(String name, ECourseActivityType type, Boolean visible, Activity parent, List<ActivityAuthorize> activityAuthorizes, Course course) {
         this.name = name;
@@ -167,11 +167,11 @@ public class Activity extends BaseEntity {
         this.course = course;
     }
 
-    public Boolean getFixed() {
+    public boolean getFixed() {
         return fixed;
     }
 
-    public void setFixed(Boolean fixed) {
+    public void setFixed(boolean fixed) {
         this.fixed = fixed;
     }
 
@@ -183,11 +183,11 @@ public class Activity extends BaseEntity {
         this.visible = visible;
     }
 
-    public Boolean getDeleted() {
+    public boolean getDeleted() {
         return deleted;
     }
 
-    public void setDeleted(Boolean delete) {
+    public void setDeleted(boolean delete) {
         this.deleted = delete;
     }
 }
