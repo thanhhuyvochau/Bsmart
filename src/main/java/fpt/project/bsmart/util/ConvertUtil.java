@@ -206,9 +206,9 @@ public class ConvertUtil {
             userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
         }
         if (user.getMentorProfile() != null) {
-            userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
             TeachInformationDTO teachingInformation = MentorUtil.getTeachingInformation(user);
             userDto.setTeachInformation(teachingInformation);
+            userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
         } else if (SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT)) {
             List<StudentClass> studentClasses = user.getStudentClasses();
             long finishedClassCount = studentClasses.stream()
