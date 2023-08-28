@@ -629,7 +629,7 @@ public class ConvertUtil {
             mentorProfileDTO.setMentorSkills(skillList);
         }
         FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
-                .filterByMentor(mentorProfile.getUser().getId());
+                .filterByMentor(mentorProfile.getId());
         List<FeedbackSubmission> feedbackSubmissions = staticFeedbackSubmissionRepository.findAll(builder.build());
         List<Integer> rates = feedbackSubmissions.stream()
                 .map(FeedbackSubmission::getMentorRate)
