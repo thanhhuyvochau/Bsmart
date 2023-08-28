@@ -93,6 +93,9 @@ public class ActivityServiceImpl implements IActivityService {
         Course course = courseRepository.findById(activityRequest.getCourseId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID) + activityRequest.getCourseId()));
+        if (!course.getStatus().equals(ECourseClassStatus.EDITREQUEST) && !course.getStatus().equals(ECourseClassStatus.WAITING)) {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Không thể thay đổi nội dung khóa học vì trạng thái không hợp lệ");
+        }
         User mentor = course.getCreator();
         if (!SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER) && !Objects.equals(currentUser.getId(), mentor.getId())) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
@@ -548,6 +551,9 @@ public class ActivityServiceImpl implements IActivityService {
         Course course = courseRepository.findById(activityRequest.getCourseId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID) + activityRequest.getCourseId()));
+        if (!course.getStatus().equals(ECourseClassStatus.EDITREQUEST) && !course.getStatus().equals(ECourseClassStatus.WAITING)) {
+            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Không thể thay đổi nội dung khóa học vì trạng thái không hợp lệ");
+        }
         Activity editedActivity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + id));
         ECourseClassStatus status = course.getStatus();
         if (editedActivity.getFixed() && !(status.equals(ECourseClassStatus.REQUESTING) || status.equals(ECourseClassStatus.EDITREQUEST))) {

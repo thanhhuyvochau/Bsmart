@@ -410,15 +410,15 @@ public class CourseServiceImpl implements ICourseService {
             List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
             List<Class> classList = new ArrayList<>();
             for (Class aClass : classToApproval) {
+                aClass.setStatus(approvalCourseRequest.getStatus());
+                aClass.setFeedbackTemplate(feedbackIsDefault);
+                classList.add(aClass);
                 /**Tạo thời khóa biểu sau khi được phê duyệt để public ngoài trang chủ*/
                 if (approvalCourseRequest.getStatus().equals(NOTSTART)) {
                     List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(aClass.getTimeInWeeks(), aClass.getNumberOfSlot(), aClass.getStartDate(), aClass);
                     aClass.getTimeTables().clear();
                     aClass.getTimeTables().addAll(timeTables);
                 }
-                aClass.setStatus(approvalCourseRequest.getStatus());
-                aClass.setFeedbackTemplate(feedbackIsDefault);
-                classList.add(aClass);
             }
             classRepository.saveAll(classList);
             course.setStatus(approvalCourseRequest.getStatus());
@@ -453,15 +453,15 @@ public class CourseServiceImpl implements ICourseService {
             List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
             List<Class> classList = new ArrayList<>();
             for (Class aClass : classToApproval) {
+                aClass.setStatus(approvalCourseRequest.getStatus());
+                aClass.setFeedbackTemplate(feedbackIsDefault);
+                classList.add(aClass);
                 /**Tạo thời khóa biểu sau khi được phê duyệt để public ngoài trang chủ*/
                 if (approvalCourseRequest.getStatus().equals(NOTSTART)) {
                     List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(aClass.getTimeInWeeks(), aClass.getNumberOfSlot(), aClass.getStartDate(), aClass);
                     aClass.getTimeTables().clear();
                     aClass.getTimeTables().addAll(timeTables);
                 }
-                aClass.setStatus(approvalCourseRequest.getStatus());
-                aClass.setFeedbackTemplate(feedbackIsDefault);
-                classList.add(aClass);
             }
             classRepository.saveAll(classList);
             /**Notification and send email for classes*/
@@ -520,7 +520,7 @@ public class CourseServiceImpl implements ICourseService {
     //     ################################## END MANAGER ##########################################
 
     @Override
-    public Boolean changeCourseToWaitingForEdit(Long id) {
+    public Boolean changeCourseToEditReqquestForEdit(Long id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
         User mentor = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
@@ -530,7 +530,7 @@ public class CourseServiceImpl implements ICourseService {
         if (!CourseValidator.checkValidStateToReturnWaitingStatus(course)) {
             throw ApiException.create(HttpStatus.CONFLICT).withMessage("Khóa học đang có lớp đang hoạt động, không thể thay đổi trạng thái về ban đầu");
         }
-        course.setStatus(REQUESTING);
+        course.setStatus(EDITREQUEST);
         courseRepository.save(course);
         return true;
     }

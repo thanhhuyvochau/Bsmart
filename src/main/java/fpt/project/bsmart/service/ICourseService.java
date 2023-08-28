@@ -46,5 +46,5 @@ public interface ICourseService {
 
     //     ################################## END MANAGER ##########################################
 
-    Boolean changeCourseToWaitingForEdit(Long id);
+    Boolean changeCourseToEditReqquestForEdit(Long id);
 }
