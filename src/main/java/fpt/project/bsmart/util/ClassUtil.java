@@ -4,10 +4,7 @@ import fpt.project.bsmart.director.NotificationDirector;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.constant.ECourseClassStatus;
-import fpt.project.bsmart.entity.constant.EPaymentType;
-import fpt.project.bsmart.entity.constant.ETransactionStatus;
-import fpt.project.bsmart.entity.constant.ETransactionType;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.entity.dto.*;
 import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.Class.ManagerGetClassDetailResponse;
@@ -272,7 +269,7 @@ public class ClassUtil {
 
     public static void handleCloseClassEvent(Class clazz) {
         clazz.setStatus(ECourseClassStatus.ENDED);
-        List<OrderDetail> orderDetails = orderDetailRepository.findAllByClazz(clazz);
+        List<OrderDetail> orderDetails = orderDetailRepository.findAllByClazzAndStatus(clazz, EOrderStatus.SUCCESS);
         BigDecimal amount = orderDetails.stream()
                 .map(OrderDetail::getOriginalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
