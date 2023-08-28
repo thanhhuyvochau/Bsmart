@@ -125,7 +125,7 @@ public class FeedbackUtil {
             totalWeigh += entry.getKey() * entry.getValue();
             totalSubmission += entry.getValue();
         }
-        return totalWeigh == 0 ? 0 : totalWeigh / totalSubmission;
+        return totalWeigh == 0 ? 0 : Math.round((totalWeigh / totalSubmission) * 100.0) / 100.0;
     }
 
 //    public static ArrayList<FeedbackSubmitAnswer> validateSubmittedAnswer(FeedbackSubmission feedbackSubmission, StudentSubmitFeedbackRequest request) {

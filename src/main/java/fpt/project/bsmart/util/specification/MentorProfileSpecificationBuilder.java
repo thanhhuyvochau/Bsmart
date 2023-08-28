@@ -34,9 +34,9 @@ public class MentorProfileSpecificationBuilder {
             return this;
         }
         specifications.add((root, query, criteriaBuilder) -> {
-            Join<MentorProfile, MentorSkill> join = root.join(MentorProfile_.SKILLS, JoinType.LEFT);
-            Path<Object> objectPath = join.get(MentorSkill_.SKILL);
-            return criteriaBuilder.and(objectPath.in(skillIds));
+            Join<MentorProfile, MentorSkill> join = root.join(MentorProfile_.SKILLS);
+            Join<MentorSkill, Subject> mentorSkillSubjectJoin = join.join(MentorSkill_.SKILL);
+            return criteriaBuilder.and(mentorSkillSubjectJoin.get(Subject_.ID).in(skillIds));
         });
         return this;
     }

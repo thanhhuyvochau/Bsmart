@@ -336,7 +336,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
     public ApiPage<FeedbackSubmissionDto> getFeedbackSubmission(FeedbackSubmissionSearchRequest request, Pageable pageable){
         FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
                 .filterByRate(request.getRate(), request.getIsCourse());
-        builder = request.getIsCourse() ? builder.filterByCourse(request.getId()) : builder.filterByMentor(request.getId());
+        builder = Boolean.TRUE.equals(request.getIsCourse()) ? builder.filterByCourse(request.getId()) : builder.filterByMentor(request.getId());
         Page<FeedbackSubmission> feedbackSubmissionPage = feedbackSubmissionRepository.findAll(builder.build(), pageable);
         List<FeedbackSubmission> submissions = feedbackSubmissionPage.getContent().stream().collect(Collectors.toList());
         Page<FeedbackSubmission> feedbackSubmissions = new PageImpl<>(submissions, pageable, submissions.size());

@@ -78,9 +78,19 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public ApiPage<TransactionDto> getSelfTransactions(Pageable pageable) {
-        Wallet wallet = SecurityUtil.getCurrentUserWallet();
-        Page<Transaction> transactionsPages = transactionRepository.findAllByWallet(wallet, pageable);
-        return PageUtil.convert(transactionsPages.map(ConvertUtil::convertTransactionToDto));
+        User user = SecurityUtil.getCurrentUser();
+        Page<Transaction> transactions;
+        if(SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT)){
+            TransactionSpecificationBuilder transactionSpecificationBuilder = TransactionSpecificationBuilder.transactionSpecificationBuilder()
+                    .filterByBuyer(user.getId())
+                    .filterByTpe(ETransactionType.PAY)
+                    .filterByStatus(ETransactionStatus.SUCCESS);
+            transactions = transactionRepository.findAll(transactionSpecificationBuilder.build(), pageable);
+        }else {
+            Wallet wallet = user.getWallet();
+            transactions = transactionRepository.findAllByWallet(wallet, pageable);
+        }
+        return PageUtil.convert(transactions.map(ConvertUtil::convertTransactionToDto));
     }
 
     @Override
@@ -110,7 +120,7 @@ public class TransactionService implements ITransactionService {
     public Boolean withdraw(WithdrawRequest request) {
         Wallet wallet = SecurityUtil.getCurrentUserWallet();
         BigDecimal amount = request.getAmount();
-        if (amount.compareTo(new BigDecimal(100000)) <= 0 || amount.compareTo(wallet.getBalance()) > 0) {
+        if (amount.compareTo(new BigDecimal(100000)) < 0 || amount.compareTo(wallet.getBalance()) > 0) {
             return false;
         }
         Bank bank = bankRepository.findById(request.getBankId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(BANK_NOT_FOUND_BY_ID) + request.getBankId()));

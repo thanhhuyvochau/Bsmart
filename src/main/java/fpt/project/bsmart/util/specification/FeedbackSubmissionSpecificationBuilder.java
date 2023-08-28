@@ -34,7 +34,8 @@ public class FeedbackSubmissionSpecificationBuilder {
             Join<FeedbackSubmission, Class> feedbackSubmissionClassJoin = root.join(FeedbackSubmission_.CLAZZ);
             Join<Class, Course> classCourseJoin = feedbackSubmissionClassJoin.join(Class_.COURSE);
             Join<Course, User> courseUserJoin = classCourseJoin.join(Course_.CREATOR);
-            return criteriaBuilder.equal(courseUserJoin.get(User_.ID), mentorId);
+            Join<User, MentorProfile> userMentorProfileJoin = courseUserJoin.join(User_.MENTOR_PROFILE);
+            return criteriaBuilder.equal(userMentorProfileJoin.get(MentorProfile_.ID), mentorId);
         });
         return this;
     }
