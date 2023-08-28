@@ -28,7 +28,7 @@ public class MentorCreateClass {
 
 //    private List<MentorCreateScheduleRequest> timeTableRequest;
 
-    private String classURL;
+    private String link;
 
     public Long getImageId() {
         return imageId;
@@ -102,11 +102,11 @@ public class MentorCreateClass {
 //        this.timeTableRequest = timeTableRequest;
 //    }
 
-    public String getClassURL() {
-        return classURL;
+    public String getLink() {
+        return link;
     }
 
-    public void setClassURL(String classURL) {
-        this.classURL = classURL;
+    public void setLink(String link) {
+        this.link = link;
     }
 }

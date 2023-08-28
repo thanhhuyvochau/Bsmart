@@ -423,7 +423,7 @@ public class ClassServiceImpl implements IClassService {
         aClass.setMentor(currentUserAccountLogin);
         String codeRandom = ClassUtil.generateCode(course.getSubject().getCode());
         aClass.setCode(codeRandom);
-        String classURL = subCourseRequest.getClassURL();
+        String classURL = subCourseRequest.getLink();
         validateMeetingURL(classURL);
         aClass.setClassURL(classURL);
         Long imageId = subCourseRequest.getImageId();
