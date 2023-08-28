@@ -7,7 +7,7 @@ public class BaseQuizAnswerDto {
     private Long id;
     private String answer;
     @JsonView(View.Teacher.class)
-    private Boolean right = false;
+    private Boolean isRight = false;
 
     public Long getId() {
         return id;
@@ -25,11 +25,11 @@ public class BaseQuizAnswerDto {
         this.answer = answer;
     }
 
-    public Boolean getRight() {
-        return right;
+    public Boolean getIsRight() {
+        return isRight;
     }
 
-    public void setRight(Boolean right) {
-        right = right;
+    public void setIsRight(Boolean isRight) {
+        this.isRight = isRight;
     }
 }
