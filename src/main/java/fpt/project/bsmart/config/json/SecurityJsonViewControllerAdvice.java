@@ -44,9 +44,13 @@ public class SecurityJsonViewControllerAdvice extends AbstractMappingJacksonResp
         synchronized (jsonViewHolder) {
             Map<EUserRole, Class> mapping = View.MAPPING;
             Class jsonViewClass = mapping.get(jsonViewHolder.getJsonRoleView());
-            bodyContainer.setSerializationView(jsonViewClass);
-           jsonViewHolder.resetState();
+            System.out.println("-------------RESPONSE FOR ROLE:" + jsonViewClass.getName() + "------------------");
+            if (!jsonViewClass.getName().equals(View.Anonymous.class.getName())) {
+                bodyContainer.setSerializationView(jsonViewClass);
+            }
+            jsonViewHolder.resetState();
         }
+
     }
 
 
