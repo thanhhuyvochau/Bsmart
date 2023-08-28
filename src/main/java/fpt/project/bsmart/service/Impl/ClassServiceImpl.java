@@ -631,7 +631,8 @@ public class ClassServiceImpl implements IClassService {
         }
         User currentUser = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
         EUserRole memberOfClassAsRole = ClassValidator.isMemberOfClassAsRole(clazz, currentUser);
-        if (memberOfClassAsRole == null && !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER)) {
+        Boolean isManager = SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER);
+        if (memberOfClassAsRole == null && !isManager) {
             throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("Bạn không có quyền xem thông tin lớp học này !");
         }
 //        List<Activity> sectionActivities = clazz.getCourse().getActivities().stream()
@@ -642,8 +643,12 @@ public class ClassServiceImpl implements IClassService {
                 .filter(activity -> activity.getType().equals(ECourseActivityType.SECTION))
                 .collect(Collectors.toList());
 
-        if (SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER) || memberOfClassAsRole.equals(EUserRole.TEACHER)) {
-            ResponseUtil.responseForRole(memberOfClassAsRole);
+        if (isManager || memberOfClassAsRole.equals(EUserRole.TEACHER)) {
+            if (isManager) {
+                ResponseUtil.responseForRole(EUserRole.TEACHER);
+            } else {
+                ResponseUtil.responseForRole(EUserRole.TEACHER);
+            }
             return ConvertUtil.convertClassToClassResponse(clazz, sectionActivities);
         } else if (memberOfClassAsRole.equals(EUserRole.STUDENT)) {
             List<Activity> authorizeActivities = sectionActivities.stream().filter(activity -> {
@@ -864,10 +869,13 @@ public class ClassServiceImpl implements IClassService {
         Optional<AssignmentSubmition> byStudentClass = assignmentSubmittionRepository.findByStudentClass(studentClass);
         if (byStudentClass.isPresent()) {
             AssignmentSubmition assignmentSubmition = byStudentClass.get();
+            Activity activity = assignmentSubmition.getAssignment().getActivity();
             GetPointStudentClassResponse response = new GetPointStudentClassResponse();
             response.setPoint(assignmentSubmition.getPoint());
-            response.setActivityId(assignmentSubmition.getAssignment().getId());
+            response.setActivityName(activity.getName());
             response.setType(ECourseActivityType.ASSIGNMENT);
+            response.setCreated(activity.getCreated());
+            response.setLastUpdated(activity.getLastModified());
             pointStudentClassResponses.add(response);
         }
 
@@ -886,8 +894,10 @@ public class ClassServiceImpl implements IClassService {
                 if (quizSubmittion.getSubmittedBy().equals(user)) {
                     GetPointStudentClassResponse response = new GetPointStudentClassResponse();
                     response.setPoint(quizSubmittion.getPoint());
-                    response.setActivityId(quizSubmittion.getQuiz().getId());
+                    response.setActivityName(activity.getName());
                     response.setType(ECourseActivityType.QUIZ);
+                    response.setCreated(activity.getCreated());
+                    response.setLastUpdated(activity.getLastModified());
                     pointStudentClassResponses.add(response);
                 }
             }
