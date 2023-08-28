@@ -145,6 +145,6 @@ public class CourseController {
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PutMapping("/{id}/change-status-waiting")
     public ResponseEntity<ApiResponse<Boolean>> changeCourseStatusToWaiting(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.changeCourseToWaitingForEdit(id)));
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.changeCourseToEditReqquestForEdit(id)));
     }
 }

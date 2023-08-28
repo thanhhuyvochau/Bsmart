@@ -520,7 +520,7 @@ public class CourseServiceImpl implements ICourseService {
     //     ################################## END MANAGER ##########################################
 
     @Override
-    public Boolean changeCourseToWaitingForEdit(Long id) {
+    public Boolean changeCourseToEditReqquestForEdit(Long id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
         User mentor = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
@@ -530,7 +530,7 @@ public class CourseServiceImpl implements ICourseService {
         if (!CourseValidator.checkValidStateToReturnWaitingStatus(course)) {
             throw ApiException.create(HttpStatus.CONFLICT).withMessage("Khóa học đang có lớp đang hoạt động, không thể thay đổi trạng thái về ban đầu");
         }
-        course.setStatus(REQUESTING);
+        course.setStatus(EDITREQUEST);
         courseRepository.save(course);
         return true;
     }
