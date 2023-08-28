@@ -1,6 +1,7 @@
 package fpt.project.bsmart.entity.dto;
 
 import fpt.project.bsmart.config.json.View;
+import fpt.project.bsmart.entity.AssignmentSubmition;
 import fpt.project.bsmart.entity.BaseEntity;
 import fpt.project.bsmart.entity.constant.EAssignmentStatus;
 import org.codehaus.jackson.map.annotate.JsonView;

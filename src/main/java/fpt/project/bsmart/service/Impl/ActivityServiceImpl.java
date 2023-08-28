@@ -443,7 +443,6 @@ public class ActivityServiceImpl implements IActivityService {
         List<MultipartFile> submittedFiles = request.getSubmittedFiles();
         if (!ActivityValidator.isAuthorizeForClass(clazz, activity) && !activity.getFixed()) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Lớp bạn không có thẩm quyền với assignment");
-
         } else if (!AssignmentValidator.isValidNumberOfSubmitFile(assignment, submittedFiles)) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Số lượng file phải ít hơn:" + assignment.getMaxFileSubmit());
 
@@ -459,6 +458,9 @@ public class ActivityServiceImpl implements IActivityService {
         Optional<AssignmentSubmition> submitionOptional = assignmentSubmittionRepository.findByStudentClass(studentClass);
         if (submitionOptional.isPresent()) {
             assignmentSubmition = submitionOptional.get();
+            if (!AssignmentValidator.isValidTimeToEdit(assignment.getEditBeForSubmitMin(), assignmentSubmition.getCreated(), Instant.now())) {
+                throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không thể thay đổi bài nộp vì đã vượt qua thời gian cho phép");
+            }
         } else {
             assignmentSubmition = new AssignmentSubmition();
             assignmentSubmition.setAssignment(assignment);
