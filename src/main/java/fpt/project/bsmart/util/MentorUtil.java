@@ -104,6 +104,7 @@ public class MentorUtil {
             mentorSkills.add(ConvertUtil.convertMentorSkillToMentorSkillDto(mentorSkill));
         });
         mentorDto.setMentorSkills(mentorSkills);
+        mentorDto.setTeachInformation(MentorUtil.getTeachingInformation(mentorProfile.getUser()));
         return mentorDto;
     }
 
