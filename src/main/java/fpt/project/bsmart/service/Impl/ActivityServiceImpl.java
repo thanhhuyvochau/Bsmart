@@ -440,7 +440,7 @@ public class ActivityServiceImpl implements IActivityService {
                 .filter(clazz -> clazz.getCourse().getId().equals(course.getId()))
                 .findFirst();
         Class clazz = clazzOfUser.orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không tìm thấy lớp của người dùng với hoạt động đang tương tác"));
-        List<MultipartFile> submittedFiles = request.getSubmittedFiles();
+        List<MultipartFile> submittedFiles = Arrays.asList(request.getSubmittedFiles());
         if (!ActivityValidator.isAuthorizeForClass(clazz, activity) && !activity.getFixed()) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Lớp bạn không có thẩm quyền với assignment");
         } else if (!AssignmentValidator.isValidNumberOfSubmitFile(assignment, submittedFiles)) {

@@ -2,19 +2,18 @@ package fpt.project.bsmart.entity.request;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SubmitAssignmentRequest {
-    private List<MultipartFile> submittedFiles = new ArrayList<>();
+    private MultipartFile[] submittedFiles;
     private String note;
     private String password;
 
-    public List<MultipartFile> getSubmittedFiles() {
+    public MultipartFile[] getSubmittedFiles() {
         return submittedFiles;
     }
 
-    public void setSubmittedFiles(List<MultipartFile> submittedFiles) {
+    public void setSubmittedFiles(MultipartFile[] submittedFiles) {
         this.submittedFiles = submittedFiles;
     }
 
