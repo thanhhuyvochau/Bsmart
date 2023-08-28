@@ -397,7 +397,8 @@ public class ActivityServiceImpl implements IActivityService {
         if (!Objects.equals(creator.getId(), currentUser.getId()) || !SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER, EUserRole.ADMIN, EUserRole.TEACHER)) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
-        activityRepository.delete(activity);
+        activity.setDeleted(true);
+        activityRepository.save(activity);
         return true;
     }
 
@@ -548,7 +549,8 @@ public class ActivityServiceImpl implements IActivityService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID) + activityRequest.getCourseId()));
         Activity editedActivity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + id));
-        if (editedActivity.getFixed()) {
+        ECourseClassStatus status = course.getStatus();
+        if (editedActivity.getFixed() && !(status.equals(ECourseClassStatus.REQUESTING) || status.equals(ECourseClassStatus.EDITREQUEST))) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_STATUS_HAS_FIXED));
         }
         User mentor = course.getCreator();
