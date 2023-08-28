@@ -869,10 +869,13 @@ public class ClassServiceImpl implements IClassService {
         Optional<AssignmentSubmition> byStudentClass = assignmentSubmittionRepository.findByStudentClass(studentClass);
         if (byStudentClass.isPresent()) {
             AssignmentSubmition assignmentSubmition = byStudentClass.get();
+            Activity activity = assignmentSubmition.getAssignment().getActivity();
             GetPointStudentClassResponse response = new GetPointStudentClassResponse();
             response.setPoint(assignmentSubmition.getPoint());
-            response.setActivityId(assignmentSubmition.getAssignment().getId());
+            response.setActivityName(activity.getName());
             response.setType(ECourseActivityType.ASSIGNMENT);
+            response.setCreated(activity.getCreated());
+            response.setLastUpdated(activity.getLastModified());
             pointStudentClassResponses.add(response);
         }
 
@@ -891,8 +894,10 @@ public class ClassServiceImpl implements IClassService {
                 if (quizSubmittion.getSubmittedBy().equals(user)) {
                     GetPointStudentClassResponse response = new GetPointStudentClassResponse();
                     response.setPoint(quizSubmittion.getPoint());
-                    response.setActivityId(quizSubmittion.getQuiz().getId());
+                    response.setActivityName(activity.getName());
                     response.setType(ECourseActivityType.QUIZ);
+                    response.setCreated(activity.getCreated());
+                    response.setLastUpdated(activity.getLastModified());
                     pointStudentClassResponses.add(response);
                 }
             }
