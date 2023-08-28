@@ -1,10 +1,12 @@
 package fpt.project.bsmart.validator;
 
 import fpt.project.bsmart.entity.Activity;
+import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.Course;
 import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
+import fpt.project.bsmart.entity.constant.ECourseClassStatus;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
@@ -28,5 +30,11 @@ public class CourseValidator {
                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Không thể để trống nội dung của học phần, vui lòng bổ sung");
             }
         }
+    }
+
+    public static boolean checkValidStateToReturnWaitingStatus(Course course) {
+        List<Class> classes = course.getClasses();
+        long numberOfOperatingClasses = classes.stream().filter(clazz -> clazz.getStatus().equals(ECourseClassStatus.NOTSTART) || clazz.getStatus().equals(ECourseClassStatus.STARTING)).count();
+        return numberOfOperatingClasses <= 0;
     }
 }

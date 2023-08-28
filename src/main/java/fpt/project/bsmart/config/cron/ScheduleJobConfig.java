@@ -12,7 +12,6 @@ import fpt.project.bsmart.repository.NotificationRepository;
 import fpt.project.bsmart.repository.RoleRepository;
 import fpt.project.bsmart.service.Impl.TransactionService;
 import fpt.project.bsmart.util.ClassUtil;
-import fpt.project.bsmart.util.TimeInWeekUtil;
 import fpt.project.bsmart.util.WebSocketUtil;
 import fpt.project.bsmart.util.email.EmailUtil;
 import org.springframework.context.annotation.Configuration;
@@ -116,9 +115,10 @@ public class ScheduleJobConfig {
         List<Class> satisfyMinClasses = classesStartToday.stream().filter(clazz -> clazz.getMinStudent() < clazz.getStudentClasses().size()).collect(Collectors.toList());
         // Auto open class if satisfy min number of students
         for (Class satisfyMinClass : satisfyMinClasses) {
-            List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(satisfyMinClass.getTimeInWeeks(), satisfyMinClass.getNumberOfSlot(), satisfyMinClass.getStartDate(), satisfyMinClass);
-            satisfyMinClass.getTimeTables().clear();
-            satisfyMinClass.getTimeTables().addAll(timeTables);
+            /**Đổi luồng mở thời khóa biểu, thời khóa biểu sẽ được tạo ngay khi được phê duyệt bởi manager*/
+//            List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(satisfyMinClass.getTimeInWeeks(), satisfyMinClass.getNumberOfSlot(), satisfyMinClass.getStartDate(), satisfyMinClass);
+//            satisfyMinClass.getTimeTables().clear();
+//            satisfyMinClass.getTimeTables().addAll(timeTables);
             satisfyMinClass.setStatus(ECourseClassStatus.STARTING);
             emailUtil.sendStartClass(satisfyMinClass);
             List<User> studentOfClass = satisfyMinClass.getStudentClasses().stream().map(StudentClass::getStudent).collect(Collectors.toList());

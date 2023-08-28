@@ -310,9 +310,9 @@ public class CourseServiceImpl implements ICourseService {
             if (isValidCourse) {
                 classesInRequest
                         .forEach(aClass -> {
-                            try{
+                            try {
                                 TimeUtil.checkDateToCreateClass(aClass.getStartDate());
-                            }catch (Exception e){
+                            } catch (Exception e) {
                                 throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(e.getMessage());
                             }
                             aClass.setStatus(WAITING);
@@ -410,6 +410,12 @@ public class CourseServiceImpl implements ICourseService {
             List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
             List<Class> classList = new ArrayList<>();
             for (Class aClass : classToApproval) {
+                /**Tạo thời khóa biểu sau khi được phê duyệt để public ngoài trang chủ*/
+                if (approvalCourseRequest.getStatus().equals(NOTSTART)) {
+                    List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(aClass.getTimeInWeeks(), aClass.getNumberOfSlot(), aClass.getStartDate(), aClass);
+                    aClass.getTimeTables().clear();
+                    aClass.getTimeTables().addAll(timeTables);
+                }
                 aClass.setStatus(approvalCourseRequest.getStatus());
                 aClass.setFeedbackTemplate(feedbackIsDefault);
                 classList.add(aClass);
@@ -447,6 +453,12 @@ public class CourseServiceImpl implements ICourseService {
             List<Class> classToApproval = classRepository.findAllById(approvalCourseRequest.getClassIds());
             List<Class> classList = new ArrayList<>();
             for (Class aClass : classToApproval) {
+                /**Tạo thời khóa biểu sau khi được phê duyệt để public ngoài trang chủ*/
+                if (approvalCourseRequest.getStatus().equals(NOTSTART)) {
+                    List<TimeTable> timeTables = TimeInWeekUtil.generateTimeTable(aClass.getTimeInWeeks(), aClass.getNumberOfSlot(), aClass.getStartDate(), aClass);
+                    aClass.getTimeTables().clear();
+                    aClass.getTimeTables().addAll(timeTables);
+                }
                 aClass.setStatus(approvalCourseRequest.getStatus());
                 aClass.setFeedbackTemplate(feedbackIsDefault);
                 classList.add(aClass);
@@ -506,4 +518,20 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     //     ################################## END MANAGER ##########################################
+
+    @Override
+    public Boolean changeCourseToWaitingForEdit(Long id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(COURSE_NOT_FOUND_BY_ID) + id));
+        User mentor = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        if (!CourseValidator.isMentorOfCourse(mentor, course)) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS));
+        }
+        if (!CourseValidator.checkValidStateToReturnWaitingStatus(course)) {
+            throw ApiException.create(HttpStatus.CONFLICT).withMessage("Khóa học đang có lớp đang hoạt động, không thể thay đổi trạng thái về ban đầu");
+        }
+        course.setStatus(REQUESTING);
+        courseRepository.save(course);
+        return true;
+    }
 }

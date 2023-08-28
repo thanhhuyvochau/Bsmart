@@ -1,6 +1,7 @@
 package fpt.project.bsmart.entity;
 
 import fpt.project.bsmart.entity.constant.ECourseActivityType;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "activity")
+@Where(clause = "is_deleted = false")
 public class Activity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,6 +48,8 @@ public class Activity extends BaseEntity {
     private Course course;
     @Column(name = "is_visible")
     private Boolean visible = false;
+    @Column(name = "is_deleted")
+    private Boolean deleted = false;
 
     public Activity(String name, ECourseActivityType type, Boolean visible, Activity parent, List<ActivityAuthorize> activityAuthorizes, Course course) {
         this.name = name;
@@ -177,5 +181,13 @@ public class Activity extends BaseEntity {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean delete) {
+        this.deleted = delete;
     }
 }

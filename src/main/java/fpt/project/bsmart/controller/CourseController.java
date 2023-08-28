@@ -141,5 +141,10 @@ public class CourseController {
     }
 
     //     ################################## END MANAGER ##########################################
-
+    @Operation(summary = "Mentor chuyển trạng thái khóa học để chỉnh sửa")
+    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PutMapping("/{id}/change-status-waiting")
+    public ResponseEntity<ApiResponse<Boolean>> changeCourseStatusToWaiting(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.changeCourseToWaitingForEdit(id)));
+    }
 }
