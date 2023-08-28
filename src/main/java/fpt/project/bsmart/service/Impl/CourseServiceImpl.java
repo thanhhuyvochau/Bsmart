@@ -530,7 +530,7 @@ public class CourseServiceImpl implements ICourseService {
         if (!CourseValidator.checkValidStateToReturnWaitingStatus(course)) {
             throw ApiException.create(HttpStatus.CONFLICT).withMessage("Khóa học đang có lớp đang hoạt động, không thể thay đổi trạng thái về ban đầu");
         }
-        course.setStatus(WAITING);
+        course.setStatus(REQUESTING);
         courseRepository.save(course);
         return true;
     }
