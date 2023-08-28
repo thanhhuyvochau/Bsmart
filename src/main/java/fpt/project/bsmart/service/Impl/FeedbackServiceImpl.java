@@ -314,7 +314,7 @@ public class FeedbackServiceImpl implements IFeedbackService {
         MentorProfile mentorProfile = mentorProfileRepository.findById(mentorId)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_PROFILE_NOT_FOUND_BY_ID) + mentorId));
         FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
-                .filterByMentor(mentorProfile.getUser().getId());
+                .filterByMentor(mentorProfile.getId());
         List<FeedbackSubmission> feedbackSubmissions = feedbackSubmissionRepository.findAll(builder.build());
         FeedbackResponse response = new FeedbackResponse();
         List<FeedbackSubmissionDto> submissions = feedbackSubmissions.stream()
