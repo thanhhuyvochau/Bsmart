@@ -1036,10 +1036,12 @@ public class ConvertUtil {
                 FeedbackSubmissionResponse.FeedbackSubmitAnswer answerDto = new FeedbackSubmissionResponse.FeedbackSubmitAnswer();
                 Boolean isChosen = feedbackSubmission.getAnswers().stream()
                         .anyMatch(x -> x.getAnswer().getId().equals(feedbackAnswer.getId()));
+                answerDto.setId(feedbackAnswer.getId());
                 answerDto.setIsChosen(isChosen);
                 answerDto.setAnswer(feedbackAnswer.getAnswer());
                 answerDtos.add(answerDto);
             }
+            questionDto.setId(feedbackQuestion.getId());
             questionDto.setAnswers(answerDtos);
             submitQuestions.add(questionDto);
         }

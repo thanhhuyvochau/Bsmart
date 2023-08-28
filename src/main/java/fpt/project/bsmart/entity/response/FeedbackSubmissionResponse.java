@@ -62,8 +62,17 @@ public class FeedbackSubmissionResponse {
     }
 
     public static class FeedbackSubmitQuestion{
+        private Long id;
         private String question;
         private List<FeedbackSubmitAnswer> answers = new ArrayList<>();
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
 
         public String getQuestion() {
             return question;
@@ -83,8 +92,17 @@ public class FeedbackSubmissionResponse {
     }
 
     public static class FeedbackSubmitAnswer{
+        private Long id;
         private String answer;
         private Boolean isChosen;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
 
         public String getAnswer() {
             return answer;
