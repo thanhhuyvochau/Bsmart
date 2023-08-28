@@ -4,7 +4,9 @@ import fpt.project.bsmart.entity.Assignment;
 import fpt.project.bsmart.entity.AssignmentFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,4 +55,9 @@ public class AssignmentValidator {
         return totalSize <= totalSizeLimit;
     }
 
+    public static boolean isValidTimeToEdit(Integer editBeForSubmitMin, Instant nearestSubmitDate, Instant now) {
+        Duration difference = Duration.between(nearestSubmitDate.truncatedTo(ChronoUnit.MINUTES), now.truncatedTo(ChronoUnit.MINUTES));
+        long differenceMinutes = difference.toMinutes();
+        return editBeForSubmitMin - differenceMinutes > 0;
+    }
 }

@@ -778,7 +778,9 @@ public class ConvertUtil {
     private static AssignmentDto convertAssignmentToDto(Assignment assignment) {
         AssignmentDto assignmentDto = ObjectUtil.copyProperties(assignment, new AssignmentDto(), AssignmentDto.class, true);
         for (AssignmentFile assignmentFile : assignment.getAssignmentFiles()) {
-            assignmentDto.getAssignmentFiles().add(ConvertUtil.convertAssignmentFileToDto(assignmentFile));
+            if (assignmentFile.getFileType().equals(FileType.ATTACH)) {
+                assignmentDto.getAssignmentFiles().add(ConvertUtil.convertAssignmentFileToDto(assignmentFile));
+            }
         }
         return assignmentDto;
     }
@@ -1048,7 +1050,7 @@ public class ConvertUtil {
     public static FeedbackSubmissionDto convertFeedbackSubmissionToFeedbackSubmissionDto(FeedbackSubmission feedbackSubmission, boolean isForCourse) {
         FeedbackSubmissionDto submission = new FeedbackSubmissionDto();
         User user = feedbackSubmission.getSubmitBy();
-        if(user == null){
+        if (user == null) {
             throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("Không có người dùng submit feedback này");
         }
         submission.setRate(isForCourse ? feedbackSubmission.getCourseRate() : feedbackSubmission.getMentorRate());
@@ -1058,7 +1060,7 @@ public class ConvertUtil {
                 .filter(x -> x.getVerified() && x.getStatus() && x.getType().equals(EImageType.AVATAR))
                 .findFirst()
                 .orElse(null);
-        if (avatar != null){
+        if (avatar != null) {
             submission.setAvatarUrl(avatar.getUrl());
         }
         return submission;
