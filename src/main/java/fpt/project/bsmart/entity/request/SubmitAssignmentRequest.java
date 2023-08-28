@@ -8,6 +8,7 @@ import java.util.List;
 public class SubmitAssignmentRequest {
     private List<MultipartFile> submittedFiles = new ArrayList<>();
     private String note;
+    private String password;
 
     public List<MultipartFile> getSubmittedFiles() {
         return submittedFiles;
@@ -23,5 +24,13 @@ public class SubmitAssignmentRequest {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

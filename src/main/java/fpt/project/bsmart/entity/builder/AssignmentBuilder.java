@@ -18,6 +18,7 @@ public class AssignmentBuilder {
     private Activity activity;
     private List<AssignmentFile> assignmentFiles = new ArrayList<>();
     private Long passPoint = 5L; // Default 5
+    private String password;
 
     public AssignmentBuilder setDescription(String description) {
         this.description = description;
@@ -59,9 +60,17 @@ public class AssignmentBuilder {
         return this;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public Assignment build() {
         // TODO: Validation
-        Assignment assignment = new Assignment(description, editBeForSubmitMin, maxFileSubmit, maxFileSize, status, activity, assignmentFiles, passPoint);
+        Assignment assignment = new Assignment(description, editBeForSubmitMin, maxFileSubmit, maxFileSize, status, activity, assignmentFiles, passPoint,password);
         return assignment;
     }
 

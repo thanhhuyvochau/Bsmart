@@ -19,6 +19,7 @@ public class AssignmentRequest extends ActivityRequest {
 
     private List<MultipartFile> attachFiles = new ArrayList<>();
     private Long passPoint = 5L;
+    private String password;
 
     public String getDescription() {
         return description;
@@ -66,5 +67,13 @@ public class AssignmentRequest extends ActivityRequest {
 
     public void setPassPoint(Long passPoint) {
         this.passPoint = passPoint;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
