@@ -462,8 +462,7 @@ public class ConvertUtil {
         courseResponse.setLevel(course.getLevel());
         List<String> mentorName = new ArrayList<>();
         //List<Class> collect = course.getClasses() ;
-        List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseClassStatus.NOTSTART)
-                && aClass.getStudentClasses().size() < aClass.getMaxStudent()).collect(Collectors.toList());
+        List<Class> collect = course.getClasses().stream().filter(aClass -> aClass.getStatus().equals(ECourseClassStatus.NOTSTART)).collect(Collectors.toList());
         List<ImageDto> images = new ArrayList<>();
         if (collect.isEmpty()) {
             ClassImage byType = staticClassImageRepository.findByType(EImageType.DEFAULT);
@@ -931,6 +930,7 @@ public class ConvertUtil {
         if (course == null) {
             throw ApiException.create(HttpStatus.CONFLICT).withMessage("Lớp không thuộc về bất kì khóa học nào, vui lòng liên hệ với admin");
         }
+        classResponse.setLevel(clazz.getCourse().getLevel());
         classResponse.setCourse(ConvertUtil.convertCourseToCourseDTO(course));
         List<TimeInWeekDTO> timeInWeekDTOS = clazz.getTimeInWeeks().stream().map(ConvertUtil::convertTimeInWeekToDto).collect(Collectors.toList());
         classResponse.setTimeInWeeks(timeInWeekDTOS);
@@ -1047,9 +1047,20 @@ public class ConvertUtil {
 
     public static FeedbackSubmissionDto convertFeedbackSubmissionToFeedbackSubmissionDto(FeedbackSubmission feedbackSubmission, boolean isForCourse) {
         FeedbackSubmissionDto submission = new FeedbackSubmissionDto();
+        User user = feedbackSubmission.getSubmitBy();
+        if(user == null){
+            throw ApiException.create(HttpStatus.INTERNAL_SERVER_ERROR).withMessage("Không có người dùng submit feedback này");
+        }
         submission.setRate(isForCourse ? feedbackSubmission.getCourseRate() : feedbackSubmission.getMentorRate());
-        submission.setSubmitBy(feedbackSubmission.getSubmitBy().getFullName());
+        submission.setSubmitBy(user.getFullName());
         submission.setComment(feedbackSubmission.getComment());
+        UserImage avatar = user.getUserImages().stream()
+                .filter(x -> x.getVerified() && x.getStatus() && x.getType().equals(EImageType.AVATAR))
+                .findFirst()
+                .orElse(null);
+        if (avatar != null){
+            submission.setAvatarUrl(avatar.getUrl());
+        }
         return submission;
     }
 

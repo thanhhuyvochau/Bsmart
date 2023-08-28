@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static fpt.project.bsmart.util.Constants.ErrorMessage.ACCOUNT_IS_NOT_MENTOR;
@@ -67,11 +68,13 @@ public class MentorUtil {
         FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
                 .filterByMentor(user.getId());
         List<FeedbackSubmission> feedbackSubmissions = staticFeedbackSubmissionRepository.findAll(builder.build());
+        List<Integer> rates = feedbackSubmissions.stream().map(FeedbackSubmission::getCourseRate).collect(Collectors.toList());
+        Map<Integer, Long> rateCount = FeedbackUtil.getRateCount(rates);
         teachInformationDTO.setNumberOfCourse(courses.size());
         teachInformationDTO.setNumberOfClass(classesOfMentor.size());
         teachInformationDTO.setNumberOfMember(membersOfMentor.size());
         teachInformationDTO.setNumberOfFeedBack(feedbackSubmissions.size());
-        teachInformationDTO.setScoreFeedback(0.0);
+        teachInformationDTO.setScoreFeedback(FeedbackUtil.calculateAverageRate(rateCount));
         return teachInformationDTO;
     }
 
