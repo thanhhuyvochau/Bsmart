@@ -164,7 +164,7 @@ public class MentorProfileController {
     @PutMapping("/{id}/approval-edit-profile-detail")
     public ResponseEntity<ApiResponse<Boolean>> approveMentorProfileEdit(
             @PathVariable Long id,
-            @RequestBody ManagerApprovalEditProfileRequest request) {
+            @RequestBody ManagerApprovalEditProfileRequest request) throws JsonProcessingException {
 
         return ResponseEntity.ok(ApiResponse.success(
                 mentorProfileService.approveMentorProfileEdit(id, request)));
