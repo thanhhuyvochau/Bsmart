@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 
 public class SubmitAssignmentRequest {
     @NotNull
-    private MultipartFile[] submittedFiles;
+    private MultipartFile[] submittedFiles = {};
     private String note;
     private String password;
 
