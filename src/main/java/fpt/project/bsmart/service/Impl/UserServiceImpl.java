@@ -186,34 +186,49 @@ public class UserServiceImpl implements IUserService {
         if (user.getMentorProfile() != null) {
             MentorUtil.checkMentorStatusToUpdateInformation(user.getMentorProfile());
         }
-        List<UserImage> userImages = user.getUserImages();
+        if (uploadImageRequest.getStatus()==true){
+            List<UserImage> userImages = user.getUserImages();
 
-        if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
-            List<UserImage> avatarCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
-            avatarCurrent.forEach(image1 -> {
-                accept(image1);
-                userImages.add(image1);
-            });
+            if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
+                List<UserImage> avatarCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
+                userImages.removeAll(avatarCurrent);
+            }
+
+            if (uploadImageRequest.getImageType().equals(EImageType.FRONTCI)) {
+                List<UserImage> CIFrontCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.FRONTCI)).collect(Collectors.toList());
+                userImages.removeAll(CIFrontCurrent);
+
+            }
+            if (uploadImageRequest.getImageType().equals(EImageType.BACKCI)) {
+                List<UserImage> CIBackCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.BACKCI)).collect(Collectors.toList());
+                userImages.removeAll(CIBackCurrent);
+            }
+
+            userImageRepository.deleteAll(userImages);
+        }else {
+            List<UserImage> userImages = user.getUserImages();
+
+            if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
+                List<UserImage> avatarCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.AVATAR)
+                                                                                    && !image.getStatus()).collect(Collectors.toList());
+                userImages.removeAll(avatarCurrent);
+            }
+
+            if (uploadImageRequest.getImageType().equals(EImageType.FRONTCI)) {
+                List<UserImage> CIFrontCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.FRONTCI)
+                                                                                     && !image.getStatus()).collect(Collectors.toList());
+                userImages.removeAll(CIFrontCurrent);
+
+            }
+            if (uploadImageRequest.getImageType().equals(EImageType.BACKCI)) {
+                List<UserImage> CIBackCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.BACKCI)
+                                                                                    && !image.getStatus()).collect(Collectors.toList());
+                userImages.removeAll(CIBackCurrent);
+            }
+
+            userImageRepository.deleteAll(userImages);
         }
 
-        if (uploadImageRequest.getImageType().equals(EImageType.FRONTCI)) {
-            List<UserImage> CIFrontCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.FRONTCI)).collect(Collectors.toList());
-            CIFrontCurrent.forEach(image -> {
-                accept(image);
-                userImages.add(image);
-            });
-
-        }
-        if (uploadImageRequest.getImageType().equals(EImageType.BACKCI)) {
-            List<UserImage> CIBackCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.BACKCI)).collect(Collectors.toList());
-            CIBackCurrent.forEach(image -> {
-                accept(image);
-                userImages.add(image);
-            });
-
-        }
-
-        userImageRepository.saveAll(userImages);
         UserImage image = new UserImage();
         String name = uploadImageRequest.getFile().getOriginalFilename() + "-" + Instant.now().toString();
         ObjectWriteResponse objectWriteResponse = minioAdapter.uploadFile(name, uploadImageRequest.getFile().getContentType(), uploadImageRequest.getFile().getInputStream(), uploadImageRequest.getFile().getSize());
@@ -255,7 +270,6 @@ public class UserServiceImpl implements IUserService {
                 Optional<UserImage> byId = userImageRepository.findById(aLong);
                 byId.ifPresent(degreeToDelete::add);
             }
-
 
         }
 
