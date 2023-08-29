@@ -17,6 +17,8 @@ public class ActivityDto extends BaseEntity {
     private Long parentActivityId;
     private List<ActivityDto> subActivities = new ArrayList<>();
 
+    private boolean fixed = false;
+
     public ActivityDto() {
     }
 
@@ -66,5 +68,13 @@ public class ActivityDto extends BaseEntity {
 
     public void setParentActivityId(Long parentActivityId) {
         this.parentActivityId = parentActivityId;
+    }
+
+    public boolean getFixed() {
+        return fixed;
+    }
+
+    public void setFixed(boolean fixed) {
+        this.fixed = fixed;
     }
 }
