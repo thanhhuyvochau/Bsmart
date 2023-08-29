@@ -5,17 +5,17 @@ import fpt.project.bsmart.entity.constant.ECourseActivityType;
 import java.time.Instant;
 
 public class GetPointStudentClassResponse {
-    private float point;
+    private Float point;
     private String activityName;
     private ECourseActivityType type;
     private Instant created;
     private Instant lastUpdated;
 
-    public float getPoint() {
+    public Float getPoint() {
         return point;
     }
 
-    public void setPoint(float point) {
+    public void setPoint(Float point) {
         this.point = point;
     }
 
