@@ -2,9 +2,10 @@ package fpt.project.bsmart.entity.request;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import javax.validation.constraints.NotNull;
 
 public class SubmitAssignmentRequest {
+    @NotNull
     private MultipartFile[] submittedFiles;
     private String note;
     private String password;
