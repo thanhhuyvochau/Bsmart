@@ -918,7 +918,7 @@ public class ConvertUtil {
         }
 
         studentClassResponse.setEmail(student.getEmail());
-        studentClassResponse.setId(studentClass.getId());
+        studentClassResponse.setId(studentClass.getStudent().getId());
         studentClassResponse.setName(student.getFullName());
         return studentClassResponse;
     }
