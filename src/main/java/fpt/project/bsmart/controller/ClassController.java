@@ -206,10 +206,4 @@ public class ClassController {
     public ResponseEntity<ApiResponse<Boolean>> setMeetingForClass(@PathVariable Long id, @RequestParam String url) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.setClassURL(id, url)));
     }
-
-    @DeleteMapping("/force-delete/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> forceDelete(@PathVariable Long id) {
-
-        return ResponseEntity.ok(ApiResponse.success(iClassService.setClassURL(id, url)));
-    }
 }
