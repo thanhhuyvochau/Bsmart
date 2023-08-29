@@ -7,7 +7,8 @@ public class SubjectDto {
     private Long id;
     private String code;
     private String name;
-    private List<String> categories = new ArrayList<>();
+    private List<Long> categoryIds = new ArrayList<>();
+    private List<String> categoryNames = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -33,11 +34,19 @@ public class SubjectDto {
         this.name = name;
     }
 
-    public List<String> getCategories() {
-        return categories;
+    public List<Long> getCategoryIds() {
+        return categoryIds;
     }
 
-    public void setCategories(List<String> categories) {
-        this.categories = categories;
+    public void setCategoryIds(List<Long> categoryIds) {
+        this.categoryIds = categoryIds;
+    }
+
+    public List<String> getCategoryNames() {
+        return categoryNames;
+    }
+
+    public void setCategoryNames(List<String> categoryNames) {
+        this.categoryNames = categoryNames;
     }
 }

@@ -74,7 +74,8 @@ public class ConvertUtil {
         Set<Category> categories = subject.getCategories();
         if (!categories.isEmpty()) {
             for (Category category : categories) {
-                subjectDto.getCategories().add(category.getName());
+                subjectDto.getCategoryIds().add(category.getId());
+                subjectDto.getCategoryNames().add(category.getName());
             }
         }
         return subjectDto;
