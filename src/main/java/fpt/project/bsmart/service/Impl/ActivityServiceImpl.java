@@ -93,13 +93,15 @@ public class ActivityServiceImpl implements IActivityService {
         Course course = courseRepository.findById(activityRequest.getCourseId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID) + activityRequest.getCourseId()));
-        if (!course.getStatus().equals(ECourseClassStatus.EDITREQUEST) && !course.getStatus().equals(ECourseClassStatus.WAITING)) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Không thể thay đổi nội dung khóa học vì trạng thái không hợp lệ");
+        ECourseClassStatus status = course.getStatus();
+        if (status.equals(ECourseClassStatus.CANCEL) || status.equals(ECourseClassStatus.BLOCK) || status.equals(ECourseClassStatus.WAITING)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage("Không thể thêm nội dung vì trạng thái khóa học không hợp lệ");
         }
         User mentor = course.getCreator();
         if (!SecurityUtil.isHasAnyRole(currentUser, EUserRole.MANAGER) && !Objects.equals(currentUser.getId(), mentor.getId())) {
             throw ApiException.create(HttpStatus.FORBIDDEN).withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.FORBIDDEN));
         }
+
         List<Long> authorizeClassesId = activityRequest.getAuthorizeClasses();
         List<Class> authorizeClasses = classRepository.findAllById(authorizeClassesId);
         ActivityBuilder activityBuilder = ActivityBuilder.getBuilder()
@@ -556,12 +558,14 @@ public class ActivityServiceImpl implements IActivityService {
         Course course = courseRepository.findById(activityRequest.getCourseId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage(messageUtil.getLocalMessage(Constants.ErrorMessage.COURSE_NOT_FOUND_BY_ID) + activityRequest.getCourseId()));
-        if (!course.getStatus().equals(ECourseClassStatus.EDITREQUEST) && !course.getStatus().equals(ECourseClassStatus.WAITING)) {
-            throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Không thể thay đổi nội dung khóa học vì trạng thái không hợp lệ");
-        }
         Activity editedActivity = activityRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_NOT_FOUND_BY_ID) + id));
+//        if (editedActivity.getFixed()) {
+//            if (!course.getStatus().equals(ECourseClassStatus.EDITREQUEST)) {
+//                throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Không thể thay đổi nội dung khóa học vì trạng thái không hợp lệ");
+//            }
+//        }
         ECourseClassStatus status = course.getStatus();
-        if (editedActivity.getFixed() && !(status.equals(ECourseClassStatus.REQUESTING) || status.equals(ECourseClassStatus.EDITREQUEST))) {
+        if (editedActivity.getFixed() && (!status.equals(ECourseClassStatus.REQUESTING) && !status.equals(ECourseClassStatus.EDITREQUEST))) {
             throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(ACTIVITY_STATUS_HAS_FIXED));
         }
         User mentor = course.getCreator();
