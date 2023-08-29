@@ -881,56 +881,59 @@ public class MentorProfileImpl implements IMentorProfileService {
         mentorProfileEdit.setStatus(request.getStatus());
 
         // handle update profile edit to profile origin
+        if (request.getStatus().equals(EMentorProfileEditStatus.APPROVED)) {
 
-        Long mentorProfileId = mentorProfileEdit.getMentorProfile().getId();
-        MentorProfile mentorProfile = mentorProfileRepository.findById(mentorProfileId)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage("Không tìm thấy hồ sơ giáo viên cần chỉnh sửa!"));
-        User user = mentorProfile.getUser();
-        MentorEditProfileDetailResponse mentorEditProfileDetailResponse = managerGetEditProfileDetailRequest(id);
 
-        UserDto userDtoEdit = mentorEditProfileDetailResponse.getUserDtoEdit();
-        MentorProfileDTO mentorProfile2 = userDtoEdit.getMentorProfile();
+            Long mentorProfileId = mentorProfileEdit.getMentorProfile().getId();
+            MentorProfile mentorProfile = mentorProfileRepository.findById(mentorProfileId)
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage("Không tìm thấy hồ sơ giáo viên cần chỉnh sửa!"));
+            User user = mentorProfile.getUser();
+            MentorEditProfileDetailResponse mentorEditProfileDetailResponse = managerGetEditProfileDetailRequest(id);
 
-        user.setFullName(userDtoEdit.getFullName());
-        user.setAddress(userDtoEdit.getAddress());
-        user.setBirthday(userDtoEdit.getBirthday());
-        user.setPhone(userDtoEdit.getPhone());
-        user.setGender(userDtoEdit.getGender());
-        user.setFacebookLink(userDtoEdit.getFacebookLink());
-        user.setLinkedinLink(userDtoEdit.getLinkedinLink());
-        user.setWebsite(userDtoEdit.getWebsite());
+            UserDto userDtoEdit = mentorEditProfileDetailResponse.getUserDtoEdit();
+            MentorProfileDTO mentorProfile2 = userDtoEdit.getMentorProfile();
 
-        List<ImageDto> userImages = userDtoEdit.getUserImages();
-        List<UserImage> userImageList = new ArrayList<>();
-        for (ImageDto userImage : userImages) {
-            if (!userImage.isStatus()) {
-                UserImage userImage1 = userImageRepository.findById(userImage.getId())
-                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                                .withMessage("Không tìm thấy hình ảnh cần chỉnh sửa!"));
-                userImage1.setStatus(true);
-                userImageList.add(userImage1);
+            user.setFullName(userDtoEdit.getFullName());
+            user.setAddress(userDtoEdit.getAddress());
+            user.setBirthday(userDtoEdit.getBirthday());
+            user.setPhone(userDtoEdit.getPhone());
+            user.setGender(userDtoEdit.getGender());
+            user.setFacebookLink(userDtoEdit.getFacebookLink());
+            user.setLinkedinLink(userDtoEdit.getLinkedinLink());
+            user.setWebsite(userDtoEdit.getWebsite());
+
+            List<ImageDto> userImages = userDtoEdit.getUserImages();
+            List<UserImage> userImageList = new ArrayList<>();
+            for (ImageDto userImage : userImages) {
+                if (!userImage.isStatus()) {
+                    UserImage userImage1 = userImageRepository.findById(userImage.getId())
+                            .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                                    .withMessage("Không tìm thấy hình ảnh cần chỉnh sửa!"));
+                    userImage1.setStatus(true);
+                    userImageList.add(userImage1);
+                }
             }
-        }
-        user.getUserImages().addAll(userImageList);
-        MentorProfile mentorProfile1 = user.getMentorProfile();
-        mentorProfile1.setIntroduce(mentorProfile2.getIntroduce());
-        mentorProfile1.setIntroduce(mentorProfile2.getWorkingExperience());
+            user.getUserImages().addAll(userImageList);
+            MentorProfile mentorProfile1 = user.getMentorProfile();
+            mentorProfile1.setIntroduce(mentorProfile2.getIntroduce());
+            mentorProfile1.setIntroduce(mentorProfile2.getWorkingExperience());
 
-        List<MentorSkillDto> mentorSkills = mentorProfile2.getMentorSkills();
+            List<MentorSkillDto> mentorSkills = mentorProfile2.getMentorSkills();
 
-        List<MentorSkill> mentorSkills1 = new ArrayList<>();
-        for (MentorSkillDto mentorSkill : mentorSkills) {
-            if (!mentorSkill.getStatus()) {
-                MentorSkill mentorSkill1 = mentorSkillRepository.findById(mentorSkill.getId())
-                        .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                                .withMessage("Không tìm thấy môn học cần chỉnh sửa!"));
-                mentorSkill1.setStatus(true);
-                mentorSkills1.add(mentorSkill1);
+            List<MentorSkill> mentorSkills1 = new ArrayList<>();
+            for (MentorSkillDto mentorSkill : mentorSkills) {
+                if (!mentorSkill.getStatus()) {
+                    MentorSkill mentorSkill1 = mentorSkillRepository.findById(mentorSkill.getId())
+                            .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                                    .withMessage("Không tìm thấy môn học cần chỉnh sửa!"));
+                    mentorSkill1.setStatus(true);
+                    mentorSkills1.add(mentorSkill1);
+                }
             }
+            mentorProfile.getSkills().addAll(mentorSkills1);
+            mentorProfileRepository.save(mentorProfile);
         }
-        mentorProfile.getSkills().addAll(mentorSkills1);
-        mentorProfileRepository.save(mentorProfile);
         mentorProfileEditRepository.save(mentorProfileEdit);
         return true;
     }
