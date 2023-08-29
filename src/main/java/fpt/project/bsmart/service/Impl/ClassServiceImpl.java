@@ -908,9 +908,9 @@ public class ClassServiceImpl implements IClassService {
     @NotNull
     private static List<Activity> getActivitiesOfClasses(Class clazz, List<Activity> activities) {
         List<Activity> sectionActivities = activities.stream()
-                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.SECTION))
+                .filter(activity -> Objects.equals(activity.getType(), ECourseActivityType.QUIZ) || Objects.equals(activity.getType(), ECourseActivityType.ASSIGNMENT))
                 .collect(Collectors.toList());
-        List<Activity> authorizeActivities = sectionActivities.stream().filter(activity -> {
+        return sectionActivities.stream().filter(activity -> {
             if (activity.getFixed()) {
                 return true;
             }
@@ -920,7 +920,6 @@ public class ClassServiceImpl implements IClassService {
             }).count();
             return isAuthorized > 0;
         }).collect(Collectors.toList());
-        return authorizeActivities;
     }
 
     @Override
