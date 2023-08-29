@@ -706,6 +706,7 @@ public class MentorProfileImpl implements IMentorProfileService {
                         throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(SUBJECT_ID_DUPLICATE) + mentorUpdateSkill.getSkillId());
                     }
                     MentorSkillDto mentorSkillDto = ObjectUtil.copyProperties(mentorUpdateSkill, new MentorSkillDto(), MentorSkillDto.class);
+                    mentorSkillDto.setStatus(mentorUpdateSkill.getStatus());
                     mentorUpdateSkillsSkillDtoList.add(mentorSkillDto);
 
                 }
@@ -822,17 +823,59 @@ public class MentorProfileImpl implements IMentorProfileService {
             differentFields.add("id");
         }
         if (!Objects.equals(userDtoOrigin.getFullName(), userDtoEdit.getFullName())) {
-            differentFields.add("fullName");
+            differentFields.add("Họ tên");
         }
-        if (!Objects.equals(userDtoOrigin.getEmail(), userDtoEdit.getEmail())) {
-            differentFields.add("email");
+        if (!Objects.equals(userDtoOrigin.getBirthday(), userDtoEdit.getBirthday())) {
+            differentFields.add("Ngày sinh");
+        }
+        if (!Objects.equals(userDtoOrigin.getAddress(), userDtoEdit.getAddress())) {
+            differentFields.add("Địa chỉ");
+        }
+        if (!Objects.equals(userDtoOrigin.getPhone(), userDtoEdit.getPhone())) {
+            differentFields.add("Số điện thoại");
+        }
+        if (!Objects.equals(userDtoOrigin.getGender(), userDtoEdit.getGender())) {
+            differentFields.add("Giới tính");
+        }
+        if (!Objects.equals(userDtoOrigin.getUserImages().size(), userDtoEdit.getUserImages().size())) {
+            differentFields.add("Hình ảnh");
+        }
+        if (!Objects.equals(userDtoOrigin.getFacebookLink(), userDtoEdit.getFacebookLink())) {
+            differentFields.add("Facebook");
+        }
+        if (!Objects.equals(userDtoOrigin.getLinkedinLink(), userDtoEdit.getLinkedinLink())) {
+            differentFields.add("LinkedIn");
+        }
+        if (!Objects.equals(userDtoOrigin.getWebsite(), userDtoEdit.getWebsite())) {
+            differentFields.add("Website riêng");
+        }
+        if (userDtoOrigin.getMentorProfile() != null && userDtoEdit.getMentorProfile() != null) {
+
+            if (!Objects.equals(userDtoOrigin.getMentorProfile().getIntroduce(), userDtoEdit.getMentorProfile().getIntroduce())) {
+                differentFields.add("Giới thiệu");
+            }
+
+            if (!Objects.equals(userDtoOrigin.getMentorProfile().getWorkingExperience(),
+                    userDtoEdit.getMentorProfile().getWorkingExperience())) {
+                differentFields.add("Kinh nghiệm");
+            }
+            if (userDtoOrigin.getMentorProfile().getMentorSkills()!= null){
+
+            if (!Objects.equals(userDtoOrigin.getMentorProfile().getMentorSkills().size(),
+                    userDtoEdit.getMentorProfile().getMentorSkills().size())) {
+                differentFields.add("Chuyên môn");
+            }
+
+
+
+            }
         }
 
         return differentFields;
     }
 
     @Override
-    public Boolean approveMentorProfileEdit(Long id, ManagerApprovalEditProfileRequest request) {
+    public Boolean approveMentorProfileEdit(Long id, ManagerApprovalEditProfileRequest request) throws JsonProcessingException {
         MentorProfileEdit mentorProfileEdit = mentorProfileEditRepository.findById(id)
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Không tìm thấy hồ sơ chỉnh sửa !"));
@@ -840,7 +883,11 @@ public class MentorProfileImpl implements IMentorProfileService {
         // handle update profile edit to profile origin
 
         MentorProfile mentorProfile = mentorProfileEdit.getMentorProfile();
-        User user = mentorProfile.getUser();
+
+        MentorEditProfileDetailResponse mentorEditProfileDetailResponse = managerGetEditProfileDetailRequest(id);
+        UserDto userDtoEdit = mentorEditProfileDetailResponse.getUserDtoEdit();
+        UserDto userDtoOrigin = mentorEditProfileDetailResponse.getUserDtoOrigin();
+
         mentorProfileEditRepository.save(mentorProfileEdit);
         return null;
     }
