@@ -35,7 +35,9 @@ public class FileDto implements Serializable {
 
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                return connection.getContentLengthLong();
+                long size = connection.getContentLengthLong();
+                connection.disconnect();
+                return size;
             } else {
                 // Handle the case when the URL does not return the file size correctly
                 throw new IOException("Failed to retrieve file size. Response code: " + responseCode);
