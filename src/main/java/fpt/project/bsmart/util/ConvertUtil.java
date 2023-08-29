@@ -197,7 +197,6 @@ public class ConvertUtil {
                     imageDtoList.add(convertUserImageToUserImageDto(image));
                 }
 
-//                userDto.setUserImages(imageDtoList);
             }
             userDto.setUserImages(imageDtoList);
         }
@@ -210,6 +209,55 @@ public class ConvertUtil {
             TeachInformationDTO teachingInformation = MentorUtil.getTeachingInformation(user);
             userDto.setTeachInformation(teachingInformation);
             userDto.setMentorProfile(convertMentorProfileToMentorProfileDto(user.getMentorProfile()));
+        } else if (SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT)) {
+            List<StudentClass> studentClasses = user.getStudentClasses();
+            long finishedClassCount = studentClasses.stream()
+                    .filter(x -> x.getClazz().getStatus().equals(ECourseClassStatus.ENDED))
+                    .distinct()
+                    .count();
+            long numberOfJoinClass = studentClasses.size();
+            long numberOfJoinCourse = studentClasses.stream().map(studentClass -> studentClass.getClazz().getCourse()).distinct().count();
+            LearningInformationDTO learningInformationDTO = new LearningInformationDTO(numberOfJoinCourse, numberOfJoinClass, finishedClassCount);
+            userDto.setLearningInformation(learningInformationDTO);
+        }
+        return userDto;
+    }
+
+    public static UserDto convertUsertoUserDtoForEdit(User user) {
+        UserDto userDto = ObjectUtil.copyProperties(user, new UserDto(), UserDto.class);
+
+        ActivityHistory byUserCourse = staticActivityHistoryRepository.findByTypeAndActivityId(EActivityType.USER, user.getId());
+
+
+        if (byUserCourse != null) {
+
+            userDto.setCount(byUserCourse.getCount());
+            userDto.setTimeSendRequest(byUserCourse.getLastModified());
+        }
+
+        if (!user.getRoles().isEmpty()) {
+            List<RoleDto> roleDtoList = new ArrayList<>();
+            for (Role role : user.getRoles()) {
+                roleDtoList.add(convertRoleToRoleDto(role));
+            }
+            userDto.setRoles(roleDtoList);
+        }
+        if (!user.getUserImages().isEmpty()) {
+            List<ImageDto> imageDtoList = new ArrayList<>();
+            for (UserImage image : user.getUserImages()) {
+                imageDtoList.add(convertUserImageToUserImageDto(image));
+            }
+            userDto.setUserImages(imageDtoList);
+        }
+
+
+        if (user.getWallet() != null) {
+            userDto.setWallet(convertWalletToWalletDto(user.getWallet()));
+        }
+        if (user.getMentorProfile() != null) {
+            TeachInformationDTO teachingInformation = MentorUtil.getTeachingInformation(user);
+            userDto.setTeachInformation(teachingInformation);
+            userDto.setMentorProfile(convertMentorProfileToMentorProfileDtoForEdit(user.getMentorProfile()));
         } else if (SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT)) {
             List<StudentClass> studentClasses = user.getStudentClasses();
             long finishedClassCount = studentClasses.stream()
@@ -647,6 +695,34 @@ public class ConvertUtil {
         return mentorProfileDTO;
     }
 
+    public static MentorProfileDTO convertMentorProfileToMentorProfileDtoForEdit(MentorProfile mentorProfile) {
+        MentorProfileDTO mentorProfileDTO = ObjectUtil.copyProperties(mentorProfile, new MentorProfileDTO(), MentorProfileDTO.class);
+        if (mentorProfile.getSkills() != null) {
+            List<MentorSkillDto> skillList = new ArrayList<>();
+            for (MentorSkill mentorSkill : mentorProfile.getSkills()) {
+                MentorSkillDto mentorSkillDto = convertMentorSkillToMentorSkillDto(mentorSkill);
+                skillList.add(mentorSkillDto);
+            }
+            mentorProfileDTO.setMentorSkills(skillList);
+        }
+        FeedbackSubmissionSpecificationBuilder builder = FeedbackSubmissionSpecificationBuilder.feedbackSubmissionSpecificationBuilder()
+                .filterByMentor(mentorProfile.getId());
+        List<FeedbackSubmission> feedbackSubmissions = staticFeedbackSubmissionRepository.findAll(builder.build());
+        List<Integer> rates = feedbackSubmissions.stream()
+                .map(FeedbackSubmission::getMentorRate)
+                .collect(Collectors.toList());
+        Map<Integer, Long> rateMap = FeedbackUtil.getRateCount(rates);
+        mentorProfileDTO.setAverageRate(FeedbackUtil.calculateAverageRate(rateMap));
+        mentorProfileDTO.setSubmissionCount(feedbackSubmissions.size());
+        if (mentorProfile.getUser() != null) {
+            User temp = mentorProfile.getUser();
+            temp.setMentorProfile(null);
+            mentorProfileDTO.setUser(convertUsertoUserDto(temp));
+        }
+        mentorProfileDTO.setWorkingExperience(mentorProfile.getWorkingExperience());
+        return mentorProfileDTO;
+    }
+
     public static MentorSkillDto convertMentorSkillToMentorSkillDto(MentorSkill mentorSkill) {
         MentorSkillDto mentorSkillDto = new MentorSkillDto();
         mentorSkillDto.setId(mentorSkill.getId());
@@ -821,7 +897,7 @@ public class ConvertUtil {
                 User user = userOptional.get();
                 if ((isAttempt && SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT))
 
-                        || Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER, EUserRole.MANAGER))) {
+                    || Boolean.TRUE.equals(SecurityUtil.isHasAnyRole(user, EUserRole.TEACHER, EUserRole.MANAGER))) {
 
                     List<QuizQuestionDto> questionDtos = new ArrayList<>();
                     for (QuizQuestion question : quiz.getQuizQuestions()) {

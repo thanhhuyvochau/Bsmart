@@ -46,5 +46,5 @@ public interface IMentorProfileService {
     ApiPage<MentorEditProfileResponse> managerGetEditProfileRequest(ManagerSearchEditProfileRequest query  , Pageable pageable) ;
     MentorEditProfileDetailResponse managerGetEditProfileDetailRequest(Long mentorProfileEditId) throws JsonProcessingException;
 
-    Boolean approveMentorProfileEdit(Long id, ManagerApprovalEditProfileRequest request);
+    Boolean approveMentorProfileEdit(Long id, ManagerApprovalEditProfileRequest request) throws JsonProcessingException;
 }

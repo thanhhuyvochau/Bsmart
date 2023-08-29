@@ -602,7 +602,7 @@ public class UserServiceImpl implements IUserService {
 
 
         if (mentorProfileEditCreating.size() == 0 && mentorProfileEditPending.size() == 0) {
-            UserDto userDto = ConvertUtil.convertUsertoUserDto(currentLoginUser);
+            UserDto userDto = ConvertUtil.convertUsertoUserDtoForEdit(currentLoginUser);
             mentorEditProfileResponse.setId(null);
             mentorEditProfileResponse.setUserDto(userDto);
             return mentorEditProfileResponse;
