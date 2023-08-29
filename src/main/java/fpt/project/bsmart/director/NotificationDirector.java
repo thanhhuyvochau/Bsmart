@@ -3,6 +3,7 @@ package fpt.project.bsmart.director;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.constant.ECourseClassStatus;
+import fpt.project.bsmart.entity.constant.EMentorProfileEditStatus;
 import fpt.project.bsmart.entity.constant.ENotificationEntity;
 import fpt.project.bsmart.entity.constant.ENotificationType;
 import fpt.project.bsmart.util.MessageUtil;
@@ -201,6 +202,23 @@ public class NotificationDirector {
                 .type(ENotificationType.PERSONAL)
                 .entity(ENotificationEntity.CLASS)
                 .entityId(clazz.getId())
+                .build();
+    }
+
+    public static Notification buildEditApprovalMentorProfile(EMentorProfileEditStatus status, User mentor, Long profileId) {
+        String title = staticMessageUtil.getLocalMessage(NotificationConstant.COURSE_APPROVAL_PROFILE_TITLE);
+        String content = staticMessageUtil.getLocalMessage(NotificationConstant.COURSE_APPROVAL_PROFILE_CONTENT);
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("status", status.getLabel());
+        content = TextUtil.format(content, parameters);
+        Notification.NotificationBuilder builder = Notification.getBuilder();
+        return builder
+                .viTitle(title)
+                .viContent(content)
+                .notifiers(mentor)
+                .type(ENotificationType.PERSONAL)
+                .entity(ENotificationEntity.MENTOR_PROFILE)
+                .entityId(profileId)
                 .build();
     }
 }

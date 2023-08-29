@@ -3,7 +3,6 @@ package fpt.project.bsmart.util.email;
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
-import fpt.project.bsmart.entity.request.ManagerApprovalAccountRequest;
 import fpt.project.bsmart.entity.request.ManagerApprovalCourseRequest;
 import fpt.project.bsmart.repository.PasswordResetTokenRepository;
 import fpt.project.bsmart.repository.VerificationRepository;
@@ -157,13 +156,13 @@ public class EmailUtil {
         sendHtmlEmail(formattedTemplate, user.getEmail(), SEND_FROM, subject);
     }
 
-    public void sendApprovalMentorProfile(MentorProfile mentorProfile, ManagerApprovalAccountRequest managerApprovalAccountRequest) {
+    public void sendApprovalMentorProfile(MentorProfile mentorProfile, String message) {
         User user = mentorProfile.getUser();
         String subject = "Thông Báo Về Trạng Thái Hồ Sơ";
         Map<String, String> parameters = new HashMap<>();
         parameters.put("mentorName", user.getFullName());
         parameters.put("mentorProfileStatus", mentorProfile.getStatus().getVietnameseLabel());
-        parameters.put("replyContent", managerApprovalAccountRequest.getMessage());
+        parameters.put("replyContent", message == null ? "" : message);
         String formattedTemplate = TextUtil.format(mentorProfileApprovalTemplate, parameters);
         sendHtmlEmail(formattedTemplate, user.getEmail(), SEND_FROM, subject);
     }

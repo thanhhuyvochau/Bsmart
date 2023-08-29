@@ -173,7 +173,7 @@ public class MentorProfileImpl implements IMentorProfileService {
         notificationRepository.save(notification);
         ResponseMessage responseMessage = convertNotificationToResponseMessage(notification, mentorProfile.getUser());
         webSocketUtil.sendPrivateNotification(mentorProfile.getUser().getEmail(), responseMessage);
-        emailUtil.sendApprovalMentorProfile(mentorProfile, managerApprovalAccountRequest);
+        emailUtil.sendApprovalMentorProfile(mentorProfile, managerApprovalAccountRequest.getMessage());
         return mentorProfileRepository.save(mentorProfile).getId();
     }
 
@@ -879,21 +879,16 @@ public class MentorProfileImpl implements IMentorProfileService {
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
                         .withMessage("Không tìm thấy hồ sơ chỉnh sửa !"));
         mentorProfileEdit.setStatus(request.getStatus());
-
+        Long mentorProfileId = mentorProfileEdit.getMentorProfile().getId();
+        MentorProfile mentorProfile = mentorProfileRepository.findById(mentorProfileId)
+                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                        .withMessage("Không tìm thấy hồ sơ giáo viên cần chỉnh sửa!"));
+        User user = mentorProfile.getUser();
         // handle update profile edit to profile origin
         if (request.getStatus().equals(EMentorProfileEditStatus.APPROVED)) {
-
-
-            Long mentorProfileId = mentorProfileEdit.getMentorProfile().getId();
-            MentorProfile mentorProfile = mentorProfileRepository.findById(mentorProfileId)
-                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                            .withMessage("Không tìm thấy hồ sơ giáo viên cần chỉnh sửa!"));
-            User user = mentorProfile.getUser();
             MentorEditProfileDetailResponse mentorEditProfileDetailResponse = managerGetEditProfileDetailRequest(id);
-
             UserDto userDtoEdit = mentorEditProfileDetailResponse.getUserDtoEdit();
             MentorProfileDTO mentorProfile2 = userDtoEdit.getMentorProfile();
-
             user.setFullName(userDtoEdit.getFullName());
             user.setAddress(userDtoEdit.getAddress());
             user.setBirthday(userDtoEdit.getBirthday());
@@ -938,6 +933,15 @@ public class MentorProfileImpl implements IMentorProfileService {
             }
             mentorProfile.getSkills().addAll(mentorSkills1);
             mentorProfileRepository.save(mentorProfile);
+        }
+        /**Implement thông báo*/
+        if (request.getStatus() != null) {
+            Notification notification = NotificationDirector.buildEditApprovalMentorProfile(request.getStatus(), user, mentorProfileId);
+            notificationRepository.save(notification);
+            webSocketUtil.sendPrivateNotification(notification);
+            emailUtil.sendApprovalMentorProfile(mentorProfile, request.getMessage());
+        } else {
+            System.out.println("Null Reqquest Status or Reqquest Message!!");
         }
         mentorProfileEditRepository.save(mentorProfileEdit);
         return true;
