@@ -52,10 +52,10 @@ public class MentorUtil {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage("Tài khoản của bạn đang được hệ thống phê duyệt! Không thể cập nhật thông tin lúc này");
         }
-        if (mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)) {
-            throw ApiException.create(HttpStatus.BAD_REQUEST)
-                    .withMessage("Tài khoản của bạn đã được hệ thống phê duyệt! Nếu muốn cập nhật thông tin vui lòng gửi yêu cầu cho admin");
-        }
+//        if (mentorProfile.getStatus().equals(EMentorProfileStatus.STARTING)) {
+//            throw ApiException.create(HttpStatus.BAD_REQUEST)
+//                    .withMessage("Tài khoản của bạn đã được hệ thống phê duyệt! Nếu muốn cập nhật thông tin vui lòng gửi yêu cầu cho admin");
+//        }
         return true;
     }
 
