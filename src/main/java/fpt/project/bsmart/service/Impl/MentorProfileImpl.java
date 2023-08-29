@@ -903,18 +903,23 @@ public class MentorProfileImpl implements IMentorProfileService {
             user.setLinkedinLink(userDtoEdit.getLinkedinLink());
             user.setWebsite(userDtoEdit.getWebsite());
 
+            // handle avt , cccd
             List<ImageDto> userImages = userDtoEdit.getUserImages();
             List<UserImage> userImageList = new ArrayList<>();
             for (ImageDto userImage : userImages) {
-                if (!userImage.isStatus()) {
-                    UserImage userImage1 = userImageRepository.findById(userImage.getId())
-                            .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                                    .withMessage("Không tìm thấy hình ảnh cần chỉnh sửa!"));
-                    userImage1.setStatus(true);
-                    userImageList.add(userImage1);
+                if (userImage.getType().equals(EImageType.AVATAR)){
+                    if (!userImage.isStatus()) {
+                        UserImage userImage1 = userImageRepository.findById(userImage.getId())
+                                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                                        .withMessage("Không tìm thấy hình ảnh cần chỉnh sửa!"));
+                        userImage1.setStatus(true);
+                        userImageList.add(userImage1);
+                    }
                 }
+
             }
             user.getUserImages().addAll(userImageList);
+
             MentorProfile mentorProfile1 = user.getMentorProfile();
             mentorProfile1.setIntroduce(mentorProfile2.getIntroduce());
             mentorProfile1.setIntroduce(mentorProfile2.getWorkingExperience());

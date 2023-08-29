@@ -270,7 +270,6 @@ public class UserServiceImpl implements IUserService {
                 Optional<UserImage> byId = userImageRepository.findById(aLong);
                 byId.ifPresent(degreeToDelete::add);
             }
-
         }
 
 
