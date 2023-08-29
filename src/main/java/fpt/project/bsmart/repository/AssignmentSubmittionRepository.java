@@ -19,8 +19,8 @@ public interface AssignmentSubmittionRepository extends JpaRepository<Assignment
     @Query("SELECT x FROM AssignmentSubmition x " +
             "JOIN x.assignment a " +
             "JOIN a.activity ac " +
-            "JOIN ac.activityAuthorizes aa " +
-            "WHERE aa.authorizeClass.id IN :classIds AND x.assignment = :assignment")
+            "LEFT JOIN ac.activityAuthorizes aa " +
+            "WHERE (aa.authorizeClass.id IN :classIds OR ac.fixed = true) AND x.assignment = :assignment")
     Page<AssignmentSubmition> findAllByAssignment(@Param("assignment") Assignment assignment, @Param("classIds") List<Long> classIds, Pageable pageable);
 
     Optional<AssignmentSubmition> findByStudentClass(StudentClass studentClass);
