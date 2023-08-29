@@ -4,6 +4,8 @@ public class UpdateSkillRequest {
     private Long skillId;
     private int yearOfExperiences;
 
+    private Boolean status ;
+
     public Long getSkillId() {
         return skillId;
     }
@@ -18,5 +20,13 @@ public class UpdateSkillRequest {
 
     public void setYearOfExperiences(int yearOfExperiences) {
         this.yearOfExperiences = yearOfExperiences;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 }
