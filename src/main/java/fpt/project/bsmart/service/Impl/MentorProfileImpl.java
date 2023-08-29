@@ -232,7 +232,7 @@ public class MentorProfileImpl implements IMentorProfileService {
                 mentorSkill.setSkill(subject);
                 mentorSkill.setYearOfExperiences(mentorUpdateSkill.getYearOfExperiences());
                 mentorSkill.setMentorProfile(mentorProfile);
-                mentorSkill.setStatus(true);
+                mentorSkill.setStatus(mentorUpdateSkill.getStatus());
                 mentorSkill.setVerified(true);
                 mentorSkills.add(mentorSkill);
             }
