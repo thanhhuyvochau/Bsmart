@@ -59,9 +59,9 @@ public class AttendanceServiceImpl implements AttendanceService {
         TimeTable timeTable = timeTableRepository.findById(request.getTimeTableId())
                 .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(TIME_TABLE_NOT_FOUND_BY_ID) + request.getTimeTableId()));
         Class clazz = timeTable.getClazz();
-//        if (!ClassValidator.isMentorOfClass(currentUser, clazz)) {
-//            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS) + request.getTimeTableId());
-//        }
+        if (!ClassValidator.isMentorOfClass(currentUser, clazz)) {
+            throw ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(MENTOR_NOT_BELONG_TO_CLASS) + request.getTimeTableId());
+        }
         List<Attendance> attendanceList = timeTable.getAttendances();
         boolean attendanceListEmpty = attendanceList.isEmpty();
         if (attendanceListEmpty) {
