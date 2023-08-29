@@ -121,7 +121,7 @@ public class TransactionService implements ITransactionService {
         Wallet wallet = SecurityUtil.getCurrentUserWallet();
         BigDecimal amount = request.getAmount();
         if (amount.compareTo(new BigDecimal(100000)) < 0 || amount.compareTo(wallet.getBalance()) > 0) {
-            return false;
+            throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Số tiền giao dịch không hợp lệ");
         }
         Bank bank = bankRepository.findById(request.getBankId()).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND).withMessage(messageUtil.getLocalMessage(BANK_NOT_FOUND_BY_ID) + request.getBankId()));
         Transaction transaction = Transaction.build(amount, request.getBankAccount(), request.getBankAccountOwner(), bank, wallet, ETransactionType.WITHDRAW);

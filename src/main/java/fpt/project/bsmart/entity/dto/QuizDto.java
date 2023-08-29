@@ -16,12 +16,14 @@ public class QuizDto {
     private Float defaultPoint;
     @JsonView(View.Teacher.class)
     private Boolean isSuffleQuestion;
-    @JsonView(View.Teacher.class)
+    @JsonView(View.Student.class)
     private Boolean isAllowReview;
     private Integer allowReviewAfterMin;
     @JsonView(View.Teacher.class)
     private String password;
     private Long activityId;
+    private Boolean isUnlimitedAttempt = false;
+    private Integer attemptNumber = 1;
     private List<QuizQuestionDto> quizQuestions = new ArrayList<>();
 
     public Long getId() {
@@ -102,6 +104,22 @@ public class QuizDto {
 
     public void setActivityId(Long activityId) {
         this.activityId = activityId;
+    }
+
+    public Boolean getIsUnlimitedAttempt() {
+        return isUnlimitedAttempt;
+    }
+
+    public void setIsUnlimitedAttempt(Boolean unlimitedAttempt) {
+        isUnlimitedAttempt = unlimitedAttempt;
+    }
+
+    public Integer getAttemptNumber() {
+        return attemptNumber;
+    }
+
+    public void setAttemptNumber(Integer attemptNumber) {
+        this.attemptNumber = attemptNumber;
     }
 
     public List<QuizQuestionDto> getQuizQuestions() {
