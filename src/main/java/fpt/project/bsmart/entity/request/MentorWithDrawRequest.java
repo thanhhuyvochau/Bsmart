@@ -10,7 +10,7 @@ public class MentorWithDrawRequest {
     private String name;
     private String bankName;
     private String bankAccount;
-    private Long bankNumber;
+    private String bankNumber;
     private BigDecimal amount = BigDecimal.ZERO;
     private ETransactionStatus status;
     private Instant createdAt;
@@ -49,11 +49,11 @@ public class MentorWithDrawRequest {
         this.bankAccount = bankAccount;
     }
 
-    public Long getBankNumber() {
+    public String getBankNumber() {
         return bankNumber;
     }
 
-    public void setBankNumber(Long bankNumber) {
+    public void setBankNumber(String bankNumber) {
         this.bankNumber = bankNumber;
     }
 

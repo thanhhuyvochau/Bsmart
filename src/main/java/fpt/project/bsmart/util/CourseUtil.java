@@ -279,7 +279,7 @@ public class CourseUtil {
         courseResponse.setLevel(course.getLevel());
         if (course.getCreator() != null) {
             MentorDto mentorDto = MentorUtil.convertUserToMentorDto(course.getCreator());
-            TeachInformationDTO teachInformationDTO = MentorUtil.setTeachInformationForMentor(course.getCreator());
+            TeachInformationDTO teachInformationDTO = MentorUtil.getTeachingInformation(course.getCreator());
             mentorDto.setTeachInformation(teachInformationDTO);
             courseResponse.setMentor(mentorDto);
         }

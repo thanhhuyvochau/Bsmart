@@ -493,10 +493,10 @@ public class UserServiceImpl implements IUserService {
         if (!PasswordUtil.isValidPassword(request.getPassword())) {
             throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage(messageUtil.getLocalMessage(INVALID_PASSWORD));
         }
-        Optional<User> currentUserOptional = SecurityUtil.getCurrentUserOptional();
-        if (request.getRole().equals(EUserRole.MANAGER) && currentUserOptional.isPresent()) {
-            User admin = currentUserOptional.get();
-            if (!SecurityUtil.isHasAnyRole(admin, EUserRole.ADMIN)) {
+
+        if (request.getRole().equals(EUserRole.MANAGER)) {
+            Optional<User> admin = SecurityUtil.getCurrentUserOptional();
+            if (!admin.isPresent() || !SecurityUtil.isHasAnyRole(admin.get(), EUserRole.ADMIN)) {
                 throw ApiException.create(HttpStatus.FORBIDDEN).withMessage("Bạn không có quyền tạo tài khoản quản lý");
             }
         }

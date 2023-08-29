@@ -1112,6 +1112,12 @@ public class ConvertUtil {
             response.setNumOfClass(classes.size());
             response.setNumOfStudent(studentClasses.size());
 
+        } else if (SecurityUtil.isHasAnyRole(user, EUserRole.STUDENT)) {
+            List<Class> classes = orderDetails.stream()
+                    .map(OrderDetail::getClazz)
+                    .filter(aClass -> aClass.getStatus().equals(ECourseClassStatus.ENDED))
+                    .collect(Collectors.toList());
+            response.setNumOfClass(classes.size());
         }
         return response;
     }
@@ -1131,7 +1137,7 @@ public class ConvertUtil {
         request.setName(transaction.getWallet().getOwner().getFullName());
         request.setBankName(transaction.getBank().getShortName());
         request.setBankAccount(transaction.getBankAccountOwner());
-        request.setBankNumber(transaction.getReceivedBankAccount());
+        request.setBankNumber(String.valueOf(transaction.getReceivedBankAccount()));
         request.setAmount(transaction.getAmount());
         request.setStatus(transaction.getStatus());
         request.setCreatedAt(transaction.getCreated());
