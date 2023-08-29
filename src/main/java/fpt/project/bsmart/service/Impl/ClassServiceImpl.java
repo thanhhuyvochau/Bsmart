@@ -719,6 +719,7 @@ public class ClassServiceImpl implements IClassService {
                 List<TimeTableResponse> timeTables = clazz.getTimeTables().stream()
                         .map(timeTable -> {
                             TimeTableResponse timeTableResponse = ConvertUtil.convertTimeTableToResponse(timeTable);
+                            timeTableResponse.setClassURL(clazz.getClassURL());
                             StudentClass userInClass = ClassUtil.findUserInClass(clazz, user);
                             Optional<Attendance> attendanceOpt = timeTable.getAttendances().stream()
                                     .filter(attendance -> Objects.equals(attendance.getStudentClass().getId(), userInClass.getId()))
@@ -739,19 +740,23 @@ public class ClassServiceImpl implements IClassService {
 
         if (userRoles.get(EUserRole.TEACHER) != null) {
             /**Không xóa những code này*/
-//            List<Class> workingClasses = user.getCourses().stream()
-//                    .filter(course -> Objects.equals(course.getStatus(), ECourseStatus.STARTING) || Objects.equals(course.getStatus(), ECourseStatus.ENDED))
-//                    .flatMap(course -> course.getClasses().stream())
-//                    .filter(aClass -> Objects.equals(aClass.getStatus(), ECourseStatus.STARTING) || Objects.equals(aClass.getStatus(), ECourseStatus.ENDED))
-//                    .collect(Collectors.toList());
-            /**Tạm thời cho dev, khi run thực sự sẽ dùng dòng trên*/
             List<Class> workingClasses = user.getCourses().stream()
+//                    .filter(course -> Objects.equals(course.getStatus(), ECourseClassStatus.STARTING) || Objects.equals(course.getStatus(), ECourseClassStatus.ENDED) || Objects.equals(course.getStatus(), NOTSTART))
                     .flatMap(course -> course.getClasses().stream())
+                    .filter(aClass -> Objects.equals(aClass.getStatus(), ECourseClassStatus.STARTING) || Objects.equals(aClass.getStatus(), ECourseClassStatus.ENDED) || Objects.equals(aClass.getStatus(), NOTSTART))
                     .collect(Collectors.toList());
+            /**Tạm thời cho dev, khi run thực sự sẽ dùng dòng trên*/
+//            List<Class> workingClasses = user.getCourses().stream()
+//                    .flatMap(course -> course.getClasses().stream())
+//                    .collect(Collectors.toList());
             /**-------------------------------------------------------*/
             for (Class clazz : workingClasses) {
                 List<TimeTableResponse> timeTables = clazz.getTimeTables().stream()
-                        .map(ConvertUtil::convertTimeTableToResponse)
+                        .map(timeTable -> {
+                            TimeTableResponse timeTableResponse = ConvertUtil.convertTimeTableToResponse(timeTable);
+                            timeTableResponse.setClassURL(clazz.getClassURL());
+                            return timeTableResponse;
+                        })
                         .collect(Collectors.toList());
                 SimpleClassResponse classResponse = ConvertUtil.convertClassToSimpleClassResponse(clazz);
                 workTimeResponses.add(new WorkTimeResponse(classResponse, EUserRole.TEACHER, timeTables));
