@@ -197,7 +197,7 @@ public class ClassController {
     @Operation(summary = "mentor / student xem điểm theo class")
     @PreAuthorize("hasAnyRole('TEACHER' , 'STUDENT')")
     @GetMapping("/student-point")
-    public ResponseEntity<ApiResponse<List<GetPointStudentClassResponse>>> getStudentPoint(@RequestParam GetPointStudentClassRequest request) {
+    public ResponseEntity<ApiResponse<List<GetPointStudentClassResponse>>> getStudentPoint(@ModelAttribute GetPointStudentClassRequest request) {
         return ResponseEntity.ok(ApiResponse.success(iClassService.getStudentPoint(request)));
     }
 
