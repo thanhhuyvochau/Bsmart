@@ -1,7 +1,6 @@
 package fpt.project.bsmart.validator;
 
 import fpt.project.bsmart.entity.Assignment;
-import fpt.project.bsmart.entity.AssignmentFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
@@ -12,7 +11,7 @@ import java.util.List;
 
 public class AssignmentValidator {
 
-    private static final List<String> validFileTypes = Arrays.asList("docx", "doc", "xlsx", "xls", "csv", "pptx", "ppt", "pdf");
+    private static final List<String> validFileTypes = Arrays.asList("docx", "doc", "xlsx", "xls", "csv", "pptx", "ppt", "pdf","zip","rar","png");
 
 //    public static boolean isValidSubmitDate(Assignment assignment) {
 //        Instant now = Instant.now();
@@ -24,10 +23,6 @@ public class AssignmentValidator {
     public static boolean isValidNumberOfSubmitFile(Assignment assignment, List<MultipartFile> submitFiles) {
         Integer maxFileSubmit = assignment.getMaxFileSubmit();
         return maxFileSubmit >= submitFiles.size();
-    }
-
-    public static boolean isValidAllowTimeToEditSubmit(Assignment assignment, AssignmentFile assignmentFile) {
-        return false;
     }
 
     public static boolean isValidFileExtension(Assignment assignment, List<MultipartFile> submitFiles) {
