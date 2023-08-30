@@ -120,7 +120,7 @@ public class CourseController {
     public ResponseEntity<ApiResponse<ApiPage<ManagerGetCourse>>> coursePendingToApprove(ECourseClassStatus status,
                                                                                          @Nullable CourseSearchRequest query,
                                                                                          @PageableDefault(sort = "lastModified", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(status, pageable)));
+        return ResponseEntity.ok(ApiResponse.success(iCourseService.coursePendingToApprove(status, query ,pageable)));
     }
 
 

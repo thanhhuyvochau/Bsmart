@@ -392,7 +392,7 @@ public class CourseServiceImpl implements ICourseService {
 
     //     ################################## START MANAGER ##########################################
     @Override
-    public ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseClassStatus status, Pageable pageable) {
+    public ApiPage<ManagerGetCourse> coursePendingToApprove(ECourseClassStatus status, CourseSearchRequest request,Pageable pageable) {
 
 //        if (status.equals(WAITING)) {
 //            List<Class> byStatus = classRepository.findByStatus(WAITING);
@@ -406,7 +406,9 @@ public class CourseServiceImpl implements ICourseService {
 //        }
 
         /**Get course status same with parameter or one of class of course is that parameter*/
-        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications().queryByCourseStatusForManager(status);
+        CourseSpecificationBuilder builder = CourseSpecificationBuilder.specifications()
+                .queryLike(request.getQ())
+                .queryByCourseStatusForManager(status);
         Page<Course> coursesPage = courseRepository.findAll(builder.build(), pageable);
         return PageUtil.convert(coursesPage.map(course -> ConvertUtil.convertCourseToManagerGetCourse(course, status)));
     }
