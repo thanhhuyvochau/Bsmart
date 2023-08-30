@@ -186,26 +186,26 @@ public class UserServiceImpl implements IUserService {
         if (user.getMentorProfile() != null) {
             MentorUtil.checkMentorStatusToUpdateInformation(user.getMentorProfile());
         }
-        if (uploadImageRequest.getStatus()==true){
+        if (uploadImageRequest.getStatus() == true) {
             List<UserImage> userImages = user.getUserImages();
 
             if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
-                List<UserImage> avatarCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.AVATAR)).collect(Collectors.toList());
+                List<UserImage> avatarCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.AVATAR) && image.getStatus()).collect(Collectors.toList());
                 userImages.removeAll(avatarCurrent);
             }
 
             if (uploadImageRequest.getImageType().equals(EImageType.FRONTCI)) {
-                List<UserImage> CIFrontCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.FRONTCI)).collect(Collectors.toList());
+                List<UserImage> CIFrontCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.FRONTCI) && image.getStatus()).collect(Collectors.toList());
                 userImages.removeAll(CIFrontCurrent);
 
             }
             if (uploadImageRequest.getImageType().equals(EImageType.BACKCI)) {
-                List<UserImage> CIBackCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.BACKCI)).collect(Collectors.toList());
+                List<UserImage> CIBackCurrent = userImages.stream().filter(image -> image.getType().equals(EImageType.BACKCI) && image.getStatus()).collect(Collectors.toList());
                 userImages.removeAll(CIBackCurrent);
             }
 
             userImageRepository.deleteAll(userImages);
-        }else {
+        } else {
             List<UserImage> userImages = user.getUserImages();
 
             if (uploadImageRequest.getImageType().equals(EImageType.AVATAR)) {
