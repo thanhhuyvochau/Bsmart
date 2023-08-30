@@ -962,7 +962,7 @@ public class MentorProfileImpl implements IMentorProfileService {
             Notification notification = NotificationDirector.buildManagerToAllowEditMentorProfile(EMentorProfileStatus.EDITREQUEST, user, id);
             notificationRepository.save(notification);
             webSocketUtil.sendPrivateNotification(notification);
-            emailUtil.sendApprovalMentorProfile(mentorProfile, NotificationConstant.COURSE_APPROVAL_PROFILE_TITLE);
+            emailUtil.sendApprovalMentorProfile(mentorProfile, "Hồ sơ của bạn đã được cho phép cập nhật ");
 
 
 
