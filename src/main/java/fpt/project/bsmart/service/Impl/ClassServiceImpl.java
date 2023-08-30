@@ -251,7 +251,7 @@ public class ClassServiceImpl implements IClassService {
         List<TimeInWeek> timeInWeeksFromRequest = updateTimeInWeeksFromRequest(timeInWeekRequests);
 
         // create subCourse for course
-        updateClassFromRequest(mentorCreateClassRequest, course, currentUserAccountLogin, timeInWeeksFromRequest);
+        updateClassFromRequest(aClass, mentorCreateClassRequest, course, currentUserAccountLogin, timeInWeeksFromRequest);
         return true;
     }
 
@@ -305,12 +305,12 @@ public class ClassServiceImpl implements IClassService {
         return ClassUtil.convertClassToManagerGetClassResponse(clazz);
     }
 
-    private Class updateClassFromRequest(MentorCreateClass classRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
+    private Class updateClassFromRequest(Class aClass, MentorCreateClass classRequest, Course course, User currentUserAccountLogin, List<TimeInWeek> timeInWeeks) {
         if (classRequest.getPrice() == null) {
             throw ApiException.create(HttpStatus.BAD_REQUEST)
                     .withMessage(messageUtil.getLocalMessage(PLEASE_ENTER_THE_PRICE_FOR_THE_COURSE));
         }
-        Class aClass = new Class();
+
         aClass.setNumberOfSlot(classRequest.getNumberOfSlot());
         aClass.setMinStudent(classRequest.getMinStudent());
         aClass.setMaxStudent(classRequest.getMaxStudent());
@@ -322,14 +322,19 @@ public class ClassServiceImpl implements IClassService {
         String codeRandom = ClassUtil.generateCode(course.getSubject().getCode());
         aClass.setCode(codeRandom);
 
-        Long imageId = classRequest.getImageId();
-        ClassImage classImage = classImageRepository.findById(imageId)
-                .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
-                        .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + imageId));
-        classImage.setaClass(aClass);
-        classImageRepository.save(classImage);
 
-        aClass.setTimeInWeeks(timeInWeeks);
+        Long imageId = classRequest.getImageId();
+        if (imageId != null) {
+
+            ClassImage classImage = classImageRepository.findById(imageId)
+                    .orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                            .withMessage(messageUtil.getLocalMessage(IMAGE_NOT_FOUND_BY_ID) + imageId));
+            classImage.setaClass(aClass);
+            aClass.setClassImage(classImage);
+        }
+        aClass.getTimeInWeeks().clear();
+
+        aClass.getTimeInWeeks().addAll(timeInWeeks);
         timeInWeeks.forEach(timeInWeek -> {
             timeInWeek.setClazz(aClass);
             timeInWeekRepository.save(timeInWeek);
