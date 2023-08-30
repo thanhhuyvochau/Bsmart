@@ -47,4 +47,6 @@ public interface IMentorProfileService {
     MentorEditProfileDetailResponse managerGetEditProfileDetailRequest(Long mentorProfileEditId) throws JsonProcessingException;
 
     Boolean approveMentorProfileEdit(Long id, ManagerApprovalEditProfileRequest request) throws JsonProcessingException;
+
+    Boolean getchangEditRequestMentorProfile(Long id);
 }
