@@ -115,6 +115,15 @@ public class MentorProfileController {
     //     ################################## START MANAGER ##########################################
 
 
+    @Operation(summary = "Manager thay đổi trạng thai của giao vien thanh edit request ")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PutMapping("/{id}/change-edit-request")
+    public ResponseEntity<ApiResponse<Boolean>> getchangEditRequestMentorProfile(
+          @PathVariable Long id ) {
+
+        return ResponseEntity.ok(ApiResponse.success(mentorProfileService.getchangEditRequestMentorProfile(id)));
+    }
+
     @Operation(summary = "Manager Lấy danh sách giảng viên chờ duyệt")
     @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/pending")

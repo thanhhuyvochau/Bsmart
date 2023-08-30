@@ -946,4 +946,13 @@ public class MentorProfileImpl implements IMentorProfileService {
         mentorProfileEditRepository.save(mentorProfileEdit);
         return true;
     }
+
+    @Override
+    public Boolean getchangEditRequestMentorProfile(Long id) {
+        MentorProfile mentorProfile = mentorProfileRepository.findById(id).orElseThrow(() -> ApiException.create(HttpStatus.NOT_FOUND)
+                .withMessage("Không tìm thấy hồ sơ giáo viên!"));
+        mentorProfile.setStatus(EMentorProfileStatus.EDITREQUEST);
+        mentorProfileRepository.save(mentorProfile);
+        return true;
+    }
 }
