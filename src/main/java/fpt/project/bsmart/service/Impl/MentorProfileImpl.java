@@ -3,6 +3,7 @@ package fpt.project.bsmart.service.Impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import fpt.project.bsmart.director.NotificationConstant;
 import fpt.project.bsmart.director.NotificationDirector;
 import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.common.ApiException;
@@ -953,6 +954,18 @@ public class MentorProfileImpl implements IMentorProfileService {
                 .withMessage("Không tìm thấy hồ sơ giáo viên!"));
         mentorProfile.setStatus(EMentorProfileStatus.EDITREQUEST);
         mentorProfileRepository.save(mentorProfile);
+
+
+        User user = mentorProfile.getUser();
+        /**Implement thông báo*/
+
+            Notification notification = NotificationDirector.buildManagerToAllowEditMentorProfile(EMentorProfileStatus.EDITREQUEST, user, id);
+            notificationRepository.save(notification);
+            webSocketUtil.sendPrivateNotification(notification);
+            emailUtil.sendApprovalMentorProfile(mentorProfile, NotificationConstant.COURSE_APPROVAL_PROFILE_TITLE);
+
+
+
         return true;
     }
 }
