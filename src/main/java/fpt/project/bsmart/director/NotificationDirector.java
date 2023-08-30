@@ -2,10 +2,7 @@ package fpt.project.bsmart.director;
 
 import fpt.project.bsmart.entity.Class;
 import fpt.project.bsmart.entity.*;
-import fpt.project.bsmart.entity.constant.ECourseClassStatus;
-import fpt.project.bsmart.entity.constant.EMentorProfileEditStatus;
-import fpt.project.bsmart.entity.constant.ENotificationEntity;
-import fpt.project.bsmart.entity.constant.ENotificationType;
+import fpt.project.bsmart.entity.constant.*;
 import fpt.project.bsmart.util.MessageUtil;
 import fpt.project.bsmart.util.TextUtil;
 import org.springframework.stereotype.Component;
@@ -221,4 +218,22 @@ public class NotificationDirector {
                 .entityId(profileId)
                 .build();
     }
+
+    public static Notification buildManagerToAllowEditMentorProfile(EMentorProfileStatus status, User mentor, Long profileId) {
+        String title = staticMessageUtil.getLocalMessage(NotificationConstant.COURSE_APPROVAL_PROFILE_TITLE);
+        String content = staticMessageUtil.getLocalMessage(NotificationConstant.MANAGER_ALOW_EDIT_PROFILE_CONTENT);
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("status", status.getVietnameseLabel());
+        content = TextUtil.format(content, parameters);
+        Notification.NotificationBuilder builder = Notification.getBuilder();
+        return builder
+                .viTitle(title)
+                .viContent(content)
+                .notifiers(mentor)
+                .type(ENotificationType.PERSONAL)
+                .entity(ENotificationEntity.MENTOR_PROFILE)
+                .entityId(profileId)
+                .build();
+    }
+
 }
