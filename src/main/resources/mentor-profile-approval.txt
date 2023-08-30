@@ -14,7 +14,7 @@
         </tr>
         <tr>
             <td style="padding: 20px;">
-                <h2>Thông Báo Về Trạng Thái Hồ Sơ Giảng dạy</h2>
+                <h2>Thông Báo Về Trạng Thái Hồ Sơ Giảng Dạy</h2>
                 <p>Kính gửi ${mentorName},</p>
                 <p>Chúng tôi xin thông báo về trạng thái hiện tại của hồ sơ giảng dạy của bạn:</p>
                 <p><strong>Trạng Thái:</strong> ${mentorProfileStatus}</p>
