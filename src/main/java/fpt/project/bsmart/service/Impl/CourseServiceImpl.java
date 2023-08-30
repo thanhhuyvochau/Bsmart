@@ -12,6 +12,7 @@ import fpt.project.bsmart.entity.dto.ResponseMessage;
 import fpt.project.bsmart.entity.request.CourseSearchRequest;
 import fpt.project.bsmart.entity.request.CreateCourseRequest;
 import fpt.project.bsmart.entity.request.ManagerApprovalCourseRequest;
+import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
 import fpt.project.bsmart.entity.response.CourseResponse;
 import fpt.project.bsmart.entity.response.course.CompletenessCourseResponse;
 import fpt.project.bsmart.entity.response.course.ManagerGetCourse;
@@ -20,6 +21,7 @@ import fpt.project.bsmart.service.ICourseService;
 import fpt.project.bsmart.util.*;
 import fpt.project.bsmart.util.email.EmailUtil;
 import fpt.project.bsmart.util.specification.CourseSpecificationBuilder;
+import fpt.project.bsmart.validator.ClassValidator;
 import fpt.project.bsmart.validator.CourseValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -258,7 +260,6 @@ public class CourseServiceImpl implements ICourseService {
         CourseValidator.checkEmptySectionOfCourseActivity(course.getActivities());
         if (!course.getApproved()) {
             List<Class> classesInRequest = classRepository.findAllById(classIds);
-
             List<Class> classesOfCourse = course.getClasses();
             // kiểm tra lớp trong request có phai lớp của khóa học không ?
             List<Long> classIdOfCourseList = classesOfCourse.stream().map(Class::getId).collect(Collectors.toList());
@@ -266,6 +267,15 @@ public class CourseServiceImpl implements ICourseService {
                 if (!classIdOfCourseList.contains(aClassId)) {
                     throw ApiException.create(HttpStatus.BAD_REQUEST)
                             .withMessage("Lớp học với mã " + aClassId + " không thuộc khóa học " + course.getId());
+                }
+            }
+            List<Class> existedOfOperatingClasses = classesOfCourse.stream()
+                    .filter(clazz -> clazz.getStatus().equals(NOTSTART) || clazz.getStatus().equals(STARTING))
+                    .collect(Collectors.toList());
+            for (Class aClass : classesInRequest) {
+                List<BaseClassResponse> duplicateTimeMentorClass = ClassValidator.getDuplicateTimeMentorClass(aClass, existedOfOperatingClasses);
+                if (!duplicateTimeMentorClass.isEmpty()) {
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Lớp học đã trùng lịch với các lớp đang đợi mở hoặc đang dạy của bạn, vui lòng sửa lịch và gửi duyệt lại");
                 }
             }
 
@@ -297,6 +307,15 @@ public class CourseServiceImpl implements ICourseService {
             List<Class> classesInRequest = classRepository.findAllById(classIds);
 
             List<Class> classesOfCourse = course.getClasses();
+            List<Class> existedOfOperatingClasses = classesOfCourse.stream()
+                    .filter(clazz -> clazz.getStatus().equals(NOTSTART) || clazz.getStatus().equals(STARTING))
+                    .collect(Collectors.toList());
+            for (Class aClass : classesInRequest) {
+                List<BaseClassResponse> duplicateTimeMentorClass = ClassValidator.getDuplicateTimeMentorClass(aClass, existedOfOperatingClasses);
+                if (!duplicateTimeMentorClass.isEmpty()) {
+                    throw ApiException.create(HttpStatus.BAD_REQUEST).withMessage("Lớp học đã trùng lịch với các lớp đang đợi mở hoặc đang dạy của bạn, vui lòng sửa lịch và gửi duyệt lại");
+                }
+            }
             // kiểm tra lớp trong request có phai lớp của khóa học không ?
             List<Long> classIdOfCourseList = classesOfCourse.stream().map(Class::getId).collect(Collectors.toList());
             for (Long aClassId : classIds) {

@@ -1,12 +1,13 @@
 package fpt.project.bsmart.validator;
 
+import fpt.project.bsmart.entity.*;
 import fpt.project.bsmart.entity.Class;
-import fpt.project.bsmart.entity.StudentClass;
-import fpt.project.bsmart.entity.TimeInWeek;
-import fpt.project.bsmart.entity.User;
 import fpt.project.bsmart.entity.common.ApiException;
 import fpt.project.bsmart.entity.constant.EDayOfWeekCode;
 import fpt.project.bsmart.entity.constant.EUserRole;
+import fpt.project.bsmart.entity.response.Class.BaseClassResponse;
+import fpt.project.bsmart.util.ClassUtil;
+import fpt.project.bsmart.util.SecurityUtil;
 import fpt.project.bsmart.util.TextUtil;
 import fpt.project.bsmart.util.TimeUtil;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static fpt.project.bsmart.util.Constants.ErrorMessage.CLASS_NOT_FOUND_BY_ID;
 
 public class ClassValidator {
     public static boolean isMentorOfClass(User currentUser, Class clazz) {
@@ -94,4 +97,34 @@ public class ClassValidator {
         return allowedMeetingURLs.stream().anyMatch(allowedMeetingURL -> allowedMeetingURL.equalsIgnoreCase(baseUrl));
     }
 
+    public static List<BaseClassResponse> getDuplicateTimeMentorClass(Class clazz, List<Class> existedOfOperatingClasses) {
+        User student = SecurityUtil.getUserOrThrowException(SecurityUtil.getCurrentUserOptional());
+        Instant startDate = clazz.getStartDate();
+
+        existedOfOperatingClasses = existedOfOperatingClasses.stream()
+                .filter(existedOfOperatingClass -> !startDate.isBefore(existedOfOperatingClass.getStartDate()) && !startDate.isAfter(existedOfOperatingClass.getEndDate()))
+                .collect(Collectors.toList());
+
+
+        Set<EDayOfWeekCode> checkedClassEDayCodes = clazz.getTimeInWeeks()
+                .stream()
+                .map(TimeInWeek::getDayOfWeek)
+                .map(DayOfWeek::getCode)
+                .collect(Collectors.toSet());
+
+        List<Class> duplicateClasses = existedOfOperatingClasses.stream()
+                .filter(possibleDuplicateClass -> possibleDuplicateClass.getTimeInWeeks()
+                        .stream()
+                        .anyMatch(timeInWeek -> checkedClassEDayCodes.contains(timeInWeek.getDayOfWeek().getCode())))
+                .filter(possibleDuplicateClass -> possibleDuplicateClass.getTimeInWeeks()
+                        .stream()
+                        .anyMatch(timeInWeek -> clazz.getTimeInWeeks().stream()
+                                .anyMatch(checkedTimeInWeek -> checkedTimeInWeek.getDayOfWeek().getCode().equals(timeInWeek.getDayOfWeek().getCode())
+                                        && checkedTimeInWeek.getSlot().getId().equals(timeInWeek.getSlot().getId()))))
+                .collect(Collectors.toList());
+
+        return duplicateClasses.stream()
+                .map(ClassUtil::convertClassToBaseclassResponse)
+                .collect(Collectors.toList());
+    }
 }
