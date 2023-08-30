@@ -27,8 +27,8 @@ public class CourseSpecificationBuilder {
         }
 
         specifications.add((root, query, criteriaBuilder) -> {
-            Expression<String> courseCode = root.get(Course_.code);
-            Expression<String> courseName = root.get(Course_.name);
+            Expression<String> courseCode = root.get(Course_.CODE);
+            Expression<String> courseName = root.get(Course_.NAME);
             Expression<String> stringExpression = SpecificationUtil.concat(criteriaBuilder, " ", courseName, courseCode);
             String search = q.replaceAll("\\s\\s+", " ").trim();
             return criteriaBuilder.like(stringExpression, '%' + search + '%');
